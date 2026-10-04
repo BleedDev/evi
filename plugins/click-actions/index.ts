@@ -4,7 +4,8 @@ import { Abilities, canDelete, canEdit, canReply, ClickSettings, decide, IGNORE,
 import { t } from "./strings";
 
 /**
- * Double-click your message to edit it, someone else's to reply, Shift+click to delete. One
+ * Double-click your message to edit it, someone else's to reply, Shift+click to delete. A
+ * double-click on the words themselves is left alone, so they can still be selected to copy. One
  * listener on the page, no patches: it finds the message row under the click
  * (<li id="chat-messages-<channel>-<message>">), checks what Discord itself would allow with
  * Discord's own rules (rules.ts), and then does it with Discord's own actions:
@@ -79,6 +80,26 @@ function componentDispatch() {
     return bus;
 }
 
+/**
+ * Whether (x, y) is on a letter, not the empty space around the text: double-clicking a word is
+ * selecting it to copy. The caret lands between two characters, so both are measured.
+ */
+function onText(x: number, y: number) {
+    const caret = document.caretRangeFromPoint?.(x, y);
+    const node = caret?.startContainer;
+    if (!caret || !(node instanceof Text)) return false;
+    const glyph = document.createRange();
+    for (const at of [caret.startOffset - 1, caret.startOffset]) {
+        if (at < 0 || at >= node.length) continue;
+        glyph.setStart(node, at);
+        glyph.setEnd(node, at + 1);
+        for (const r of glyph.getClientRects()) {
+            if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return true;
+        }
+    }
+    return false;
+}
+
 function abilities(message: MessageLike, channel: any): Abilities {
     const me: string = getStore("UserStore")?.getCurrentUser?.()?.id ?? "";
     const perms = getStore("PermissionStore");
@@ -132,6 +153,8 @@ export default definePlugin({
             if (!row || !ids || e.target.closest(IGNORE)) return;
             // The row being edited: clicks belong to the editor
             if (row.querySelector("[contenteditable=true]")) return;
+            // Double-clicking a word selects it to copy: only the space around the text replies or edits
+            if (kind === "dblclick" && onText(e.clientX, e.clientY)) return;
 
             const message = getStore("MessageStore")?.getMessage?.(ids.channelId, ids.messageId);
             const channel = getStore("ChannelStore")?.getChannel?.(ids.channelId);

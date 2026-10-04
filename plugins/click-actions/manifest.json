@@ -2,7 +2,7 @@
     "id": "click-actions",
     "name": "Click Actions",
     "description": "Double-click your own message to edit it, double-click someone else's to reply, and Shift+click to delete.",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "authors": [
         "Evi"
     ],
@@ -14,6 +14,12 @@
         "readMessages": true
     },
     "changelog": [
+        {
+            "version": "1.0.2",
+            "notes": [
+                "Double-clicking the words in a message selects them to copy again. Double-click the empty space beside the text to reply or edit."
+            ]
+        },
         {
             "version": "1.0.1",
             "notes": [
@@ -33,6 +39,9 @@
             "name": "Klick-Aktionen",
             "description": "Doppelklicke auf deine Nachricht zum Bearbeiten, auf die einer anderen Person zum Antworten, und Umschalt+Klick zum Löschen.",
             "changelog": {
+                "1.0.2": [
+                    "Ein Doppelklick auf die Wörter einer Nachricht markiert sie wieder zum Kopieren. Doppelklicke auf den freien Platz neben dem Text, um zu antworten oder zu bearbeiten."
+                ],
                 "1.0.1": [
                     "Leichtere Klicks: Markierter Text wird nur noch geprüft, wenn du Umschalt gedrückt hältst, statt bei jedem Klick irgendwo in Discord."
                 ],
@@ -45,6 +54,9 @@
             "name": "Acciones de clic",
             "description": "Doble clic en tu mensaje para editarlo, en el de otra persona para responder, y Mayús+clic para eliminar.",
             "changelog": {
+                "1.0.2": [
+                    "Hacer doble clic en las palabras de un mensaje vuelve a seleccionarlas para copiarlas. Haz doble clic en el espacio vacío junto al texto para responder o editar."
+                ],
                 "1.0.1": [
                     "Clics más ligeros: solo mira el texto seleccionado cuando mantienes Mayús, en lugar de en cada clic en cualquier parte de Discord."
                 ],
@@ -57,6 +69,9 @@
             "name": "Actions au clic",
             "description": "Double-clique sur ton message pour le modifier, sur celui de quelqu'un d'autre pour répondre, et Maj+clic pour supprimer.",
             "changelog": {
+                "1.0.2": [
+                    "Double-cliquer sur les mots d'un message les sélectionne à nouveau pour les copier. Double-clique dans l'espace vide à côté du texte pour répondre ou modifier."
+                ],
                 "1.0.1": [
                     "Des clics plus légers : le texte sélectionné n'est vérifié que quand tu maintiens Maj, plutôt qu'à chaque clic n'importe où dans Discord."
                 ],
@@ -69,6 +84,9 @@
             "name": "クリック操作",
             "description": "自分のメッセージをダブルクリックで編集、他の人のメッセージをダブルクリックで返信、Shift+クリックで削除します。",
             "changelog": {
+                "1.0.2": [
+                    "メッセージの文字をダブルクリックすると、再びコピー用に選択されます。返信や編集は、テキストの横の空いている部分をダブルクリックしてください。"
+                ],
                 "1.0.1": [
                     "クリックが軽くなりました。Discord のどこをクリックしても選択テキストを確認していたのをやめ、Shift を押しているときだけ確認します。"
                 ],
@@ -81,6 +99,9 @@
             "name": "Akcje kliknięć",
             "description": "Dwuklik na swoją wiadomość, aby ją edytować, na cudzą, aby odpowiedzieć, i Shift+klik, aby usunąć.",
             "changelog": {
+                "1.0.2": [
+                    "Dwuklik na słowa w wiadomości znów je zaznacza do skopiowania. Aby odpowiedzieć lub edytować, kliknij dwukrotnie puste miejsce obok tekstu."
+                ],
                 "1.0.1": [
                     "Lżejsze kliknięcia: zaznaczony tekst jest sprawdzany tylko, gdy trzymasz Shift, a nie przy każdym kliknięciu w dowolnym miejscu Discorda."
                 ],
@@ -93,6 +114,9 @@
             "name": "Ações de clique",
             "description": "Clique duplo na sua mensagem para editar, na de outra pessoa para responder, e Shift+clique para apagar.",
             "changelog": {
+                "1.0.2": [
+                    "Clicar duas vezes nas palavras de uma mensagem volta a selecioná-las para copiar. Clique duas vezes no espaço vazio ao lado do texto para responder ou editar."
+                ],
                 "1.0.1": [
                     "Cliques mais leves: ele só olha o texto selecionado quando você segura Shift, em vez de a cada clique em qualquer lugar do Discord."
                 ],
@@ -105,6 +129,9 @@
             "name": "Действия по клику",
             "description": "Двойной клик по своему сообщению — изменить, по чужому — ответить, Shift+клик — удалить.",
             "changelog": {
+                "1.0.2": [
+                    "Двойной клик по словам в сообщении снова выделяет их для копирования. Чтобы ответить или изменить, дважды кликните по пустому месту рядом с текстом."
+                ],
                 "1.0.1": [
                     "Клики стали легче: выделенный текст проверяется только при зажатом Shift, а не при каждом клике в любом месте Discord."
                 ],
@@ -117,6 +144,9 @@
             "name": "Tıklama Eylemleri",
             "description": "Mesajını düzenlemek için çift tıkla, başkasınınkini yanıtlamak için çift tıkla, silmek için Shift+tıkla.",
             "changelog": {
+                "1.0.2": [
+                    "Bir mesajdaki kelimelere çift tıklamak onları yeniden kopyalamak için seçiyor. Yanıtlamak ya da düzenlemek için metnin yanındaki boş alana çift tıkla."
+                ],
                 "1.0.1": [
                     "Daha hafif tıklamalar: seçili metne Discord'un her yerindeki her tıklamada değil, yalnızca Shift'e basılıyken bakıyor."
                 ],

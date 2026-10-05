@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { isDiscordAppUrl, isOverlayUrl } from "../src/shared/appHosts";
+import { isDiscordAppUrl, isOverlayUrl, isOverlayWindow, OOP_OVERLAY_WINDOW } from "../src/shared/appHosts";
 import { DEFAULT_SETTINGS, EviSettings, PluginManifest, RecentChange } from "../src/shared/ipc";
 import { addChange, diffSettings, MAX_CHANGES, parseState, pickSuspect, startupMode, StartupState } from "../src/shared/safeMode";
 
@@ -87,6 +87,13 @@ test("Discord's in-game overlay is told apart from its window", () => {
     expect(isOverlayUrl("https://discord.com/overlays-are-not-this")).toBe(false);
     expect(isOverlayUrl("not a url")).toBe(false);
     expect(isDiscordAppUrl("https://discord.com/overlay")).toBe(true);
+});
+
+test("the newer overlay is the popout Discord opens over the game, not its other popouts", () => {
+    expect(isOverlayWindow("https://discord.com/popout", OOP_OVERLAY_WINDOW)).toBe(true);
+    expect(isOverlayWindow("https://discord.com/overlay", "")).toBe(true);
+    expect(isOverlayWindow("https://discord.com/popout", "DISCORD_CHANNEL_CALL_POPOUT")).toBe(false);
+    expect(isOverlayWindow("https://discord.com/channels/@me", "")).toBe(false);
 });
 
 test("with safe mode turned off in settings, crashes don't turn it on; --evi-safe and the last resort still work", () => {

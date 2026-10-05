@@ -8,6 +8,7 @@
  * data: URL; a video can't sensibly (hundreds of MB as base64), so the tab says it's blocked instead.
  * Which of these Discord allows is checked by the lead in the web test (scripts/test-web.ts).
  */
+import { isOverlayWindow } from "@shared/appHosts";
 import type { WallpaperPickResult } from "@shared/ipc";
 import { buildWallpaperCss, normalizeWallpaper, WALLPAPER_LAYER_ID, WallpaperKind, wallpaperKind } from "@shared/wallpaper";
 
@@ -57,9 +58,6 @@ let lastKey = "";
 
 const motionQuery = matchMedia("(prefers-reduced-motion: reduce)");
 const reducedMotion = () => motionQuery.matches || document.documentElement.classList.contains("reduce-motion");
-
-/** Discord's in-game overlay loads discord.com/overlay in its own window */
-const isOverlay = () => /^\/overlay(\/|$)/.test(location.pathname);
 
 function set(next: Partial<WallpaperState>) {
     state = { ...state, ...next };
@@ -238,7 +236,7 @@ export const Wallpaper = {
     init() {
         if (SafeMode.active || !Native.readWallpaper) return;
         // The in-game overlay is a see-through window over the game: a wallpaper there hides the game
-        if (isOverlay()) return;
+        if (isOverlayWindow(location.href, window.name)) return;
         Settings.subscribe(() => apply());
         motionQuery.addEventListener("change", updatePlayback);
         // A main older than this renderer (dev, after Ctrl+R) has none of these

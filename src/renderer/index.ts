@@ -22,7 +22,7 @@ import { diagnoseLookups } from "./plugins/lookups";
 import { PluginManager, PublicPlugins } from "./plugins/manager";
 import { startPullNotices } from "./pulls";
 import { SafeMode } from "./safeMode";
-import { isOverlayUrl } from "@shared/appHosts";
+import { isOverlayWindow } from "@shared/appHosts";
 import { Settings } from "./settings";
 import { Store } from "./store";
 import { Updates } from "./updates";
@@ -97,7 +97,7 @@ function boot() {
     if (!Native) return;
     // Discord's in-game overlay: a see-through window over the game that clicks go through. Nothing
     // of Evi's runs there: no plugin, theme or popup (an update notice there can't be clicked away)
-    if (isOverlayUrl(location.href)) return;
+    if (isOverlayWindow(location.href, window.name)) return;
     if (window.Evi) return logger.warn("Already loaded, skipping");
     Object.defineProperty(window, "Evi", { value: Evi, configurable: false, writable: false });
 

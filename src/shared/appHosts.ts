@@ -17,6 +17,17 @@ export function isOverlayUrl(url: string) {
     }
 }
 
+/**
+ * Discord's newer overlay (Overlay V3, "out of process"): not the /overlay page but a see-through
+ * popout at /popout, opened with window.open("/popout", this name) and drawn into by the main window
+ */
+export const OOP_OVERLAY_WINDOW = "DISCORD_OutOfProcessOverlay";
+
+/** Either in-game overlay: the /overlay page, or the popout the newer overlay opens over the game */
+export function isOverlayWindow(url: string, name: string) {
+    return isOverlayUrl(url) || name === OOP_OVERLAY_WINDOW;
+}
+
 export function isDiscordAppUrl(url: string) {
     try {
         const u = new URL(url);

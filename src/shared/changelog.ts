@@ -28,6 +28,15 @@ export interface Release {
  */
 export const RELEASES: Release[] = [
     {
+        version: "2.2.1",
+        date: "2026-10-05",
+        sections: {
+            fixed: [
+                "**Nothing of Evi's in Discord's new in-game overlay.** Discord's newer overlay opens as its own window over your game, and Evi loaded in it, wallpaper included. Now it stays out, like it does in the old overlay.",
+            ],
+        },
+    },
+    {
         version: "2.2.0",
         date: "2026-10-05",
         sections: {

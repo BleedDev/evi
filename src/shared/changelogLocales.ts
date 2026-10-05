@@ -11,6 +11,11 @@ export type ReleaseNotes = Partial<Record<SectionKind, string[]>>;
 /** Language -> version -> section -> lines */
 export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
     de: {
+        "2.2.1": {
+            fixed: [
+                "**Nichts von Evi im neuen In-Game-Overlay von Discord.** Discords neueres Overlay öffnet sich als eigenes Fenster über deinem Spiel, und Evi lud darin, samt Hintergrund. Jetzt bleibt es draußen, wie schon im alten Overlay.",
+            ],
+        },
         "2.2.0": {
             fixed: [
                 "**Updates folgen deinen Einstellungen.** Wenn Evis Team ein Update verlangt, lädt Evi es nur dann selbst herunter und startet Discord neu, wenn automatische Updates an sind. Sonst sagt es dir Bescheid und wartet, bis du auf Jetzt aktualisieren drückst. Plugins werden nur mit aktualisiert, wenn automatische Plugin-Updates an sind.",
@@ -327,6 +332,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     es: {
+        "2.2.1": {
+            fixed: [
+                "**Nada de Evi en el nuevo overlay de juego de Discord.** El overlay más nuevo de Discord se abre como su propia ventana sobre tu juego, y Evi se cargaba en él, fondo incluido. Ahora se queda fuera, igual que en el overlay antiguo.",
+            ],
+        },
         "2.2.0": {
             fixed: [
                 "**Las actualizaciones siguen tus ajustes.** Cuando el equipo de Evi dice que hace falta una actualización, Evi solo la descarga y reinicia Discord por su cuenta si tienes las actualizaciones automáticas activadas. Si no, te avisa y espera a que pulses Actualizar ahora. Los plugins solo se actualizan con ella si tienes activada la actualización automática de plugins.",
@@ -643,6 +653,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     fr: {
+        "2.2.1": {
+            fixed: [
+                "**Plus rien d'Evi dans le nouvel overlay en jeu de Discord.** Le nouvel overlay de Discord s'ouvre dans sa propre fenêtre par-dessus ton jeu, et Evi s'y chargeait, fond d'écran compris. Maintenant il reste dehors, comme dans l'ancien overlay.",
+            ],
+        },
         "2.2.0": {
             fixed: [
                 "**Les mises à jour suivent tes réglages.** Quand l'équipe d'Evi dit qu'une mise à jour est nécessaire, Evi ne la télécharge et ne redémarre Discord tout seul que si les mises à jour automatiques sont activées. Sinon, il te prévient et attend que tu appuies sur Mettre à jour. Les plugins ne suivent que si la mise à jour automatique des plugins est activée.",
@@ -959,6 +974,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ja: {
+        "2.2.1": {
+            fixed: [
+                "**Discord の新しいゲーム内オーバーレイに Evi が出なくなりました。** 新しいオーバーレイはゲームの上に別ウィンドウとして開き、Evi が背景ごと読み込まれていました。古いオーバーレイと同じく、今は何も読み込みません。",
+            ],
+        },
         "2.2.0": {
             fixed: [
                 "**アップデートは設定どおりに。** Evi チームがアップデートを必要としたとき、Evi が自分でダウンロードして Discord を再起動するのは、自動アップデートがオンの場合だけです。オフなら知らせるだけで、「今すぐアップデート」を押すまで待ちます。プラグインも、プラグインの自動アップデートがオンのときだけ一緒に更新されます。",
@@ -1275,6 +1295,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     pl: {
+        "2.2.1": {
+            fixed: [
+                "**Nic z Evi w nowej nakładce Discorda w grze.** Nowsza nakładka Discorda otwiera się jako osobne okno nad grą, a Evi ładował się w niej razem z tapetą. Teraz trzyma się z daleka, tak jak w starej nakładce.",
+            ],
+        },
         "2.2.0": {
             fixed: [
                 "**Aktualizacje słuchają twoich ustawień.** Gdy zespół Evi uzna aktualizację za potrzebną, Evi sam ją pobiera i uruchamia ponownie Discorda tylko wtedy, gdy masz włączone automatyczne aktualizacje. W przeciwnym razie informuje cię i czeka, aż naciśniesz Aktualizuj teraz. Pluginy aktualizują się razem z nią tylko przy włączonej automatycznej aktualizacji pluginów.",
@@ -1591,6 +1616,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     "pt-BR": {
+        "2.2.1": {
+            fixed: [
+                "**Nada do Evi no novo overlay de jogo do Discord.** O overlay mais novo do Discord abre como uma janela própria sobre o seu jogo, e o Evi carregava nele, papel de parede incluído. Agora ele fica de fora, como já fazia no overlay antigo.",
+            ],
+        },
         "2.2.0": {
             fixed: [
                 "**As atualizações seguem suas configurações.** Quando a equipe do Evi diz que uma atualização é necessária, o Evi só a baixa e reinicia o Discord sozinho se as atualizações automáticas estiverem ativadas. Caso contrário, ele avisa e espera você tocar em Atualizar agora. Os plugins só vêm junto se a atualização automática de plugins estiver ativada.",
@@ -1907,6 +1937,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ru: {
+        "2.2.1": {
+            fixed: [
+                "**Ничего от Evi в новом внутриигровом оверлее Discord.** Новый оверлей Discord открывается отдельным окном поверх игры, и Evi загружался в нём вместе с обоями. Теперь он туда не лезет, как и в старый оверлей.",
+            ],
+        },
         "2.2.0": {
             fixed: [
                 "**Обновления слушаются ваших настроек.** Когда команда Evi говорит, что нужно обновиться, Evi сам скачивает обновление и перезапускает Discord, только если автоматические обновления включены. Иначе он сообщает об этом и ждёт, пока вы нажмёте «Обновить сейчас». Плагины обновляются вместе с ним, только если включено автообновление плагинов.",
@@ -2223,6 +2258,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     tr: {
+        "2.2.1": {
+            fixed: [
+                "**Discord'un yeni oyun içi katmanında Evi'den bir şey yok.** Discord'un yeni katmanı oyununun üstünde kendi penceresi olarak açılıyor ve Evi duvar kâğıdıyla birlikte orada yükleniyordu. Artık eski katmanda olduğu gibi dışarıda kalıyor.",
+            ],
+        },
         "2.2.0": {
             fixed: [
                 "**Güncellemeler ayarlarına uyar.** Evi ekibi bir güncellemenin gerekli olduğunu söylediğinde Evi, güncellemeyi kendisi indirip Discord'u yalnızca otomatik güncellemeler açıksa yeniden başlatır. Kapalıysa sana haber verir ve Şimdi güncelle'ye basmanı bekler. Eklentiler de yalnızca eklenti otomatik güncellemesi açıksa birlikte güncellenir.",

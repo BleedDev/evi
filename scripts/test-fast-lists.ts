@@ -441,6 +441,194 @@ const discordChat = await discordPage.evaluate(async (pluginCode) => {
     return { far: chat.querySelectorAll(".dl-fl-far").length, reachedTop: sc.scrollTop === 0, heightChanges: changes, worstPx: worst, rowTag: chat.querySelector(".dl-fl-row")?.tagName };
 }, code);
 
+/**
+ * Discord's chat holding your place, as its scroll manager does it (the class with findAnchor,
+ * updateAutomaticAnchor and fixScrollPosition in Discord's chat chunk): the browser's scroll anchoring
+ * is off, an anchor message is picked, and while you keep scrolling its offset from the top stays what
+ * it was when the scroll began (it's only picked again 35 ms after the last scroll event). When the chat's
+ * height changes, by a resize observer or the next scroll event, Discord scrolls the anchor back to that
+ * offset: mid-scroll, back to where the scroll began. That is the pull-back people saw.
+ *
+ * Messages change while far away (one kind of change per run), then the chat is scrolled up without
+ * pause, loading older messages on the way. Without the plugin nothing pulls back; with it, nothing may
+ * either.
+ */
+const CHANGES = ["reactions", "edits", "images", "groupStart", "width", "fontSize"] as const;
+async function discordScrollUp(withPlugin: boolean, changes: readonly (typeof CHANGES[number])[]) {
+    const p = await browser.newPage({ viewport: { width: 1000, height: 800 } });
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150"><rect width="200" height="150" fill="teal"/></svg>';
+    await p.route("http://images.test/**", async route => {
+        await new Promise(r => setTimeout(r, 1200));
+        await route.fulfill({ contentType: "image/svg+xml", body: svg });
+    });
+    await p.setContent(`<!doctype html><style>
+        body { margin: 0; font: 1rem/1.375rem sans-serif; }
+        .chatScroller { position: relative; height: 700px; overflow-y: auto; width: 800px; overflow-anchor: none; }
+        /* Discord's content box keeps the first message's margin inside it */
+        .content { display: flow-root; }
+        .chatList { list-style: none; margin: 0; padding: 0; }
+        .message { padding: 2px 16px 2px 72px; min-height: 22px; }
+        .groupStart { margin-top: 17px; min-height: 44px; }
+        .reactions { height: 30px; }
+        img { display: block; }
+    </style><main><div class="chatScroller"><div class="content"><ol data-list-id="chat-messages-1-2" class="chatList"></ol></div></div></main>`);
+    const result = await p.evaluate(async ({ pluginCode, withPlugin, changes }) => {
+        const chat = document.querySelector(".chatList")!;
+        const content = document.querySelector<HTMLElement>(".content")!;
+        const sc = document.querySelector<HTMLElement>(".chatScroller")!;
+        let next = 0;
+        const message = () => {
+            const i = next++;
+            const li = document.createElement("li");
+            li.id = `chat-messages-2-m${i}`;
+            li.setAttribute("data-list-item-id", `chat-messages-1-2___m${i}`);
+            li.innerHTML = `<div class="message${i % 3 === 0 ? " groupStart" : ""}">${"message text ".repeat(1 + (i * 7) % 12)}</div>`;
+            return li;
+        };
+        for (let i = 0; i < 300; i++) chat.append(message());
+        const frame = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+        const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+        const offsetTopOf = (el: HTMLElement) => {
+            let top = el.offsetTop;
+            for (let parent = el.offsetParent as HTMLElement | null; parent && parent !== sc; parent = parent.offsetParent as HTMLElement | null) top += parent.offsetTop;
+            return top;
+        };
+        type Anchor = { id: string; offsetFromTop: number; };
+        const discord = {
+            anchor: null as Anchor | null,
+            heightCache: sc.scrollHeight,
+            offsetCache: sc.offsetHeight,
+            topCache: sc.scrollTop,
+            counter: 0,
+            timeout: 0 as any,
+            anchorData(id: string, top: number): Anchor | null {
+                const el = document.getElementById(id);
+                return el ? { id, offsetFromTop: offsetTopOf(el) - top } : null;
+            },
+            find() {
+                for (const li of chat.children as HTMLCollectionOf<HTMLElement>) {
+                    if (offsetTopOf(li) >= sc.scrollTop) return discord.anchorData(li.id, sc.scrollTop);
+                }
+                return null;
+            },
+            /** Keeps the anchor's offset from when the scroll began, as Discord's updateAutomaticAnchor(top, true) does */
+            update(top: number) {
+                const data = discord.anchorData(discord.anchor!.id, top);
+                if (data) data.offsetFromTop = discord.anchor!.offsetFromTop;
+                discord.anchor = data;
+            },
+            fix(offsetHeight: number, scrollHeight: number) {
+                discord.offsetCache = offsetHeight;
+                discord.heightCache = scrollHeight;
+                const el = discord.anchor && document.getElementById(discord.anchor.id);
+                if (el) sc.scrollTop = offsetTopOf(el) - discord.anchor!.offsetFromTop;
+                discord.anchor = discord.counter >= 5 ? null : discord.find();
+            },
+            scroll() {
+                const { scrollTop, scrollHeight, offsetHeight } = sc;
+                if (offsetHeight !== discord.offsetCache || scrollHeight !== discord.heightCache) {
+                    discord.counter = 0;
+                    clearTimeout(discord.timeout);
+                    if (discord.anchor) discord.update(scrollTop);
+                    else discord.anchor = discord.find();
+                    discord.fix(offsetHeight, scrollHeight);
+                    discord.topCache = scrollTop;
+                } else if (discord.topCache !== scrollTop) {
+                    discord.counter = Math.min(discord.counter + 1, 5);
+                    if (discord.anchor) discord.update(scrollTop);
+                    else discord.anchor = discord.find();
+                    discord.topCache = scrollTop;
+                    clearTimeout(discord.timeout);
+                    discord.timeout = setTimeout(() => {
+                        discord.counter = 0;
+                        if (sc.scrollHeight !== discord.heightCache || sc.offsetHeight !== discord.offsetCache) discord.scroll();
+                        else discord.anchor = discord.find();
+                    }, 35);
+                }
+            },
+        };
+        sc.addEventListener("scroll", () => discord.scroll());
+        const ro = new ResizeObserver(entries => {
+            let { offsetCache: offsetHeight, heightCache: scrollHeight } = discord;
+            for (const entry of entries) {
+                if (entry.target === sc) offsetHeight = entry.contentRect.height;
+                else scrollHeight = entry.contentRect.height;
+            }
+            if (offsetHeight !== discord.offsetCache || scrollHeight !== discord.heightCache) discord.fix(offsetHeight, scrollHeight);
+        });
+        ro.observe(sc);
+        ro.observe(content);
+
+        sc.scrollTop = sc.scrollHeight;
+        if (withPlugin) {
+            const settings: Record<string, any> = { servers: false, chat: true, members: false, margin: 2 };
+            const ctx = {
+                addStyle(css: string) {
+                    const el = document.createElement("style");
+                    el.textContent = css;
+                    document.head.append(el);
+                },
+                onDispose() { },
+                setInterval: (fn: () => void, ms: number) => void setInterval(fn, ms),
+                settings: { get: (k: string) => settings[k], onChange() { } },
+            };
+            const module = { exports: {} as any };
+            new Function("module", "exports", "require", pluginCode)(module, module.exports, () => ({ definePlugin: (d: any) => d, defineStrings: (s: any) => (k: string) => s.en[k] ?? k }));
+            module.exports.default.start(ctx);
+        }
+        await wait(1500);
+        await frame();
+        const farBefore = chat.querySelectorAll(".dl-fl-far").length;
+
+        // Far above, out of sight, messages change: reactions, edits, images arriving, a message that
+        // now opens a group; or the whole chat does: narrower (the member list opening), a bigger font
+        const items = [...chat.children] as HTMLElement[];
+        const each = (from: number, fn: (message: Element, i: number) => void) => {
+            for (let i = from; i < 200; i += 30) fn(items[i].firstElementChild!, i);
+        };
+        if (changes.includes("reactions")) each(20, m => m.append(Object.assign(document.createElement("div"), { className: "reactions" })));
+        if (changes.includes("edits")) each(35, m => m.append(" (edited, and with quite a lot more text than before so that it wraps onto another line)"));
+        if (changes.includes("images")) each(40, (m, i) => m.insertAdjacentHTML("beforeend", `<img src="http://images.test/${i}.svg">`));
+        if (changes.includes("groupStart")) each(46, m => m.classList.add("groupStart"));
+        if (changes.includes("width")) sc.style.width = "640px";
+        if (changes.includes("fontSize")) document.documentElement.style.fontSize = "24px";
+        await wait(2500);
+        await frame();
+
+        // Scroll up without pause, as a fast wheel or trackpad flick does, loading older messages near the top
+        let pulls = 0, worst = 0, loads = 0;
+        for (let i = 0; i < 2000 && (sc.scrollTop > 0 || loads < 3); i++) {
+            if (sc.scrollTop < 1500 && loads < 3) {
+                // Older messages arrive above; Discord keeps the view on the same messages and takes the new height as known
+                const before = sc.scrollHeight;
+                const older = document.createDocumentFragment();
+                for (let k = 0; k < 50; k++) older.append(message());
+                chat.prepend(older);
+                sc.scrollTop += sc.scrollHeight - before;
+                discord.heightCache = sc.scrollHeight;
+                discord.offsetCache = sc.offsetHeight;
+                discord.anchor = discord.find();
+                loads++;
+            }
+            const expected = Math.max(0, sc.scrollTop - 250);
+            sc.scrollTop = expected;
+            await new Promise(r => requestAnimationFrame(r));
+            const moved = Math.abs(sc.scrollTop - expected);
+            if (moved > 1) {
+                pulls++;
+                worst = Math.max(worst, moved);
+            }
+        }
+        return { farBefore, pulls, worstPx: Math.round(worst), reachedTop: sc.scrollTop === 0, loads };
+    }, { pluginCode: code, withPlugin, changes });
+    await p.close();
+    return result;
+}
+const scrollUpVanilla = await discordScrollUp(false, CHANGES);
+const scrollUps: Record<string, Awaited<ReturnType<typeof discordScrollUp>>> = {};
+for (const change of CHANGES) scrollUps[change] = await discordScrollUp(true, [change]);
+
 await browser.close();
 
 let failed = 0;
@@ -472,6 +660,10 @@ check("re-attaches when Discord rebuilds the sidebar", r.reattached);
 check("chat: skipping far messages makes a relayout much cheaper", gain.far > 100 && gain.afterMs < gain.beforeMs / 2, gain);
 check("chat, as Discord builds it: far messages are skipped", discordChat.far > 100, discordChat);
 check("chat, as Discord builds it: scrolling up never changes its height (Discord would pull the view back)", discordChat.heightChanges === 0 && discordChat.reachedTop, discordChat);
+check("Discord's place-keeping, without the plugin: a fast scroll up is never pulled back (checks the test itself)", scrollUpVanilla.pulls === 0 && scrollUpVanilla.reachedTop, scrollUpVanilla);
+for (const [change, result] of Object.entries(scrollUps)) {
+    check(`chat, with Discord's place-keeping: ${change} while far away never pull a fast scroll back`, result.farBefore > 100 && result.pulls === 0 && result.reachedTop, result);
+}
 check("chat and the member list are off by default", gain.defaults.chat === false && gain.defaults.members === false, gain.defaults);
 check("a screen reader turning on brings every row back within a second", r.beforeAssistive.far > 0 && r.withAssistive.rows === 0 && r.withAssistive.far === 0, { before: r.beforeAssistive, with: r.withAssistive });
 check("and turning it off skips far rows again", r.afterAssistive.far > 0, r.afterAssistive);

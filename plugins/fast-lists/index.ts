@@ -12,6 +12,12 @@ import { t } from "./strings";
  * row renders again, a generous distance before it can scroll into view; a jump bigger than that
  * reveals every row before the frame paints. We never touch the scroll position ourselves.
  *
+ * A hidden row keeps the size it had when it was hidden, so it must never go stale: Discord's chat
+ * holds your place with an anchor message whose offset it freezes while you scroll, and any change to
+ * the chat's height mid-scroll makes it jump back to where the scroll began. So a hidden row that
+ * changes (a reaction, an edit, an image or embed loading, a new width or font size) is revealed right
+ * then, when it would have changed size without us, and hidden again with its new size.
+ *
  * Measured on a 185-server account on a ~300Hz display: p95 frame gap 6.7ms -> 3.7ms (server list).
  * Measured and rejected: `contain: layout style` on every row made frames slower (p95 10ms).
  * Chat, 150 messages in headless Chrome: a relayout of the chat (window resize) 3.3-4ms -> 0.45ms.
@@ -321,7 +327,55 @@ function createSession(list: Element, kind: ListKind, marginScreens: number) {
         });
     };
 
-    // Lists mutate constantly (badges, typing, reactions), only resync when rows come or go
+    const queueSync = () => {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(() => {
+            queued = false;
+            sync();
+        });
+    };
+
+    /** Rows revealed since the last frame, for the observer to look at again */
+    const revealed = new Set<HTMLElement>();
+    let reobserveQueued = false;
+    /**
+     * Renders hidden rows again. The observer only reports changes, so a row that is still far away
+     * wouldn't be hidden again by itself: re-observing it after a frame gives it a fresh first report,
+     * and by then the browser has remembered its new size.
+     */
+    const reveal = (targets: Iterable<HTMLElement>) => {
+        for (const row of targets) {
+            if (!row.classList.contains(FAR)) continue;
+            row.classList.remove(FAR);
+            revealed.add(row);
+        }
+        if (reobserveQueued || !revealed.size) return;
+        reobserveQueued = true;
+        requestAnimationFrame(() => {
+            reobserveQueued = false;
+            if (disposed || !visibility) return;
+            for (const row of revealed) {
+                if (!rows.has(row)) continue;
+                visibility.unobserve(row);
+                visibility.observe(row);
+            }
+            revealed.clear();
+        });
+    };
+
+    /** The hidden row el is in, if any */
+    const hiddenRowOf = (node: Node) => {
+        const el = node instanceof Element ? node : node.parentElement;
+        const row = el?.closest<HTMLElement>(`.${FAR}`);
+        return row && rows.has(row) ? row : null;
+    };
+
+    /** A row's class without ours: what Discord set */
+    const theirClasses = (value: string | null) => (value ?? "").split(/\s+/).filter(c => c && c !== ROW && c !== FAR).join(" ");
+
+    // Lists mutate constantly (badges, typing, reactions): resync only when rows come or go, and reveal
+    // only hidden rows that changed. Changes in rendered rows are Discord's business.
     const touchesRows = (nodes: NodeList) => {
         for (const node of nodes) {
             if (node instanceof Element && (node.matches(itemSelector) || node.querySelector(itemSelector))) return true;
@@ -329,32 +383,66 @@ function createSession(list: Element, kind: ListKind, marginScreens: number) {
         return false;
     };
     const mutations = new MutationObserver(records => {
-        if (queued || !records.some(r => touchesRows(r.addedNodes) || touchesRows(r.removedNodes))) return;
-        queued = true;
-        requestAnimationFrame(() => {
-            queued = false;
-            sync();
-        });
+        let resync = false;
+        let changed: Set<HTMLElement> | undefined;
+        for (const record of records) {
+            if (record.type === "childList" && !resync && (touchesRows(record.addedNodes) || touchesRows(record.removedNodes))) resync = true;
+            // Our own FAR and ROW toggles
+            if (record.type === "attributes" && record.attributeName === "class" && rows.has(record.target as HTMLElement)
+                && theirClasses(record.oldValue) === theirClasses((record.target as Element).getAttribute("class"))) continue;
+            const row = hiddenRowOf(record.target);
+            if (row) (changed ??= new Set()).add(row);
+        }
+        if (changed) {
+            reveal(changed);
+            // What it changed may also be where the row should be (a message that now opens a group
+            // has a margin that passes through its <li>): work its row out again
+            for (const row of changed) {
+                const item = row.matches(itemSelector) ? row : row.closest(itemSelector) ?? row.querySelector(itemSelector);
+                if (item) rowCache.delete(item);
+            }
+            resync = true;
+        }
+        if (resync) queueSync();
     });
-    mutations.observe(list, { childList: true, subtree: true });
+    mutations.observe(list, { childList: true, subtree: true, attributes: true, attributeOldValue: true, characterData: true });
+
+    // An image, video or embed finishing loading resizes its row without changing the DOM
+    const onLoad = (event: Event) => {
+        const row = event.target instanceof Node ? hiddenRowOf(event.target) : null;
+        if (row) reveal([row]);
+    };
+    const LOAD_EVENTS = ["load", "error", "loadedmetadata"];
+    for (const type of LOAD_EVENTS) list.addEventListener(type, onLoad, true);
+
+    // A new width rewraps every message, hidden ones included: render them all again, as the
+    // browser would without us, then hide what's still far away at its new size
+    let width = -1;
+    const resize = new ResizeObserver(entries => {
+        const next = entries[entries.length - 1].contentRect.width;
+        if (next === width) return;
+        const first = width < 0;
+        width = next;
+        if (!first) reveal(rows);
+    });
+    resize.observe(list);
+
+    // So do a new font size (Discord sets it on <html>) and stylesheets coming or going (themes,
+    // custom CSS). Not the title or other tags in <head>, which change with every unread.
+    const isStyleNode = (node: Node) => node instanceof HTMLStyleElement || (node instanceof HTMLLinkElement && node.rel === "stylesheet");
+    const styles = new MutationObserver(records => {
+        if (records.some(r => r.target === document.documentElement || isStyleNode(r.target) || isStyleNode(r.target.parentNode!)
+            || [...r.addedNodes, ...r.removedNodes].some(isStyleNode))) reveal(rows);
+    });
+    styles.observe(document.documentElement, { attributes: true, attributeFilter: ["style"] });
+    styles.observe(document.head, { childList: true, subtree: true, characterData: true });
 
     // A jump further than the render distance (scrollbar drag, jump to message): reveal everything
     // synchronously, before this frame paints. The observer re-hides what's still far away.
     let lastTop = scroller?.scrollTop ?? 0;
     const onScroll = () => {
         const top = scroller!.scrollTop;
-        if (Math.abs(top - lastTop) > margin / 2) {
-            for (const row of rows) row.classList.remove(FAR);
-            // The observer only reports changes: rows still far away wouldn't be re-hidden.
-            // Re-observing gives every row a fresh initial report.
-            requestAnimationFrame(() => {
-                if (disposed || !visibility) return;
-                for (const row of rows) {
-                    visibility.unobserve(row);
-                    visibility.observe(row);
-                }
-            });
-        }
+        if (Math.abs(top - lastTop) > margin / 2) reveal(rows);
         lastTop = top;
     };
     scroller?.addEventListener("scroll", onScroll, { passive: true });
@@ -392,6 +480,9 @@ function createSession(list: Element, kind: ListKind, marginScreens: number) {
             stopFlattening?.();
             visibility?.disconnect();
             mutations.disconnect();
+            resize.disconnect();
+            styles.disconnect();
+            for (const type of LOAD_EVENTS) list.removeEventListener(type, onLoad, true);
             scroller?.removeEventListener("scroll", onScroll);
             flat?.remove();
             for (const row of rows) row.classList.remove(ROW, FAR);
@@ -412,7 +503,7 @@ export default definePlugin({
             type: "boolean",
             get label() { return t("settings.chat"); },
             get description() { return t("settings.chat.description"); },
-            // Off by default since 2.2.1; 2.2.2 fixed what pulled the chat back while scrolling up
+            // Off by default since 2.2.1. 2.2.2 and 2.2.3 fixed what pulled the chat back while scrolling up
             default: false,
         },
         members: {

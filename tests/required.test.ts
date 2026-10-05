@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { mustUpdate, parseRequired, parseRequiredInput } from "../src/shared/required";
+import { mayForcePlugins, mayUpdateEviUnasked, mustUpdate, parseRequired, parseRequiredInput } from "../src/shared/required";
 
 describe("a required Evi version", () => {
     test("reads what evi.rest sends, and nothing from anything malformed", () => {
@@ -27,5 +27,19 @@ describe("a required Evi version", () => {
         expect(mustUpdate(required, "2.0.1-beta.1")).toBe(false);
         expect(mustUpdate(required, "2.1.0")).toBe(false);
         expect(mustUpdate(null, "1.0.0")).toBe(false);
+    });
+
+    test("never overrides the person's update settings", () => {
+        // Evi itself: only with automatic updates on; off (or never set) means asking first
+        expect(mayUpdateEviUnasked({ silentUpdates: true })).toBe(true);
+        expect(mayUpdateEviUnasked({ silentUpdates: false })).toBe(false);
+        expect(mayUpdateEviUnasked({})).toBe(false);
+        // Plugins: only when asked for, and only with plugin auto-update on
+        const withPlugins = { version: "2.0.1", reason: "", forcePlugins: true, at: 1 };
+        expect(mayForcePlugins(withPlugins, { autoUpdate: true })).toBe(true);
+        expect(mayForcePlugins(withPlugins, { autoUpdate: false })).toBe(false);
+        expect(mayForcePlugins(withPlugins, {})).toBe(false);
+        expect(mayForcePlugins({ ...withPlugins, forcePlugins: false }, { autoUpdate: true })).toBe(false);
+        expect(mayForcePlugins(null, { autoUpdate: true })).toBe(false);
     });
 });

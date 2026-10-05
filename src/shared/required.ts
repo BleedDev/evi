@@ -1,8 +1,9 @@
 /**
- * A required Evi version: Evi's team can make every Evi older than it update now (GET /v1/required,
- * set from the Developers page). Evis below it download the update straight away, whatever their own
- * update settings, and restart Discord once nobody's in a call. With `forcePlugins`, store plugins
- * update too (still never past a consent the user hasn't given).
+ * A required Evi version: Evi's team can say every Evi older than it should update (GET /v1/required,
+ * set from the Developers page). It never overrides the person's own update settings: with automatic
+ * updates on, Evis below it download the update straight away and restart Discord once nobody's in a
+ * call; with them off, Evi only says an update is needed and waits for "Update now". `forcePlugins`
+ * likewise only updates store plugins for people who have plugin auto-update on.
  */
 import { compareVersions, isVersion } from "./store";
 
@@ -40,6 +41,21 @@ export function parseRequiredInput(raw: unknown): { version: string; reason: str
     if (reason.length > MAX_REASON) return { error: `Keep the reason under ${MAX_REASON} characters` };
     return { version, reason, forcePlugins: r?.forcePlugins === true };
 }
+
+/** The settings a required update has to respect */
+export interface UpdateConsent {
+    /** Automatic Evi updates (Settings → Updates) */
+    silentUpdates?: boolean;
+    /** Automatic plugin and theme updates (the store) */
+    autoUpdate?: boolean;
+}
+
+/** Whether a required update may download and install Evi without asking: only with automatic updates on */
+export const mayUpdateEviUnasked = (consent: UpdateConsent) => consent.silentUpdates === true;
+
+/** Whether a required update may update store plugins without asking: only with plugin auto-update on */
+export const mayForcePlugins = (required: RequiredUpdate | null | undefined, consent: UpdateConsent) =>
+    !!required?.forcePlugins && consent.autoUpdate === true;
 
 /** Whether an Evi on `current` has to update. A beta of the required version or newer counts as there */
 export function mustUpdate(required: RequiredUpdate | null | undefined, current: string): boolean {

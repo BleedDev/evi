@@ -1,15 +1,17 @@
 /**
- * A required update (shared/required.ts): Evi's team said every Evi older than a version has to
- * update. This Evi then downloads it straight away, whatever its update settings, and says so in a
- * calm banner, top and centre like announcements. Once it's downloaded Discord restarts by itself
- * after a minute's countdown, which can be put off once, but never while you're in a call (or
- * streaming, which is a call too): then it waits for the call to end. Quitting Discord before that
- * installs it too. A failed download is said and tried again in half an hour, never in a loop.
+ * A required update (shared/required.ts): Evi's team said every Evi older than a version should
+ * update. It never overrides the person's update settings. With automatic updates on, this Evi
+ * downloads it straight away and says so in a calm banner, top and centre like announcements; once
+ * it's downloaded Discord restarts by itself after a minute's countdown, which can be put off once,
+ * but never while you're in a call (or streaming, which is a call too): then it waits for the call to
+ * end. Quitting Discord before that installs it too. A failed download is said and tried again in half
+ * an hour, never in a loop. With automatic updates off, the banner only says an update is needed and
+ * nothing happens until "Update now".
  *
- * With `forcePlugins`, store plugins update as well, once per requirement, even with auto-update
- * off. Updates that ask for more access or full access still wait for the person's OK.
+ * With `forcePlugins`, store plugins update as well, once per requirement, for people with plugin
+ * auto-update on. Updates that ask for more access or full access still wait for the person's OK.
  */
-import { mustUpdate, RequiredUpdate } from "@shared/required";
+import { mayForcePlugins, mayUpdateEviUnasked, mustUpdate, RequiredUpdate } from "@shared/required";
 
 import { t, useLocale } from "../i18n";
 import { Logger } from "../logger";
@@ -34,6 +36,8 @@ const LATER_FOR = 30 * 60 * 1000;
 
 type Phase =
     | { kind: "idle"; }
+    /** Automatic updates are off: say it's needed, and wait for "Update now" */
+    | { kind: "asked"; }
     | { kind: "downloading"; }
     | { kind: "ready"; version: string; }
     | { kind: "restarting"; }
@@ -72,6 +76,7 @@ function isInCall() {
 
 async function download() {
     if (!required || phase.kind === "downloading" || phase.kind === "ready" || phase.kind === "restarting" || !Native.prepareUpdate) return;
+    if (!mayUpdateEviUnasked(Settings.data)) return set({ kind: "asked" });
     clearTimeout(retryTimer);
     set({ kind: "downloading" });
     const result = await Native.prepareUpdate(required.version).catch((err: unknown) => ({ ok: false as const, error: String(err) }));
@@ -101,6 +106,16 @@ async function restart() {
         // The installer closes Discord within seconds: still here after this long means it didn't
         setTimeout(() => phase.kind === "restarting" && set({ kind: "failed", error: t("updates.installerDidntRestart") }), 90_000);
     }
+}
+
+/** "Update now" with automatic updates off: the person's own update, the same as in Settings → Updates */
+async function updateNow() {
+    if (phase.kind !== "asked" && phase.kind !== "failed") return;
+    set({ kind: "restarting" });
+    const result = await Native.installUpdate?.().catch((err: unknown) => ({ ok: false as const, error: String(err) }));
+    if (!result) set({ kind: "failed", error: t("common.notSupported") });
+    else if (!result.ok) set({ kind: "failed", error: result.error });
+    else setTimeout(() => phase.kind === "restarting" && set({ kind: "failed", error: t("updates.installerDidntRestart") }), 90_000);
 }
 
 /** Every few seconds while a restart waits: counts down, or holds while in a call or put off */
@@ -137,9 +152,9 @@ function later() {
     emit();
 }
 
-/** Store plugins, once per requirement: what evi.rest asked for, whatever auto-update says */
+/** Store plugins, once per requirement: only for people with plugin auto-update on */
 async function updatePlugins(req: RequiredUpdate) {
-    if (!req.forcePlugins || SafeMode.active || (Settings.data.requiredPluginsAt ?? 0) >= req.at) return;
+    if (!mayForcePlugins(req, Settings.data) || SafeMode.active || (Settings.data.requiredPluginsAt ?? 0) >= req.at) return;
     Settings.update(d => void (d.requiredPluginsAt = req.at));
     try {
         await Store.refresh();
@@ -168,6 +183,7 @@ async function check() {
 
 function message(p: Phase): { title: string; body: string; } {
     switch (p.kind) {
+        case "asked": return { title: t("required.title"), body: t("required.asked") };
         case "downloading": return { title: t("required.title"), body: t("required.downloading") };
         case "ready": return {
             title: t("required.readyTitle", { version: p.version }),
@@ -196,6 +212,11 @@ function Banner({ p }: { p: Phase; }) {
                 <Text tag="span" variant="text-sm/normal" color="text-subtle" className="dl-announcement-body" tabular>{body}</Text>
                 {reason && <Text tag="span" variant="text-xs/normal" color="text-muted" className="dl-announcement-body">{reason}</Text>}
             </span>
+            {(p.kind === "asked" || (p.kind === "failed" && !mayUpdateEviUnasked(Settings.data))) && (
+                <span className="dl-required-actions">
+                    <button type="button" className="dl-announcement-link" onClick={() => void updateNow()}>{t("updates.updateNow")}</button>
+                </span>
+            )}
             {p.kind === "ready" && (
                 <span className="dl-required-actions">
                     {!inCall && !usedLater && <button type="button" className="dl-required-later" onClick={later}>{t("required.later")}</button>}
@@ -203,7 +224,7 @@ function Banner({ p }: { p: Phase; }) {
                 </span>
             )}
             {/* Never while counting down: Discord doesn't restart without saying so */}
-            {(p.kind === "downloading" || p.kind === "failed" || (p.kind === "ready" && inCall)) && <IconButton icon="close" label={t("required.hide")} onClick={exit.close} />}
+            {(p.kind === "asked" || p.kind === "downloading" || p.kind === "failed" || (p.kind === "ready" && inCall)) && <IconButton icon="close" label={t("required.hide")} onClick={exit.close} />}
         </div>
     );
 }

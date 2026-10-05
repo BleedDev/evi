@@ -19,6 +19,7 @@
 import { IPC } from "@shared/ipc";
 import { EXE_ASSET, fetchReleaseApi, Flavor, flavorOf, isNewerRelease, parseRelease, pickRelease, releaseApis, ReleaseInfo, UpdateInstallResult, UpdateProgress, UpdateStatus } from "@shared/release";
 import { compareVersions, isVersion } from "@shared/store";
+import { mayUpdateEviUnasked } from "@shared/required";
 import { installerArgs, installerCommandLine, isStagedRelevant, parseStaged, shouldApplyOnQuit, shouldStage, StagedUpdate } from "@shared/silentUpdate";
 import { execFile, execFileSync, spawn } from "child_process";
 import { createHash } from "crypto";
@@ -54,9 +55,6 @@ let lastBeta = false;
 let checking: Promise<UpdateStatus> | undefined;
 let installing = false;
 let staging: { version: string; promise: Promise<StagedUpdate>; } | undefined;
-/** A required update downloaded this session (shared/required.ts): it installs on quit even with silent updates off */
-let forcedVersion: string | undefined;
-
 const silentOn = () => settings.silentUpdates === true;
 
 const DEV_BUILD_ERROR = "This Evi runs from a dev build. Update it with git pull and bun run build.";
@@ -332,12 +330,15 @@ function applyOnExit(staged: StagedUpdate, flavor: Flavor) {
 }
 
 /**
- * A required update: downloads the latest release now, whatever the update settings, as long as it's
- * at least `minimum`. The page then restarts Discord when nobody's in a call (install(), which finds it
- * already downloaded); quitting Discord before that installs it too.
+ * A required update: downloads the latest release now, as long as it's at least `minimum`. Only with
+ * automatic updates on (shared/required.ts): checked here too, not only in the page, so nothing in
+ * Discord's page can start an unasked update. The page then restarts Discord when nobody's in a call
+ * (install(), which finds it already downloaded); quitting Discord before that installs it too, as
+ * any automatic update does.
  */
 async function prepare(minimum: unknown): Promise<UpdateInstallResult> {
     if (!isVersion(minimum)) return { ok: false, error: "No version given" };
+    if (!mayUpdateEviUnasked(settings)) return { ok: false, error: mt("main.update.automaticOff") };
     if (isDevBuild()) return { ok: false, error: DEV_BUILD_ERROR };
     const blocked = blockedReason();
     if (blocked) return { ok: false, error: blocked };
@@ -348,7 +349,6 @@ async function prepare(minimum: unknown): Promise<UpdateInstallResult> {
         if (compareVersions(status.release.version.replace(/-.*$/, ""), minimum) < 0) return { ok: false, error: mt("main.update.noRequired", { version: minimum }) };
         // No progress to the page: its Updates tab would take it for an install under way
         const staged = await download(status.release);
-        forcedVersion = staged.version;
         console.log(`[Evi] Evi ${staged.version} is required: downloaded, installs on restart or quit`);
         return { ok: true, version: staged.version };
     } catch (err) {
@@ -392,8 +392,7 @@ async function install(sender: WebContents): Promise<UpdateInstallResult> {
 function applyOnQuit() {
     const staged = readStaged();
     const flavor = flavorOf(process.execPath);
-    const forced = !!forcedVersion && staged?.version === forcedVersion;
-    if (installing || !shouldApplyOnQuit({ enabled: silentOn() || forced, staged, running: EVI_VERSION, blocked: blockedReason(), flavor })) return;
+    if (installing || !shouldApplyOnQuit({ enabled: silentOn(), staged, running: EVI_VERSION, blocked: blockedReason(), flavor })) return;
     try {
         applyOnExit(staged!, flavor!);
         console.log(`[Evi] Installing Evi ${staged!.version} now that Discord is quitting`);

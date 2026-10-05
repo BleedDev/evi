@@ -385,6 +385,62 @@ const gain = await gainPage.evaluate(async (pluginCode) => {
     };
 }, code);
 
+// Discord's chat as it really is: each message an <li> (display: list-item, no padding) around a
+// message whose group start has a 17px top margin. That margin passes through the <li> while it's
+// rendered; if a hidden row lost it, the chat would change height mid-scroll, and Discord reads that
+// as the layout shifting and pulls the view back to where it was (the 2.2.0 scroll-up bug).
+const discordPage = await browser.newPage({ viewport: { width: 1000, height: 800 } });
+await discordPage.setContent(`<!doctype html><style>
+    body { margin: 0; font: 16px sans-serif; }
+    .chatScroller { height: 700px; overflow-y: auto; width: 800px; overflow-anchor: none; }
+    .chatList { list-style: none; margin: 0; padding: 0; }
+    .message { padding: 2px 16px 2px 72px; min-height: 22px; }
+    .groupStart { margin-top: 17px; min-height: 44px; }
+</style><main><div class="chatScroller"><ol data-list-id="chat-messages-1-2" class="chatList"></ol></div></main>`);
+const discordChat = await discordPage.evaluate(async (pluginCode) => {
+    const chat = document.querySelector(".chatList")!;
+    const sc = document.querySelector<HTMLElement>(".chatScroller")!;
+    for (let i = 0; i < 400; i++) {
+        const li = document.createElement("li");
+        li.setAttribute("data-list-item-id", `chat-messages-1-2___m${i}`);
+        li.innerHTML = `<div class="message${i % 3 === 0 ? " groupStart" : ""}">${"message text ".repeat(1 + (i * 7) % 12)}</div>`;
+        chat.append(li);
+    }
+    sc.scrollTop = sc.scrollHeight;
+    const frame = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    const settings: Record<string, any> = { servers: false, chat: true, members: false, margin: 2 };
+    const ctx = {
+        addStyle(css: string) {
+            const el = document.createElement("style");
+            el.textContent = css;
+            document.head.append(el);
+        },
+        onDispose() { },
+        setInterval: (fn: () => void, ms: number) => void setInterval(fn, ms),
+        settings: { get: (k: string) => settings[k], onChange() { } },
+    };
+    const module = { exports: {} as any };
+    new Function("module", "exports", "require", pluginCode)(module, module.exports, () => ({ definePlugin: (d: any) => d, defineStrings: (s: any) => (k: string) => s.en[k] ?? k }));
+    module.exports.default.start(ctx);
+    await new Promise(r => setTimeout(r, 1500));
+    await frame();
+    // What Discord checks on every scroll: has the chat's height changed since the last scroll?
+    let last = sc.scrollHeight, changes = 0, worst = 0;
+    sc.addEventListener("scroll", () => {
+        const h = sc.scrollHeight;
+        if (h !== last) {
+            changes++;
+            worst = Math.max(worst, Math.abs(h - last));
+        }
+        last = h;
+    });
+    for (let i = 0; i < 1000 && sc.scrollTop > 0; i++) {
+        sc.scrollTop -= 100;
+        await frame();
+    }
+    return { far: chat.querySelectorAll(".dl-fl-far").length, reachedTop: sc.scrollTop === 0, heightChanges: changes, worstPx: worst, rowTag: chat.querySelector(".dl-fl-row")?.tagName };
+}, code);
+
 await browser.close();
 
 let failed = 0;
@@ -414,6 +470,8 @@ check("members: Discord's virtualized list leaves nothing far to skip", r.member
 check("members: the plugin never writes the scroll position", r.pluginScrollWritesWithMembers === 0, r.pluginScrollWritesWithMembers);
 check("re-attaches when Discord rebuilds the sidebar", r.reattached);
 check("chat: skipping far messages makes a relayout much cheaper", gain.far > 100 && gain.afterMs < gain.beforeMs / 2, gain);
+check("chat, as Discord builds it: far messages are skipped", discordChat.far > 100, discordChat);
+check("chat, as Discord builds it: scrolling up never changes its height (Discord would pull the view back)", discordChat.heightChanges === 0 && discordChat.reachedTop, discordChat);
 check("chat and the member list are off by default", gain.defaults.chat === false && gain.defaults.members === false, gain.defaults);
 check("a screen reader turning on brings every row back within a second", r.beforeAssistive.far > 0 && r.withAssistive.rows === 0 && r.withAssistive.far === 0, { before: r.beforeAssistive, with: r.withAssistive });
 check("and turning it off skips far rows again", r.afterAssistive.far > 0, r.afterAssistive);

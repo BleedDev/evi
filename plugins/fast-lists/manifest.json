@@ -2,7 +2,7 @@
     "id": "fast-lists",
     "name": "Fast Lists",
     "description": "Keeps Discord smooth with hundreds of servers and long chats. Servers, messages and members far out of view skip rendering work, without ever being removed, so nothing flickers, disappears or jumps.",
-    "version": "2.2.1",
+    "version": "2.2.2",
     "minEviVersion": "2.1.0",
     "authors": [
         "Evi"
@@ -12,6 +12,12 @@
     ],
     "permissions": {},
     "changelog": [
+        {
+            "version": "2.2.2",
+            "notes": [
+                "Fixed chat scrolling getting stuck, or snapping back down while you scroll up, when Chat was turned on. Hidden messages were coming out a little shorter than they really are, and Discord took that as the chat moving."
+            ]
+        },
         {
             "version": "2.2.1",
             "notes": [
@@ -70,6 +76,9 @@
             "name": "Schnelle Listen",
             "description": "Hält Discord flüssig, auch mit Hunderten Servern und langen Chats. Server, Nachrichten und Mitglieder weit außerhalb des Sichtbereichs sparen sich die Renderarbeit, ohne je entfernt zu werden, sodass nichts flackert, verschwindet oder springt.",
             "changelog": {
+                "2.2.2": [
+                    "Behoben: Mit eingeschaltetem Chat blieb das Scrollen hängen oder sprang beim Hochscrollen wieder nach unten. Ausgeblendete Nachrichten waren etwas kürzer als in Wirklichkeit, und Discord hielt das für einen springenden Chat."
+                ],
                 "2.2.1": [
                     "Der Chat ist wieder standardmäßig aus: Das Überspringen weit entfernter Nachrichten konnte dich beim Hochscrollen wieder nach unten ziehen. Wenn du es selbst eingeschaltet hast, bleibt es an."
                 ],
@@ -103,6 +112,9 @@
             "name": "Listas rápidas",
             "description": "Mantiene Discord fluido con cientos de servidores y chats largos. Los servidores, mensajes y miembros muy fuera de la vista se ahorran el trabajo de renderizado sin eliminarse nunca, así que nada parpadea, desaparece ni da saltos.",
             "changelog": {
+                "2.2.2": [
+                    "Arreglado: con Chat activado, el desplazamiento se atascaba o volvía hacia abajo al subir. Los mensajes ocultos quedaban un poco más bajos de lo que son, y Discord lo tomaba como que el chat se movía."
+                ],
                 "2.2.1": [
                     "El chat vuelve a estar apagado por defecto: saltarse los mensajes lejanos podía devolverte hacia abajo mientras subías. Si lo encendiste tú, sigue encendido."
                 ],
@@ -136,6 +148,9 @@
             "name": "Listes rapides",
             "description": "Garde Discord fluide avec des centaines de serveurs et de longs chats. Les serveurs, messages et membres très loin de la vue évitent le travail de rendu sans jamais être supprimés, donc rien ne clignote, ne disparaît ni ne saute.",
             "changelog": {
+                "2.2.2": [
+                    "Corrigé : avec Chat activé, le défilement se bloquait ou revenait vers le bas quand tu remontais. Les messages masqués étaient un peu plus courts qu'en vrai, et Discord croyait que le chat bougeait."
+                ],
                 "2.2.1": [
                     "Le chat est de nouveau désactivé par défaut : sauter les messages lointains pouvait te ramener en bas pendant que tu remontais. Si tu l'as activé toi-même, il reste activé."
                 ],
@@ -169,6 +184,9 @@
             "name": "高速リスト",
             "description": "数百のサーバーや長いチャットでも Discord をなめらかに保ちます。画面から大きく外れたサーバー、メッセージ、メンバーは削除されることなく描画処理だけを省くので、ちらつきや消失、ジャンプは起きません。",
             "changelog": {
+                "2.2.2": [
+                    "チャットをオンにしていると、上にスクロールしたときに止まったり下に戻されたりする問題を直しました。非表示のメッセージが実際より少し低くなっていて、Discordがそれをチャットの移動だと判断していました。"
+                ],
                 "2.2.1": [
                     "チャットは再びデフォルトでオフになりました。遠くのメッセージを省く処理が、上にスクロールしている最中に下へ引き戻すことがありました。自分でオンにした場合はオンのままです。"
                 ],
@@ -202,6 +220,9 @@
             "name": "Szybkie listy",
             "description": "Utrzymuje płynność Discorda przy setkach serwerów i długich czatach. Serwery, wiadomości i członkowie daleko poza widokiem pomijają pracę renderowania, ale nigdy nie są usuwani, więc nic nie migocze, nie znika ani nie skacze.",
             "changelog": {
+                "2.2.2": [
+                    "Naprawiono: przy włączonym Czacie przewijanie się zacinało albo wracało w dół podczas przewijania w górę. Ukryte wiadomości były trochę niższe niż naprawdę, a Discord brał to za przesunięcie czatu."
+                ],
                 "2.2.1": [
                     "Czat znów jest domyślnie wyłączony: pomijanie dalekich wiadomości potrafiło ściągać cię w dół, gdy przewijałeś w górę. Jeśli sam go włączyłeś, zostaje włączony."
                 ],
@@ -235,6 +256,9 @@
             "name": "Listas rápidas",
             "description": "Mantém o Discord fluido com centenas de servidores e chats longos. Servidores, mensagens e membros bem fora da tela pulam o trabalho de renderização sem nunca serem removidos, então nada pisca, some ou pula.",
             "changelog": {
+                "2.2.2": [
+                    "Corrigido: com Chat ligado, a rolagem travava ou voltava para baixo ao subir. As mensagens ocultas ficavam um pouco mais baixas do que são, e o Discord achava que o chat tinha se mexido."
+                ],
                 "2.2.1": [
                     "O chat volta a ficar desligado por padrão: pular as mensagens distantes podia te puxar de volta para baixo enquanto você rolava para cima. Se você ligou por conta própria, continua ligado."
                 ],
@@ -268,6 +292,9 @@
             "name": "Быстрые списки",
             "description": "Сохраняет плавность Discord при сотнях серверов и длинных чатах. Серверы, сообщения и участники далеко за пределами экрана не отрисовываются, но никогда не удаляются, поэтому ничего не мерцает, не пропадает и не прыгает.",
             "changelog": {
+                "2.2.2": [
+                    "Исправлено: с включённым чатом прокрутка застревала или возвращалась вниз при прокрутке вверх. Скрытые сообщения были чуть ниже, чем на самом деле, и Discord принимал это за сдвиг чата."
+                ],
                 "2.2.1": [
                     "Чат снова выключен по умолчанию: пропуск далёких сообщений мог тянуть вас обратно вниз, пока вы листали вверх. Если вы включили его сами, он остаётся включённым."
                 ],
@@ -301,6 +328,9 @@
             "name": "Hızlı Listeler",
             "description": "Yüzlerce sunucu ve uzun sohbetlerle Discord'u akıcı tutar. Görüş alanının çok dışındaki sunucular, mesajlar ve üyeler hiç kaldırılmadan oluşturma işinden muaf tutulur; böylece hiçbir şey titremez, kaybolmaz veya sıçramaz.",
             "changelog": {
+                "2.2.2": [
+                    "Düzeltildi: Sohbet açıkken yukarı kaydırırken kaydırma takılıyor ya da aşağı geri dönüyordu. Gizlenen mesajlar gerçekte olduklarından biraz daha kısaydı ve Discord bunu sohbetin kayması sandı."
+                ],
                 "2.2.1": [
                     "Sohbet yeniden varsayılan olarak kapalı: uzaktaki mesajları atlamak, yukarı kaydırırken seni aşağı geri çekebiliyordu. Kendin açtıysan açık kalır."
                 ],

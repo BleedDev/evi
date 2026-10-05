@@ -57,6 +57,31 @@ function isScrollable(el: Element) {
     return /(auto|scroll)/.test(getComputedStyle(el).overflowY) && el.scrollHeight > el.clientHeight;
 }
 
+/** The first or last child that takes part in layout: not display: none, not taken out of the flow */
+function edgeChild(el: Element, last: boolean) {
+    const children = [...el.children];
+    if (last) children.reverse();
+    for (const child of children) {
+        const cs = getComputedStyle(child);
+        if (cs.display !== "none" && cs.position !== "absolute" && cs.position !== "fixed") return cs;
+    }
+    return null;
+}
+
+/**
+ * Whether a child's vertical margin passes through el's top or bottom edge. Only a block (or list
+ * item) that isn't its own formatting context lets margins through, and only across an edge with no
+ * padding or border.
+ */
+function marginCollapsesThrough(el: Element) {
+    const cs = getComputedStyle(el);
+    if (cs.display !== "block" && cs.display !== "list-item") return false;
+    if (cs.overflowY !== "visible" || cs.contain !== "none" || cs.float !== "none" || cs.position === "absolute" || cs.position === "fixed") return false;
+    const top = parseFloat(cs.paddingTop) === 0 && parseFloat(cs.borderTopWidth) === 0 && parseFloat(edgeChild(el, false)?.marginTop ?? "0") !== 0;
+    const bottom = parseFloat(cs.paddingBottom) === 0 && parseFloat(cs.borderBottomWidth) === 0 && parseFloat(edgeChild(el, true)?.marginBottom ?? "0") !== 0;
+    return top || bottom;
+}
+
 /** How deep inside the list its scroller can be. Discord's sits a level or two in; deeper ones are code blocks and embeds. */
 const SCROLLER_DEPTH = 4;
 
@@ -202,34 +227,29 @@ function createSession(list: Element, kind: ListKind, marginScreens: number) {
     };
 
     // Rows only change when Discord re-renders them, so work each item's row out once
-    const rowCache = new WeakMap<Element, HTMLElement>();
+    const rowCache = new WeakMap<Element, HTMLElement | null>();
 
     /** The outermost element around an item that contains no other item: one row, for servers and folder headers alike */
     const rowOf = (item: Element) => {
         const cached = rowCache.get(item);
-        if (cached?.isConnected && cached.contains(item)) return cached;
+        if (cached === null || (cached?.isConnected && cached.contains(item))) return cached;
         const row = computeRow(item);
         rowCache.set(item, row);
         return row;
     };
 
-    const computeRow = (item: Element) => {
+    const computeRow = (item: Element): HTMLElement | null => {
         let el = item as HTMLElement;
         while (el.parentElement && el.parentElement !== scroller && el.parentElement !== list && !siblingHasItem(el)) {
             el = el.parentElement;
         }
-        // A bare wrapper lets its only child's vertical margin collapse through it. Skipping the
-        // wrapper would stop that and shift the list by the margin, so skip the child instead.
-        while (el.children.length === 1) {
-            const cs = getComputedStyle(el);
-            const child = el.children[0] as HTMLElement;
-            const childCs = getComputedStyle(child);
-            const bare = cs.display === "block" && parseFloat(cs.paddingTop) === 0 && parseFloat(cs.paddingBottom) === 0
-                && parseFloat(cs.borderTopWidth) === 0 && parseFloat(cs.borderBottomWidth) === 0;
-            if (!bare || (parseFloat(childCs.marginTop) === 0 && parseFloat(childCs.marginBottom) === 0)) break;
-            el = child;
-        }
-        return el;
+        // A hidden row keeps its size but its children's margins no longer collapse through it, so a
+        // row they collapse through would shrink by that margin (Discord's chat: a message group's
+        // 17px top margin through its <li>). The chat reads that as the layout moving and pulls the
+        // view back. Take the child with the margin as the row instead, so the margin stays outside.
+        while (marginCollapsesThrough(el) && el.children.length === 1) el = el.children[0] as HTMLElement;
+        // Can't be hidden without changing the list's height: leave it rendered
+        return marginCollapsesThrough(el) ? null : el;
     };
 
     // Read once: a layout read on every scroll event could force a reflow mid-scroll
@@ -271,7 +291,10 @@ function createSession(list: Element, kind: ListKind, marginScreens: number) {
             // A few dozen rows between clock reads
             while (next < items.length && performance.now() < deadline) {
                 const end = Math.min(next + 50, items.length);
-                for (; next < end; next++) if (items[next].isConnected) current.add(rowOf(items[next]));
+                for (; next < end; next++) {
+                    const row = items[next].isConnected && rowOf(items[next]);
+                    if (row) current.add(row);
+                }
             }
             return next >= items.length;
         }, () => {
@@ -389,7 +412,7 @@ export default definePlugin({
             type: "boolean",
             get label() { return t("settings.chat"); },
             get description() { return t("settings.chat.description"); },
-            // Off until it stops pulling the chat back while you scroll up (2.2.0 had it on)
+            // Off by default since 2.2.1; 2.2.2 fixed what pulled the chat back while scrolling up
             default: false,
         },
         members: {

@@ -1,12 +1,12 @@
 <p align="center">
-  <a href="https://evi.rest"><img src="docs/art/hero.webp" alt="Evi: Make Discord yours. More than 60 plugins, plus themes and wallpapers, in one store." width="100%"></a>
+  <a href="https://evi.rest"><img src="docs/art/hero.webp" alt="Evi: Make Discord yours" width="100%"></a>
 </p>
 
 <p align="center">
   <a href="https://github.com/BleedDev/evi/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/BleedDev/evi?style=for-the-badge&label=release&color=7050D8&labelColor=1F1D2B"></a>
   <a href="https://github.com/BleedDev/evi/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/BleedDev/evi/total?style=for-the-badge&color=2FB36B&labelColor=1F1D2B"></a>
   <a href="https://discord.gg/BE4PmvmHB7"><img alt="Discord" src="https://img.shields.io/discord/1556425905453408336?style=for-the-badge&logo=discord&logoColor=white&label=discord&color=5865F2&labelColor=1F1D2B"></a>
-  <a href="https://evi.rest"><img alt="More than 60 plugins" src="https://img.shields.io/badge/plugins-60%2B-E5609A?style=for-the-badge&labelColor=1F1D2B"></a>
+  <a href="LICENSE"><img alt="GPL-3.0" src="https://img.shields.io/badge/license-GPL--3.0-E5609A?style=for-the-badge&labelColor=1F1D2B"></a>
 </p>
 
 <p align="center">
@@ -19,103 +19,104 @@
 
 <br>
 
-## <img src="docs/art/icons/piece_purple.png" width="28" height="28" alt=""> Plugins at work
+Evi is a client mod for the Discord desktop app. You get a bunch of plugins and themes, it installs in a click, and it keeps itself working when Discord updates.
+
+## <img src="docs/art/icons/piece_purple.png" width="28" height="28" alt=""> What it looks like
 
 <p align="center">
   <img src="docs/art/plugins.webp" alt="Six Evi plugins in a Discord window, one after another: Message Logger, Inline Translate, Music Player, Timezones, Voice Messages and Who Reacted" width="100%">
 </p>
 
-Every plugin is off until you turn it on, and they all update with Evi.
+That's six of them. There are over 60 now, and they're all off until you switch them on.
 
-## <img src="docs/art/icons/download.png" width="28" height="28" alt=""> Get started
+## <img src="docs/art/icons/download.png" width="28" height="28" alt=""> Installing
 
-Download **Evi Setup** for your system from [evi.rest/download](https://evi.rest/download), open it, tick your Discord and click **Install Evi**. That's it: Discord restarts with Evi in it.
+Grab **Evi Setup** from [evi.rest/download](https://evi.rest/download), pick your Discord and hit **Install Evi**. Discord restarts with Evi in it.
 
-- **macOS:** the first time, macOS says it can't verify Evi Setup. Open System Settings → Privacy & Security and click **Open Anyway**. If it then says Evi Setup was prevented from modifying apps, allow it under **App Management**.
-- **Linux:** allow the download to run as a program first (right-click → Properties). Discord's folder usually belongs to the system, so Evi Setup asks for your password. It needs WebKitGTK, which most desktops have.
+On a Mac, macOS will say it can't verify the app the first time you open it. Go to System Settings → Privacy & Security and click **Open Anyway**, and if it complains about modifying apps, allow it under App Management.
 
-Then open Discord and press **Ctrl+Shift+D**, or find **Evi** in Discord's settings. Turn on the plugins you like, and you're done.
+On Linux, mark the download as executable first (right-click → Properties). It'll ask for your password because Discord's folder usually belongs to root. You also need WebKitGTK, which you most likely have already.
 
-Works with Discord Stable, PTB and Canary. When there's a new Evi, it tells you and updates in one click, or quietly when you close Discord if you'd rather.
+Once it's in, open Discord and press **Ctrl+Shift+D**, or look for Evi in Discord's settings. It works with Stable, PTB and Canary. Updates take care of themselves too. Evi asks first, or just updates when you close Discord if you'd rather not be asked.
 
-## <img src="docs/art/icons/heart.png" width="28" height="28" alt=""> What you get
+## <img src="docs/art/icons/heart.png" width="28" height="28" alt=""> What's in it
 
 <table>
   <tr>
     <td width="50%" valign="top">
       <img src="docs/art/feature-store.webp" alt="" width="100%"><br>
-      <h3>A store full of plugins and themes</h3>
-      See what's trending and new, read reviews, heart plugins to hear when they update, and install with one click. Community plugins are read by Evi's team before they go in.
+      <h3>The store</h3>
+      It's where you find plugins and themes. Everything in it is free, the name just stuck. You can see what's new or popular, read reviews and install with one click. We read community plugins before they go up.
     </td>
     <td width="50%" valign="top">
       <img src="docs/art/feature-promise.webp" alt="" width="100%"><br>
-      <h3>Plugins say what they need</h3>
-      Before you install anything, you see what it asks for: which sites it talks to, whether it reads your messages. Evi blocks the rest.
+      <h3>Plugins have to ask</h3>
+      Each plugin says up front what it needs, like which sites it talks to or whether it reads your messages. Anything it didn't ask for gets blocked.
     </td>
   </tr>
   <tr>
     <td width="50%" valign="top">
       <img src="docs/art/feature-safe.webp" alt="" width="100%"><br>
       <h3>Hard to break</h3>
-      If a Discord update breaks a plugin, Evi's team can fix it for everyone within minutes. If Discord crashes, Evi tells you which plugin was busy and offers to turn it off.
+      When a Discord update breaks a plugin, we can push a fix to everyone in a few minutes without a new release. If Discord crashes, Evi tells you which plugin was running and offers to turn it off.
     </td>
     <td width="50%" valign="top">
       <img src="docs/art/feature-shape.webp" alt="" width="100%"><br>
-      <h3>Yours to shape</h3>
-      Put an image or video behind Discord, make a theme by picking colours, set keyboard shortcuts for plugins, and get Evi in your language.
+      <h3>Make it yours</h3>
+      Put a picture or a video behind Discord, or make a theme by picking colours. Plugins can have keyboard shortcuts, and Evi is translated into a few languages.
     </td>
   </tr>
 </table>
 
 ## <img src="docs/art/icons/rocket.png" width="28" height="28" alt=""> Plugins
 
-Evi comes with these, all off until you turn them on. There are more in the store.
+These come with Evi. There are more in the store.
 
 <table>
   <tr>
     <td width="50%" valign="top">
       <b>Chat</b><br>
-      <b>Message Logger</b>: deleted and edited messages stay visible<br>
-      <b>Who Reacted</b>: little avatars of who reacted, on each reaction<br>
-      <b>Typing Tweaks</b>: see who's typing, with dots on channels and DMs<br>
-      <b>Inline Translate</b>: translate a message right under it<br>
-      <b>Snippets</b>: saved replies with <code>/snip</code><br>
-      <b>Silent Typing</b>: nobody sees "is typing…"<br>
-      <b>Voice Message Download</b>: save voice messages as files
+      <b>Message Logger</b> keeps deleted and edited messages around<br>
+      <b>Who Reacted</b> puts little avatars on reactions<br>
+      <b>Typing Tweaks</b> shows who's typing, even in your channel list<br>
+      <b>Inline Translate</b> translates a message right under it<br>
+      <b>Snippets</b> for saved replies (<code>/snip</code>)<br>
+      <b>Silent Typing</b> hides your "is typing…"<br>
+      <b>Voice Message Download</b> saves voice messages as files
     </td>
     <td width="50%" valign="top">
-      <b>Friends and people</b><br>
-      <b>Last Seen</b>: when someone was last online, active or talking<br>
-      <b>Friend Online Alerts</b>: know when your people come online<br>
-      <b>Relationship Notifier</b>: know when someone unfriends you or leaves a group<br>
-      <b>Timezones</b>: see someone's local time next to their name<br>
-      <b>Platform Indicators</b>: desktop, mobile, web or console<br>
-      <b>DM Categories</b>: sort your DMs into folders<br>
-      <b>View Icons</b>: open someone's avatar or banner full size and download it
+      <b>Friends</b><br>
+      <b>Last Seen</b> tells you when someone was last around<br>
+      <b>Friend Online Alerts</b> pings you when certain people come online<br>
+      <b>Relationship Notifier</b> lets you know if someone unfriends you<br>
+      <b>Timezones</b> shows someone's local time next to their name<br>
+      <b>Platform Indicators</b> shows if they're on desktop, mobile, web or console<br>
+      <b>DM Categories</b> lets you sort DMs into folders<br>
+      <b>View Icons</b> opens avatars and banners full size
     </td>
   </tr>
   <tr>
     <td width="50%" valign="top">
       <b>Privacy</b><br>
-      <b>Streamer Mode+</b>: blur your DMs, servers and images while you stream<br>
-      <b>Hide Personal Info</b>: blur your email, phone and IPs in settings<br>
-      <b>Link Safety</b>: warns you about scam links before they open<br>
-      <b>Clear URLs</b>: strip tracking junk from links you send<br>
-      <b>Strip Metadata</b>: remove GPS and camera info from images you upload<br>
-      <b>No Track</b>: block Discord's analytics<br>
-      <b>Game Activity Toggle</b>: hide what you're playing, in one click<br>
-      <b>Hide Blocked Completely</b>: blocked people's messages disappear
+      <b>Streamer Mode+</b> blurs DMs, servers and images while you stream<br>
+      <b>Hide Personal Info</b> blurs your email and phone number in settings<br>
+      <b>Link Safety</b> warns you before you open a scam link<br>
+      <b>Clear URLs</b> strips tracking stuff from links you send<br>
+      <b>Strip Metadata</b> removes GPS info from pictures you upload<br>
+      <b>No Track</b> blocks Discord's analytics<br>
+      <b>Game Activity Toggle</b> hides what you're playing<br>
+      <b>Hide Blocked Completely</b> makes blocked people actually disappear
     </td>
     <td width="50%" valign="top">
       <b>Servers, media and voice</b><br>
-      <b>Show Hidden Channels</b>, <b>Permissions Viewer</b>, <b>Read All</b><br>
-      <b>Emoji Stealer</b>: add any emoji or sticker to your server<br>
-      <b>GIF Folders</b>, <b>Better Image Viewer</b>, <b>Video Controls+</b><br>
-      <b>Volume Booster</b>: past Discord's 200%<br>
-      <b>Voice Activity Log</b>: who joined and left your call<br>
+      <b>Show Hidden Channels</b>, <b>Permissions Viewer</b> and <b>Read All</b><br>
+      <b>Emoji Stealer</b> adds an emoji or sticker to your own server<br>
+      <b>GIF Folders</b>, <b>Better Image Viewer</b> and <b>Video Controls+</b><br>
+      <b>Volume Booster</b> goes past Discord's 200%<br>
+      <b>Voice Activity Log</b> shows who joined and left your call<br>
       <br>
       <b>Speed</b><br>
-      <b>Fast Lists</b>, <b>Smooth Typing</b>, <b>Calm Name Effects</b>, <b>Dedicated GPU</b>: keep Discord smooth, even with hundreds of servers
+      <b>Fast Lists</b>, <b>Smooth Typing</b>, <b>Calm Name Effects</b> and <b>Dedicated GPU</b> help if Discord feels slow, especially with a lot of servers
     </td>
   </tr>
 </table>
@@ -123,20 +124,20 @@ Evi comes with these, all off until you turn them on. There are more in the stor
 ## <img src="docs/art/icons/question.png" width="28" height="28" alt=""> Questions
 
 **Can I get banned for this?**
-Client mods are against Discord's Terms of Service. In practice Discord doesn't go looking for them, but it's your call.
+Client mods are against Discord's Terms of Service. Discord doesn't really go looking for them, but it's your call.
 
-**Something broke. What now?**
-If Discord keeps crashing, Evi starts in safe mode on its own: no plugins, themes or custom CSS until you say so. You can also start Discord with `--evi-safe` for that, or `--vanilla` to skip Evi once. A store plugin's crash report can go straight to its author from Evi's settings.
+**Something broke, now what?**
+If Discord keeps crashing, Evi goes into safe mode by itself and turns off plugins, themes and custom CSS until you say otherwise. You can start it that way yourself with `--evi-safe`, or skip Evi for one launch with `--vanilla`. If a store plugin crashed, you can send the crash report to whoever made it from Evi's settings.
 
-**How do I remove it?**
-Run Evi Setup and click **Uninstall Evi**. Discord goes back exactly as it was.
+**How do I get rid of it?**
+Open Evi Setup and click **Uninstall Evi**. Discord goes back to exactly how it was.
 
-**Discord updated and Evi is gone.**
-Evi puts itself back when Discord updates, on every system. If it ever doesn't, open Evi Setup and click **Install Evi** again.
+**Discord updated and Evi's gone.**
+It should put itself back. If it didn't, run Evi Setup and click **Install Evi** again.
 
-## <img src="docs/art/icons/wrench.png" width="28" height="28" alt=""> Make your own
+## <img src="docs/art/icons/wrench.png" width="28" height="28" alt=""> Making plugins
 
-Plugins are small TypeScript files that reload in Discord while you edit them.
+Plugins are plain TypeScript, and they reload in Discord while you edit them.
 
 ```sh
 git clone https://github.com/BleedDev/evi && cd evi
@@ -146,14 +147,15 @@ bun run new-plugin my-plugin       # a working plugin to start from
 bun run dev                        # rebuilds as you save, and Discord reloads it
 ```
 
-- **[Writing plugins](docs/plugins.md)**: the full guide, from an empty folder to the store
-- **[Developing Evi](docs/development.md)**: how Evi works, building installers, releasing
-- **[Plugin API changelog](https://evi.rest/docs/api-changelog)**: what changed for plugins in each version
-- `bun run preview-plugin my-plugin` shows its store page before you upload it on [evi.rest](https://evi.rest)
+[Writing plugins](docs/plugins.md) is the full guide, from an empty folder to getting it into the store. [Developing Evi](docs/development.md) is about Evi itself, like building the installers and doing releases. When the plugin API changes, it's written down in the [API changelog](https://evi.rest/docs/api-changelog). And `bun run preview-plugin my-plugin` shows you its store page before you upload it on [evi.rest](https://evi.rest).
 
 ## <img src="docs/art/icons/shield.png" width="28" height="28" alt=""> Community
 
-Come say hi in the **[Evi Discord](https://discord.gg/BE4PmvmHB7)**: get help, hear about new plugins first, share your setup and talk to the team. Found a bug or have an idea? Post it in the server's forums, or [open an issue](https://github.com/BleedDev/evi/issues) here.
+There's a [Discord server](https://discord.gg/BE4PmvmHB7) if you need help or want to show off your setup, or just hang out. Bugs and ideas can go there or in [issues](https://github.com/BleedDev/evi/issues).
+
+## License
+
+Evi is free software under the [GPL-3.0](LICENSE).
 
 <br>
 

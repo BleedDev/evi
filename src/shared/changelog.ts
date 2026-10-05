@@ -28,6 +28,15 @@ export interface Release {
  */
 export const RELEASES: Release[] = [
     {
+        version: "2.2.0",
+        date: "2026-10-05",
+        sections: {
+            fixed: [
+                "**Updates follow your settings.** When Evi's team says an update is needed, Evi only downloads it and restarts Discord by itself if you have automatic updates on. Otherwise it tells you and waits until you press Update now. Plugins come along only if you have plugin auto-update on.",
+            ],
+        },
+    },
+    {
         version: "2.1.0",
         date: "2026-10-03",
         sections: {

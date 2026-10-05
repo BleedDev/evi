@@ -11,6 +11,11 @@ export type ReleaseNotes = Partial<Record<SectionKind, string[]>>;
 /** Language -> version -> section -> lines */
 export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
     de: {
+        "2.2.0": {
+            fixed: [
+                "**Updates folgen deinen Einstellungen.** Wenn Evis Team ein Update verlangt, lädt Evi es nur dann selbst herunter und startet Discord neu, wenn automatische Updates an sind. Sonst sagt es dir Bescheid und wartet, bis du auf Jetzt aktualisieren drückst. Plugins werden nur mit aktualisiert, wenn automatische Plugin-Updates an sind.",
+            ],
+        },
         "2.1.0": {
             added: [
                 "**Arbeitsspeicher im Leistungs-Tab.** Sieh, wie viel Discord nutzt, und lass Evi es auf Wunsch neu starten, wenn es zu viel braucht, während du weg bist. Nie während eines Anrufs und höchstens einmal am Tag.",
@@ -322,6 +327,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     es: {
+        "2.2.0": {
+            fixed: [
+                "**Las actualizaciones siguen tus ajustes.** Cuando el equipo de Evi dice que hace falta una actualización, Evi solo la descarga y reinicia Discord por su cuenta si tienes las actualizaciones automáticas activadas. Si no, te avisa y espera a que pulses Actualizar ahora. Los plugins solo se actualizan con ella si tienes activada la actualización automática de plugins.",
+            ],
+        },
         "2.1.0": {
             added: [
                 "**Memoria en la pestaña Rendimiento.** Mira cuánto usa Discord y, si quieres, deja que Evi lo reinicie cuando use demasiada mientras no estás. Nunca durante una llamada, y como mucho una vez al día.",
@@ -633,6 +643,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     fr: {
+        "2.2.0": {
+            fixed: [
+                "**Les mises à jour suivent tes réglages.** Quand l'équipe d'Evi dit qu'une mise à jour est nécessaire, Evi ne la télécharge et ne redémarre Discord tout seul que si les mises à jour automatiques sont activées. Sinon, il te prévient et attend que tu appuies sur Mettre à jour. Les plugins ne suivent que si la mise à jour automatique des plugins est activée.",
+            ],
+        },
         "2.1.0": {
             added: [
                 "**La mémoire dans l'onglet Performances.** Vois ce que Discord utilise et, si tu veux, laisse Evi le redémarrer quand il en utilise trop pendant ton absence. Jamais pendant un appel, et au plus une fois par jour.",
@@ -944,6 +959,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ja: {
+        "2.2.0": {
+            fixed: [
+                "**アップデートは設定どおりに。** Evi チームがアップデートを必要としたとき、Evi が自分でダウンロードして Discord を再起動するのは、自動アップデートがオンの場合だけです。オフなら知らせるだけで、「今すぐアップデート」を押すまで待ちます。プラグインも、プラグインの自動アップデートがオンのときだけ一緒に更新されます。",
+            ],
+        },
         "2.1.0": {
             added: [
                 "**パフォーマンスタブにメモリ表示。** Discord が使っているメモリを確認でき、離席中に使いすぎたときは Evi に再起動させることもできます。通話中は行わず、1 日 1 回までです。",
@@ -1255,6 +1275,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     pl: {
+        "2.2.0": {
+            fixed: [
+                "**Aktualizacje słuchają twoich ustawień.** Gdy zespół Evi uzna aktualizację za potrzebną, Evi sam ją pobiera i uruchamia ponownie Discorda tylko wtedy, gdy masz włączone automatyczne aktualizacje. W przeciwnym razie informuje cię i czeka, aż naciśniesz Aktualizuj teraz. Pluginy aktualizują się razem z nią tylko przy włączonej automatycznej aktualizacji pluginów.",
+            ],
+        },
         "2.1.0": {
             added: [
                 "**Pamięć w karcie Wydajność.** Zobacz, ile używa Discord, i jeśli chcesz, pozwól Evi uruchomić go ponownie, gdy pod twoją nieobecność zużywa za dużo. Nigdy podczas rozmowy i najwyżej raz dziennie.",
@@ -1566,6 +1591,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     "pt-BR": {
+        "2.2.0": {
+            fixed: [
+                "**As atualizações seguem suas configurações.** Quando a equipe do Evi diz que uma atualização é necessária, o Evi só a baixa e reinicia o Discord sozinho se as atualizações automáticas estiverem ativadas. Caso contrário, ele avisa e espera você tocar em Atualizar agora. Os plugins só vêm junto se a atualização automática de plugins estiver ativada.",
+            ],
+        },
         "2.1.0": {
             added: [
                 "**Memória na aba Desempenho.** Veja quanto o Discord usa e, se quiser, deixe o Evi reiniciá-lo quando ele usar demais enquanto você está ausente. Nunca durante uma chamada e no máximo uma vez por dia.",
@@ -1877,6 +1907,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ru: {
+        "2.2.0": {
+            fixed: [
+                "**Обновления слушаются ваших настроек.** Когда команда Evi говорит, что нужно обновиться, Evi сам скачивает обновление и перезапускает Discord, только если автоматические обновления включены. Иначе он сообщает об этом и ждёт, пока вы нажмёте «Обновить сейчас». Плагины обновляются вместе с ним, только если включено автообновление плагинов.",
+            ],
+        },
         "2.1.0": {
             added: [
                 "**Память во вкладке «Производительность».** Смотрите, сколько использует Discord, и при желании разрешите Evi перезапускать его, когда он занимает слишком много, пока вас нет. Никогда во время звонка и не чаще раза в день.",
@@ -2188,6 +2223,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     tr: {
+        "2.2.0": {
+            fixed: [
+                "**Güncellemeler ayarlarına uyar.** Evi ekibi bir güncellemenin gerekli olduğunu söylediğinde Evi, güncellemeyi kendisi indirip Discord'u yalnızca otomatik güncellemeler açıksa yeniden başlatır. Kapalıysa sana haber verir ve Şimdi güncelle'ye basmanı bekler. Eklentiler de yalnızca eklenti otomatik güncellemesi açıksa birlikte güncellenir.",
+            ],
+        },
         "2.1.0": {
             added: [
                 "**Performans sekmesinde bellek.** Discord'un ne kadar kullandığını gör, istersen sen yokken çok fazla kullandığında Evi onu yeniden başlatsın. Asla bir arama sırasında değil ve günde en fazla bir kez.",

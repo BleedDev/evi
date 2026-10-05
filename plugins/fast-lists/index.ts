@@ -12,15 +12,16 @@ import { t } from "./strings";
  * row renders again, a generous distance before it can scroll into view; a jump bigger than that
  * reveals every row before the frame paints. We never touch the scroll position ourselves.
  *
- * A hidden row keeps the size it had when it was hidden, so it must never go stale: Discord's chat
- * holds your place with an anchor message whose offset it freezes while you scroll, and any change to
- * the chat's height mid-scroll makes it jump back to where the scroll began. So a hidden row that
- * changes (a reaction, an edit, an image or embed loading, a new width or font size) is revealed right
- * then, when it would have changed size without us, and hidden again with its new size.
+ * A hidden row keeps the size it had when it was hidden, so it must never go stale: a hidden row that
+ * changes (a badge, an image loading, a new width or font size) is revealed right then, when it would
+ * have changed size without us, and hidden again with its new size.
+ *
+ * The chat is left alone (it was an option until 2.3.0): Discord's chat holds your place with an anchor
+ * message whose offset it freezes while you scroll, and jumps back to where the scroll began on any
+ * change to the chat's height. Skipping messages there kept fighting that for a small gain.
  *
  * Measured on a 185-server account on a ~300Hz display: p95 frame gap 6.7ms -> 3.7ms (server list).
  * Measured and rejected: `contain: layout style` on every row made frames slower (p95 10ms).
- * Chat, 150 messages in headless Chrome: a relayout of the chat (window resize) 3.3-4ms -> 0.45ms.
  * The member list stays off by default: Discord's list already renders only a chunk or two around
  * the view, closer than our render distance, so there is never a far row to skip.
  *
@@ -44,7 +45,7 @@ const css = `
 `;
 
 interface ListKind {
-    key: "servers" | "chat" | "members";
+    key: "servers" | "members";
     list: string;
     /** Items of one list element, given its data-list-id */
     item: (listId: string) => string;
@@ -55,7 +56,6 @@ const itemOf = (listId: string) => `[data-list-item-id^="${listId}___"]`;
 
 const LISTS: ListKind[] = [
     { key: "servers", list: '[data-list-id="guildsnav"]', item: itemOf, flattenPills: true },
-    { key: "chat", list: '[data-list-id^="chat-messages"]', item: itemOf },
     { key: "members", list: '[data-list-id^="members"]', item: itemOf },
 ];
 
@@ -250,9 +250,8 @@ function createSession(list: Element, kind: ListKind, marginScreens: number) {
             el = el.parentElement;
         }
         // A hidden row keeps its size but its children's margins no longer collapse through it, so a
-        // row they collapse through would shrink by that margin (Discord's chat: a message group's
-        // 17px top margin through its <li>). The chat reads that as the layout moving and pulls the
-        // view back. Take the child with the margin as the row instead, so the margin stays outside.
+        // row they collapse through would shrink by that margin and the list would change height.
+        // Take the child with the margin as the row instead, so the margin stays outside.
         while (marginCollapsesThrough(el) && el.children.length === 1) el = el.children[0] as HTMLElement;
         // Can't be hidden without changing the list's height: leave it rendered
         return marginCollapsesThrough(el) ? null : el;
@@ -262,8 +261,8 @@ function createSession(list: Element, kind: ListKind, marginScreens: number) {
     const margin = Math.round((scroller?.clientHeight ?? 800) * marginScreens);
 
     // Without a scroller (short list) there is nothing far away to skip.
-    // We never write scrollTop: doing so to keep the view pinned fought fast scrolling and Discord
-    // loading older messages, and could hold the chat in place. The browser's scroll anchoring
+    // We never write scrollTop: doing so to keep the view pinned fought fast scrolling and Discord's
+    // own scroll handling. The browser's scroll anchoring
     // keeps the view stable when a revealed row turns out to have a different size.
     const visibility = scroller
         ? new IntersectionObserver(entries => {
@@ -281,7 +280,7 @@ function createSession(list: Element, kind: ListKind, marginScreens: number) {
      * are fully rendered until we get to them.
      */
     let cancelSync: (() => void) | undefined;
-    /** Rows changed while a sync was running: run once more after it, never restart it (a busy chat would starve it) */
+    /** Rows changed while a sync was running: run once more after it, never restart it (a busy list would starve it) */
     let again = false;
     let grew = false;
     const sync = () => {
@@ -499,13 +498,6 @@ export default definePlugin({
             get description() { return t("settings.servers.description"); },
             default: true,
         },
-        chat: {
-            type: "boolean",
-            get label() { return t("settings.chat"); },
-            get description() { return t("settings.chat.description"); },
-            // Off by default since 2.2.1. 2.2.2 and 2.2.3 fixed what pulled the chat back while scrolling up
-            default: false,
-        },
         members: {
             type: "boolean",
             get label() { return t("settings.members"); },
@@ -635,7 +627,7 @@ export default definePlugin({
         });
         ctx.settings.onChange(() => refresh(true));
 
-        // Chats and member lists are replaced when you switch channels: re-attach to the new ones
+        // Member lists are replaced when you switch channels, the sidebar now and then: re-attach to the new ones
         ctx.setInterval(() => {
             refresh();
         }, 1000);

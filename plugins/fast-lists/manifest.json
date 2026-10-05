@@ -1,8 +1,8 @@
 {
     "id": "fast-lists",
     "name": "Fast Lists",
-    "description": "Keeps Discord smooth with hundreds of servers and long chats. Servers, messages and members far out of view skip rendering work, without ever being removed, so nothing flickers, disappears or jumps.",
-    "version": "2.2.3",
+    "description": "Keeps Discord smooth with hundreds of servers. Servers and members far out of view skip rendering work, without ever being removed, so nothing flickers, disappears or jumps.",
+    "version": "2.3.0",
     "minEviVersion": "2.1.0",
     "authors": [
         "Evi"
@@ -12,6 +12,13 @@
     ],
     "permissions": {},
     "changelog": [
+        {
+            "version": "2.3.0",
+            "notes": [
+                "The chat option is gone: Fast Lists leaves the chat alone.",
+                "Skipping far messages kept fighting how Discord holds your place while you scroll, for little gain. The server list works as before."
+            ]
+        },
         {
             "version": "2.2.3",
             "notes": [
@@ -82,8 +89,12 @@
     "locales": {
         "de": {
             "name": "Schnelle Listen",
-            "description": "Hält Discord flüssig, auch mit Hunderten Servern und langen Chats. Server, Nachrichten und Mitglieder weit außerhalb des Sichtbereichs sparen sich die Renderarbeit, ohne je entfernt zu werden, sodass nichts flackert, verschwindet oder springt.",
+            "description": "Hält Discord flüssig, auch mit Hunderten Servern. Server und Mitglieder weit außerhalb des Sichtbereichs sparen sich die Renderarbeit, ohne je entfernt zu werden, sodass nichts flackert, verschwindet oder springt.",
             "changelog": {
+                "2.3.0": [
+                    "Die Chat-Option ist weg: Schnelle Listen lässt den Chat in Ruhe.",
+                    "Das Überspringen weit entfernter Nachrichten kam Discord beim Scrollen immer wieder in die Quere, für wenig Gewinn. Die Serverliste funktioniert wie bisher."
+                ],
                 "2.2.3": [
                     "Schnelles Hochscrollen im Chat zieht dich nicht mehr nach unten.",
                     "Eine weit entfernte Nachricht, die sich änderte, während sie übersprungen wurde (eine Reaktion, eine Bearbeitung, ein ladendes Bild, ein schmalerer Chat), kam in ihrer alten Größe zurück, und Discord hielt den Unterschied für einen springenden Chat.",
@@ -123,8 +134,12 @@
         },
         "es": {
             "name": "Listas rápidas",
-            "description": "Mantiene Discord fluido con cientos de servidores y chats largos. Los servidores, mensajes y miembros muy fuera de la vista se ahorran el trabajo de renderizado sin eliminarse nunca, así que nada parpadea, desaparece ni da saltos.",
+            "description": "Mantiene Discord fluido con cientos de servidores. Los servidores y miembros muy fuera de la vista se ahorran el trabajo de renderizado sin eliminarse nunca, así que nada parpadea, desaparece ni da saltos.",
             "changelog": {
+                "2.3.0": [
+                    "La opción de chat ya no está: Listas rápidas deja el chat en paz.",
+                    "Omitir los mensajes lejanos chocaba una y otra vez con cómo Discord mantiene tu posición al desplazarte, para poca ganancia. La lista de servidores funciona como antes."
+                ],
                 "2.2.3": [
                     "Subir rápido en el chat ya no te devuelve hacia abajo.",
                     "Un mensaje lejano que cambiaba mientras se omitía (una reacción, una edición, una imagen cargando, un chat más estrecho) volvía con su tamaño antiguo, y Discord tomaba la diferencia como que el chat se movía.",
@@ -164,8 +179,12 @@
         },
         "fr": {
             "name": "Listes rapides",
-            "description": "Garde Discord fluide avec des centaines de serveurs et de longs chats. Les serveurs, messages et membres très loin de la vue évitent le travail de rendu sans jamais être supprimés, donc rien ne clignote, ne disparaît ni ne saute.",
+            "description": "Garde Discord fluide avec des centaines de serveurs. Les serveurs et membres très loin de la vue évitent le travail de rendu sans jamais être supprimés, donc rien ne clignote, ne disparaît ni ne saute.",
             "changelog": {
+                "2.3.0": [
+                    "L'option Chat a disparu : Listes rapides laisse le chat tranquille.",
+                    "Ignorer les messages lointains entrait sans cesse en conflit avec la façon dont Discord garde ta position pendant le défilement, pour peu de gain. La liste des serveurs fonctionne comme avant."
+                ],
                 "2.2.3": [
                     "Remonter vite dans le chat ne te ramène plus vers le bas.",
                     "Un message lointain qui changeait pendant qu'il était ignoré (une réaction, une modification, une image qui charge, un chat plus étroit) revenait à son ancienne taille, et Discord prenait la différence pour un chat qui bouge.",
@@ -205,8 +224,12 @@
         },
         "ja": {
             "name": "高速リスト",
-            "description": "数百のサーバーや長いチャットでも Discord をなめらかに保ちます。画面から大きく外れたサーバー、メッセージ、メンバーは削除されることなく描画処理だけを省くので、ちらつきや消失、ジャンプは起きません。",
+            "description": "数百のサーバーがあっても Discord をなめらかに保ちます。画面から大きく外れたサーバーやメンバーは削除されることなく描画処理だけを省くので、ちらつきや消失、ジャンプは起きません。",
             "changelog": {
+                "2.3.0": [
+                    "チャットの設定はなくなりました。高速リストはチャットに手を加えません。",
+                    "離れたメッセージの描画を省く処理は、スクロール中に位置を保つ Discord の仕組みとぶつかり続け、効果もわずかでした。サーバーリストはこれまでどおりです。"
+                ],
                 "2.2.3": [
                     "チャットを素早く上にスクロールしても、下に引き戻されなくなりました。",
                     "描画を省いている間に変化した遠くのメッセージ(リアクション、編集、画像の読み込み、チャット幅の変化)が古いサイズのまま戻り、Discordがその差をチャットの移動だと判断していました。",
@@ -246,8 +269,12 @@
         },
         "pl": {
             "name": "Szybkie listy",
-            "description": "Utrzymuje płynność Discorda przy setkach serwerów i długich czatach. Serwery, wiadomości i członkowie daleko poza widokiem pomijają pracę renderowania, ale nigdy nie są usuwani, więc nic nie migocze, nie znika ani nie skacze.",
+            "description": "Utrzymuje płynność Discorda przy setkach serwerów. Serwery i członkowie daleko poza widokiem pomijają pracę renderowania, ale nigdy nie są usuwani, więc nic nie migocze, nie znika ani nie skacze.",
             "changelog": {
+                "2.3.0": [
+                    "Opcja czatu zniknęła: Szybkie listy nie ruszają czatu.",
+                    "Pomijanie dalekich wiadomości ciągle kłóciło się z tym, jak Discord trzyma twoje miejsce podczas przewijania, a zysk był niewielki. Lista serwerów działa jak dotąd."
+                ],
                 "2.2.3": [
                     "Szybkie przewijanie czatu w górę już nie ściąga cię w dół.",
                     "Daleka wiadomość, która zmieniła się, gdy była pomijana (reakcja, edycja, ładujący się obraz, węższy czat), wracała w starym rozmiarze, a Discord brał różnicę za przesunięcie czatu.",
@@ -287,8 +314,12 @@
         },
         "pt-BR": {
             "name": "Listas rápidas",
-            "description": "Mantém o Discord fluido com centenas de servidores e chats longos. Servidores, mensagens e membros bem fora da tela pulam o trabalho de renderização sem nunca serem removidos, então nada pisca, some ou pula.",
+            "description": "Mantém o Discord fluido com centenas de servidores. Servidores e membros bem fora da tela pulam o trabalho de renderização sem nunca serem removidos, então nada pisca, some ou pula.",
             "changelog": {
+                "2.3.0": [
+                    "A opção de chat saiu: o Listas rápidas deixa o chat em paz.",
+                    "Pular mensagens distantes vivia brigando com o jeito que o Discord mantém sua posição enquanto você rola, para pouco ganho. A lista de servidores funciona como antes."
+                ],
                 "2.2.3": [
                     "Rolar rápido para cima no chat não te puxa mais de volta para baixo.",
                     "Uma mensagem distante que mudava enquanto era pulada (uma reação, uma edição, uma imagem carregando, um chat mais estreito) voltava com o tamanho antigo, e o Discord achava que o chat tinha se mexido.",
@@ -328,8 +359,12 @@
         },
         "ru": {
             "name": "Быстрые списки",
-            "description": "Сохраняет плавность Discord при сотнях серверов и длинных чатах. Серверы, сообщения и участники далеко за пределами экрана не отрисовываются, но никогда не удаляются, поэтому ничего не мерцает, не пропадает и не прыгает.",
+            "description": "Сохраняет плавность Discord при сотнях серверов. Серверы и участники далеко за пределами экрана не отрисовываются, но никогда не удаляются, поэтому ничего не мерцает, не пропадает и не прыгает.",
             "changelog": {
+                "2.3.0": [
+                    "Настройки чата больше нет: Быстрые списки не трогают чат.",
+                    "Пропуск далёких сообщений постоянно конфликтовал с тем, как Discord удерживает позицию при прокрутке, а выигрыш был небольшим. Список серверов работает как раньше."
+                ],
                 "2.2.3": [
                     "Быстрая прокрутка чата вверх больше не тянет вас обратно вниз.",
                     "Далёкое сообщение, изменившееся, пока оно пропускалось (реакция, правка, загрузка картинки, более узкий чат), возвращалось со старым размером, и Discord принимал разницу за сдвиг чата.",
@@ -369,8 +404,12 @@
         },
         "tr": {
             "name": "Hızlı Listeler",
-            "description": "Yüzlerce sunucu ve uzun sohbetlerle Discord'u akıcı tutar. Görüş alanının çok dışındaki sunucular, mesajlar ve üyeler hiç kaldırılmadan oluşturma işinden muaf tutulur; böylece hiçbir şey titremez, kaybolmaz veya sıçramaz.",
+            "description": "Yüzlerce sunucuyla Discord'u akıcı tutar. Görüş alanının çok dışındaki sunucular ve üyeler hiç kaldırılmadan oluşturma işinden muaf tutulur; böylece hiçbir şey titremez, kaybolmaz veya sıçramaz.",
             "changelog": {
+                "2.3.0": [
+                    "Sohbet seçeneği kaldırıldı: Hızlı Listeler sohbete dokunmuyor.",
+                    "Uzaktaki mesajları atlamak, Discord'un kaydırırken yerini koruma şekliyle sürekli çakışıyordu ve kazancı azdı. Sunucu listesi eskisi gibi çalışıyor."
+                ],
                 "2.2.3": [
                     "Sohbette hızla yukarı kaydırmak artık seni aşağı geri çekmiyor.",
                     "Atlanırken değişen uzaktaki bir mesaj (bir tepki, bir düzenleme, yüklenen bir görsel, daralan bir sohbet) eski boyutuyla geri geliyordu ve Discord aradaki farkı sohbetin kayması sandı.",

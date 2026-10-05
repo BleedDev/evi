@@ -1,8 +1,8 @@
 /**
  * Runs the Fast Server List plugin against a synthetic 185-server sidebar in headless Chrome and
  * checks the guarantees that matter: no visible server is ever hidden, no stale state survives a
- * strategy switch or disabling, and rows added later (opened folders) are handled. The chat and a
- * Discord-like virtualized member list get the same checks, and the chat's gain is measured.
+ * strategy switch or disabling, and rows added later (opened folders) are handled. A Discord-like
+ * virtualized member list gets the same checks, and the chat must be left alone.
  *
  *   node scripts/test-fast-lists.ts
  */
@@ -154,79 +154,33 @@ const results = await page.evaluate(async (pluginCode) => {
     out.farWithMargin1 = counts().far;
     out.hiddenVisibleAfterSettingChange = hiddenVisible();
 
-    // Chat: a message far above changes size while skipped, then scrolls back into range.
-    // The message you are reading must not move.
-    const chat = document.querySelector<HTMLElement>(".chatList")!;
-    const chatScroller = document.querySelector<HTMLElement>(".chatScroller")!;
-    for (let i = 0; i < 200; i++) {
-        const li = document.createElement("li");
-        li.setAttribute("data-list-item-id", `chat-messages___m${i}`);
-        li.style.height = `${40 + (i * 37) % 120}px`;
-        li.textContent = `message ${i}`;
-        chat.append(li);
-    }
-    await new Promise(r => setTimeout(r, 1200));
-    (window as any).__setScroll(chatScroller, chatScroller.scrollHeight);
-    await frame();
-    await new Promise(r => setTimeout(r, 100));
-    out.chatFar = chat.querySelectorAll(".dl-fl-far").length;
-    out.chatDebug = { rows: chat.querySelectorAll(".dl-fl-row").length, sh: chatScroller.scrollHeight, ch: chatScroller.clientHeight, top: chatScroller.scrollTop };
-    const target = chat.children[20] as HTMLElement;
-    out.targetSkipped = target.classList.contains("dl-fl-far");
-    target.style.height = "400px"; // edited while skipped
-    // Scroll up in wheel-sized steps until the edited message gets revealed, watching the reading position
-    let worstJump = 0;
-    for (let i = 0; i < 200 && target.classList.contains("dl-fl-far"); i++) {
-        const reading = [...chat.children].find(el => el.getBoundingClientRect().top >= chatScroller.getBoundingClientRect().top) as HTMLElement;
-        const before = reading.getBoundingClientRect().top;
-        (window as any).__setScroll(chatScroller, chatScroller.scrollTop - 100);
-        const expected = before + 100;
-        await frame();
-        worstJump = Math.max(worstJump, Math.abs(reading.getBoundingClientRect().top - expected));
-    }
-    out.chatRevealed = !target.classList.contains("dl-fl-far");
-
-    // Cost of a resync on a 200-message chat (Discord adds/removes rows all the time)
+    // Cost of a resync on the server list as servers are added (rows come and go all the time)
     const t0 = performance.now();
+    const added: HTMLElement[] = [];
     for (let i = 0; i < 20; i++) {
-        const li = document.createElement("li");
-        li.setAttribute("data-list-item-id", `chat-messages___extra${i}`);
-        li.style.height = "40px";
-        chat.append(li);
+        added.push(row(`extra-${i}`));
+        list.append(added[i]);
         await new Promise(r => requestAnimationFrame(r));
     }
     out.resyncMsPerFrame = +((performance.now() - t0) / 20).toFixed(2);
     // Rows are worked out in idle time
     await new Promise(r => requestIdleCallback(() => requestIdleCallback(r)));
-    out.newMessagesMarked = [...chat.children].slice(-20).every(el => el.classList.contains("dl-fl-row"));
-    out.chatWorstJump = +worstJump.toFixed(1);
-
-    // The reported bug: scrolling up fast through a chat while Discord loads older messages at the
-    // top (and restores the scroll position itself). The user must always be able to keep going up.
-    (window as any).__setScroll(chatScroller, chatScroller.scrollHeight);
-    await frame();
-    let loaded = 0, stuckSteps = 0, prevTop = chatScroller.scrollTop;
-    for (let i = 0; i < 400 && loaded < 5; i++) {
-        (window as any).__setScroll(chatScroller, chatScroller.scrollTop - 400);
-        if (chatScroller.scrollTop < 300) {
-            // Discord-like history load: prepend 30 messages, keep the view where it was
-            const before = chatScroller.scrollHeight;
-            for (let j = 0; j < 30; j++) {
-                const li = document.createElement("li");
-                li.setAttribute("data-list-item-id", `chat-messages___old${loaded}-${j}`);
-                li.style.height = `${40 + (j * 53) % 90}px`;
-                chat.prepend(li);
-            }
-            (window as any).__setScroll(chatScroller, chatScroller.scrollTop + (chatScroller.scrollHeight - before));
-            loaded++;
-        }
-        await frame();
-        if (chatScroller.scrollTop >= prevTop && chatScroller.scrollTop > 0) stuckSteps++;
-        prevTop = chatScroller.scrollTop;
-    }
-    out.historyLoads = loaded;
-    out.stuckSteps = stuckSteps;
+    out.newRowsMarked = added.every(el => el.classList.contains("dl-fl-row"));
     out.pluginScrollWrites = pluginScrollWrites;
+
+    // The chat is left alone, even with a "chat" setting saved from an older version: skipping messages
+    // in it fought Discord's own place-keeping while scrolling
+    const chat = document.querySelector<HTMLElement>(".chatList")!;
+    for (let i = 0; i < 200; i++) {
+        const li = document.createElement("li");
+        li.setAttribute("data-list-item-id", `chat-messages___m${i}`);
+        li.style.height = `${40 + (i * 37) % 120}px`;
+        chat.append(li);
+    }
+    await new Promise(r => setTimeout(r, 1200));
+    await new Promise(r => requestIdleCallback(() => requestIdleCallback(r)));
+    out.chatTouched = chat.querySelectorAll(".dl-fl-row, .dl-fl-far").length;
+    out.defaults = { hasChat: "chat" in plugin.settings, members: plugin.settings.members.default };
 
     // Member list, rendered like Discord's: fixed 42px rows, only the 256px chunks around the view
     // (plus one each side) are in the DOM, re-rendered on scroll
@@ -316,319 +270,6 @@ const results = await page.evaluate(async (pluginCode) => {
     return out;
 }, code);
 
-// The gain in chat: a relayout (window resize, member list toggled) of a 150-message chat with
-// Discord-like messages, before and after the plugin skips the far ones
-const gainPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
-await gainPage.setContent(`<!doctype html><style>
-    body { margin: 0; font: 16px sans-serif; }
-    .chatScroller { height: 700px; overflow-y: auto; width: 800px; }
-    .msg { display: flex; gap: 16px; padding: 2px 16px 2px 72px; position: relative; min-height: 44px; }
-    .av { position: absolute; left: 16px; width: 40px; height: 40px; border-radius: 50%; }
-    .hdr { display: flex; align-items: baseline; gap: 8px; margin: 0; font-size: 16px; }
-    .body { display: flex; flex-direction: column; flex: 1; min-width: 0; }
-    .content { white-space: pre-wrap; overflow-wrap: break-word; line-height: 1.375; }
-    .embed { display: grid; grid-template-columns: auto min-content; max-width: 432px; border-left: 4px solid #5865f2; padding: 8px 16px; margin-top: 4px; border-radius: 4px; }
-    .embed img { width: 300px; height: 160px; grid-column: 1 / 3; }
-    .reactions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
-    .reactions button { display: flex; align-items: center; gap: 6px; padding: 2px 6px; border-radius: 8px; }
-</style><main><div class="chatScroller"><ol data-list-id="chat-messages-1-2" class="chatList" style="list-style:none;margin:0;padding:0"></ol></div></main>`);
-const gain = await gainPage.evaluate(async (pluginCode) => {
-    const icon = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect width="40" height="40" fill="purple"/></svg>');
-    const chat = document.querySelector(".chatList")!;
-    const sc = document.querySelector<HTMLElement>(".chatScroller")!;
-    const words = "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua".split(" ");
-    for (let i = 0; i < 150; i++) {
-        const li = document.createElement("li");
-        li.setAttribute("data-list-item-id", `chat-messages-1-2___m${i}`);
-        const text = Array.from({ length: 10 + (i * 7) % 60 }, (_, j) => words[(i + j) % words.length]).join(" ");
-        const embed = i % 5 === 0 ? `<article class="embed"><div><a>Link ${i}</a><div>${text}</div></div><img src="${icon}"></article>` : "";
-        const reactions = i % 3 === 0 ? `<div class="reactions">${`<button><img src="${icon}" width="16" height="16"><span>3</span></button>`.repeat(4)}</div>` : "";
-        li.innerHTML = `<div class="msg"><img class="av" src="${icon}"><div class="body"><h3 class="hdr"><span>user${i % 9}</span><time>Today at 12:${i % 60}</time></h3><div class="content">${text} <b>bold</b> <code>code</code></div>${embed}${reactions}</div></div>`;
-        chat.append(li);
-    }
-    sc.scrollTop = sc.scrollHeight;
-    const frame = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-    await frame();
-    const relayout = () => {
-        const t0 = performance.now();
-        for (let k = 0; k < 40; k++) {
-            sc.style.width = `${k % 2 ? 780 : 800}px`;
-            void sc.offsetHeight;
-        }
-        return (performance.now() - t0) / 40;
-    };
-    relayout();
-    const before = relayout();
-    const settings: Record<string, any> = { servers: true, chat: true, members: true, margin: 2 };
-    const ctx = {
-        addStyle(css: string) {
-            const el = document.createElement("style");
-            el.textContent = css;
-            document.head.append(el);
-        },
-        onDispose() { },
-        setInterval: (fn: () => void, ms: number) => void setInterval(fn, ms),
-        settings: { get: (k: string) => settings[k], onChange() { } },
-    };
-    const module = { exports: {} as any };
-    new Function("module", "exports", "require", pluginCode)(module, module.exports, () => ({ definePlugin: (d: any) => d, defineStrings: (s: any) => (k: string) => s.en[k] ?? k }));
-    const plugin = module.exports.default;
-    plugin.start(ctx);
-    await new Promise(r => setTimeout(r, 1500));
-    await frame();
-    relayout();
-    return {
-        beforeMs: +before.toFixed(2),
-        afterMs: +relayout().toFixed(2),
-        far: chat.querySelectorAll(".dl-fl-far").length,
-        defaults: { chat: plugin.settings.chat.default, members: plugin.settings.members.default },
-    };
-}, code);
-
-// Discord's chat as it really is: each message an <li> (display: list-item, no padding) around a
-// message whose group start has a 17px top margin. That margin passes through the <li> while it's
-// rendered; if a hidden row lost it, the chat would change height mid-scroll, and Discord reads that
-// as the layout shifting and pulls the view back to where it was (the 2.2.0 scroll-up bug).
-const discordPage = await browser.newPage({ viewport: { width: 1000, height: 800 } });
-await discordPage.setContent(`<!doctype html><style>
-    body { margin: 0; font: 16px sans-serif; }
-    .chatScroller { height: 700px; overflow-y: auto; width: 800px; overflow-anchor: none; }
-    .chatList { list-style: none; margin: 0; padding: 0; }
-    .message { padding: 2px 16px 2px 72px; min-height: 22px; }
-    .groupStart { margin-top: 17px; min-height: 44px; }
-</style><main><div class="chatScroller"><ol data-list-id="chat-messages-1-2" class="chatList"></ol></div></main>`);
-const discordChat = await discordPage.evaluate(async (pluginCode) => {
-    const chat = document.querySelector(".chatList")!;
-    const sc = document.querySelector<HTMLElement>(".chatScroller")!;
-    for (let i = 0; i < 400; i++) {
-        const li = document.createElement("li");
-        li.setAttribute("data-list-item-id", `chat-messages-1-2___m${i}`);
-        li.innerHTML = `<div class="message${i % 3 === 0 ? " groupStart" : ""}">${"message text ".repeat(1 + (i * 7) % 12)}</div>`;
-        chat.append(li);
-    }
-    sc.scrollTop = sc.scrollHeight;
-    const frame = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-    const settings: Record<string, any> = { servers: false, chat: true, members: false, margin: 2 };
-    const ctx = {
-        addStyle(css: string) {
-            const el = document.createElement("style");
-            el.textContent = css;
-            document.head.append(el);
-        },
-        onDispose() { },
-        setInterval: (fn: () => void, ms: number) => void setInterval(fn, ms),
-        settings: { get: (k: string) => settings[k], onChange() { } },
-    };
-    const module = { exports: {} as any };
-    new Function("module", "exports", "require", pluginCode)(module, module.exports, () => ({ definePlugin: (d: any) => d, defineStrings: (s: any) => (k: string) => s.en[k] ?? k }));
-    module.exports.default.start(ctx);
-    await new Promise(r => setTimeout(r, 1500));
-    await frame();
-    // What Discord checks on every scroll: has the chat's height changed since the last scroll?
-    let last = sc.scrollHeight, changes = 0, worst = 0;
-    sc.addEventListener("scroll", () => {
-        const h = sc.scrollHeight;
-        if (h !== last) {
-            changes++;
-            worst = Math.max(worst, Math.abs(h - last));
-        }
-        last = h;
-    });
-    for (let i = 0; i < 1000 && sc.scrollTop > 0; i++) {
-        sc.scrollTop -= 100;
-        await frame();
-    }
-    return { far: chat.querySelectorAll(".dl-fl-far").length, reachedTop: sc.scrollTop === 0, heightChanges: changes, worstPx: worst, rowTag: chat.querySelector(".dl-fl-row")?.tagName };
-}, code);
-
-/**
- * Discord's chat holding your place, as its scroll manager does it (the class with findAnchor,
- * updateAutomaticAnchor and fixScrollPosition in Discord's chat chunk): the browser's scroll anchoring
- * is off, an anchor message is picked, and while you keep scrolling its offset from the top stays what
- * it was when the scroll began (it's only picked again 35 ms after the last scroll event). When the chat's
- * height changes, by a resize observer or the next scroll event, Discord scrolls the anchor back to that
- * offset: mid-scroll, back to where the scroll began. That is the pull-back people saw.
- *
- * Messages change while far away (one kind of change per run), then the chat is scrolled up without
- * pause, loading older messages on the way. Without the plugin nothing pulls back; with it, nothing may
- * either.
- */
-const CHANGES = ["reactions", "edits", "images", "groupStart", "width", "fontSize"] as const;
-async function discordScrollUp(withPlugin: boolean, changes: readonly (typeof CHANGES[number])[]) {
-    const p = await browser.newPage({ viewport: { width: 1000, height: 800 } });
-    const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150"><rect width="200" height="150" fill="teal"/></svg>';
-    await p.route("http://images.test/**", async route => {
-        await new Promise(r => setTimeout(r, 1200));
-        await route.fulfill({ contentType: "image/svg+xml", body: svg });
-    });
-    await p.setContent(`<!doctype html><style>
-        body { margin: 0; font: 1rem/1.375rem sans-serif; }
-        .chatScroller { position: relative; height: 700px; overflow-y: auto; width: 800px; overflow-anchor: none; }
-        /* Discord's content box keeps the first message's margin inside it */
-        .content { display: flow-root; }
-        .chatList { list-style: none; margin: 0; padding: 0; }
-        .message { padding: 2px 16px 2px 72px; min-height: 22px; }
-        .groupStart { margin-top: 17px; min-height: 44px; }
-        .reactions { height: 30px; }
-        img { display: block; }
-    </style><main><div class="chatScroller"><div class="content"><ol data-list-id="chat-messages-1-2" class="chatList"></ol></div></div></main>`);
-    const result = await p.evaluate(async ({ pluginCode, withPlugin, changes }) => {
-        const chat = document.querySelector(".chatList")!;
-        const content = document.querySelector<HTMLElement>(".content")!;
-        const sc = document.querySelector<HTMLElement>(".chatScroller")!;
-        let next = 0;
-        const message = () => {
-            const i = next++;
-            const li = document.createElement("li");
-            li.id = `chat-messages-2-m${i}`;
-            li.setAttribute("data-list-item-id", `chat-messages-1-2___m${i}`);
-            li.innerHTML = `<div class="message${i % 3 === 0 ? " groupStart" : ""}">${"message text ".repeat(1 + (i * 7) % 12)}</div>`;
-            return li;
-        };
-        for (let i = 0; i < 300; i++) chat.append(message());
-        const frame = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-        const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
-
-        const offsetTopOf = (el: HTMLElement) => {
-            let top = el.offsetTop;
-            for (let parent = el.offsetParent as HTMLElement | null; parent && parent !== sc; parent = parent.offsetParent as HTMLElement | null) top += parent.offsetTop;
-            return top;
-        };
-        type Anchor = { id: string; offsetFromTop: number; };
-        const discord = {
-            anchor: null as Anchor | null,
-            heightCache: sc.scrollHeight,
-            offsetCache: sc.offsetHeight,
-            topCache: sc.scrollTop,
-            counter: 0,
-            timeout: 0 as any,
-            anchorData(id: string, top: number): Anchor | null {
-                const el = document.getElementById(id);
-                return el ? { id, offsetFromTop: offsetTopOf(el) - top } : null;
-            },
-            find() {
-                for (const li of chat.children as HTMLCollectionOf<HTMLElement>) {
-                    if (offsetTopOf(li) >= sc.scrollTop) return discord.anchorData(li.id, sc.scrollTop);
-                }
-                return null;
-            },
-            /** Keeps the anchor's offset from when the scroll began, as Discord's updateAutomaticAnchor(top, true) does */
-            update(top: number) {
-                const data = discord.anchorData(discord.anchor!.id, top);
-                if (data) data.offsetFromTop = discord.anchor!.offsetFromTop;
-                discord.anchor = data;
-            },
-            fix(offsetHeight: number, scrollHeight: number) {
-                discord.offsetCache = offsetHeight;
-                discord.heightCache = scrollHeight;
-                const el = discord.anchor && document.getElementById(discord.anchor.id);
-                if (el) sc.scrollTop = offsetTopOf(el) - discord.anchor!.offsetFromTop;
-                discord.anchor = discord.counter >= 5 ? null : discord.find();
-            },
-            scroll() {
-                const { scrollTop, scrollHeight, offsetHeight } = sc;
-                if (offsetHeight !== discord.offsetCache || scrollHeight !== discord.heightCache) {
-                    discord.counter = 0;
-                    clearTimeout(discord.timeout);
-                    if (discord.anchor) discord.update(scrollTop);
-                    else discord.anchor = discord.find();
-                    discord.fix(offsetHeight, scrollHeight);
-                    discord.topCache = scrollTop;
-                } else if (discord.topCache !== scrollTop) {
-                    discord.counter = Math.min(discord.counter + 1, 5);
-                    if (discord.anchor) discord.update(scrollTop);
-                    else discord.anchor = discord.find();
-                    discord.topCache = scrollTop;
-                    clearTimeout(discord.timeout);
-                    discord.timeout = setTimeout(() => {
-                        discord.counter = 0;
-                        if (sc.scrollHeight !== discord.heightCache || sc.offsetHeight !== discord.offsetCache) discord.scroll();
-                        else discord.anchor = discord.find();
-                    }, 35);
-                }
-            },
-        };
-        sc.addEventListener("scroll", () => discord.scroll());
-        const ro = new ResizeObserver(entries => {
-            let { offsetCache: offsetHeight, heightCache: scrollHeight } = discord;
-            for (const entry of entries) {
-                if (entry.target === sc) offsetHeight = entry.contentRect.height;
-                else scrollHeight = entry.contentRect.height;
-            }
-            if (offsetHeight !== discord.offsetCache || scrollHeight !== discord.heightCache) discord.fix(offsetHeight, scrollHeight);
-        });
-        ro.observe(sc);
-        ro.observe(content);
-
-        sc.scrollTop = sc.scrollHeight;
-        if (withPlugin) {
-            const settings: Record<string, any> = { servers: false, chat: true, members: false, margin: 2 };
-            const ctx = {
-                addStyle(css: string) {
-                    const el = document.createElement("style");
-                    el.textContent = css;
-                    document.head.append(el);
-                },
-                onDispose() { },
-                setInterval: (fn: () => void, ms: number) => void setInterval(fn, ms),
-                settings: { get: (k: string) => settings[k], onChange() { } },
-            };
-            const module = { exports: {} as any };
-            new Function("module", "exports", "require", pluginCode)(module, module.exports, () => ({ definePlugin: (d: any) => d, defineStrings: (s: any) => (k: string) => s.en[k] ?? k }));
-            module.exports.default.start(ctx);
-        }
-        await wait(1500);
-        await frame();
-        const farBefore = chat.querySelectorAll(".dl-fl-far").length;
-
-        // Far above, out of sight, messages change: reactions, edits, images arriving, a message that
-        // now opens a group; or the whole chat does: narrower (the member list opening), a bigger font
-        const items = [...chat.children] as HTMLElement[];
-        const each = (from: number, fn: (message: Element, i: number) => void) => {
-            for (let i = from; i < 200; i += 30) fn(items[i].firstElementChild!, i);
-        };
-        if (changes.includes("reactions")) each(20, m => m.append(Object.assign(document.createElement("div"), { className: "reactions" })));
-        if (changes.includes("edits")) each(35, m => m.append(" (edited, and with quite a lot more text than before so that it wraps onto another line)"));
-        if (changes.includes("images")) each(40, (m, i) => m.insertAdjacentHTML("beforeend", `<img src="http://images.test/${i}.svg">`));
-        if (changes.includes("groupStart")) each(46, m => m.classList.add("groupStart"));
-        if (changes.includes("width")) sc.style.width = "640px";
-        if (changes.includes("fontSize")) document.documentElement.style.fontSize = "24px";
-        await wait(2500);
-        await frame();
-
-        // Scroll up without pause, as a fast wheel or trackpad flick does, loading older messages near the top
-        let pulls = 0, worst = 0, loads = 0;
-        for (let i = 0; i < 2000 && (sc.scrollTop > 0 || loads < 3); i++) {
-            if (sc.scrollTop < 1500 && loads < 3) {
-                // Older messages arrive above; Discord keeps the view on the same messages and takes the new height as known
-                const before = sc.scrollHeight;
-                const older = document.createDocumentFragment();
-                for (let k = 0; k < 50; k++) older.append(message());
-                chat.prepend(older);
-                sc.scrollTop += sc.scrollHeight - before;
-                discord.heightCache = sc.scrollHeight;
-                discord.offsetCache = sc.offsetHeight;
-                discord.anchor = discord.find();
-                loads++;
-            }
-            const expected = Math.max(0, sc.scrollTop - 250);
-            sc.scrollTop = expected;
-            await new Promise(r => requestAnimationFrame(r));
-            const moved = Math.abs(sc.scrollTop - expected);
-            if (moved > 1) {
-                pulls++;
-                worst = Math.max(worst, moved);
-            }
-        }
-        return { farBefore, pulls, worstPx: Math.round(worst), reachedTop: sc.scrollTop === 0, loads };
-    }, { pluginCode: code, withPlugin, changes });
-    await p.close();
-    return result;
-}
-const scrollUpVanilla = await discordScrollUp(false, CHANGES);
-const scrollUps: Record<string, Awaited<ReturnType<typeof discordScrollUp>>> = {};
-for (const change of CHANGES) scrollUps[change] = await discordScrollUp(true, [change]);
-
 await browser.close();
 
 let failed = 0;
@@ -645,11 +286,8 @@ check("no visible row is ever hidden, scrolling or jumping", r.skipWorstHiddenVi
 check("skipping doesn't change the list's size", r.skipKeepsLayout);
 check("opened folder's servers are picked up", r.folderChildrenHandled);
 check("smaller render distance applies live", r.farWithMargin1 > r.skipFarAtTop && r.hiddenVisibleAfterSettingChange === 0, { margin2: r.skipFarAtTop, margin1: r.farWithMargin1 });
-check("chat: far messages are skipped", r.chatFar > 50 && r.targetSkipped, { far: r.chatFar, ...r.chatDebug });
-check("chat: a message resized while skipped doesn't make the chat jump", r.chatRevealed && r.chatWorstJump <= 1, { revealed: r.chatRevealed, worstJumpPx: r.chatWorstJump });
-check("chat: new messages are picked up", r.newMessagesMarked);
-check("resync stays cheap (frame time with a new message every frame)", r.resyncMsPerFrame < 20, { msPerFrame: r.resyncMsPerFrame });
-check("fast scroll up through loading history never gets stuck", r.historyLoads === 5 && r.stuckSteps <= r.historyLoads, { loads: r.historyLoads, stuckSteps: r.stuckSteps });
+check("resync stays cheap (frame time with a new server every frame)", r.resyncMsPerFrame < 20, { msPerFrame: r.resyncMsPerFrame });
+check("new servers are picked up", r.newRowsMarked);
 check("the plugin never writes the scroll position", r.pluginScrollWrites === 0, r.pluginScrollWrites);
 check("members: rows are tracked", r.membersMarked > 0, r.membersMarked);
 check("members: no visible member is ever hidden", r.membersWorstHiddenVisible === 0, r.membersWorstHiddenVisible);
@@ -657,14 +295,8 @@ check("members: no visible member is ever hidden", r.membersWorstHiddenVisible =
 check("members: Discord's virtualized list leaves nothing far to skip", r.membersMaxFar === 0, r.membersMaxFar);
 check("members: the plugin never writes the scroll position", r.pluginScrollWritesWithMembers === 0, r.pluginScrollWritesWithMembers);
 check("re-attaches when Discord rebuilds the sidebar", r.reattached);
-check("chat: skipping far messages makes a relayout much cheaper", gain.far > 100 && gain.afterMs < gain.beforeMs / 2, gain);
-check("chat, as Discord builds it: far messages are skipped", discordChat.far > 100, discordChat);
-check("chat, as Discord builds it: scrolling up never changes its height (Discord would pull the view back)", discordChat.heightChanges === 0 && discordChat.reachedTop, discordChat);
-check("Discord's place-keeping, without the plugin: a fast scroll up is never pulled back (checks the test itself)", scrollUpVanilla.pulls === 0 && scrollUpVanilla.reachedTop, scrollUpVanilla);
-for (const [change, result] of Object.entries(scrollUps)) {
-    check(`chat, with Discord's place-keeping: ${change} while far away never pull a fast scroll back`, result.farBefore > 100 && result.pulls === 0 && result.reachedTop, result);
-}
-check("chat and the member list are off by default", gain.defaults.chat === false && gain.defaults.members === false, gain.defaults);
+check("the chat is left alone, even with an old chat setting saved", r.chatTouched === 0, r.chatTouched);
+check("no chat option, and the member list is off by default", r.defaults.hasChat === false && r.defaults.members === false, r.defaults);
 check("a screen reader turning on brings every row back within a second", r.beforeAssistive.far > 0 && r.withAssistive.rows === 0 && r.withAssistive.far === 0, { before: r.beforeAssistive, with: r.withAssistive });
 check("and turning it off skips far rows again", r.afterAssistive.far > 0, r.afterAssistive);
 check("disabling leaves no trace", r.afterDisable.rows === 0 && r.afterDisable.far === 0 && r.styleRemoved, r.afterDisable);

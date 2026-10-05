@@ -4,8 +4,6 @@ export const t = defineStrings({
     en: {
         "settings.servers": "Server list",
         "settings.servers.description": "Skip servers far out of view and remove the pills' GPU-layer hack.",
-        "settings.chat": "Chat",
-        "settings.chat.description": "Skip messages far above or below what you're reading. Stands down while a screen reader is on, so it can read every message.",
         "settings.members": "Member list",
         "settings.members.description": "Skip members far out of view. Discord already draws only the members near your screen, so this rarely saves anything.",
         "settings.margin": "Render distance (screens)",
@@ -14,8 +12,6 @@ export const t = defineStrings({
     de: {
         "settings.servers": "Serverliste",
         "settings.servers.description": "Überspringt Server weit außerhalb des Sichtbereichs und entfernt den GPU-Ebenen-Trick der Pillen.",
-        "settings.chat": "Chat",
-        "settings.chat.description": "Überspringt Nachrichten weit über oder unter dem, was du gerade liest. Pausiert, solange ein Screenreader läuft, damit er jede Nachricht lesen kann.",
         "settings.members": "Mitgliederliste",
         "settings.members.description": "Überspringt Mitglieder weit außerhalb des Sichtbereichs. Discord zeichnet ohnehin nur die Mitglieder in der Nähe deines Bildschirms, daher spart das selten etwas.",
         "settings.margin": "Renderdistanz (Bildschirme)",
@@ -24,8 +20,6 @@ export const t = defineStrings({
     es: {
         "settings.servers": "Lista de servidores",
         "settings.servers.description": "Omite los servidores muy fuera de la vista y quita el truco de capa GPU de las píldoras.",
-        "settings.chat": "Chat",
-        "settings.chat.description": "Omite los mensajes muy por encima o por debajo de lo que estás leyendo. Se pausa mientras hay un lector de pantalla activo, para que pueda leer todos los mensajes.",
         "settings.members": "Lista de miembros",
         "settings.members.description": "Omite los miembros muy fuera de la vista. Discord ya dibuja solo los miembros cerca de tu pantalla, así que rara vez ahorra algo.",
         "settings.margin": "Distancia de renderizado (pantallas)",
@@ -34,8 +28,6 @@ export const t = defineStrings({
     fr: {
         "settings.servers": "Liste des serveurs",
         "settings.servers.description": "Ignore les serveurs très loin de la vue et supprime l'astuce de couche GPU des pastilles.",
-        "settings.chat": "Chat",
-        "settings.chat.description": "Ignore les messages très au-dessus ou en dessous de ce que tu lis. Se met en pause quand un lecteur d'écran est actif, pour qu'il puisse lire chaque message.",
         "settings.members": "Liste des membres",
         "settings.members.description": "Ignore les membres très loin de la vue. Discord n'affiche déjà que les membres proches de ton écran, donc cela économise rarement quelque chose.",
         "settings.margin": "Distance de rendu (écrans)",
@@ -44,8 +36,6 @@ export const t = defineStrings({
     ja: {
         "settings.servers": "サーバーリスト",
         "settings.servers.description": "画面から大きく外れたサーバーの描画を省き、ピルの GPU レイヤー対策を取り除きます。",
-        "settings.chat": "チャット",
-        "settings.chat.description": "読んでいる位置から大きく離れた上下のメッセージの描画を省きます。スクリーンリーダーが有効な間は、すべてのメッセージを読み上げられるよう停止します。",
         "settings.members": "メンバーリスト",
         "settings.members.description": "画面から大きく外れたメンバーの描画を省きます。Discordはもともと画面付近のメンバーしか描画しないため、効果が出ることはほとんどありません。",
         "settings.margin": "描画範囲（画面数）",
@@ -54,8 +44,6 @@ export const t = defineStrings({
     pl: {
         "settings.servers": "Lista serwerów",
         "settings.servers.description": "Pomija serwery daleko poza widokiem i usuwa sztuczkę z warstwą GPU dla wskaźników.",
-        "settings.chat": "Czat",
-        "settings.chat.description": "Pomija wiadomości daleko powyżej lub poniżej tego, co czytasz. Wstrzymuje się, gdy działa czytnik ekranu, żeby mógł przeczytać każdą wiadomość.",
         "settings.members": "Lista członków",
         "settings.members.description": "Pomija członków daleko poza widokiem. Discord i tak rysuje tylko członków blisko ekranu, więc rzadko cokolwiek to oszczędza.",
         "settings.margin": "Zasięg renderowania (ekrany)",
@@ -64,8 +52,6 @@ export const t = defineStrings({
     "pt-BR": {
         "settings.servers": "Lista de servidores",
         "settings.servers.description": "Pula servidores bem fora da tela e remove o truque de camada de GPU das pílulas.",
-        "settings.chat": "Chat",
-        "settings.chat.description": "Pula mensagens bem acima ou abaixo do que você está lendo. Pausa enquanto um leitor de tela estiver ativo, para que ele leia todas as mensagens.",
         "settings.members": "Lista de membros",
         "settings.members.description": "Pula membros bem fora da tela. O Discord já desenha só os membros perto da sua tela, então isso raramente economiza algo.",
         "settings.margin": "Distância de renderização (telas)",
@@ -74,8 +60,6 @@ export const t = defineStrings({
     ru: {
         "settings.servers": "Список серверов",
         "settings.servers.description": "Пропускает серверы далеко за пределами экрана и убирает хак GPU-слоя для индикаторов.",
-        "settings.chat": "Чат",
-        "settings.chat.description": "Пропускает сообщения далеко выше или ниже того, что вы читаете. Отключается, пока работает программа чтения с экрана, чтобы она могла прочитать каждое сообщение.",
         "settings.members": "Список участников",
         "settings.members.description": "Пропускает участников далеко за пределами экрана. Discord и так рисует только участников рядом с экраном, поэтому это редко что-то экономит.",
         "settings.margin": "Дальность отрисовки (экранов)",
@@ -84,8 +68,6 @@ export const t = defineStrings({
     tr: {
         "settings.servers": "Sunucu listesi",
         "settings.servers.description": "Görüş alanının çok dışındaki sunucuları atlar ve rozetlerin GPU katmanı hilesini kaldırır.",
-        "settings.chat": "Sohbet",
-        "settings.chat.description": "Okuduğun yerin çok üstündeki veya altındaki mesajları atlar. Ekran okuyucu açıkken devre dışı kalır, böylece her mesajı okuyabilir.",
         "settings.members": "Üye listesi",
         "settings.members.description": "Görüş alanının çok dışındaki üyeleri atlar. Discord zaten yalnızca ekranına yakın üyeleri çizer, bu yüzden nadiren bir şey kazandırır.",
         "settings.margin": "Oluşturma mesafesi (ekran)",

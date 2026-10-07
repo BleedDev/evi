@@ -28,6 +28,15 @@ export interface Release {
  */
 export const RELEASES: Release[] = [
     {
+        version: "2.3.0",
+        date: "2026-10-07",
+        sections: {
+            fixed: [
+                "**Evi stays after Discord updates, even if you shut down your PC.** Discord installs its updates while it's open, and Evi moved into the new version only when Discord closed. Shutting down or restarting Windows with Discord open skipped that, so Discord started without Evi. Now Evi moves in as soon as the update is installed.",
+            ],
+        },
+    },
+    {
         version: "2.2.1",
         date: "2026-10-05",
         sections: {

@@ -11,6 +11,11 @@ export type ReleaseNotes = Partial<Record<SectionKind, string[]>>;
 /** Language -> version -> section -> lines */
 export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
     de: {
+        "2.3.0": {
+            fixed: [
+                "**Evi bleibt nach Discord-Updates, auch wenn du den PC herunterfährst.** Discord installiert Updates, während es offen ist, und Evi zog erst beim Schließen von Discord in die neue Version um. Wer Windows mit offenem Discord herunterfuhr oder neu startete, übersprang das, und Discord startete ohne Evi. Jetzt zieht Evi um, sobald das Update installiert ist.",
+            ],
+        },
         "2.2.1": {
             fixed: [
                 "**Nichts von Evi im neuen In-Game-Overlay von Discord.** Discords neueres Overlay öffnet sich als eigenes Fenster über deinem Spiel, und Evi lud darin, samt Hintergrund. Jetzt bleibt es draußen, wie schon im alten Overlay.",
@@ -332,6 +337,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     es: {
+        "2.3.0": {
+            fixed: [
+                "**Evi se queda tras las actualizaciones de Discord, aunque apagues el PC.** Discord instala sus actualizaciones mientras está abierto, y Evi solo se pasaba a la nueva versión al cerrar Discord. Apagar o reiniciar Windows con Discord abierto se lo saltaba, y Discord arrancaba sin Evi. Ahora Evi se pasa en cuanto se instala la actualización.",
+            ],
+        },
         "2.2.1": {
             fixed: [
                 "**Nada de Evi en el nuevo overlay de juego de Discord.** El overlay más nuevo de Discord se abre como su propia ventana sobre tu juego, y Evi se cargaba en él, fondo incluido. Ahora se queda fuera, igual que en el overlay antiguo.",
@@ -653,6 +663,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     fr: {
+        "2.3.0": {
+            fixed: [
+                "**Evi reste après les mises à jour de Discord, même si tu éteins ton PC.** Discord installe ses mises à jour pendant qu'il est ouvert, et Evi ne passait dans la nouvelle version qu'à la fermeture de Discord. Éteindre ou redémarrer Windows avec Discord ouvert sautait cette étape, et Discord démarrait sans Evi. Maintenant Evi s'y installe dès que la mise à jour est posée.",
+            ],
+        },
         "2.2.1": {
             fixed: [
                 "**Plus rien d'Evi dans le nouvel overlay en jeu de Discord.** Le nouvel overlay de Discord s'ouvre dans sa propre fenêtre par-dessus ton jeu, et Evi s'y chargeait, fond d'écran compris. Maintenant il reste dehors, comme dans l'ancien overlay.",
@@ -974,6 +989,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ja: {
+        "2.3.0": {
+            fixed: [
+                "**PC をシャットダウンしても、Discord のアップデート後に Evi が残ります。** Discord は起動中にアップデートをインストールし、Evi は Discord を閉じたときだけ新しいバージョンに移っていました。Discord を開いたまま Windows をシャットダウンや再起動するとこれが飛ばされ、Discord が Evi なしで起動していました。今はアップデートがインストールされた時点で Evi が移ります。",
+            ],
+        },
         "2.2.1": {
             fixed: [
                 "**Discord の新しいゲーム内オーバーレイに Evi が出なくなりました。** 新しいオーバーレイはゲームの上に別ウィンドウとして開き、Evi が背景ごと読み込まれていました。古いオーバーレイと同じく、今は何も読み込みません。",
@@ -1295,6 +1315,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     pl: {
+        "2.3.0": {
+            fixed: [
+                "**Evi zostaje po aktualizacjach Discorda, nawet gdy wyłączysz komputer.** Discord instaluje aktualizacje, gdy jest otwarty, a Evi przenosił się do nowej wersji dopiero przy zamknięciu Discorda. Wyłączenie lub restart Windowsa z otwartym Discordem to pomijały i Discord startował bez Evi. Teraz Evi przenosi się, gdy tylko aktualizacja się zainstaluje.",
+            ],
+        },
         "2.2.1": {
             fixed: [
                 "**Nic z Evi w nowej nakładce Discorda w grze.** Nowsza nakładka Discorda otwiera się jako osobne okno nad grą, a Evi ładował się w niej razem z tapetą. Teraz trzyma się z daleka, tak jak w starej nakładce.",
@@ -1616,6 +1641,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     "pt-BR": {
+        "2.3.0": {
+            fixed: [
+                "**O Evi continua depois das atualizações do Discord, mesmo se você desligar o PC.** O Discord instala as atualizações enquanto está aberto, e o Evi só passava para a nova versão quando o Discord fechava. Desligar ou reiniciar o Windows com o Discord aberto pulava isso, e o Discord abria sem o Evi. Agora o Evi passa assim que a atualização é instalada.",
+            ],
+        },
         "2.2.1": {
             fixed: [
                 "**Nada do Evi no novo overlay de jogo do Discord.** O overlay mais novo do Discord abre como uma janela própria sobre o seu jogo, e o Evi carregava nele, papel de parede incluído. Agora ele fica de fora, como já fazia no overlay antigo.",
@@ -1937,6 +1967,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ru: {
+        "2.3.0": {
+            fixed: [
+                "**Evi остаётся после обновлений Discord, даже если выключить ПК.** Discord ставит обновления, пока открыт, а Evi переносился в новую версию только при закрытии Discord. Выключение или перезагрузка Windows с открытым Discord это пропускали, и Discord запускался без Evi. Теперь Evi переносится сразу, как только обновление установлено.",
+            ],
+        },
         "2.2.1": {
             fixed: [
                 "**Ничего от Evi в новом внутриигровом оверлее Discord.** Новый оверлей Discord открывается отдельным окном поверх игры, и Evi загружался в нём вместе с обоями. Теперь он туда не лезет, как и в старый оверлей.",
@@ -2258,6 +2293,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     tr: {
+        "2.3.0": {
+            fixed: [
+                "**Bilgisayarını kapatsan bile Evi, Discord güncellemelerinden sonra yerinde kalıyor.** Discord güncellemelerini açıkken kuruyor, Evi ise yeni sürüme yalnızca Discord kapanınca geçiyordu. Discord açıkken Windows'u kapatmak ya da yeniden başlatmak bunu atlıyordu ve Discord Evi olmadan açılıyordu. Artık Evi, güncelleme kurulur kurulmaz yeni sürüme geçiyor.",
+            ],
+        },
         "2.2.1": {
             fixed: [
                 "**Discord'un yeni oyun içi katmanında Evi'den bir şey yok.** Discord'un yeni katmanı oyununun üstünde kendi penceresi olarak açılıyor ve Evi duvar kâğıdıyla birlikte orada yükleniyordu. Artık eski katmanda olduğu gibi dışarıda kalıyor.",

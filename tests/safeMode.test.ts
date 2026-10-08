@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import { isDiscordAppUrl, isOverlayUrl, isOverlayWindow, OOP_OVERLAY_WINDOW } from "../src/shared/appHosts";
 import { DEFAULT_SETTINGS, EviSettings, PluginManifest, RecentChange } from "../src/shared/ipc";
-import { addChange, diffSettings, MAX_CHANGES, parseState, pickSuspect, startupMode, StartupState } from "../src/shared/safeMode";
+import { addChange, diffSettings, MAX_CHANGES, parseState, pickSuspect, startupMode, StartupState, undoStart } from "../src/shared/safeMode";
 
 const settings = (patch: Partial<EviSettings> = {}): EviSettings => ({ ...structuredClone(DEFAULT_SETTINGS), ...patch });
 const change = (c: Partial<RecentChange>): RecentChange => ({ kind: "plugin", id: "a", action: "enabled", at: 1, ...c });
@@ -19,6 +19,27 @@ describe("startup mode", () => {
     test("the flag and sticky safe mode", () => {
         expect(startupMode({ pendingStarts: 0, changes: [] }, true)).toBe("safe");
         expect(startupMode({ pendingStarts: 0, forceSafe: "renderer-crash", changes: [] }, false)).toBe("safe");
+    });
+});
+
+describe("a process that quit without a window", () => {
+    test("Discord clicked again while running isn't a failed start", () => {
+        // Running Discord booted fine (0), four second launches would have reached vanilla
+        let state: StartupState = { pendingStarts: 0, changes: [] };
+        for (let i = 0; i < 4; i++) {
+            const before = { pendingStarts: state.pendingStarts, forceSafe: state.forceSafe };
+            state = undoStart({ ...state, pendingStarts: state.pendingStarts + 1 }, before);
+        }
+        expect(startupMode(state, false)).toBe("normal");
+    });
+
+    test("undoes the vanilla branch and keeps what the running Discord wrote", () => {
+        const written = change({ id: "new" });
+        const now: StartupState = { pendingStarts: 2, forceSafe: "crash-loop", changes: [written] };
+        expect(undoStart(now, { pendingStarts: 4 })).toEqual({ pendingStarts: 2, changes: [written] });
+        // The running Discord reported a healthy start in the meantime
+        expect(undoStart({ pendingStarts: 0, changes: [] }, { pendingStarts: 1 }).pendingStarts).toBe(0);
+        expect(undoStart({ pendingStarts: 3, changes: [] }, { pendingStarts: 2, forceSafe: "renderer-crash" }).forceSafe).toBe("renderer-crash");
     });
 });
 

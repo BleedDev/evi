@@ -59,6 +59,20 @@ export function startupMode(state: StartupState, flag: boolean, auto = true): St
     return "normal";
 }
 
+/**
+ * Takes back what begin() counted, for a process that quit without opening a window: Discord already
+ * running (its icon clicked again, a discord:// link) or a Squirrel event. Those quit before ready and
+ * were never a failed start; counting them sent a healthy Discord into vanilla after a few clicks.
+ * @param current safe-mode.json as it is now: the running Discord may have written since
+ * @param before what begin() found
+ */
+export function undoStart(current: StartupState, before: Pick<StartupState, "pendingStarts" | "forceSafe">): StartupState {
+    const state: StartupState = { ...current, pendingStarts: Math.min(current.pendingStarts, before.pendingStarts) };
+    if (before.forceSafe) state.forceSafe = before.forceSafe;
+    else delete state.forceSafe;
+    return state;
+}
+
 /** Adds a change, newest first. Repeats of the newest (typing in Quick CSS) only bump its time. */
 export function addChange(changes: RecentChange[], change: RecentChange): RecentChange[] {
     const [newest, ...rest] = changes;

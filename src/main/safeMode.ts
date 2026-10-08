@@ -16,7 +16,7 @@
 import { isOverlayUrl } from "@shared/appHosts";
 import { Breadcrumb, CrashRecord, parseBreadcrumb, pickCrashSuspect } from "@shared/crashDetective";
 import { RecentChange, SafeModeInfo, SafeModeReason } from "@shared/ipc";
-import { addChange, CRASH_LOOP_STARTS, CRASH_WINDOW_MS, EMPTY_STATE, parseState, RENDERER_CRASHES, StartupMode, startupMode, StartupState } from "@shared/safeMode";
+import { addChange, CRASH_LOOP_STARTS, CRASH_WINDOW_MS, EMPTY_STATE, parseState, RENDERER_CRASHES, StartupMode, startupMode, StartupState, undoStart } from "@shared/safeMode";
 import { app, WebContents } from "electron";
 import { readFileSync, renameSync, writeFileSync } from "fs";
 import { join } from "path";
@@ -101,6 +101,16 @@ export const SafeMode = {
         const flag = process.argv.includes(SAFE_FLAG);
         const failures = state.pendingStarts;
         const mode = startupMode(state, flag, autoSafe());
+
+        // Every real start opens Discord's splash first. A process that quits without a window never started
+        const before = { pendingStarts: failures, forceSafe: state.forceSafe };
+        let opened = false;
+        app.once("browser-window-created", () => void (opened = true));
+        app.once("will-quit", () => {
+            if (opened) return;
+            state = undoStart(load(), before);
+            save();
+        });
         // Turned off: what crashes left behind doesn't keep safe mode on either
         if (!autoSafe() && state.forceSafe) delete state.forceSafe;
 

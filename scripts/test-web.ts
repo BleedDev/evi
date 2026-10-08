@@ -3492,14 +3492,23 @@ check("healthy start reported once plugins ran for a while", await page.evaluate
     await page.evaluate(() => { (window as any).Evi.ui.close?.(); (window as any).__test.account.admin = false; });
     await page.waitForTimeout(300);
 
-    // evi.rest now requires a version newer than this Evi: it downloads at once and counts down to a restart
+    // evi.rest now requires a version newer than this Evi. With automatic updates off it only asks
     const installsBefore = await page.evaluate(() => (window as any).__test.updateInstalls);
-    await page.evaluate(() => {
+    const requireNewer = () => page.evaluate(() => {
         const T = (window as any).__test;
         T.required = { version: "99.0.0", reason: "Fixes plugin toasts", forcePlugins: false, at: Date.now() };
         T.requiredChanged?.();
     });
+    await page.evaluate(() => (window as any).Evi.settings.update((d: any) => void (d.silentUpdates = false)));
+    await requireNewer();
     await page.waitForSelector(".dl-required", { timeout: 5000 }).catch(() => { });
+    await page.waitForTimeout(500);
+    const asked = await page.evaluate(() => ({ prepared: (window as any).__test.prepared ?? [], buttons: [...document.querySelectorAll(".dl-required button")].map(b => b.textContent || b.getAttribute("aria-label")) }));
+    check("with automatic updates off, a required update asks and downloads nothing", asked.prepared.length === 0 && asked.buttons.includes("Update now"), asked);
+
+    // With them on, it downloads at once and counts down to a restart
+    await page.evaluate(() => (window as any).Evi.settings.update((d: any) => void (d.silentUpdates = true)));
+    await requireNewer();
     await page.waitForFunction(() => document.querySelector(".dl-required")?.textContent?.includes("99.0.0"), null, { timeout: 5000 }).catch(() => { });
     const first = await page.evaluate(() => document.querySelector(".dl-required")?.textContent ?? "");
     await page.waitForTimeout(2200);

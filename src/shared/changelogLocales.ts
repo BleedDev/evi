@@ -11,6 +11,11 @@ export type ReleaseNotes = Partial<Record<SectionKind, string[]>>;
 /** Language -> version -> section -> lines */
 export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
     de: {
+        "2.4.1": {
+            fixed: [
+                "**Der Spielmodus ist zurück im Tab Leistung.** Discord hat seinen Spielmodus geändert, und Evis Schalter war verschwunden.",
+            ],
+        },
         "2.4.0": {
             added: [
                 "**Drei neue Plugins.** Boot Sequence macht aus Discords Ladefenster ein live Boot-Protokoll, Pretty Notifications zeigt Benachrichtigungen als Karten, auf die du antworten kannst, ohne Discord zu öffnen, und Tray Menu Plus bringt Status, letzte DMs, Stummschalten und Taubschalten ins Tray-Symbol von Discord. Alle im Store, alle aus, bis du sie einschaltest.",
@@ -345,6 +350,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     es: {
+        "2.4.1": {
+            fixed: [
+                "**El Modo juego vuelve a la pestaña Rendimiento.** Discord cambió su Modo juego y el interruptor de Evi había desaparecido.",
+            ],
+        },
         "2.4.0": {
             added: [
                 "**Tres plugins nuevos.** Boot Sequence convierte la ventana de carga de Discord en un registro de arranque en vivo, Pretty Notifications muestra las notificaciones como tarjetas a las que puedes responder sin abrir Discord y Tray Menu Plus pone tu estado, tus MD recientes, silenciar y ensordecer en el icono de Discord de la bandeja. Todos en la tienda, todos apagados hasta que los actives.",
@@ -679,6 +689,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     fr: {
+        "2.4.1": {
+            fixed: [
+                "**Le mode jeu est de retour dans l'onglet Performances.** Discord a modifié son mode jeu, et l'interrupteur d'Evi avait disparu.",
+            ],
+        },
         "2.4.0": {
             added: [
                 "**Trois nouveaux plugins.** Boot Sequence transforme la fenêtre de chargement de Discord en journal de démarrage en direct, Pretty Notifications affiche les notifications sous forme de cartes auxquelles tu peux répondre sans ouvrir Discord et Tray Menu Plus met ton statut, tes MP récents, la sourdine et le mode sourd sur l'icône de Discord dans la zone de notification. Tous dans la boutique, tous désactivés jusqu'à ce que tu les actives.",
@@ -1013,6 +1028,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ja: {
+        "2.4.1": {
+            fixed: [
+                "**ゲームモードがパフォーマンスタブに戻りました。** Discord がゲームモードを変更したため、Evi のスイッチが消えていました。",
+            ],
+        },
         "2.4.0": {
             added: [
                 "**新しいプラグインが3つ。** Boot Sequence は Discord の読み込みウィンドウをライブの起動ログに変え、Pretty Notifications は Discord を開かずに返信できるカードで通知を表示し、Tray Menu Plus はステータス、最近の DM、ミュート、スピーカーミュートを Discord のトレイアイコンに追加します。すべてストアにあり、オンにするまではオフのままです。",
@@ -1347,6 +1367,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     pl: {
+        "2.4.1": {
+            fixed: [
+                "**Tryb gry wrócił do karty Wydajność.** Discord zmienił swój tryb gry i przełącznik Evi zniknął.",
+            ],
+        },
         "2.4.0": {
             added: [
                 "**Trzy nowe pluginy.** Boot Sequence zamienia okno ładowania Discorda w dziennik uruchamiania na żywo, Pretty Notifications pokazuje powiadomienia jako karty, na które odpowiesz bez otwierania Discorda, a Tray Menu Plus dodaje status, ostatnie wiadomości prywatne, wyciszenie i ogłuszenie do ikony Discorda w zasobniku. Wszystkie w sklepie, wszystkie wyłączone, dopóki ich nie włączysz.",
@@ -1681,6 +1706,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     "pt-BR": {
+        "2.4.1": {
+            fixed: [
+                "**O Modo Jogo voltou à aba Desempenho.** O Discord mudou o Modo Jogo dele, e o botão do Evi tinha sumido.",
+            ],
+        },
         "2.4.0": {
             added: [
                 "**Três plugins novos.** Boot Sequence transforma a janela de carregamento do Discord em um registro de inicialização ao vivo, Pretty Notifications mostra as notificações como cartões que você responde sem abrir o Discord e Tray Menu Plus coloca seu status, DMs recentes, silenciar e ensurdecer no ícone do Discord na bandeja. Todos na loja, todos desligados até você ligar.",
@@ -2015,6 +2045,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ru: {
+        "2.4.1": {
+            fixed: [
+                "**Игровой режим снова на вкладке «Производительность».** Discord изменил свой игровой режим, и переключатель Evi пропал.",
+            ],
+        },
         "2.4.0": {
             added: [
                 "**Три новых плагина.** Boot Sequence превращает окно загрузки Discord в живой журнал запуска, Pretty Notifications показывает уведомления карточками, на которые можно ответить, не открывая Discord, а Tray Menu Plus добавляет статус, недавние ЛС, отключение микрофона и звука в значок Discord в трее. Все в магазине, все выключены, пока вы их не включите.",
@@ -2349,6 +2384,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     tr: {
+        "2.4.1": {
+            fixed: [
+                "**Oyun Modu, Performans sekmesine geri döndü.** Discord kendi Oyun Modu'nu değiştirdi ve Evi'nin anahtarı kaybolmuştu.",
+            ],
+        },
         "2.4.0": {
             added: [
                 "**Üç yeni eklenti.** Boot Sequence, Discord'un yükleme penceresini canlı bir açılış kaydına çevirir; Pretty Notifications, bildirimleri Discord'u açmadan yanıtlayabileceğin kartlar olarak gösterir; Tray Menu Plus ise durumunu, son DM'lerini, sessize alma ve sağırlaştırmayı Discord'un tepsi simgesine ekler. Hepsi mağazada, sen açana kadar hepsi kapalı.",

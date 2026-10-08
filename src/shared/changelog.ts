@@ -28,6 +28,15 @@ export interface Release {
  */
 export const RELEASES: Release[] = [
     {
+        version: "2.4.1",
+        date: "2026-10-08",
+        sections: {
+            fixed: [
+                "**Game Mode is back in the Performance tab.** Discord changed its Game Mode, and Evi's switch had disappeared.",
+            ],
+        },
+    },
+    {
         version: "2.4.0",
         date: "2026-10-08",
         sections: {

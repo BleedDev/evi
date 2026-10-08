@@ -1,0 +1,100 @@
+{
+    "id": "smooth-chat",
+    "name": "Smooth Chat",
+    "description": "New messages slide softly into the chat instead of popping in, yours and everyone else's. It follows Discord's Reduce Motion setting.",
+    "version": "1.0.0",
+    "authors": [
+        "Evi"
+    ],
+    "tags": [
+        "messages",
+        "appearance"
+    ],
+    "permissions": {
+        "readMessages": true
+    },
+    "changelog": [
+        {
+            "version": "1.0.0",
+            "notes": [
+                "First release."
+            ]
+        }
+    ],
+    "enabledByDefault": false,
+    "minEviVersion": "2.3.0",
+    "locales": {
+        "de": {
+            "name": "Sanfter Chat",
+            "description": "Neue Nachrichten gleiten sanft in den Chat, statt plötzlich aufzutauchen, deine und die aller anderen. Es folgt Discords Einstellung „Bewegungen reduzieren“.",
+            "changelog": {
+                "1.0.0": [
+                    "Erste Version."
+                ]
+            }
+        },
+        "es": {
+            "name": "Chat suave",
+            "description": "Los mensajes nuevos entran suavemente en el chat en lugar de aparecer de golpe, los tuyos y los de todos. Respeta el ajuste Reducir movimiento de Discord.",
+            "changelog": {
+                "1.0.0": [
+                    "Primera versión."
+                ]
+            }
+        },
+        "fr": {
+            "name": "Chat fluide",
+            "description": "Les nouveaux messages glissent en douceur dans le chat au lieu d'apparaître d'un coup, les tiens comme ceux des autres. Il suit le réglage Réduire les animations de Discord.",
+            "changelog": {
+                "1.0.0": [
+                    "Première version."
+                ]
+            }
+        },
+        "ja": {
+            "name": "なめらかチャット",
+            "description": "新しいメッセージがパッと出るのではなく、ふわっとチャットに入ってきます。自分のメッセージもほかの人のメッセージも。Discord の「視差効果を減らす」設定に従います。",
+            "changelog": {
+                "1.0.0": [
+                    "初回リリース。"
+                ]
+            }
+        },
+        "pl": {
+            "name": "Płynny czat",
+            "description": "Nowe wiadomości łagodnie wsuwają się do czatu, zamiast wyskakiwać, twoje i wszystkich innych. Uwzględnia ustawienie Ogranicz ruch w Discordzie.",
+            "changelog": {
+                "1.0.0": [
+                    "Pierwsze wydanie."
+                ]
+            }
+        },
+        "pt-BR": {
+            "name": "Chat suave",
+            "description": "Mensagens novas entram suavemente no chat em vez de aparecerem de repente, as suas e as de todo mundo. Segue a opção Reduzir movimento do Discord.",
+            "changelog": {
+                "1.0.0": [
+                    "Primeira versão."
+                ]
+            }
+        },
+        "ru": {
+            "name": "Плавный чат",
+            "description": "Новые сообщения плавно въезжают в чат, а не появляются рывком, и ваши, и чужие. Учитывает настройку Discord «Уменьшение движения».",
+            "changelog": {
+                "1.0.0": [
+                    "Первый выпуск."
+                ]
+            }
+        },
+        "tr": {
+            "name": "Akıcı Sohbet",
+            "description": "Yeni mesajlar sohbete birden belirmek yerine yumuşakça kayarak girer, seninkiler de herkesinkiler de. Discord'un Hareketi azalt ayarına uyar.",
+            "changelog": {
+                "1.0.0": [
+                    "İlk sürüm."
+                ]
+            }
+        }
+    }
+}

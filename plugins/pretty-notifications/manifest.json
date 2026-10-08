@@ -1,0 +1,107 @@
+{
+    "id": "pretty-notifications",
+    "name": "Pretty Notifications",
+    "description": "Discord's notifications as clean cards in the corner of your screen: who it's from, where, and the message, with a Reply box that sends without opening Discord. Works while Discord is minimized or in the tray.",
+    "version": "1.0.0",
+    "authors": [
+        "Evi"
+    ],
+    "tags": [
+        "notifications",
+        "messages",
+        "appearance"
+    ],
+    "permissions": {
+        "network": [
+            "discordapp.com",
+            "discordapp.net",
+            "discord.com"
+        ],
+        "readMessages": true,
+        "sendMessages": true
+    },
+    "changelog": [
+        {
+            "version": "1.0.0",
+            "notes": [
+                "First release."
+            ]
+        }
+    ],
+    "enabledByDefault": false,
+    "minEviVersion": "2.3.0",
+    "locales": {
+        "de": {
+            "name": "Pretty Notifications",
+            "description": "Discords Benachrichtigungen als schlichte Karten in der Ecke deines Bildschirms: von wem, wo und die Nachricht, mit einem Antwortfeld, das sendet, ohne Discord zu öffnen. Funktioniert auch, wenn Discord minimiert oder im Infobereich ist.",
+            "changelog": {
+                "1.0.0": [
+                    "Erste Version."
+                ]
+            }
+        },
+        "es": {
+            "name": "Pretty Notifications",
+            "description": "Las notificaciones de Discord como tarjetas limpias en una esquina de tu pantalla: de quién son, dónde y el mensaje, con un cuadro de respuesta que envía sin abrir Discord. Funciona con Discord minimizado o en la bandeja.",
+            "changelog": {
+                "1.0.0": [
+                    "Primera versión."
+                ]
+            }
+        },
+        "fr": {
+            "name": "Pretty Notifications",
+            "description": "Les notifications de Discord en cartes épurées dans un coin de ton écran : qui, où et le message, avec une zone de réponse qui envoie sans ouvrir Discord. Fonctionne même quand Discord est réduit ou dans la barre des tâches.",
+            "changelog": {
+                "1.0.0": [
+                    "Première version."
+                ]
+            }
+        },
+        "ja": {
+            "name": "Pretty Notifications",
+            "description": "Discord の通知を画面の隅にすっきりしたカードで表示。誰から、どこで、メッセージの内容まで。Discord を開かずに送れる返信欄つき。Discord が最小化中やトレイにあっても動きます。",
+            "changelog": {
+                "1.0.0": [
+                    "最初のリリース。"
+                ]
+            }
+        },
+        "pl": {
+            "name": "Pretty Notifications",
+            "description": "Powiadomienia Discorda jako schludne karty w rogu ekranu: od kogo, gdzie i treść wiadomości, z polem odpowiedzi, które wysyła bez otwierania Discorda. Działa też, gdy Discord jest zminimalizowany lub w zasobniku.",
+            "changelog": {
+                "1.0.0": [
+                    "Pierwsze wydanie."
+                ]
+            }
+        },
+        "pt-BR": {
+            "name": "Pretty Notifications",
+            "description": "As notificações do Discord como cartões limpos no canto da tela: de quem, onde e a mensagem, com uma caixa de resposta que envia sem abrir o Discord. Funciona com o Discord minimizado ou na bandeja.",
+            "changelog": {
+                "1.0.0": [
+                    "Primeira versão."
+                ]
+            }
+        },
+        "ru": {
+            "name": "Pretty Notifications",
+            "description": "Уведомления Discord в виде аккуратных карточек в углу экрана: от кого, где и само сообщение, с полем ответа, которое отправляет, не открывая Discord. Работает, даже когда Discord свёрнут или в трее.",
+            "changelog": {
+                "1.0.0": [
+                    "Первый выпуск."
+                ]
+            }
+        },
+        "tr": {
+            "name": "Pretty Notifications",
+            "description": "Discord bildirimleri ekranının köşesinde sade kartlar olarak: kimden, nerede ve mesajın kendisi, Discord'u açmadan gönderen bir yanıt kutusuyla. Discord simge durumunda ya da sistem tepsisindeyken de çalışır.",
+            "changelog": {
+                "1.0.0": [
+                    "İlk sürüm."
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,100 @@
+{
+    "id": "tray-menu-plus",
+    "name": "Tray Menu Plus",
+    "description": "Right-click Discord's tray icon to set your status, open one of your recent DMs, or mute and deafen even when you're not in a call.",
+    "version": "1.0.0",
+    "authors": [
+        "Evi"
+    ],
+    "tags": [
+        "utility",
+        "voice"
+    ],
+    "permissions": {
+        "changeSettings": true
+    },
+    "changelog": [
+        {
+            "version": "1.0.0",
+            "notes": [
+                "First release."
+            ]
+        }
+    ],
+    "minEviVersion": "2.3.0",
+    "enabledByDefault": false,
+    "locales": {
+        "de": {
+            "name": "Infobereich-Menü Plus",
+            "description": "Rechtsklick auf Discords Symbol im Infobereich: Status setzen, eine deiner letzten Direktnachrichten öffnen oder stummschalten und Ton aus, auch ohne Anruf.",
+            "changelog": {
+                "1.0.0": [
+                    "Erste Version."
+                ]
+            }
+        },
+        "es": {
+            "name": "Menú de bandeja Plus",
+            "description": "Haz clic derecho en el icono de Discord en la bandeja para cambiar tu estado, abrir uno de tus mensajes directos recientes o silenciar y ensordecer aunque no estés en una llamada.",
+            "changelog": {
+                "1.0.0": [
+                    "Primera versión."
+                ]
+            }
+        },
+        "fr": {
+            "name": "Menu de notification Plus",
+            "description": "Clic droit sur l'icône de Discord dans la zone de notification pour changer ton statut, ouvrir un de tes MP récents, ou te rendre muet et te mettre en sourdine même hors appel.",
+            "changelog": {
+                "1.0.0": [
+                    "Première version."
+                ]
+            }
+        },
+        "ja": {
+            "name": "トレイメニュー Plus",
+            "description": "タスクトレイの Discord アイコンを右クリックして、ステータスの変更、最近のDMを開く、通話中でなくてもミュートやスピーカーミュートができます。",
+            "changelog": {
+                "1.0.0": [
+                    "最初のリリース。"
+                ]
+            }
+        },
+        "pl": {
+            "name": "Menu zasobnika Plus",
+            "description": "Kliknij prawym przyciskiem ikonę Discorda w zasobniku, aby ustawić status, otworzyć jedną z ostatnich wiadomości prywatnych albo wyciszyć się i wyłączyć dźwięk, nawet poza rozmową.",
+            "changelog": {
+                "1.0.0": [
+                    "Pierwsze wydanie."
+                ]
+            }
+        },
+        "pt-BR": {
+            "name": "Menu da bandeja Plus",
+            "description": "Clique com o botão direito no ícone do Discord na bandeja para mudar seu status, abrir uma das suas mensagens diretas recentes ou silenciar e ensurdecer mesmo fora de uma chamada.",
+            "changelog": {
+                "1.0.0": [
+                    "Primeira versão."
+                ]
+            }
+        },
+        "ru": {
+            "name": "Меню трея Plus",
+            "description": "Правый клик по значку Discord в трее: смена статуса, одно из недавних личных сообщений, выключение микрофона и звука даже вне звонка.",
+            "changelog": {
+                "1.0.0": [
+                    "Первый выпуск."
+                ]
+            }
+        },
+        "tr": {
+            "name": "Tepsi Menüsü Plus",
+            "description": "Discord'un sistem tepsisindeki simgesine sağ tıklayarak durumunu değiştir, son özel mesajlarından birini aç ya da aramada olmasan bile sustur ve sağırlaştır.",
+            "changelog": {
+                "1.0.0": [
+                    "İlk sürüm."
+                ]
+            }
+        }
+    }
+}

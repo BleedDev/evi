@@ -1,0 +1,66 @@
+{
+    "id": "boot-sequence",
+    "name": "Boot Sequence",
+    "description": "Discord's loading window becomes a live boot log: its updates, Discord, Evi, your theme and every plugin ticked off as it really starts, then straight into Discord.",
+    "version": "1.0.0",
+    "authors": [
+        "Evi"
+    ],
+    "tags": [
+        "appearance",
+        "utility"
+    ],
+    "permissions": {},
+    "minEviVersion": "2.3.0",
+    "changelog": [
+        {
+            "version": "1.0.0",
+            "notes": [
+                "First release."
+            ]
+        }
+    ],
+    "enabledByDefault": false,
+    "locales": {
+        "de": {
+            "name": "Boot-Sequenz",
+            "description": "Discords Ladefenster wird zum Live-Boot-Log: seine Updates, Discord, Evi, dein Theme und jedes Plugin werden abgehakt, wenn sie wirklich starten, dann direkt in Discord.",
+            "changelog": { "1.0.0": ["Erste Version."] }
+        },
+        "es": {
+            "name": "Secuencia de arranque",
+            "description": "La ventana de carga de Discord se convierte en un registro de arranque en vivo: sus actualizaciones, Discord, Evi, tu tema y cada plugin se marcan cuando de verdad se inician, y luego directo a Discord.",
+            "changelog": { "1.0.0": ["Primera versión."] }
+        },
+        "fr": {
+            "name": "Séquence de démarrage",
+            "description": "La fenêtre de chargement de Discord devient un journal de démarrage en direct : ses mises à jour, Discord, Evi, ton thème et chaque plugin cochés quand ils démarrent vraiment, puis direct dans Discord.",
+            "changelog": { "1.0.0": ["Première version."] }
+        },
+        "ja": {
+            "name": "ブートシーケンス",
+            "description": "Discord の読み込みウィンドウがライブの起動ログに。アップデート、Discord、Evi、テーマ、プラグインが実際に起動するたびにチェックされ、そのまま Discord へ。",
+            "changelog": { "1.0.0": ["最初のリリース。"] }
+        },
+        "pl": {
+            "name": "Sekwencja startowa",
+            "description": "Okno ładowania Discorda staje się żywym logiem startu: jego aktualizacje, Discord, Evi, twój motyw i każdy plugin odhaczane, gdy naprawdę startują, a potem prosto do Discorda.",
+            "changelog": { "1.0.0": ["Pierwsze wydanie."] }
+        },
+        "pt-BR": {
+            "name": "Sequência de inicialização",
+            "description": "A janela de carregamento do Discord vira um log de inicialização ao vivo: as atualizações dele, o Discord, o Evi, o seu tema e cada plugin marcados quando iniciam de verdade, e então direto para o Discord.",
+            "changelog": { "1.0.0": ["Primeira versão."] }
+        },
+        "ru": {
+            "name": "Последовательность загрузки",
+            "description": "Окно загрузки Discord превращается в живой журнал запуска: его обновления, Discord, Evi, ваша тема и каждый плагин отмечаются, когда действительно запускаются, а затем сразу Discord.",
+            "changelog": { "1.0.0": ["Первый выпуск."] }
+        },
+        "tr": {
+            "name": "Açılış Sırası",
+            "description": "Discord'un yükleme penceresi canlı bir açılış kaydına dönüşür: güncellemeleri, Discord, Evi, teman ve her eklenti gerçekten başladıkça işaretlenir, sonra doğrudan Discord'a geçilir.",
+            "changelog": { "1.0.0": ["İlk sürüm."] }
+        }
+    }
+}

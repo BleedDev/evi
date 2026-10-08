@@ -1,7 +1,8 @@
 # Builds Evi Setup for Windows, macOS and Linux and evi-core.json (what Evi Setup and in-app updates
 # download), tests them and publishes the release. Releases carry no evi CLI since 1.5.0: Evi 1.4.0
-# and later update from evi-core.json alone. Evi Setup for macOS and Linux builds on those systems (setup-builds.yml), alongside the
-# Windows job; the release is published once every build and test passed.
+# and later update from evi-core.json alone. Evi Setup builds on each system (setup-builds.yml),
+# alongside the job that tests Evi and builds evi-core.json; the release is published once every
+# build and test passed.
 # Its notes come from the version's entry in src/shared/changelog.ts (scripts/release-notes.ts), so
 # there's nothing to write or press on GitHub. Evi's Updates tab, `evi update`, Evi Setup and
 # evi.rest's releases and download pages all pick it up from there by themselves.
@@ -81,14 +82,8 @@ jobs:
       - run: bun test
       - run: bun scripts/test-cli.ts
 
-      # Evi Setup (installer/, Rust + Tauri) builds with the runner's Rust; this keeps its crates between runs
-      - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: installer
-
-      # evi-core.json and Evi-Setup.exe, each with its .sha256
-      - run: bun scripts/build.ts --release --installer
-      - run: bun scripts/test-installer.ts
+      # evi-core.json with its .sha256
+      - run: bun scripts/build.ts --release
       - run: cat dist/*.sha256
 
       - uses: actions/upload-artifact@v4
@@ -96,8 +91,7 @@ jobs:
           name: windows
           path: |
             dist/evi-core.json
-            dist/Evi-Setup.exe
-            dist/*.sha256
+            dist/evi-core.json.sha256
             notes.md
           if-no-files-found: error
 

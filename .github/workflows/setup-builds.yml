@@ -1,18 +1,57 @@
-# Evi Setup (installer/, Rust + Tauri) for macOS and Linux. It links each system's own webview, so it
+# Evi Setup (installer/, Rust + Tauri) for every system. It links each system's own webview, so it
 # can't be cross-built like the CLI: every build runs on its own system, Linux on each processor.
 # CI runs this on every push; the release workflow runs it and attaches what it makes.
 #
+# Rust caches are saved from main only. A release runs on its tag, and a tag can read main's caches
+# but nothing else can read a tag's: saving there cost every release half a minute per system, and
+# with no main build on Windows, the Windows one always compiled from nothing (5 minutes).
+#
+#   Evi-Setup.exe              Windows, tested against a fake Discord install
 #   Evi-Setup-macos.zip        Evi Setup.app for Apple Silicon and Intel, signed ad hoc
 #   Evi-Setup-linux-x64        the app itself; needs WebKitGTK 4.1, which desktops have
 #   Evi-Setup-linux-arm64
 #
 # Each with its .sha256, as artifacts named setup-<system>.
-name: Evi Setup (macOS, Linux)
+name: Evi Setup
 
 on:
   workflow_call:
 
 jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.11
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: installer
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      # The installer test checks that Setup lays down this build's Evi (dist/embed.json)
+      - run: bun install --frozen-lockfile
+      - run: bun run build
+
+      - name: Build
+        run: bun scripts/build.ts --installer
+
+      - name: Check the app
+        run: bun scripts/test-installer.ts && cat dist/Evi-Setup.exe.sha256
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: setup-windows
+          path: dist/Evi-Setup.exe*
+          if-no-files-found: error
+
   macos:
     runs-on: macos-latest
     timeout-minutes: 30
@@ -29,6 +68,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: installer
+          save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Unit tests
         working-directory: installer
@@ -94,6 +134,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: installer
+          save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Unit tests
         working-directory: installer

@@ -260,8 +260,8 @@ async function compileInstaller() {
         await run([cargo, "build", "--release", "--locked"], dir);
         copyFileSync(join(dir, "target", "release", process.platform === "win32" ? "evi-setup.exe" : "evi-setup"), join(DIST, INSTALLER_ASSET));
     }
-    // The macOS and Linux builds are made on their own CI runners, each by itself: always with its checksum
-    if (RELEASE || process.platform !== "win32") writeChecksum(INSTALLER_ASSET);
+    // Each system's build is made on its own CI runner, by itself: always with its checksum
+    writeChecksum(INSTALLER_ASSET);
     console.log(`✓ dist/${INSTALLER_ASSET} (${(statSync(join(DIST, INSTALLER_ASSET)).size / 1024 / 1024).toFixed(1)} MB)`);
 }
 
@@ -281,7 +281,8 @@ async function run(cmd: string[], cwd = ROOT) {
  */
 async function compileMacApp(cargo: string, dir: string) {
     const targets = ["aarch64-apple-darwin", "x86_64-apple-darwin"];
-    for (const target of targets) await run([cargo, "build", "--release", "--locked", "--target", target], dir);
+    // One cargo run for both: each one's last step (LTO, one codegen unit) is single-threaded, so they overlap
+    await run([cargo, "build", "--release", "--locked", ...targets.flatMap(t => ["--target", t])], dir);
 
     const app = join(DIST, "Evi Setup.app");
     rmSync(app, { recursive: true, force: true });

@@ -18,11 +18,12 @@ import { filters, waitFor } from "./webpack/find";
 const logger = new Logger("GameMode");
 
 /**
- * GameModeStore (checked 2026-10-03):
- *     get enabled(){return d.enabled}get hasRunningGame(){return c}...
- *     get isActive(){return!!d.enabled&&!!c&&(0,l.v)({location:"GameModeStore"}).enabled}
- * `enabled` is Discord's own setting (hover tracking keys off it), `c` whether a game runs. With
- * Evi's switch on, both answer for Evi; off, Discord's code runs as it was.
+ * GameModeStore (checked 2026-10-08):
+ *     get enabled(){return c.enabled??this.isActive}...get hasRunningGame(){return u}...
+ *     get isActive(){return!1!==c.enabled&&!!u&&!!l.isPlatformEmbedded&&(0,o.v)({location:"GameModeStore"}).enabled}
+ * Until 2026-10-03 they were `return d.enabled` and `return!!d.enabled&&!!c&&...`; both forms match.
+ * `enabled` is Discord's own choice (hover tracking keys off it), `isActive` what throttling reads.
+ * With Evi's switch on, both answer for Evi; off, Discord's code runs as it was.
  */
 export const gameModePatch: SourcePatch = {
     find: 'displayName="GameModeStore"',
@@ -30,12 +31,13 @@ export const gameModePatch: SourcePatch = {
     group: true,
     replace: [
         {
-            match: /(?<=get enabled\(\)\{return )(\i)\.enabled(?=\})/,
-            with: "!!window.Evi?.gameMode?.on()||$1.enabled",
+            // Wrapped: Discord's `??` can't sit next to `||` without brackets
+            match: /(?<=get enabled\(\)\{return )([^}]+)(?=\})/,
+            with: "!!window.Evi?.gameMode?.on()||($1)",
         },
         {
-            match: /(?<=get isActive\(\)\{return)(?=!!(\i)\.enabled&&!!(\i)&&)/,
-            with: " window.Evi?.gameMode?.on()?!!$2&&!window.Evi.gameMode.held():",
+            match: /(?<=get isActive\(\)\{return)(?=[^}]*\.enabled&&!!\i&&)/,
+            with: " window.Evi?.gameMode?.on()?this.hasRunningGame&&!window.Evi.gameMode.held():",
         },
     ],
 };

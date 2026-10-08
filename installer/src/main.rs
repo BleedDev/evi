@@ -3,7 +3,11 @@
 //!
 //!   Evi-Setup.exe                                   the window
 //!   Evi-Setup.exe --headless status                 no window: print what it found (used by scripts/test-installer.ts)
-//!   Evi-Setup.exe --headless install|uninstall [--flavor stable,ptb|all] [--latest] [--no-restart]
+//!   Evi-Setup.exe --headless check                  no window: print the Evi it would install
+//!   Evi-Setup.exe --headless install|uninstall [--flavor stable,ptb|all] [--no-restart]
+//!
+//! It always installs the latest release, so one build of it serves every release: releases reuse
+//! its files, and it's only built again when installer/ changes.
 //!
 //! And for itself, on macOS and Linux:
 //!   --headless relink --flavor <f> --core <main.js>   what the watcher runs after a Discord update (autorepair.rs)
@@ -31,12 +35,11 @@ struct Scan {
     installs: Vec<ops::InstallInfo>,
 }
 
+/// The Evi an install would lay down, for the window's title
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-struct UpdateCheck {
-    current: String,
-    latest: Option<String>,
-    available: bool,
+struct Latest {
+    version: Option<String>,
     error: Option<String>,
 }
 
@@ -55,36 +58,32 @@ fn scan_now(version: &str) -> Scan {
     Scan { version: version.to_string(), data_dir: paths::data_dir().to_string_lossy().into_owned(), installs: ops::status() }
 }
 
-fn check_now(current: &str) -> UpdateCheck {
+fn check_now() -> Latest {
     match release::latest() {
-        Ok(Some(r)) => UpdateCheck { available: release::is_newer(&r.tag, current) && release::has_core(&r), latest: Some(r.version), current: current.into(), error: None },
-        Ok(None) => UpdateCheck { current: current.into(), latest: None, available: false, error: None },
-        Err(e) => UpdateCheck { current: current.into(), latest: None, available: false, error: Some(e) },
+        Ok(Some(r)) if release::has_core(&r) => Latest { version: Some(r.version), error: None },
+        Ok(_) => Latest { version: None, error: None },
+        Err(e) => Latest { version: None, error: Some(e) },
     }
 }
 
-/// The Evi to install: this installer's own release, or the latest one when asked (the update banner).
-/// A local file in EVI_CORE_FILE wins, for trying out a build without publishing it.
-fn load_core(own_version: &str, use_latest: bool, progress: &Progress) -> Result<release::CorePayload, String> {
+/// The Evi to install: the latest release. A local file in EVI_CORE_FILE wins, for trying out a build
+/// without publishing it.
+fn load_core(progress: &Progress) -> Result<release::CorePayload, String> {
     if let Some(file) = std::env::var("EVI_CORE_FILE").ok().filter(|f| !f.is_empty()) {
         (progress.0)("Reading Evi from a local file…");
         return release::parse_core(&std::fs::read(&file).map_err(|e| format!("Couldn’t read {file}: {e}"))?);
     }
     (progress.0)("Looking up the release…");
-    let pinned = if use_latest { None } else { release::by_version(own_version)?.filter(release::has_core) };
-    let release = match pinned {
-        Some(r) => r,
-        None => release::latest()?.ok_or("No Evi release has been published yet.")?,
-    };
+    let release = release::latest()?.ok_or("No Evi release has been published yet.")?;
     (progress.0)(&format!("Downloading Evi {}…", release.version));
     release::download_core(&release, || (progress.0)("Checking the download…"))
 }
 
-fn run_now(own_version: &str, action: &str, flavors: &[String], use_latest: bool, restart: bool, progress: &Progress) -> RunReport {
+fn run_now(action: &str, flavors: &[String], restart: bool, progress: &Progress) -> RunReport {
     let fail = |error: String| RunReport { ok: false, error: Some(error), version: None, outcomes: vec![], restarted: vec![], start_by_hand: vec![] };
     let (result, version) = match action {
         "install" => {
-            let payload = match load_core(own_version, use_latest, progress) {
+            let payload = match load_core(progress) {
                 Ok(p) => p,
                 Err(e) => return fail(e),
             };
@@ -117,19 +116,17 @@ async fn scan(app: AppHandle) -> Scan {
 }
 
 #[tauri::command]
-async fn check_update(app: AppHandle) -> UpdateCheck {
-    let version = own_version(&app);
-    tauri::async_runtime::spawn_blocking(move || check_now(&version)).await.unwrap()
+async fn latest_release() -> Latest {
+    tauri::async_runtime::spawn_blocking(check_now).await.unwrap()
 }
 
 #[tauri::command]
-async fn run(app: AppHandle, action: String, flavors: Vec<String>, latest: bool) -> RunReport {
-    let version = own_version(&app);
+async fn run(app: AppHandle, action: String, flavors: Vec<String>) -> RunReport {
     tauri::async_runtime::spawn_blocking(move || {
         let emit = |text: &str| {
             let _ = app.emit("progress", text);
         };
-        run_now(&version, &action, &flavors, latest, true, &Progress(&emit))
+        run_now(&action, &flavors, true, &Progress(&emit))
     })
     .await
     .unwrap()
@@ -171,14 +168,14 @@ fn headless(args: &[String], version: &str) -> i32 {
             0
         }
         "check" => {
-            let check = check_now(version);
+            let check = check_now();
             let failed = check.error.is_some();
             print(serde_json::to_value(check).unwrap());
             failed as i32
         }
         _ => {
             let log = |text: &str| eprintln!("{text}");
-            let report = run_now(version, action, &flavors, flag("--latest"), !flag("--no-restart"), &Progress(&log));
+            let report = run_now(action, &flavors, !flag("--no-restart"), &Progress(&log));
             let ok = report.ok;
             print(serde_json::to_value(report).unwrap());
             (!ok) as i32
@@ -197,7 +194,7 @@ fn main() {
     }
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![scan, check_update, run])
+        .invoke_handler(tauri::generate_handler![scan, latest_release, run])
         .run(context)
         .expect("error while running Evi Setup");
 }

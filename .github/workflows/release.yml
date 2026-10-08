@@ -1,8 +1,12 @@
-# Builds Evi Setup for Windows, macOS and Linux and evi-core.json (what Evi Setup and in-app updates
-# download), tests them and publishes the release. Releases carry no evi CLI since 1.5.0: Evi 1.4.0
-# and later update from evi-core.json alone. Evi Setup builds on each system (setup-builds.yml),
-# alongside the job that tests Evi and builds evi-core.json; the release is published once every
-# build and test passed.
+# Tests Evi, builds evi-core.json (what Evi Setup and in-app updates download) and publishes the
+# release with Evi Setup for Windows, macOS and Linux. Releases carry no evi CLI since 1.5.0: Evi
+# 1.4.0 and later update from evi-core.json alone.
+#
+# Evi Setup always installs the latest release, so its files only change with installer/. When
+# installer/ is the same as in the last release, its Setup files are copied (checksums checked) and
+# the release job publishes by itself, in about a minute. Otherwise, or when asked to, Evi Setup
+# builds and tests on each system (setup-builds.yml) and the publish job goes once all of it passed.
+# The slower tests (live Discord, Electron, the CLI exe) run on every push to main (ci.yml).
 # Its notes come from the version's entry in src/shared/changelog.ts (scripts/release-notes.ts), so
 # there's nothing to write or press on GitHub. Evi's Updates tab, `evi update`, Evi Setup and
 # evi.rest's releases and download pages all pick it up from there by themselves.
@@ -22,6 +26,10 @@ on:
         description: "Version to release, e.g. 0.2.0 (must match package.json)"
         required: true
         type: string
+      rebuild_setup:
+        description: "Build Evi Setup again even if installer/ is unchanged"
+        type: boolean
+        default: false
   push:
     tags: ["v*"]
 
@@ -33,14 +41,12 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  setup:
-    uses: ./.github/workflows/setup-builds.yml
-
   release:
     runs-on: windows-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
       tag: ${{ steps.version.outputs.tag }}
+      reused: ${{ steps.setup.outputs.reused }}
     defaults:
       run:
         shell: bash
@@ -76,6 +82,15 @@ jobs:
       # The release's notes, from its entry in src/shared/changelog.ts: fails right away without one
       - run: bun scripts/release-notes.ts "${{ steps.version.outputs.version }}" > notes.md && cat notes.md
 
+      # What main's CI saved (ci.yml): a tag can read main's caches
+      - uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            ~/AppData/Local/electron/Cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: ${{ runner.os }}-bun-
+
       - run: bun install --frozen-lockfile
       - run: bun run build
       - run: bunx tsc --noEmit
@@ -86,7 +101,38 @@ jobs:
       - run: bun scripts/build.ts --release
       - run: cat dist/*.sha256
 
+      # The last release's Evi Setup, if installer/ hasn't changed since: all four, checksums checked
+      - name: Evi Setup from the last release
+        id: setup
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REBUILD: ${{ inputs.rebuild_setup }}
+        run: |
+          reused=false
+          last=$(gh release view --json tagName --jq .tagName 2>/dev/null || true)
+          if [ -n "$last" ] && [ "$REBUILD" != "true" ]; then
+            git fetch -q --depth=1 origin "refs/tags/$last:refs/tags/$last"
+            if git diff --quiet "$last" HEAD -- installer .github/workflows/setup-builds.yml; then
+              gh release download "$last" -p "Evi-Setup*" -D setup
+              (cd setup && sha256sum -c ./*.sha256) && [ "$(ls setup | wc -l)" -eq 8 ] && reused=true
+            fi
+          fi
+          echo "reused=$reused" >> "$GITHUB_OUTPUT"
+          if [ "$reused" = true ]; then echo "Evi Setup from $last"; else echo "Evi Setup builds again"; fi
+
+      - name: Publish the release
+        if: steps.setup.outputs.reused == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ steps.version.outputs.tag }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          mkdir out && cp dist/evi-core.json dist/evi-core.json.sha256 setup/* notes.md out/
+          bash scripts/publish-release.sh out
+
       - uses: actions/upload-artifact@v4
+        if: steps.setup.outputs.reused != 'true'
         with:
           name: windows
           path: |
@@ -95,11 +141,23 @@ jobs:
             notes.md
           if-no-files-found: error
 
-  # Published straight away: everything in both jobs built and tested what's uploaded
+  # installer/ changed: Evi Setup builds and tests on every system
+  setup:
+    needs: release
+    if: needs.release.outputs.reused != 'true'
+    uses: ./.github/workflows/setup-builds.yml
+
+  # Published once Evi Setup was built: everything in both jobs built and tested what's uploaded
   publish:
     needs: [release, setup]
+    if: needs.setup.result == 'success'
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: scripts/publish-release.sh
+          sparse-checkout-cone-mode: false
+
       - uses: actions/download-artifact@v4
         with:
           path: out
@@ -112,15 +170,6 @@ jobs:
           TAG: ${{ needs.release.outputs.tag }}
           VERSION: ${{ needs.release.outputs.version }}
         run: |
-          if gh release view "$TAG" > /dev/null 2>&1; then
-            echo "::error::A release or draft for $TAG already exists. Delete it first to rebuild."
-            exit 1
-          fi
-          flags=(--latest)
-          if [[ "$VERSION" == *-* ]]; then flags=(--prerelease --latest=false); fi
-          cd out
           # The Windows job's files arrive in dist/ (its upload kept the folder next to notes.md)
-          if [ -d dist ]; then mv dist/* . && rmdir dist; fi
-          ls -l
-          # Evi Setup for every system, and evi-core.json for Evi Setup and in-app updates
-          gh release create "$TAG" evi-core.json             Evi-Setup.exe Evi-Setup-macos.zip Evi-Setup-linux-{x64,arm64} *.sha256             "${flags[@]}"             --target "$GITHUB_SHA"             --title "Evi $VERSION"             --notes-file notes.md
+          if [ -d out/dist ]; then mv out/dist/* out/ && rmdir out/dist; fi
+          bash scripts/publish-release.sh out

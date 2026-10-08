@@ -119,16 +119,17 @@ check("…and changes nothing", readFileSync(asar).equals(discordAsar) && !exist
 
 // A bad checksum is refused before anything is written
 addRelease(pkg.version).checksum = "0".repeat(64);
+latest = `v${pkg.version}`;
 r = await setup("install", "--no-restart");
 check("checksum mismatch is refused", r.code === 1 && /doesn’t match the release’s checksum/.test(r.json?.error), r.log);
 check("…and changes nothing", readFileSync(asar).equals(discordAsar) && !existsSync(original) && !existsSync(join(DATA, "core")));
 
-// The installer's own release
+// The latest release
 addRelease(pkg.version);
 downloads = 0;
 r = await setup("install", "--no-restart");
 check("install succeeds", r.code === 0 && r.json?.ok === true && /Installed Evi/.test(r.json?.outcomes?.[0]?.message), r.log);
-check("install downloads this installer's own version", r.json?.version === pkg.version && downloads === 1, r.json);
+check("install downloads the latest release", r.json?.version === pkg.version && downloads === 1, r.json);
 check("Discord's archive moved to _app.asar untouched", readFileSync(original).equals(discordAsar));
 check("loader is byte for byte what the CLI writes", readFileSync(asar).equals(createShimAsar({ corePath: coreMain }, discordPkg)), readAsarFile(asar, "index.js"));
 check("core written to the data folder", Object.keys(embed.core).every(f => existsSync(join(DATA, "core", f))));
@@ -165,25 +166,22 @@ check("your own plugins are left alone", existsSync(join(DATA, "plugins", "my-ow
 check("the core folder is replaced, not merged", !existsSync(join(DATA, "core", "stale.js")));
 check("Discord's archive still intact after reinstall", readFileSync(original).equals(discordAsar));
 
-// Updates: the banner's check, and installing the latest instead of the own version
+// One build of Setup serves every release: it installs whatever is latest, never its own version
 addRelease("99.0.0");
 latest = "v99.0.0";
 r = await setup("check");
-check("check: a newer release is available", r.code === 0 && r.json?.available === true && r.json?.latest === "99.0.0", r.json);
-r = await setup("install", "--latest", "--no-restart");
-check("install --latest installs the newest release", r.code === 0 && r.json?.version === "99.0.0", r.log);
+check("check: names the Evi it would install", r.code === 0 && r.json?.version === "99.0.0", r.json);
+r = await setup("install", "--no-restart");
+check("install lays down the latest release, newer than Setup itself", r.code === 0 && r.json?.version === "99.0.0", r.log);
 r = await setup("status");
 check("status: shows the newer Evi", stable(r.json)?.eviVersion === "99.0.0", stable(r.json));
 
-latest = `v${pkg.version}`;
+// The latest release without evi-core.json: a plain error, nothing touched
+releases["v99.0.0"] = { tag: "v99.0.0" };
 r = await setup("check");
-check("check: same version isn't offered", r.code === 0 && r.json?.available === false, r.json);
-
-// This version's release without evi-core.json (older releases): falls back to the latest
-releases[`v${pkg.version}`] = { tag: `v${pkg.version}` };
-latest = "v99.0.0";
+check("check: a latest release without Evi names nothing", r.code === 0 && r.json?.version == null, r.json);
 r = await setup("install", "--no-restart");
-check("own release without evi-core.json falls back to the latest", r.code === 0 && r.json?.version === "99.0.0", r.log);
+check("install from a latest release without Evi fails in plain words", r.code === 1 && /doesn’t include evi-core\.json/.test(r.json?.error) && stable((await setup("status")).json)?.eviVersion === "99.0.0", r.log);
 addRelease(pkg.version);
 latest = `v${pkg.version}`;
 

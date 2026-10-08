@@ -2,7 +2,6 @@
 //! evi-core.json (the core and official plugins, what the CLI embeds as dist/embed.json) and checks it
 //! against evi-core.json.sha256, the same scheme as src/cli/update.ts.
 
-use std::cmp::Ordering;
 use std::collections::BTreeMap;
 use std::time::Duration;
 
@@ -94,43 +93,6 @@ pub fn clean_version(tag: &str) -> String {
     t.split('+').next().unwrap_or("").to_string()
 }
 
-/// compareVersions from src/shared/store.ts: 0.5.0-beta.1 comes after 0.4.0 and before 0.5.0
-pub fn compare_release(a: &str, b: &str) -> Ordering {
-    let split = |v: &str| match v.split_once('-') {
-        Some((core, pre)) => (core.to_string(), Some(pre.to_string())),
-        None => (v.to_string(), None),
-    };
-    let ((core_a, pre_a), (core_b, pre_b)) = (split(a), split(b));
-    let core = crate::discord::compare_versions(&core_a, &core_b);
-    if core.is_ne() {
-        return core;
-    }
-    let (pre_a, pre_b) = match (pre_a, pre_b) {
-        (None, None) => return Ordering::Equal,
-        (None, Some(_)) => return Ordering::Greater,
-        (Some(_), None) => return Ordering::Less,
-        (Some(a), Some(b)) => (a, b),
-    };
-    let (pa, pb): (Vec<&str>, Vec<&str>) = (pre_a.split('.').collect(), pre_b.split('.').collect());
-    for i in 0..pa.len().max(pb.len()) {
-        let (Some(x), Some(y)) = (pa.get(i), pb.get(i)) else { return pa.len().cmp(&pb.len()) };
-        let order = match (x.parse::<u64>(), y.parse::<u64>()) {
-            (Ok(nx), Ok(ny)) => nx.cmp(&ny),
-            (Ok(_), Err(_)) => Ordering::Less,
-            (Err(_), Ok(_)) => Ordering::Greater,
-            _ => x.cmp(y),
-        };
-        if order.is_ne() {
-            return order;
-        }
-    }
-    Ordering::Equal
-}
-
-pub fn is_newer(tag: &str, current: &str) -> bool {
-    compare_release(&clean_version(tag), &clean_version(current)).is_gt()
-}
-
 /// GETs `<api>/repos/BleedDev/evi/<path>` from each API in turn, moving on to the next when one can't
 /// be reached, times out or answers 5xx. Anything else (a release, a 404, GitHub's 403) is the answer.
 fn get_release_api(apis: &[String], path: &str) -> Result<ureq::http::Response<ureq::Body>, String> {
@@ -170,11 +132,6 @@ fn fetch_from(apis: &[String], path: &str) -> Result<Option<Release>, String> {
 /// The latest published release, or None if nothing has been published yet. Drafts and prereleases never show up here.
 pub fn latest() -> Result<Option<Release>, String> {
     fetch_from(&apis(), "releases/latest")
-}
-
-/// A release by version, e.g. the one this installer was built for
-pub fn by_version(version: &str) -> Result<Option<Release>, String> {
-    fetch_from(&apis(), &format!("releases/tags/v{version}"))
 }
 
 fn download(url: &str, max: u64, timeout: u64) -> Result<Vec<u8>, String> {
@@ -223,14 +180,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn orders_releases_like_the_app() {
-        assert!(is_newer("v0.5.1", "0.5.0"));
-        assert!(is_newer("v0.5.0", "0.5.0-beta.1"));
-        assert!(is_newer("v0.5.0-beta.2", "0.5.0-beta.1"));
-        assert!(is_newer("v0.5.0-beta.1", "0.4.0"));
-        assert!(!is_newer("v0.5.0", "0.5.0"));
-        assert!(!is_newer("v0.4.0", "0.5.0"));
-        assert!(!is_newer("v0.5.0-beta.1", "0.5.0"));
+    fn cleans_tags() {
         assert_eq!(clean_version("v1.2.3-beta.1+x"), "1.2.3-beta.1");
     }
 

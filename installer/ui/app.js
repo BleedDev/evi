@@ -1,4 +1,4 @@
-// Evi Setup's window. The Rust side (src/main.rs) does the work: scan, check_update and run.
+// Evi Setup's window. The Rust side (src/main.rs) does the work: scan, latest_release and run.
 "use strict";
 
 const tauri = window.__TAURI__;
@@ -6,7 +6,7 @@ const invoke = tauri.core.invoke;
 const appWindow = tauri.window.getCurrentWindow();
 
 const $ = id => document.getElementById(id);
-const state = { scan: null, selected: new Set(), latest: null, busy: false };
+const state = { scan: null, selected: new Set(), busy: false };
 
 const ICONS = {
     check: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
@@ -95,13 +95,10 @@ function updateButtons() {
     const picked = chosen();
     $("install").disabled = state.busy || !picked.length;
     $("uninstall").disabled = state.busy || !picked.some(i => i.state === "evi");
-    $("banner-install").disabled = state.busy || !picked.length;
     $("close").disabled = state.busy;
 }
 
 function show(view) {
-    // The update offer belongs to the choosing screen: its button acts on the ticked installs
-    $("banner").hidden = view !== "choose" || !state.latest;
     for (const id of ["choose", "working"]) {
         const el = $(id);
         el.hidden = id !== view;
@@ -134,12 +131,11 @@ function listOutcomes(outcomes) {
 
 async function scan(animate) {
     state.scan = await invoke("scan");
-    $("version").textContent = `· v${state.scan.version}`;
     if (!state.selected.size) state.selected = defaultSelection(state.scan.installs);
     renderInstalls(animate);
 }
 
-async function run(action, latest = false) {
+async function run(action) {
     const flavors = chosen().map(i => i.flavor);
     if (!flavors.length || state.busy) return;
     state.busy = true;
@@ -152,7 +148,7 @@ async function run(action, latest = false) {
 
     let report;
     try {
-        report = await invoke("run", { action, flavors, latest });
+        report = await invoke("run", { action, flavors });
     } catch (err) {
         report = { ok: false, error: String(err), outcomes: [], restarted: [], startByHand: [] };
     }
@@ -174,27 +170,22 @@ async function run(action, latest = false) {
         setStatus("failed", t("someFailed"), t("whatHappened"));
         listOutcomes(report.outcomes);
     }
-    if (latest && report.ok) state.latest = null;
     $("status-actions").hidden = false;
     $("finish").focus();
     // What's installed now, for Back
     scan(false).catch(() => { });
 }
 
-async function checkForUpdate() {
+/** The Evi an install lays down: always the latest release */
+async function showLatest() {
     try {
-        const check = await invoke("check_update");
-        if (!check.available) return;
-        state.latest = check.latest;
-        $("banner-text").textContent = t("updateAvailable", { version: check.latest });
-        $("banner-install").textContent = t("installVersion", { version: check.latest });
-        $("banner").hidden = $("choose").hidden;
+        const latest = await invoke("latest_release");
+        if (latest.version) $("version").textContent = `· v${latest.version}`;
     } catch { }
 }
 
 $("install").addEventListener("click", () => run("install"));
 $("uninstall").addEventListener("click", () => run("uninstall"));
-$("banner-install").addEventListener("click", () => run("install", true));
 $("back").addEventListener("click", () => show("choose"));
 $("finish").addEventListener("click", () => appWindow.close());
 $("minimize").addEventListener("click", () => appWindow.minimize());
@@ -216,4 +207,4 @@ translatePage();
 scan(true).catch(err => {
     $("installs").textContent = t("scanFailed", { error: err });
 });
-checkForUpdate();
+showLatest();

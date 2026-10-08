@@ -34,8 +34,6 @@ const STRINGS = {
         openYourself: " Open Discord {list} yourself.",
         someFailed: "Some installs didn’t work",
         whatHappened: "What happened with each:",
-        updateAvailable: "Evi {version} is available",
-        installVersion: "Install {version}",
         scanFailed: "Couldn’t look for Discord: {error}",
     },
     de: {
@@ -69,8 +67,6 @@ const STRINGS = {
         openYourself: " Öffne Discord {list} selbst.",
         someFailed: "Einige Installationen haben nicht geklappt",
         whatHappened: "Was jeweils passiert ist:",
-        updateAvailable: "Evi {version} ist verfügbar",
-        installVersion: "{version} installieren",
         scanFailed: "Discord konnte nicht gesucht werden: {error}",
     },
     es: {
@@ -104,8 +100,6 @@ const STRINGS = {
         openYourself: " Abre Discord {list} tú mismo.",
         someFailed: "Algunas instalaciones no funcionaron",
         whatHappened: "Qué pasó con cada una:",
-        updateAvailable: "Evi {version} está disponible",
-        installVersion: "Instalar {version}",
         scanFailed: "No se pudo buscar Discord: {error}",
     },
     fr: {
@@ -139,8 +133,6 @@ const STRINGS = {
         openYourself: " Ouvre Discord {list} toi-même.",
         someFailed: "Certaines installations n’ont pas fonctionné",
         whatHappened: "Ce qui s’est passé pour chacune :",
-        updateAvailable: "Evi {version} est disponible",
-        installVersion: "Installer {version}",
         scanFailed: "Impossible de chercher Discord : {error}",
     },
     ja: {
@@ -174,8 +166,6 @@ const STRINGS = {
         openYourself: " Discord {list} は手動で開いてください。",
         someFailed: "うまくいかなかったインストールがあります",
         whatHappened: "それぞれの結果:",
-        updateAvailable: "Evi {version} が利用できます",
-        installVersion: "{version} をインストール",
         scanFailed: "Discord を探せませんでした: {error}",
     },
     pl: {
@@ -209,8 +199,6 @@ const STRINGS = {
         openYourself: " Otwórz Discorda {list} samodzielnie.",
         someFailed: "Niektóre instalacje się nie udały",
         whatHappened: "Co stało się z każdą z nich:",
-        updateAvailable: "Dostępne jest Evi {version}",
-        installVersion: "Zainstaluj {version}",
         scanFailed: "Nie udało się wyszukać Discorda: {error}",
     },
     "pt-BR": {
@@ -244,8 +232,6 @@ const STRINGS = {
         openYourself: " Abra o Discord {list} você mesmo.",
         someFailed: "Algumas instalações não funcionaram",
         whatHappened: "O que aconteceu com cada uma:",
-        updateAvailable: "O Evi {version} está disponível",
-        installVersion: "Instalar {version}",
         scanFailed: "Não foi possível procurar o Discord: {error}",
     },
     ru: {
@@ -279,8 +265,6 @@ const STRINGS = {
         openYourself: " Открой Discord {list} самостоятельно.",
         someFailed: "Некоторые установки не удались",
         whatHappened: "Что произошло с каждой:",
-        updateAvailable: "Доступен Evi {version}",
-        installVersion: "Установить {version}",
         scanFailed: "Не удалось найти Discord: {error}",
     },
     tr: {
@@ -314,8 +298,6 @@ const STRINGS = {
         openYourself: " Discord {list} uygulamasını kendin aç.",
         someFailed: "Bazı kurulumlar çalışmadı",
         whatHappened: "Her birinde olanlar:",
-        updateAvailable: "Evi {version} kullanıma hazır",
-        installVersion: "{version} sürümünü yükle",
         scanFailed: "Discord aranamadı: {error}",
     },
 };

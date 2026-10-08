@@ -11,6 +11,14 @@ export type ReleaseNotes = Partial<Record<SectionKind, string[]>>;
 /** Language -> version -> section -> lines */
 export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
     de: {
+        "2.4.0": {
+            added: [
+                "**Vier neue Plugins.** Boot Sequence macht aus Discords Ladefenster ein live Boot-Protokoll, Pretty Notifications zeigt Benachrichtigungen als Karten, auf die du antworten kannst, ohne Discord zu öffnen, Smooth Chat lässt neue Nachrichten hereingleiten, und Tray Menu Plus bringt Status, letzte DMs, Stummschalten und Taubschalten ins Tray-Symbol von Discord. Alle im Store, alle aus, bis du sie einschaltest.",
+            ],
+            fixed: [
+                "**Evi schaltet sich nicht mehr selbst ab.** Discord zu öffnen, während es schon lief, über sein Symbol oder einen Discord-Link, zählte als fehlgeschlagener Start. Nach ein paar davon startete Discord einmal ohne Evi. Jetzt zählen nur echte Starts.",
+            ],
+        },
         "2.3.0": {
             fixed: [
                 "**Evi bleibt nach Discord-Updates, auch wenn du den PC herunterfährst.** Discord installiert Updates, während es offen ist, und Evi zog erst beim Schließen von Discord in die neue Version um. Wer Windows mit offenem Discord herunterfuhr oder neu startete, übersprang das, und Discord startete ohne Evi. Jetzt zieht Evi um, sobald das Update installiert ist.",
@@ -337,6 +345,14 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     es: {
+        "2.4.0": {
+            added: [
+                "**Cuatro plugins nuevos.** Boot Sequence convierte la ventana de carga de Discord en un registro de arranque en vivo, Pretty Notifications muestra las notificaciones como tarjetas a las que puedes responder sin abrir Discord, Smooth Chat hace que los mensajes nuevos entren deslizándose y Tray Menu Plus pone tu estado, tus MD recientes, silenciar y ensordecer en el icono de Discord de la bandeja. Todos en la tienda, todos apagados hasta que los actives.",
+            ],
+            fixed: [
+                "**Evi ya no se apaga solo.** Abrir Discord cuando ya estaba abierto, desde su icono o un enlace de Discord, contaba como un inicio fallido. Tras unos cuantos, Discord se iniciaba una vez sin Evi. Ahora solo cuentan los inicios reales.",
+            ],
+        },
         "2.3.0": {
             fixed: [
                 "**Evi se queda tras las actualizaciones de Discord, aunque apagues el PC.** Discord instala sus actualizaciones mientras está abierto, y Evi solo se pasaba a la nueva versión al cerrar Discord. Apagar o reiniciar Windows con Discord abierto se lo saltaba, y Discord arrancaba sin Evi. Ahora Evi se pasa en cuanto se instala la actualización.",
@@ -663,6 +679,14 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     fr: {
+        "2.4.0": {
+            added: [
+                "**Quatre nouveaux plugins.** Boot Sequence transforme la fenêtre de chargement de Discord en journal de démarrage en direct, Pretty Notifications affiche les notifications sous forme de cartes auxquelles tu peux répondre sans ouvrir Discord, Smooth Chat fait glisser les nouveaux messages et Tray Menu Plus met ton statut, tes MP récents, la sourdine et le mode sourd sur l'icône de Discord dans la zone de notification. Tous dans la boutique, tous désactivés jusqu'à ce que tu les actives.",
+            ],
+            fixed: [
+                "**Evi ne se désactive plus tout seul.** Ouvrir Discord alors qu'il tournait déjà, depuis son icône ou un lien Discord, comptait comme un démarrage raté. Après quelques-uns, Discord démarrait une fois sans Evi. Désormais, seuls les vrais démarrages comptent.",
+            ],
+        },
         "2.3.0": {
             fixed: [
                 "**Evi reste après les mises à jour de Discord, même si tu éteins ton PC.** Discord installe ses mises à jour pendant qu'il est ouvert, et Evi ne passait dans la nouvelle version qu'à la fermeture de Discord. Éteindre ou redémarrer Windows avec Discord ouvert sautait cette étape, et Discord démarrait sans Evi. Maintenant Evi s'y installe dès que la mise à jour est posée.",
@@ -989,6 +1013,14 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ja: {
+        "2.4.0": {
+            added: [
+                "**新しいプラグインが4つ。** Boot Sequence は Discord の読み込みウィンドウをライブの起動ログに変え、Pretty Notifications は Discord を開かずに返信できるカードで通知を表示し、Smooth Chat は新しいメッセージをなめらかに表示し、Tray Menu Plus はステータス、最近の DM、ミュート、スピーカーミュートを Discord のトレイアイコンに追加します。すべてストアにあり、オンにするまではオフのままです。",
+            ],
+            fixed: [
+                "**Evi が勝手にオフにならなくなりました。** すでに起動している Discord をアイコンや Discord のリンクから開くと、失敗した起動として数えられていました。何度か続くと、Discord が一度 Evi なしで起動していました。今は本当の起動だけが数えられます。",
+            ],
+        },
         "2.3.0": {
             fixed: [
                 "**PC をシャットダウンしても、Discord のアップデート後に Evi が残ります。** Discord は起動中にアップデートをインストールし、Evi は Discord を閉じたときだけ新しいバージョンに移っていました。Discord を開いたまま Windows をシャットダウンや再起動するとこれが飛ばされ、Discord が Evi なしで起動していました。今はアップデートがインストールされた時点で Evi が移ります。",
@@ -1315,6 +1347,14 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     pl: {
+        "2.4.0": {
+            added: [
+                "**Cztery nowe pluginy.** Boot Sequence zamienia okno ładowania Discorda w dziennik uruchamiania na żywo, Pretty Notifications pokazuje powiadomienia jako karty, na które odpowiesz bez otwierania Discorda, Smooth Chat płynnie wsuwa nowe wiadomości, a Tray Menu Plus dodaje status, ostatnie wiadomości prywatne, wyciszenie i ogłuszenie do ikony Discorda w zasobniku. Wszystkie w sklepie, wszystkie wyłączone, dopóki ich nie włączysz.",
+            ],
+            fixed: [
+                "**Evi już sam się nie wyłącza.** Otwarcie Discorda, gdy już działał, z jego ikony lub linku Discorda, liczyło się jako nieudane uruchomienie. Po kilku takich Discord uruchamiał się raz bez Evi. Teraz liczą się tylko prawdziwe uruchomienia.",
+            ],
+        },
         "2.3.0": {
             fixed: [
                 "**Evi zostaje po aktualizacjach Discorda, nawet gdy wyłączysz komputer.** Discord instaluje aktualizacje, gdy jest otwarty, a Evi przenosił się do nowej wersji dopiero przy zamknięciu Discorda. Wyłączenie lub restart Windowsa z otwartym Discordem to pomijały i Discord startował bez Evi. Teraz Evi przenosi się, gdy tylko aktualizacja się zainstaluje.",
@@ -1641,6 +1681,14 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     "pt-BR": {
+        "2.4.0": {
+            added: [
+                "**Quatro plugins novos.** Boot Sequence transforma a janela de carregamento do Discord em um registro de inicialização ao vivo, Pretty Notifications mostra as notificações como cartões que você responde sem abrir o Discord, Smooth Chat faz as mensagens novas entrarem deslizando e Tray Menu Plus coloca seu status, DMs recentes, silenciar e ensurdecer no ícone do Discord na bandeja. Todos na loja, todos desligados até você ligar.",
+            ],
+            fixed: [
+                "**O Evi não se desliga mais sozinho.** Abrir o Discord quando ele já estava aberto, pelo ícone ou por um link do Discord, contava como uma inicialização que falhou. Depois de algumas, o Discord iniciava uma vez sem o Evi. Agora só as inicializações de verdade contam.",
+            ],
+        },
         "2.3.0": {
             fixed: [
                 "**O Evi continua depois das atualizações do Discord, mesmo se você desligar o PC.** O Discord instala as atualizações enquanto está aberto, e o Evi só passava para a nova versão quando o Discord fechava. Desligar ou reiniciar o Windows com o Discord aberto pulava isso, e o Discord abria sem o Evi. Agora o Evi passa assim que a atualização é instalada.",
@@ -1967,6 +2015,14 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ru: {
+        "2.4.0": {
+            added: [
+                "**Четыре новых плагина.** Boot Sequence превращает окно загрузки Discord в живой журнал запуска, Pretty Notifications показывает уведомления карточками, на которые можно ответить, не открывая Discord, Smooth Chat плавно вводит новые сообщения, а Tray Menu Plus добавляет статус, недавние ЛС, отключение микрофона и звука в значок Discord в трее. Все в магазине, все выключены, пока вы их не включите.",
+            ],
+            fixed: [
+                "**Evi больше не отключается сам.** Открытие Discord, когда он уже работал, через значок или ссылку Discord, считалось неудачным запуском. После нескольких таких Discord один раз запускался без Evi. Теперь считаются только настоящие запуски.",
+            ],
+        },
         "2.3.0": {
             fixed: [
                 "**Evi остаётся после обновлений Discord, даже если выключить ПК.** Discord ставит обновления, пока открыт, а Evi переносился в новую версию только при закрытии Discord. Выключение или перезагрузка Windows с открытым Discord это пропускали, и Discord запускался без Evi. Теперь Evi переносится сразу, как только обновление установлено.",
@@ -2293,6 +2349,14 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     tr: {
+        "2.4.0": {
+            added: [
+                "**Dört yeni eklenti.** Boot Sequence, Discord'un yükleme penceresini canlı bir açılış kaydına çevirir; Pretty Notifications, bildirimleri Discord'u açmadan yanıtlayabileceğin kartlar olarak gösterir; Smooth Chat yeni mesajları kaydırarak getirir; Tray Menu Plus ise durumunu, son DM'lerini, sessize alma ve sağırlaştırmayı Discord'un tepsi simgesine ekler. Hepsi mağazada, sen açana kadar hepsi kapalı.",
+            ],
+            fixed: [
+                "**Evi artık kendini kapatmıyor.** Discord zaten açıkken simgesinden ya da bir Discord bağlantısından açmak, başarısız bir başlatma sayılıyordu. Birkaç kez olunca Discord bir kez Evi olmadan açılıyordu. Artık yalnızca gerçek başlatmalar sayılıyor.",
+            ],
+        },
         "2.3.0": {
             fixed: [
                 "**Bilgisayarını kapatsan bile Evi, Discord güncellemelerinden sonra yerinde kalıyor.** Discord güncellemelerini açıkken kuruyor, Evi ise yeni sürüme yalnızca Discord kapanınca geçiyordu. Discord açıkken Windows'u kapatmak ya da yeniden başlatmak bunu atlıyordu ve Discord Evi olmadan açılıyordu. Artık Evi, güncelleme kurulur kurulmaz yeni sürüme geçiyor.",

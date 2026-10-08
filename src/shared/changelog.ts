@@ -28,6 +28,18 @@ export interface Release {
  */
 export const RELEASES: Release[] = [
     {
+        version: "2.4.0",
+        date: "2026-10-08",
+        sections: {
+            added: [
+                "**Four new plugins.** Boot Sequence turns Discord's loading window into a live boot log, Pretty Notifications shows notifications as cards you can reply from without opening Discord, Smooth Chat slides new messages in, and Tray Menu Plus puts your status, recent DMs, mute and deafen on Discord's tray icon. All in the store, all off until you turn them on.",
+            ],
+            fixed: [
+                "**Evi doesn't switch itself off anymore.** Opening Discord while it was already running, from its icon or a Discord link, counted as a start that failed. After a few of those, Discord started once without Evi. Now only real starts count.",
+            ],
+        },
+    },
+    {
         version: "2.3.0",
         date: "2026-10-07",
         sections: {

@@ -9,7 +9,7 @@
  * Admin actions (the /badge command) need evi-admin.json in the data folder, { "token": "…" }. The
  * token stays in main: the page can only ask for one of a few fixed actions.
  */
-import { BadgeAdminAction, BadgeAdminResult, BadgePrefs, BadgePrefsResult, BadgesDocument, BadgesResult, hasAnnouncementsEvent, hasHotfixesEvent, hasNotificationsEvent, hasPullsEvent, hasRequiredEvent, isDiscordId, parseBadgeEvents, parseBadges } from "@shared/badges";
+import { BadgeAdminAction, BadgeAdminResult, BadgePrefs, BadgePrefsResult, BadgesDocument, BadgesResult, hasAnnouncementsEvent, hasEvent, hasHotfixesEvent, hasNotificationsEvent, hasPullsEvent, hasRequiredEvent, isDiscordId, parseBadgeEvents, parseBadges } from "@shared/badges";
 import { imageDataUrl, imageType } from "@shared/images";
 import { IPC } from "@shared/ipc";
 import { isPluginId } from "@shared/store";
@@ -179,6 +179,8 @@ const hotfixes = signal();
 const inbox = signal();
 const announcements = signal();
 const required = signal();
+const collectibles = signal();
+const wallet = signal();
 
 /** Told when the stream says pulled plugins changed, and after it reconnects (one may have been missed) */
 export const onPullsAnnounced = pulls.on;
@@ -190,6 +192,13 @@ export const onInboxAnnounced = inbox.on;
 export const onAnnouncementsChanged = announcements.on;
 /** Told when the required Evi version changed, and after the stream reconnects (it may have meanwhile) */
 export const onRequiredChanged = required.on;
+/** Told when who wears which Evi collectible (or the bundles) changed, and after the stream reconnects */
+export const onCollectiblesAnnounced = collectibles.on;
+/** Told when this account's Sparks or owned collectibles changed (sent only to its linked installs), and after the stream reconnects */
+export const onWalletAnnounced = wallet.on;
+
+/** Starts listening on evi.rest's change stream, if nothing has yet */
+export const listenForChanges = () => void stream();
 
 /** Everyone reconnects at once after a server restart: spread them out */
 const jitter = (ms: number) => ms / 2 + Math.random() * ms;
@@ -226,6 +235,8 @@ async function listen() {
             if (hasNotificationsEvent(chunk)) inbox.fire();
             if (hasAnnouncementsEvent(chunk)) announcements.fire();
             if (hasRequiredEvent(chunk)) required.fire();
+            if (hasEvent(chunk, "collectibles")) collectibles.fire();
+            if (hasEvent(chunk, "wallet")) wallet.fire();
             const etags = parseBadgeEvents(chunk);
             buffer = buffer.slice(end + 2);
             const latest = etags.at(-1);
@@ -263,6 +274,8 @@ async function stream() {
         hotfixes.fire();
         inbox.fire();
         required.fire();
+        collectibles.fire();
+        wallet.fire();
     }
 }
 

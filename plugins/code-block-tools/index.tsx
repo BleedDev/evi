@@ -1,26 +1,31 @@
 /**
- * Code blocks and text files get Copy, Download, Pretty print for JSON and line numbers.
+ * Code blocks and text files get Copy, Download, Pretty print for JSON and line numbers, drawn the way
+ * Discord draws its own buttons.
  *
- * Checked against Discord's code on 2026-10-02:
+ * Checked against Discord's code on 2026-10-11:
  * - Code blocks: Discord's markup rule `codeBlock:{react(e,t,r){…return <pre><div class=codeContainer>
- *   [<div class=codeActions><Copy/></div>, <highlighted code/>]…}}` (next to location:"MarkupReactRules").
- *   Our toolbar goes first in that children list; it replaces Discord's own Copy button, which CSS hides.
- *   Pretty print and the line number gutter are ours too, siblings of Discord's code, laid out by CSS.
+ *   [y.p5 ? <div class=codeActions><Copy/></div> : null, <highlighted code/>]…}}` (next to
+ *   location:"MarkupReactRules"). Its codeActions show on hover, 8px from the top and 4px from the end,
+ *   with a 16px icon that turns into a checkmark once copied. Our buttons take that spot and look (Discord's
+ *   Copy steps aside while we run), the container gets our data attributes, and Pretty print adds a code
+ *   element of ours beside Discord's, which then hides.
  * - Text files Discord previews (the plaintext preview, the first 50 KB with a language picker and a
- *   ⋯ menu): Copy and Pretty print join its footer, the text it shows goes through useText (pretty
- *   printed when asked), and its `<pre>` gets the line numbers as a CSS `content:` string. Numbered
- *   lines can't wrap, so with line numbers on the preview starts with Discord's word wrap off.
+ *   ⋯ menu): Copy and Pretty print join its footer after the language picker, 18px icons 16px apart like
+ *   Discord's own; the text it shows goes through useText (pretty printed when asked), and its `<pre>`
+ *   gets the line numbers. Numbered lines can't wrap, so with line numbers on the preview starts with
+ *   Discord's word wrap off.
  * - Text files Discord shows as a plain download card (its generic file attachment): a Preview button
  *   in the card opens our own preview of the first 512 KB under it.
+ *
+ * Line numbers are a CSS string floated at the start of the code element itself, so they share its font,
+ * padding and line height without anyone measuring them; html.dl-cbt-numbers turns them on.
  */
 import { Components, definePlugin, filters, React } from "@evi/api";
-import type { Filter, PluginContext } from "@evi/api";
+import type { PluginContext } from "@evi/api";
 
 import { PATCHES } from "./patches";
 import { t } from "./strings";
-import {
-    codeFilename, gutterCss, gutterText, isJson, isTextFile, jsonTokens, languageOf, lineCount, MAX_FILE_BYTES, prettyJson,
-} from "./tools";
+import { codeFilename, gutterCss, isJson, isTextFile, jsonTokens, languageOf, MAX_FILE_BYTES, prettyJson } from "./tools";
 
 const settings = {
     lineNumbers: {
@@ -41,15 +46,6 @@ let ctx: PluginContext<typeof settings> | undefined;
 
 /** Discord's generic file attachment card: ({ url, fileName, fileSize, onContextMenu, renderAdjacentContent }) */
 const fileCardFilter = filters.byCode("renderAdjacentContent:", ".filesize(", "href:", "onContextMenu:");
-const DOWNLOAD_ANCHOR = /^downloadAnchor_+[\da-f]+$/;
-/** The plaintext preview's CSS module: its download button's class makes ours look the same */
-const previewClassesFilter: Filter = Object.assign(
-    (v: any) => !!v && typeof v === "object" && !Array.isArray(v)
-        && Object.values(v).some(c => typeof c === "string" && DOWNLOAD_ANCHOR.test(c))
-        && Object.values(v).some(c => typeof c === "string" && /^languageIcon_+[\da-f]+$/.test(c)),
-    { $code: ['"downloadAnchor_', '"languageIcon_'] },
-);
-let footerButtonClass = "";
 
 /** Attachment URLs of the text files shown pretty printed */
 const prettyFiles = new Set<string>();
@@ -81,22 +77,32 @@ function prettyCached(text: string) {
     return prettyCache.get(text) ?? null;
 }
 
-/** The preview's <pre> props for a text, kept while the text stays: it re-renders on every hover */
-let lastGutter: { text: string; props: { "data-dl-cbt-lines": string; style: Record<string, string>; }; } | undefined;
-function gutterProps(text: string) {
-    if (lastGutter?.text !== text) lastGutter = { text, props: { "data-dl-cbt-lines": "", style: { "--dl-cbt-gutter": gutterCss(text) } } };
-    return lastGutter.props;
+/** Props with a text's line numbers, kept per text: messages and previews re-render often */
+type GutterProps = { "data-dl-cbt-lines": ""; style: Record<string, string>; };
+const gutterCache = new Map<string, GutterProps>();
+function gutterProps(text: string, previewNotice: boolean) {
+    const key = (previewNotice ? "p" : "c") + text;
+    let props = gutterCache.get(key);
+    if (!props) {
+        if (gutterCache.size > 300) gutterCache.delete(gutterCache.keys().next().value!);
+        props = { "data-dl-cbt-lines": "", style: { "--dl-cbt-gutter": gutterCss(text, previewNotice) } };
+        gutterCache.set(key, props);
+    }
+    return props;
 }
 
+/** Copies text; whether it worked. A cut-off copy says so, a whole one shows a checkmark instead. */
 async function copyText(text: string, partOf?: number) {
     try {
         const native = (window as any).DiscordNative?.clipboard;
         if (typeof native?.copy === "function") native.copy(text);
         else await navigator.clipboard.writeText(text);
-        ctx?.toast(partOf ? t("copiedPart", { size: formatBytes(partOf) }) : t("copied"), { type: "success" });
+        if (partOf) ctx?.toast(t("copiedPart", { size: formatBytes(partOf) }), { type: "info" });
+        return true;
     } catch (err) {
         ctx?.logger.warn("Copying failed", err);
         ctx?.toast(t("copyFailed"), { type: "failure" });
+        return false;
     }
 }
 
@@ -137,20 +143,33 @@ async function fetchText(url: string): Promise<{ text: string; partial: boolean;
     return { text: new TextDecoder("utf-8", { fatal: false }).decode(bytes.slice(0, MAX_FILE_BYTES)).replace(/\uFFFD$/, ""), partial };
 }
 
-const PATHS = {
-    copy: "M3 16a1 1 0 0 1-1-1V5a3 3 0 0 1 3-3h10a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H5a1 1 0 0 0-1 1v10a1 1 0 0 1-1 1H3Zm4-5a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3h-9a3 3 0 0 1-3-3v-9Z",
-    download: "M12 2a1 1 0 0 1 1 1v10.59l3.3-3.3a1 1 0 1 1 1.4 1.42l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 1 1 1.4-1.42l3.3 3.3V3a1 1 0 0 1 1-1ZM3 20a1 1 0 1 0 0 2h18a1 1 0 1 0 0-2H3Z",
-    // Curly braces: pretty print
-    pretty: "M8 3a3 3 0 0 0-3 3v3.17c0 .53-.21 1.04-.59 1.42L3.3 11.7a1 1 0 0 0 0 1.42l1.12 1.12c.37.37.58.88.58 1.41V18a3 3 0 0 0 3 3h1a1 1 0 1 0 0-2H8a1 1 0 0 1-1-1v-2.35c0-1.06-.42-2.08-1.17-2.83L5.41 12.4l.42-.42A4 4 0 0 0 7 9.17V6a1 1 0 0 1 1-1h1a1 1 0 0 0 0-2H8Zm8 0a3 3 0 0 1 3 3v3.17c0 .53.21 1.04.59 1.42l1.12 1.11a1 1 0 0 1 0 1.42l-1.12 1.12c-.37.37-.58.88-.58 1.41V18a3 3 0 0 1-3 3h-1a1 1 0 1 1 0-2h1a1 1 0 0 0 1-1v-2.35c0-1.06.42-2.08 1.17-2.83l.42-.42-.42-.42A4 4 0 0 1 17 9.17V6a1 1 0 0 0-1-1h-1a1 1 0 1 1 0-2h1Z",
-    // An eye: show the file
-    preview: "M12 5C5.65 5 2.3 10.2 1.53 11.52a.98.98 0 0 0 0 .96C2.3 13.8 5.65 19 12 19s9.7-5.2 10.47-6.52a.98.98 0 0 0 0-.96C21.7 10.2 18.35 5 12 5Zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm0-2a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z",
+/** Discord's own icons (CopyIcon, CheckmarkLargeIcon, DownloadIcon, EyeIcon), and curly braces for Pretty print */
+const ICONS: Record<string, { d: string; evenOdd?: boolean; }[]> = {
+    copy: [
+        { d: "M3 16a1 1 0 0 1-1-1v-5a8 8 0 0 1 8-8h5a1 1 0 0 1 1 1v.5a.5.5 0 0 1-.5.5H10a6 6 0 0 0-6 6v5.5a.5.5 0 0 1-.5.5H3Z" },
+        { d: "M6 18a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4v-4h-3a5 5 0 0 1-5-5V6h-4a4 4 0 0 0-4 4v8Z" },
+        { d: "M21.73 12a3 3 0 0 0-.6-.88l-4.25-4.24a3 3 0 0 0-.88-.61V9a3 3 0 0 0 3 3h2.73Z" },
+    ],
+    check: [{ d: "M21.7 5.3a1 1 0 0 1 0 1.4l-12 12a1 1 0 0 1-1.4 0l-6-6a1 1 0 1 1 1.4-1.4L9 16.58l11.3-11.3a1 1 0 0 1 1.4 0Z" }],
+    download: [{ d: "M12 2a1 1 0 0 1 1 1v10.59l3.3-3.3a1 1 0 1 1 1.4 1.42l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 1 1 1.4-1.42l3.3 3.3V3a1 1 0 0 1 1-1ZM3 20a1 1 0 1 0 0 2h18a1 1 0 1 0 0-2H3Z" }],
+    pretty: [{ d: "M8 3a3 3 0 0 0-3 3v3.17c0 .53-.21 1.04-.59 1.42L3.3 11.7a1 1 0 0 0 0 1.42l1.12 1.12c.37.37.58.88.58 1.41V18a3 3 0 0 0 3 3h1a1 1 0 1 0 0-2H8a1 1 0 0 1-1-1v-2.35c0-1.06-.42-2.08-1.17-2.83L5.41 12.4l.42-.42A4 4 0 0 0 7 9.17V6a1 1 0 0 1 1-1h1a1 1 0 0 0 0-2H8Zm8 0a3 3 0 0 1 3 3v3.17c0 .53.21 1.04.59 1.42l1.12 1.11a1 1 0 0 1 0 1.42l-1.12 1.12c-.37.37-.58.88-.58 1.41V18a3 3 0 0 1-3 3h-1a1 1 0 1 1 0-2h1a1 1 0 0 0 1-1v-2.35c0-1.06.42-2.08 1.17-2.83l.42-.42-.42-.42A4 4 0 0 1 17 9.17V6a1 1 0 0 0-1-1h-1a1 1 0 1 1 0-2h1Z" }],
+    preview: [
+        { d: "M15.56 11.77c.2-.1.44.02.44.23a4 4 0 1 1-4-4c.21 0 .33.25.23.44a2.5 2.5 0 0 0 3.32 3.32Z" },
+        { d: "M22.89 11.7c.07.2.07.4 0 .6C22.27 13.9 19.1 21 12 21c-7.11 0-10.27-7.11-10.89-8.7a.83.83 0 0 1 0-.6C1.73 10.1 4.9 3 12 3c7.11 0 10.27 7.11 10.89 8.7Zm-4.5-3.62A15.11 15.11 0 0 1 20.85 12c-.38.88-1.18 2.47-2.46 3.92C16.87 17.62 14.8 19 12 19c-2.8 0-4.87-1.38-6.39-3.08A15.11 15.11 0 0 1 3.15 12c.38-.88 1.18-2.47 2.46-3.92C7.13 6.38 9.2 5 12 5c2.8 0 4.87 1.38 6.39 3.08Z", evenOdd: true },
+    ],
 };
 
-function Action({ label, icon, onClick, pressed, className }: { label: string; icon: keyof typeof PATHS; onClick(): void; pressed?: boolean; className?: string; }) {
+/** Icon sizes Discord uses here: xs in code blocks, sm in the preview footer, md in file cards */
+const SIZE = { code: 16, footer: 18, card: 24 } as const;
+const CLASS = { code: "dl-cbt-btn", footer: "dl-cbt-btn dl-cbt-footer-btn", card: "dl-cbt-btn dl-cbt-card-btn" } as const;
+type Place = keyof typeof SIZE;
+
+function Action({ label, icon, onClick, pressed, place }: { label: string; icon: keyof typeof ICONS; onClick(): void; pressed?: boolean; place: Place; }) {
+    const size = SIZE[place];
     const button = (
         <button
             type="button"
-            className={className ?? "dl-cbt-btn"}
+            className={CLASS[place]}
             aria-label={label}
             aria-pressed={pressed}
             onClick={e => {
@@ -158,91 +177,63 @@ function Action({ label, icon, onClick, pressed, className }: { label: string; i
                 onClick();
             }}
         >
-            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d={PATHS[icon]} /></svg>
+            <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+                {ICONS[icon].map(p => <path key={p.d} fill="currentColor" fillRule={p.evenOdd ? "evenodd" : undefined} clipRule={p.evenOdd ? "evenodd" : undefined} d={p.d} />)}
+            </svg>
         </button>
     );
     const Tooltip = Components.Tooltip;
     return Tooltip ? <Tooltip text={label} position="top">{button}</Tooltip> : button;
 }
 
+/** Copy, showing a checkmark for a moment once it worked, like Discord's code block Copy */
+function CopyAction({ copy, place }: { copy(): Promise<boolean>; place: Place; }) {
+    const [copied, setCopied] = React.useState(false);
+    const timer = React.useRef<ReturnType<typeof setTimeout>>(undefined);
+    React.useEffect(() => () => clearTimeout(timer.current), []);
+    const onClick = async () => {
+        if (!await copy()) return;
+        setCopied(true);
+        clearTimeout(timer.current);
+        timer.current = setTimeout(() => setCopied(false), 2000);
+    };
+    return <Action place={place} label={t(copied ? "copied" : "copy")} icon={copied ? "check" : "copy"} onClick={() => void onClick()} />;
+}
+
 /** Coloured like highlight.js would, so Discord's code theme styles it */
-function JsonCode({ text, className }: { text: string; className?: string; }) {
+function JsonCode({ text, className, style }: { text: string; className?: string; style?: Record<string, string>; }) {
     const tokens = React.useMemo(() => jsonTokens(text), [text]);
-    return <code className={className}>{tokens.map((tok, i) => tok.className ? <span key={i} className={tok.className}>{tok.text}</span> : tok.text)}</code>;
+    return <code className={className} style={style as React.CSSProperties}>{tokens.map((tok, i) => tok.className ? <span key={i} className={tok.className}>{tok.text}</span> : tok.text)}</code>;
 }
 
 interface CodeNode { content?: string; lang?: string; }
 
-/** Styles of Discord's code element the gutter copies, so it lines up and looks like part of it */
-const COPIED_STYLES = ["fontFamily", "fontSize", "lineHeight", "paddingTop", "paddingBottom", "backgroundColor", "borderTopWidth", "borderTopStyle", "borderTopColor", "borderBottomWidth", "borderBottomStyle", "borderBottomColor"] as const;
-
-/** Every key CodeTools puts in the gutter's style, to compare without serialising */
-const COPIED_KEYS = [...COPIED_STYLES, "borderLeftWidth", "borderLeftStyle", "borderLeftColor", "borderTopLeftRadius", "borderBottomLeftRadius"];
-
-/** Discord's code element beside ours in the code block (not our pretty printed one) */
-function discordCode(from: HTMLElement | null) {
-    return [...from?.parentElement?.querySelectorAll<HTMLElement>("code") ?? []].find(c => !c.classList.contains("dl-cbt-pretty"));
-}
-
-/** A setting, re-rendering when it changes; safe after the plugin stops (it reads as off) */
-function useSetting(key: keyof typeof settings) {
-    useVersion();
-    return !!ctx?.settings.get(key);
-}
-
 function CodeTools({ node }: { node: CodeNode; }) {
-    const lineNumbers = useSetting("lineNumbers");
     const content = typeof node.content === "string" ? node.content : "";
     const [pretty, setPretty] = React.useState(false);
     const json = React.useMemo(() => isJson(content, node.lang), [content, node.lang]);
     const prettyText = React.useMemo(() => pretty && json ? prettyJson(content) : null, [pretty, json, content]);
     const shown = prettyText ?? content;
 
+    // Pretty printed: Discord's code steps aside for ours. Nothing touches the DOM until it's asked for.
     const barRef = React.useRef<HTMLDivElement>(null);
-    const [codeLook, setCodeLook] = React.useState<{ style: React.CSSProperties; className: string; }>();
-    // Only the gutter and the pretty printed code wear the look: without them, no style read at all
-    const needsLook = lineNumbers || !!prettyText;
-    React.useLayoutEffect(() => {
-        if (!needsLook) return;
-        const code = discordCode(barRef.current);
-        if (!code) return;
-        const computed = getComputedStyle(code);
-        const style: Record<string, string> = {};
-        for (const key of COPIED_STYLES) style[key] = computed[key];
-        // Our CSS takes the code's left edge away for the gutter: its left edge is the code's top one,
-        // and its corners the code's right ones
-        style.borderLeftWidth = computed.borderTopWidth;
-        style.borderLeftStyle = computed.borderTopStyle;
-        style.borderLeftColor = computed.borderTopColor;
-        style.borderTopLeftRadius = computed.borderTopRightRadius;
-        style.borderBottomLeftRadius = computed.borderBottomRightRadius;
-        setCodeLook(old => old && old.className === code.className && COPIED_KEYS.every(k => (old.style as Record<string, string>)[k] === style[k]) ? old : { style, className: code.className });
-    }, [lineNumbers, prettyText]);
-
-    // The code block's container gets classes of ours instead of CSS finding it with div:has(...):
-    // a :has() rule on every div made each change anywhere in Discord restyle the whole page
+    const showsPretty = !!prettyText;
     React.useLayoutEffect(() => {
         const host = barRef.current?.parentElement;
-        if (!host) return;
-        host.classList.add("dl-cbt-host");
-        host.classList.toggle("dl-cbt-has-gutter", !!lineNumbers);
-        host.classList.toggle("dl-cbt-has-pretty", !!prettyText);
-        return () => host.classList.remove("dl-cbt-host", "dl-cbt-has-gutter", "dl-cbt-has-pretty");
-    }, [lineNumbers, prettyText]);
+        if (!showsPretty || !host) return;
+        host.setAttribute("data-dl-cbt-pretty", "");
+        return () => host.removeAttribute("data-dl-cbt-pretty");
+    }, [showsPretty]);
 
-    const gutter = React.useMemo(() => lineNumbers ? gutterText(lineCount(shown)) : "", [lineNumbers, shown]);
     const lang = prettyText ? "json" : node.lang;
     return (
         <>
             <div className="dl-cbt-bar" role="group" ref={barRef}>
-                {json && <Action label={t(pretty ? "original" : "pretty")} icon="pretty" pressed={pretty} onClick={() => setPretty(p => !p)} />}
-                <Action label={t("download")} icon="download" onClick={() => void saveText(shown, codeFilename(lang))} />
-                <Action label={t("copy")} icon="copy" onClick={() => void copyText(shown)} />
+                {json && <Action place="code" label={t(pretty ? "original" : "pretty")} icon="pretty" pressed={pretty} onClick={() => setPretty(p => !p)} />}
+                <Action place="code" label={t("download")} icon="download" onClick={() => void saveText(shown, codeFilename(lang))} />
+                <CopyAction place="code" copy={() => copyText(shown)} />
             </div>
-            {lineNumbers && (
-                <div className="dl-cbt-gutter" aria-hidden="true" style={codeLook?.style}>{gutter}</div>
-            )}
-            {prettyText && <JsonCode text={prettyText} className={`${codeLook?.className ?? "hljs"} dl-cbt-pretty`} />}
+            {prettyText && <JsonCode text={prettyText} className="hljs dl-cbt-pretty" style={gutterProps(prettyText, false).style} />}
         </>
     );
 }
@@ -262,13 +253,13 @@ function PreviewTools({ url, text, bytesLeft }: { url: string; fileName: string;
         } catch (err) {
             ctx?.logger.warn("Reading the file failed", err);
             ctx?.toast(t("copyFailed"), { type: "failure" });
+            return false;
         }
     };
-    const className = footerButtonClass ? `${footerButtonClass} dl-cbt-footer-btn` : "dl-cbt-btn dl-cbt-footer-btn";
     return (
         <>
-            {json && <Action className={className} label={t(pretty ? "original" : "pretty")} icon="pretty" pressed={pretty} onClick={() => togglePrettyFile(url)} />}
-            <Action className={className} label={t("copy")} icon="copy" onClick={() => void copy()} />
+            <CopyAction place="footer" copy={copy} />
+            {json && <Action place="footer" label={t(pretty ? "original" : "pretty")} icon="pretty" pressed={pretty} onClick={() => togglePrettyFile(url)} />}
         </>
     );
 }
@@ -276,7 +267,6 @@ function PreviewTools({ url, text, bytesLeft }: { url: string; fileName: string;
 type Loaded = { state: "loading"; } | { state: "error"; } | { state: "done"; text: string; partial: boolean; };
 
 function FilePane({ url, fileName }: { url: string; fileName: string; }) {
-    const lineNumbers = useSetting("lineNumbers");
     const [loaded, setLoaded] = React.useState<Loaded>({ state: "loading" });
     const [pretty, setPretty] = React.useState(false);
     React.useEffect(() => {
@@ -294,7 +284,6 @@ function FilePane({ url, fileName }: { url: string; fileName: string; }) {
     const json = React.useMemo(() => !!text && !partial && isJson(text, languageOf(fileName)), [text, partial, fileName]);
     const prettyText = React.useMemo(() => pretty && json ? prettyJson(text) : null, [pretty, json, text]);
     const shown = prettyText ?? text;
-    const gutter = React.useMemo(() => lineNumbers ? gutterCss(shown) : "", [lineNumbers, shown]);
 
     if (loaded.state === "loading") return <div className="dl-cbt-pane dl-cbt-note">{t("preview.loading")}</div>;
     if (loaded.state === "error") return <div className="dl-cbt-pane dl-cbt-note dl-cbt-error">{t("preview.error")}</div>;
@@ -302,11 +291,11 @@ function FilePane({ url, fileName }: { url: string; fileName: string; }) {
     return (
         <div className="dl-cbt-pane">
             <div className="dl-cbt-bar" role="group">
-                {json && <Action label={t(pretty ? "original" : "pretty")} icon="pretty" pressed={pretty} onClick={() => setPretty(p => !p)} />}
-                <Action label={t("copy")} icon="copy" onClick={() => void copyText(shown, loaded.partial ? MAX_FILE_BYTES : undefined)} />
+                {json && <Action place="code" label={t(pretty ? "original" : "pretty")} icon="pretty" pressed={pretty} onClick={() => setPretty(p => !p)} />}
+                <CopyAction place="code" copy={() => copyText(shown, loaded.partial ? MAX_FILE_BYTES : undefined)} />
             </div>
-            <pre className="dl-cbt-file-pre" {...(lineNumbers ? { "data-dl-cbt-lines": "", style: { "--dl-cbt-gutter": gutter } as React.CSSProperties } : {})}>
-                {prettyText ? <JsonCode text={prettyText} /> : <code>{shown}</code>}
+            <pre className="dl-cbt-file-pre" {...gutterProps(shown, false)}>
+                {prettyText ? <JsonCode text={prettyText} className="hljs" /> : <code className="hljs">{shown}</code>}
             </pre>
             {loaded.partial && <div className="dl-cbt-note">{t("preview.partial", { size: formatBytes(MAX_FILE_BYTES) })}</div>}
         </div>
@@ -315,129 +304,118 @@ function FilePane({ url, fileName }: { url: string; fileName: string; }) {
 
 function FileCard({ card, url, fileName }: { card: React.ReactElement<any>; url: string; fileName: string; }) {
     const [open, setOpen] = React.useState(false);
-    const button = <Action key="dl-cbt-preview" label={t(open ? "preview.hide" : "preview.show")} icon="preview" pressed={open} onClick={() => setOpen(o => !o)} />;
+    const button = <Action key="dl-cbt-preview" place="card" label={t(open ? "preview.hide" : "preview.show")} icon="preview" pressed={open} onClick={() => setOpen(o => !o)} />;
+    // The card is a block around a row of icon, name and size: the button ends that row
     const children = React.Children.toArray(card.props?.children);
+    const row = children[0] as React.ReactElement<{ children?: React.ReactNode; }> | undefined;
+    if (React.isValidElement(row)) children[0] = React.cloneElement(row, undefined, ...React.Children.toArray(row.props?.children), button);
+    else children.push(button);
     return (
         <div className="dl-cbt-file">
-            {React.cloneElement(card, undefined, ...children, button)}
+            {React.cloneElement(card, undefined, ...children)}
             {open && <FilePane url={url} fileName={fileName} />}
         </div>
     );
 }
 
+// Every selector ends on a class, attribute or tag of ours or on code: none is checked against every element
 const css = `
-/* The code block's container, marked by our component (see CodeTools) */
-.dl-cbt-host { position: relative; }
-.dl-cbt-host > [class*="codeActions_"] { display: none; }
+/* Code blocks: our buttons in the spot and style of Discord's Copy, shown while hovering the block */
 .dl-cbt-bar {
     position: absolute;
-    top: 4px;
-    right: 4px;
+    top: 8px;
+    inset-inline-end: 4px;
     z-index: 1;
-    display: flex;
-    gap: 2px;
-    padding: 2px;
-    border-radius: 6px;
-    background: var(--background-floating, var(--background-surface-highest, #111214));
-    box-shadow: var(--shadow-low, 0 1px 3px rgb(0 0 0 / 0.3));
-    opacity: 0;
-    transition: opacity 0.12s ease;
+    display: none;
+    gap: 8px;
 }
-.dl-cbt-host:hover > .dl-cbt-bar,
+[data-dl-cbt]:hover > .dl-cbt-bar,
 .dl-cbt-pane:hover > .dl-cbt-bar,
-.dl-cbt-bar:focus-within { opacity: 1; }
+.dl-cbt-bar:focus-within { display: flex; }
+
 .dl-cbt-btn {
-    all: unset;
-    box-sizing: border-box;
-    display: grid;
-    place-items: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 4px;
-    color: var(--interactive-normal, #b5bac1);
+    position: relative;
+    display: flex;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 2px;
+    background: none;
+    color: inherit;
     cursor: pointer;
 }
-.dl-cbt-btn:hover { color: var(--interactive-hover, #dbdee1); background: var(--background-modifier-hover, rgb(78 80 88 / 0.3)); }
-.dl-cbt-btn[aria-pressed="true"] { color: var(--interactive-active, #fff); background: var(--background-modifier-selected, rgb(78 80 88 / 0.6)); }
-.dl-cbt-btn:focus-visible { outline: 2px solid var(--focus-primary, #00b0f4); outline-offset: -2px; }
-.dl-cbt-footer-btn { all: unset; display: grid; place-items: center; cursor: pointer; color: var(--interactive-normal, #b5bac1); }
-.dl-cbt-footer-btn:hover { color: var(--interactive-hover, #dbdee1); }
-.dl-cbt-footer-btn[aria-pressed="true"] { color: var(--interactive-active, #fff); }
-
-/* Line numbers beside a code block: a column of their own, styled like Discord's code (copied in) */
-.dl-cbt-has-gutter { display: grid; grid-template-columns: auto minmax(0, 1fr); }
-.dl-cbt-has-gutter > :not(.dl-cbt-bar, .dl-cbt-gutter) { grid-column: 2; grid-row: 1; min-width: 0; }
-.dl-cbt-has-gutter code {
-    white-space: pre !important;
-    overflow-x: auto;
-    border-top-left-radius: 0 !important;
-    border-bottom-left-radius: 0 !important;
-    border-left-width: 0 !important;
+/* 16px icons, 24px to hit; 8px apart, so neighbours' areas meet without overlapping */
+.dl-cbt-btn::after { content: ""; position: absolute; inset: -4px; }
+.dl-cbt-btn:focus-visible { outline: 2px solid var(--focus-primary, #00b0f4); outline-offset: 2px; }
+/* The preview footer: 16px apart like Discord's buttons there */
+.dl-cbt-footer-btn { margin-inline-start: var(--space-16, 16px); }
+.dl-cbt-card-btn { align-self: center; margin-inline-start: auto; color: var(--interactive-icon-default, var(--interactive-normal)); }
+@media (hover: hover) {
+    .dl-cbt-card-btn:hover { color: var(--interactive-icon-hover, var(--interactive-hover)); }
 }
-.dl-cbt-gutter {
-    grid-column: 1;
-    grid-row: 1;
-    box-sizing: border-box;
-    padding-inline: 0.75em 0.5em;
-    white-space: pre;
-    text-align: right;
-    color: var(--text-muted, #949ba4);
-    border-right: 0 !important;
-    user-select: none;
-    font-variant-numeric: tabular-nums;
-}
-/* Pretty printed: ours shows instead of Discord's */
-.dl-cbt-has-pretty > :not(.dl-cbt-bar, .dl-cbt-gutter, .dl-cbt-pretty) { display: none; }
-.dl-cbt-pretty { display: block; white-space: pre; overflow-x: auto; }
 
-/* Line numbers beside a text file preview, from a CSS string the <pre> carries */
-pre[data-dl-cbt-lines] { display: grid !important; grid-template-columns: auto minmax(0, 1fr); }
-pre[data-dl-cbt-lines]::before {
+/* Line numbers: floated inside the code, so they share its font, padding and line height */
+html.dl-cbt-numbers [data-dl-cbt-lines] code { white-space: pre !important; }
+html.dl-cbt-numbers [data-dl-cbt-lines] code::before {
     content: var(--dl-cbt-gutter);
+    float: inline-start;
+    margin-inline-end: 16px;
     white-space: pre;
-    text-align: right;
-    padding: 8px 0.75em 8px 0.5em;
-    color: var(--text-muted, #949ba4);
+    text-align: end;
+    color: var(--text-muted);
     user-select: none;
-    font-variant-numeric: tabular-nums;
+    pointer-events: none;
 }
-pre[data-dl-cbt-lines]::before,
-pre[data-dl-cbt-lines] code {
-    font-family: var(--font-code, monospace) !important;
-    font-size: 0.875rem !important;
-    line-height: 1.125rem !important;
-}
-pre[data-dl-cbt-lines] code { padding-block: 8px !important; white-space: pre !important; overflow-x: auto; min-width: 0; }
 
-/* Our preview of a text file under its download card */
+/* Pretty printed: ours shows instead of Discord's */
+[data-dl-cbt-pretty] code:not(.dl-cbt-pretty) { display: none; }
+code.dl-cbt-pretty { display: block; white-space: pre; overflow-x: auto; }
+
+/* Our preview of a text file under its download card, styled like Discord's preview */
 .dl-cbt-file { display: flex; flex-direction: column; gap: 4px; max-width: 100%; }
 .dl-cbt-pane {
     position: relative;
     max-width: min(100%, 640px);
     border-radius: 8px;
-    border: 1px solid var(--border-subtle, var(--background-modifier-accent, rgb(78 80 88 / 0.48)));
-    background: var(--background-secondary, #2b2d31);
+    border: 1px solid var(--border-subtle);
+    background: var(--background-base-lower);
     overflow: hidden;
 }
 .dl-cbt-file-pre { margin: 0; max-height: 400px; overflow: auto; }
 .dl-cbt-file-pre code {
     display: block;
     padding: 8px 12px;
+    border: 0;
+    background: none;
     font-family: var(--font-code, monospace);
     font-size: 0.875rem;
     line-height: 1.125rem;
-    color: var(--text-normal, #dbdee1);
+    color: var(--text-default, var(--text-normal));
     white-space: pre;
 }
-.dl-cbt-note { padding: 6px 12px; font-size: 0.75rem; line-height: 1rem; color: var(--text-muted, #949ba4); }
-.dl-cbt-error { color: var(--text-feedback-critical, var(--status-danger, #f23f43)); }
+.dl-cbt-note { padding: 6px 12px; font-size: 0.75rem; line-height: 1rem; color: var(--text-muted); }
+.dl-cbt-error { color: var(--text-feedback-critical, var(--status-danger)); }
 `;
+
+const showNumbers = (on: boolean) => document.documentElement.classList.toggle("dl-cbt-numbers", on);
 
 export default definePlugin({
     settings,
     css,
 
     patches: Object.values(PATCHES),
+
+    /** Whether Discord's code block Copy steps aside for ours */
+    ownsCopy() {
+        return !!ctx;
+    },
+
+    /** Discord's code block container: marked for hovering, and carrying its line numbers */
+    containerProps(node: CodeNode) {
+        if (!ctx || typeof node?.content !== "string") return undefined;
+        return { "data-dl-cbt": "", ...gutterProps(node.content, false) };
+    },
 
     renderCodeTools(node: CodeNode) {
         if (!ctx || typeof node?.content !== "string") return null;
@@ -465,28 +443,30 @@ export default definePlugin({
         if (!ctx?.settings.get("lineNumbers") || typeof text !== "string") return undefined;
         // Word wrap on (Discord's ⋯ menu): wrapped lines can't be numbered
         if (typeof className === "string" && /\bwordWrap_/.test(className)) return undefined;
-        return gutterProps(text);
+        return gutterProps(text, true);
     },
 
     start(context) {
         ctx = context;
-        if (!footerButtonClass) context.waitFor(previewClassesFilter, (classes: Record<string, unknown>) => {
-            footerButtonClass = Object.values(classes).find((c): c is string => typeof c === "string" && DOWNLOAD_ANCHOR.test(c)) ?? "";
-        });
+        showNumbers(!!context.settings.get("lineNumbers"));
         context.hookExport("after", fileCardFilter, ({ args, result }) => {
             const props = args[0];
             if (!ctx?.settings.get("filePreview") || !React.isValidElement(result) || typeof props?.url !== "string") return;
             if (!isTextFile(props.fileName)) return;
             return <FileCard card={result} url={props.url} fileName={props.fileName} />;
         });
-        context.settings.onChange(bump);
+        context.settings.onChange(() => {
+            showNumbers(!!ctx?.settings.get("lineNumbers"));
+            bump();
+        });
     },
 
     stop() {
         ctx = undefined;
+        showNumbers(false);
         prettyFiles.clear();
         prettyCache.clear();
-        lastGutter = undefined;
+        gutterCache.clear();
         bump();
     },
 });

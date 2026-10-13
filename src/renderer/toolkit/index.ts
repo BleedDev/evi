@@ -6,7 +6,8 @@ import { builtInCommandsFilter, getRegisteredCommands, isCommandsHooked } from "
 import { ensureMenuArgsPatch, isMenuHooked, menuFilter, resolveMenuComponents } from "./contextMenu";
 import { injectMenuArgs } from "./menuArgs";
 import { ensurePanelPatch } from "./panel";
-import { showToastFilter } from "./toasts";
+import { showEviToast } from "./toastFallback";
+import { legacyShowToastFilter, routerShowToastFilter, showToastFilter, toastBackend } from "./toasts";
 
 /**
  * Registers the toolkit's source patches before Discord's modules run, but only those an enabled
@@ -19,7 +20,11 @@ export function registerToolkitPatches(enabledPluginCode: string[]) {
 
 /** For tests and debugging */
 export const Toolkit = {
-    filters: { showToast: showToastFilter, menu: menuFilter, builtInCommands: builtInCommandsFilter },
+    filters: { showToast: showToastFilter, routerShowToast: routerShowToastFilter, legacyShowToast: legacyShowToastFilter, menu: menuFilter, builtInCommands: builtInCommandsFilter },
+    /** Which of Discord's toast systems toasts go through, or "evi" when Evi draws them */
+    toastBackend,
+    /** Evi's own toast, the one shown when Discord's can't be found */
+    showEviToast,
     isMenuHooked,
     isCommandsHooked,
     resolveMenuComponents,

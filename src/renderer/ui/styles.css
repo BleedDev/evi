@@ -5518,3 +5518,195 @@ button.dl-inbox-link:focus-visible { outline: 2px solid var(--dl-focus-ring); ou
     gap: 12px;
 }
 .dl-dev-badge-list > .dl-dev-badge-card:only-child { border: 0; }
+
+/* ---- Evi collectibles (CollectiblesTab.tsx) ------------------------------------------------ */
+
+.dl-coll-link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--dl-space-inner);
+}
+
+.dl-coll-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+}
+
+.dl-coll-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow: hidden;
+    border: 1px solid var(--dl-border-group);
+    border-radius: var(--dl-radius-group);
+    background: var(--dl-bg-group);
+}
+
+.dl-coll-card[data-supporter] {
+    border-color: color-mix(in srgb, var(--dl-supporter-gold) 40%, transparent);
+}
+
+/* Your profile, as the bundle dresses it: flush with the card's top, so it shares its corners */
+.dl-coll-profile {
+    position: relative;
+    height: 280px;
+    overflow: hidden;
+    background: var(--dl-bg-panel);
+    user-select: none;
+}
+
+.dl-coll-banner {
+    height: 76px;
+    background: var(--dl-bg-emphasis);
+}
+
+.dl-coll-avatar {
+    position: absolute;
+    inset-inline-start: 16px;
+    top: 36px;
+    width: 76px;
+    height: 76px;
+}
+
+.dl-coll-avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: var(--dl-bg-panel);
+    box-shadow: 0 0 0 6px var(--dl-bg-panel);
+}
+
+/* Discord draws a decoration at 1.2 times the avatar, centred on it */
+.dl-coll-decoration {
+    position: absolute;
+    inset: -10%;
+    width: 120%;
+    height: 120%;
+    pointer-events: none;
+}
+
+.dl-coll-profile-name {
+    position: absolute;
+    inset-inline: 16px;
+    top: 122px;
+    overflow: hidden;
+    color: var(--dl-text-strong);
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 24px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* A member list row with the nameplate behind it */
+.dl-coll-nameplate {
+    position: absolute;
+    inset-inline: 8px;
+    bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 44px;
+    padding-inline: 8px;
+    overflow: hidden;
+    border-radius: var(--dl-radius-control);
+}
+
+.dl-coll-nameplate-art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: right center;
+    pointer-events: none;
+}
+
+.dl-coll-nameplate-avatar {
+    position: relative;
+    flex: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
+.dl-coll-nameplate-name {
+    position: relative;
+    overflow: hidden;
+    color: var(--dl-text-strong);
+    font-size: 16px;
+    font-weight: 500;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* The profile effect over all of it, as on a real profile: 450 by 880, scaled to the width */
+.dl-coll-effect {
+    position: absolute;
+    top: 0;
+    inset-inline-start: 0;
+    z-index: 2;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 450 / 880;
+    pointer-events: none;
+}
+
+.dl-coll-effect-layer {
+    position: absolute;
+}
+
+.dl-coll-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-inline: 16px;
+}
+
+.dl-coll-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--dl-space-inner);
+}
+
+.dl-coll-description {
+    text-wrap: pretty;
+}
+
+.dl-coll-actions,
+.dl-coll-locked {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--dl-space-inner);
+    padding: 0 16px 16px;
+}
+
+.dl-coll-parts {
+    align-self: stretch;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.dl-coll-part {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--dl-space-inner);
+    min-height: 44px;
+    border-top: 1px solid var(--dl-border-divider);
+}
+
+.dl-coll-part-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.dl-coll-part[data-on] .dl-coll-part-label > svg {
+    color: var(--dl-text-positive);
+}

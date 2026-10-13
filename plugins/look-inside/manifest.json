@@ -1,0 +1,103 @@
+{
+    "id": "look-inside",
+    "name": "Look Inside",
+    "description": "See what's inside a zip before you download it, and get warned about programs, files pretending to be pictures or documents, password-locked files and zip bombs. Only the list of files is read, never the files.",
+    "version": "1.0.0",
+    "authors": [
+        "Evi"
+    ],
+    "tags": [
+        "security",
+        "utility"
+    ],
+    "permissions": {
+        "network": [
+            "cdn.discordapp.com",
+            "media.discordapp.net"
+        ]
+    },
+    "changelog": [
+        {
+            "version": "1.0.0",
+            "notes": [
+                "First release."
+            ]
+        }
+    ],
+    "locales": {
+        "de": {
+            "name": "Reinschauen",
+            "description": "Sieh vor dem Herunterladen, was in einer ZIP-Datei steckt, und werde gewarnt vor Programmen, Dateien, die sich als Bilder oder Dokumente ausgeben, passwortgeschützten Dateien und ZIP-Bomben. Gelesen wird nur die Dateiliste, nie die Dateien.",
+            "changelog": {
+                "1.0.0": [
+                    "Erste Version."
+                ]
+            }
+        },
+        "es": {
+            "name": "Ver dentro",
+            "description": "Mira qué hay dentro de un zip antes de descargarlo y recibe avisos de programas, archivos que se hacen pasar por imágenes o documentos, archivos con contraseña y bombas zip. Solo se lee la lista de archivos, nunca los archivos.",
+            "changelog": {
+                "1.0.0": [
+                    "Primera versión."
+                ]
+            }
+        },
+        "fr": {
+            "name": "Regarder dedans",
+            "description": "Vois ce que contient un zip avant de le télécharger, et sois prévenu des programmes, des fichiers qui se font passer pour des images ou des documents, des fichiers protégés par mot de passe et des bombes zip. Seule la liste des fichiers est lue, jamais les fichiers.",
+            "changelog": {
+                "1.0.0": [
+                    "Première version."
+                ]
+            }
+        },
+        "ja": {
+            "name": "中身を見る",
+            "description": "ZIPをダウンロードする前に中身を確認でき、プログラム、画像や文書に見せかけたファイル、パスワード付きファイル、ZIP爆弾を警告します。読み込むのはファイル一覧だけで、ファイル自体は読み込みません。",
+            "changelog": {
+                "1.0.0": [
+                    "初回リリース。"
+                ]
+            }
+        },
+        "pl": {
+            "name": "Zajrzyj do środka",
+            "description": "Zobacz, co jest w pliku zip, zanim go pobierzesz, i dostań ostrzeżenie o programach, plikach udających obrazy lub dokumenty, plikach chronionych hasłem i bombach zip. Odczytywana jest tylko lista plików, nigdy same pliki.",
+            "changelog": {
+                "1.0.0": [
+                    "Pierwsze wydanie."
+                ]
+            }
+        },
+        "pt-BR": {
+            "name": "Ver o conteúdo",
+            "description": "Veja o que tem dentro de um zip antes de baixar e receba avisos sobre programas, arquivos que fingem ser imagens ou documentos, arquivos com senha e bombas zip. Só a lista de arquivos é lida, nunca os arquivos.",
+            "changelog": {
+                "1.0.0": [
+                    "Primeira versão."
+                ]
+            }
+        },
+        "ru": {
+            "name": "Заглянуть внутрь",
+            "description": "Смотрите, что внутри zip-архива, до скачивания, и получайте предупреждения о программах, файлах под видом картинок или документов, файлах с паролем и zip-бомбах. Читается только список файлов, но не сами файлы.",
+            "changelog": {
+                "1.0.0": [
+                    "Первый выпуск."
+                ]
+            }
+        },
+        "tr": {
+            "name": "İçine Bak",
+            "description": "Bir zip'i indirmeden önce içinde ne olduğunu gör; programlar, resim ya da belge gibi görünen dosyalar, parolalı dosyalar ve zip bombaları için uyarı al. Yalnızca dosya listesi okunur, dosyalar asla okunmaz.",
+            "changelog": {
+                "1.0.0": [
+                    "İlk sürüm."
+                ]
+            }
+        }
+    },
+    "minEviVersion": "2.0.0",
+    "enabledByDefault": false
+}

@@ -1,6 +1,6 @@
 import { app } from "electron";
 import { existsSync, mkdirSync, renameSync } from "fs";
-import { join } from "path";
+import { join, resolve } from "path";
 
 export const DATA_DIR = process.env.EVI_DATA_DIR ?? join(app.getPath("appData"), "Evi");
 
@@ -20,3 +20,8 @@ export const QUICK_CSS_FILE = join(DATA_DIR, "quick.css");
 
 mkdirSync(PLUGINS_DIR, { recursive: true });
 mkdirSync(THEMES_DIR, { recursive: true });
+
+/** Running from a repo's build output rather than the core `evi install` put in the data folder */
+export function isDevBuild() {
+    return resolve(globalThis.__eviCoreDir ?? "") !== resolve(DATA_DIR, "core");
+}

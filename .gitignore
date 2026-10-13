@@ -27,3 +27,4 @@ tests/themeSubmissions.test.ts
 tests/serverStore.test.ts
 tests/healthReports.test.ts
 tests/bans.test.ts
+tests/collectibles.test.ts

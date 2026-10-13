@@ -10,7 +10,9 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync } from "fs";
 import { join, resolve } from "path";
 import { chromium } from "playwright-core";
+import type { Page, Request } from "playwright-core";
 
+import { routeChunks } from "./lazy-route.ts";
 import { disablePasskeys } from "./no-passkeys.ts";
 
 import type { BootData, PluginPayload, ThemePayload } from "../src/shared/ipc";
@@ -197,6 +199,55 @@ function fakeNative(bootData: BootData) {
             return { ok: true, id, version: "1.0.0" };
         },
         // Account link: not linked until the test confirms the code "on the site"
+        // Evi collectibles: one bundle with all three parts, worn by the badge tester; a second person
+        // wears only its nameplate. With EVI_COLLECTIBLES_ART set, the real catalogue and art instead
+        getCollectibles: async () => {
+            const real = await (window as any).__eviTestCatalogue?.();
+            if (real) return { ok: true, doc: real };
+            const f = (name: string) => `https://evi.rest/collectibles/sakura/${name}?v=1`;
+            return {
+                ok: true,
+                doc: {
+                    bundles: [{
+                        id: "sakura", name: "Sakura River", description: "Cherry blossoms falling over a red bridge.", tier: "free",
+                        prices: { bundle: 1200, nameplate: 500, decoration: 400, effect: 400 },
+                        nameplate: { animated: f("nameplate.webm"), static: f("nameplate.png"), palette: "bubble_gum" },
+                        decoration: { animated: f("decoration.png"), static: f("decoration-static.png") },
+                        effect: {
+                            layers: [
+                                { src: f("effect-0.png"), loop: false, start: 0, duration: 2490, loopDelay: 0, width: 450, height: 880, x: 0, y: 0, zIndex: 102 },
+                                { src: f("effect-1.png"), loop: true, start: 2490, duration: 3984, loopDelay: 0, width: 450, height: 880, x: 0, y: 0, zIndex: 103 },
+                            ],
+                            static: f("effect-static.png"),
+                            thumbnail: f("effect-thumb.png"),
+                        },
+                    }],
+                    users: (window as any).__test.collectiblesUsers ??= { "123456789012345678": { nameplate: "sakura", decoration: "sakura", effect: "sakura" }, "223456789012345678": { nameplate: "sakura" } },
+                },
+            };
+        },
+        onCollectiblesChange: (cb: (result: unknown) => void) => void ((window as any).__test.pushCollectibles = cb),
+        collectibleFile: async (url: string) => {
+            ((window as any).__test.collectibleFiles ??= []).push(url);
+            const art = await (window as any).__eviTestArt?.(url);
+            const b64 = art?.b64 ?? "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+            return { ok: true, bytes: Uint8Array.from(atob(b64), c => c.charCodeAt(0)), mime: art?.mime ?? "image/png" };
+        },
+        // __test.equipAnswer: what evi.rest says (unlinked, refused); otherwise the change goes through
+        equipCollectibles: async (userId: string, changes: Record<string, string | null>) => {
+            const test = (window as any).__test;
+            (test.equips ??= []).push({ userId, changes });
+            if (test.equipAnswer) return new Promise(resolve => setTimeout(() => resolve(test.equipAnswer), 400));
+            const worn = { ...test.collectiblesUsers?.[userId] };
+            for (const [kind, id] of Object.entries(changes)) if (id === null) delete worn[kind]; else worn[kind] = id;
+            return { ok: true, equipped: worn };
+        },
+        // Sparks (ui/Sparks.tsx): the tester owns all of Sakura River, so wearing it works as before;
+        // buying is refused (not enough Sparks), and a code that isn't one says so
+        collectiblesWallet: async (userId: string) => ({ ok: true, wallet: (window as any).__test.wallet ??= { userId, sparks: 300, owned: { sakura: ["nameplate", "decoration", "effect"] } } }),
+        onCollectiblesWallet: () => { },
+        buyCollectible: async () => ({ ok: false, error: "Not enough Sparks", code: "insufficient", need: 1200, have: 300 }),
+        redeemCollectibleCode: async () => ({ ok: false, error: "That isn't a code", code: "invalid_code" }),
         accountStatus: async () => ({ ok: true, site: "https://evi.rest", user: (window as any).__test.account.confirmed ? { id: "123456789012345678", username: "evi-tester", globalName: "Evi Tester", avatar: null } : null, admin: !!(window as any).__test.account.admin }),
         // The Author page ("Publish your own"): __test.authorMode picks evi.rest's answer
         authorStats: async (days: number) => {
@@ -500,11 +551,29 @@ page.on("console", msg => {
 });
 page.on("pageerror", err => eviErrors.push(`pageerror: ${err.message}`));
 
+/**
+ * Loads Discord's login page. Chrome (155, Windows) resets its certificate verifier about a second
+ * after it starts and fails every request still in flight with ERR_CERT_VERIFIER_CHANGED: Discord
+ * then misses some of its scripts and never starts, with or without Evi. Such a load is done again.
+ */
+async function openDiscord(target: Page) {
+    for (let attempt = 1; ; attempt++) {
+        let failed = 0;
+        const onFailed = (request: Request) => void (request.failure()?.errorText.includes("ERR_CERT_VERIFIER_CHANGED") && failed++);
+        target.on("requestfailed", onFailed);
+        await target.goto("https://discord.com/login", { waitUntil: "domcontentloaded" });
+        target.off("requestfailed", onFailed);
+        if (!failed || attempt === 3) return;
+        console.log(`  Chrome reset its certificate verifier while Discord loaded (${failed} requests failed), loading it again`);
+        eviErrors.length = 0;
+    }
+}
+
 // Before anything else: discord.com would otherwise pop a Windows passkey dialog on the desktop
 await page.addInitScript(disablePasskeys);
 await page.addInitScript(fakeNative, boot);
 await page.addInitScript(renderer);
-await page.goto("https://discord.com/login", { waitUntil: "domcontentloaded" });
+await openDiscord(page);
 
 await page.waitForFunction(() => (window as any).Evi?.plugins.getSnapshot().some((p: any) => p.running), null, { timeout: 60_000 });
 
@@ -959,22 +1028,30 @@ const toolkit = await page.evaluate(async () => {
         }
         return found;
     };
-    // Discord shows one toast at a time and queues the rest: dismiss each once seen
+    // Discord shows one toast at a time and queues the rest: dismiss each once seen. A toast is either
+    // Discord's, its variant a class (success_…, critical_…, default_…), or Evi's own (.evi-toast with
+    // data-type). Discord's screen reader announcer repeats the text, but isn't a toast; a toast on its
+    // way out (in a leave_… slot) is the one before.
     const popToast = api.find(api.filters.byCode("queuedToastsMap.get("));
-    const toastText = async (text: string) => {
+    const DISCORD_TYPES: Record<string, string> = { success: "success", critical: "failure", default: "message" };
+    const variantOf = (el: Element) => [...el.classList].map(c => /^(success|critical|default)_/.exec(c)?.[1]).find(Boolean);
+    const toastText = (window as any).__toastText = async (text: string) => {
         for (let i = 0; i < 30; i++) {
-            const el = [...document.querySelectorAll('[role="status"]')].find(e => e.textContent?.includes(text));
+            const el = [...document.querySelectorAll('.evi-toast, [class*="wrapper_"]')].find(e =>
+                e.textContent?.includes(text) && (e.classList.contains("evi-toast") || !!variantOf(e)) && !/(^|\s)leave_/.test(e.parentElement?.className ?? ""));
             if (el) {
-                popToast?.();
-                return { text: el.textContent, type: el.getAttribute("data-type") };
+                const evi = el.classList.contains("evi-toast");
+                if (!evi) popToast?.();
+                return { text: el.textContent, type: evi ? el.getAttribute("data-type") : DISCORD_TYPES[variantOf(el)!], source: evi ? "evi" : "discord" };
             }
             await sleep(100);
         }
         return null;
     };
 
-    // Toasts
-    const toastModule = load(toolkit.filters.showToast, "(\"showToast\"))return");
+    // Toasts: Discord's current toast store (Evi knows the older ones too, see toolkit/toasts.ts)
+    const toastModule = load(toolkit.filters.showToast, ".currentToastMap.has(", "surface");
+    const toastBackend = toolkit.toastBackend();
     const shown = api.showToast("Evi toast test", { type: "success" });
     const toast = await toastText("Evi toast test");
 
@@ -1062,7 +1139,7 @@ const toolkit = await page.evaluate(async () => {
     const commandsRestored = !!builtIns && api.getUnhooked(builtIns.exports[builtIns.key]) === builtIns.exports[builtIns.key];
 
     return {
-        toastModule: toastModule && { id: toastModule.id, key: toastModule.key }, shown, toast,
+        toastModule: toastModule && { id: toastModule.id, key: toastModule.key }, toastBackend, shown, toast,
         menu: menu && { id: menu.id, key: menu.key }, componentKinds,
         navPatch: navPatch && { health: navPatch.health, modules: navPatch.modules, errors: navPatch.errors.slice(0, 3), menuUserId },
         rewrite,
@@ -1076,8 +1153,8 @@ const toolkit = await page.evaluate(async () => {
         listAfter, menuRestored, commandsRestored,
     };
 });
-check("toast module found", !!toolkit.toastModule, toolkit.toastModule);
-check("toast renders with Discord's toast UI", !!toolkit.shown && toolkit.toast?.type === "success", toolkit.toast);
+check("toast module found, and toasts go through Discord's", !!toolkit.toastModule && toolkit.toastBackend === "store", { module: toolkit.toastModule, backend: toolkit.toastBackend });
+check("toast renders with Discord's toast UI", !!toolkit.shown && toolkit.toast?.type === "success" && toolkit.toast.source === "discord", toolkit.toast);
 check("Menu component found", !!toolkit.menu, toolkit.menu);
 check("Menu item components resolved", ["Item", "Group", "Separator", "CheckboxItem", "RadioItem", "ControlItem"].every(k => toolkit.componentKinds.includes(k)), toolkit.componentKinds);
 check("navId source patch applied, no errors", toolkit.navPatch?.health === "applied" && !!toolkit.navPatch.menuUserId && toolkit.navPatch.modules.includes(toolkit.navPatch.menuUserId) && !toolkit.navPatch.errors.length, toolkit.navPatch);
@@ -1087,31 +1164,49 @@ check("toolkit-demo started, Menu and command list hooked", toolkit.running && t
 check("/evi listed as a non-text built-in like /nick (Discord never sends its result)", !!toolkit.command && toolkit.command.inputType === toolkit.nick?.inputType && toolkit.command.applicationId === toolkit.nick?.applicationId && toolkit.command.inputType !== toolkit.shrug?.inputType, { command: toolkit.command, nick: toolkit.nick, shrug: toolkit.shrug });
 check("/evi replies ephemerally (Only you can see this), returns nothing for Discord to send", toolkit.result == null && JSON.stringify(toolkit.commandToast) === '["1","Command reply test"]', toolkit.commandToast);
 check("message menu shows the plugin's item next to Discord's", toolkit.rendered.includes("Native item") && toolkit.rendered.some((t: string) => t.includes("Copy Message ID (Evi)")), toolkit.renderError ?? toolkit.rendered);
-check("menu item gets the message from menu props and copies its id", toolkit.copied === "123456789" && toolkit.copyToast?.type === "success", { copied: toolkit.copied, toast: toolkit.copyToast });
+check("menu item gets the message from menu props and copies its id", toolkit.copied === "123456789" && toolkit.copyToast?.type === "success" && toolkit.copyToast.source === "discord", { copied: toolkit.copied, toast: toolkit.copyToast });
 // The shared hook comes off with the last command; Evi's own /badge (an admin install) keeps it on here
 check("stopping the plugin removes its command, and the command hook with the last one", !toolkit.listAfter.includes("evi") && toolkit.commandsRestored === !toolkit.listAfter.some((n: string) => n === "badge"));
 check("the shared Menu hook stays while another plugin still uses menus", !toolkit.menuRestored);
 await page.screenshot({ path: join(OUT, "toolkit-toast.png") });
 
+// Evi's own toast, for a Discord whose toasts Evi can't find: shaped and placed like Discord's, it
+// slides in and out, only fades with reduced motion, and leaves once its time is up
+const eviToastSeen = () => page.evaluate(() => {
+    const el = document.querySelector<HTMLElement>(".evi-toast:not([data-closing])");
+    const box = el?.getBoundingClientRect();
+    const style = el && getComputedStyle(el);
+    return el && {
+        text: el.textContent, type: el.dataset.type, role: el.getAttribute("role"), hostRole: el.parentElement?.getAttribute("role"),
+        centred: !!box && Math.abs(box.left + box.width / 2 - innerWidth / 2) < 2, top: box && Math.round(box.top), height: box && Math.round(box.height),
+        animation: style!.animationName, radius: style!.borderRadius, background: style!.backgroundColor,
+    };
+});
+const eviToastShown = await page.evaluate(() => (window as any).Evi.toolkit.showEviToast("Evi's own toast", { type: "failure", duration: 1000 }));
+await page.waitForTimeout(400);
+const eviToast = await eviToastSeen();
+await page.screenshot({ path: join(OUT, "toolkit-evi-toast.png") });
+await page.waitForTimeout(1200);
+const eviToastGone = await page.evaluate(() => !document.querySelector(".evi-toast"));
+await page.emulateMedia({ reducedMotion: "reduce" });
+await page.evaluate(() => (window as any).Evi.toolkit.showEviToast("Evi's own toast, reduced motion", { duration: 1000 }));
+const eviToastReduced = await eviToastSeen();
+await page.emulateMedia({ reducedMotion: null });
+await page.waitForFunction(() => !document.querySelector(".evi-toast"), null, { timeout: 3000 }).catch(() => { });
+check("Evi's own toast (when Discord's can't be found) shows at the top centre like Discord's, and goes",
+    eviToastShown && eviToast?.text === "Evi's own toast" && eviToast.type === "failure" && eviToast.role === "alert" && eviToast.hostRole === "status" && eviToast.centred
+    && eviToast.top! > 0 && eviToast.top! < 100 && eviToast.radius === "12px" && eviToast.animation === "evi-toast-slide-in" && eviToastGone,
+    { eviToast, eviToastGone });
+check("Evi's own toast fades instead of sliding with reduced motion", eviToastReduced?.type === "message" && eviToastReduced.animation === "evi-toast-fade-in", eviToastReduced);
+
 // Helpers for the plugin suites below, in the page
 await page.evaluate(() => {
     const { api } = (window as any).Evi;
     const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
-    const popToast = api.find(api.filters.byCode("queuedToastsMap.get("));
     (window as any).__qa = {
         sleep,
-        // Discord shows one toast at a time and queues the rest: dismiss each once seen
-        toastText: async (text: string) => {
-            for (let i = 0; i < 30; i++) {
-                const el = [...document.querySelectorAll('[role="status"]')].find(e => e.textContent?.includes(text));
-                if (el) {
-                    popToast?.();
-                    return { text: el.textContent, type: el.getAttribute("data-type") };
-                }
-                await sleep(100);
-            }
-            return null;
-        },
+        // Waits for a toast, Discord's or Evi's, and dismisses Discord's once seen (see __toastText above)
+        toastText: (window as any).__toastText,
         load: (filter: any, ...code: string[]) => {
             let found = api.findExport(filter);
             if (!found) {
@@ -1123,20 +1218,36 @@ await page.evaluate(() => {
     };
 });
 
-const silent = await page.evaluate(async () => {
-    const { api, plugins, toolkit, diagnosePatches, wreq } = (window as any).Evi;
-    const { sleep, toastText, load } = (window as any).__qa;
-
+// What opening a chat loads, for Silent Typing, the lookups and Message Logger below: Discord's lazy
+// "Channel" route declares its chunks next to its name (scripts/lazy-route.ts reads both of its forms)
+await page.evaluate(`window.__qa.routeChunks = ${routeChunks.toString()}`);
+await page.evaluate(() => {
+    const { api, wreq } = (window as any).Evi;
+    const qa = (window as any).__qa;
+    qa.loadRoute = async (name: string) => {
+        for (const id of api.findModuleIds(`name:"${name}"`)) {
+            const route = qa.routeChunks(api.functionSource(wreq.m[id]), name);
+            if (!route) continue;
+            let loaded = 0;
+            await Promise.all(route.chunkIds.map((chunk: string) => wreq.e(chunk).then(() => loaded++, () => { })));
+            return { ...route, loaded };
+        }
+        return { module: undefined, chunkIds: [] as string[], loaded: 0 };
+    };
     // Discord's typing actions: startTyping dispatches TYPING_START_LOCAL, whose store handler sends the request.
-    // Since October 2026 they're in the chat's lazy chunks: load the ones the "Channel" route declares
-    const route = /createPromise:\(\)=>Promise\.all\(\[((?:\w\.e\("\d+"\),?)+)\]\)\.then\(\w\.bind\(\w,(\d+)\)\),webpackId:\d+,name:"Channel"[,}]/;
-    for (const id of api.findModuleIds('name:"Channel"')) {
-        const m = api.functionSource(wreq.m[id]).match(route);
-        if (!m) continue;
-        await Promise.all([...m[1].matchAll(/"(\d+)"/g)].map((x: RegExpMatchArray) => wreq.e(x[1]).catch(() => { })));
-        break;
-    }
-    const typing = load(api.filters.byProps("startTyping", "stopTyping"), "TYPING_START_LOCAL", "startTyping(");
+    // Since October 2026 they're a tiny lazy chunk of their own (174192), which the chat loads and the login page never does
+    qa.loadTyping = async () => {
+        const filter = api.filters.byProps("startTyping", "stopTyping");
+        if (!api.findExport(filter)) await qa.loadRoute("Channel");
+        return qa.load(filter, "TYPING_START_LOCAL", "startTyping(");
+    };
+});
+
+const silent = await page.evaluate(async () => {
+    const { api, plugins, toolkit, diagnosePatches } = (window as any).Evi;
+    const { sleep, toastText, loadTyping } = (window as any).__qa;
+
+    const typing = await loadTyping();
     const actions = typing?.value;
     const dispatched: string[] = [];
     const onStart = (a: any) => void dispatched.push(`start:${a.channelId}`);
@@ -1241,9 +1352,10 @@ const lookups = await page.evaluate(async () => {
     const { api, plugins, diagnoseLookups } = (window as any).Evi;
     const later = () => performance.now() + 60_000;
 
+    // Its startTyping hook: the typing actions live in a lazy chunk, loaded here (already, after the checks above)
+    await (window as any).__qa.loadTyping();
     await plugins.setEnabled("silent-typing", true);
     const ctx = plugins.get("silent-typing")?.ctx;
-    // Its startTyping hook: the typing actions module ran in the silent-typing checks above
     const hook = diagnoseLookups("silent-typing").find((d: any) => d.target.startsWith("props startTyping"));
 
     // What a Discord update does to a lookup: its code or props are gone
@@ -1267,7 +1379,7 @@ check("lookups: stopping the plugin drops its lookups", lookups.afterStop === 0,
 // Logged out, MessageStore still works for a channel we "load" ourselves: dispatch Discord's own
 // actions for a fake channel and check what the plugin and the store make of them
 const logger = await page.evaluate(async () => {
-    const { api, plugins, wreq, diagnosePatches } = (window as any).Evi;
+    const { api, plugins, diagnosePatches } = (window as any).Evi;
     const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
     const { Dispatcher } = api;
     const store = api.getStore("MessageStore");
@@ -1275,24 +1387,11 @@ const logger = await page.evaluate(async () => {
     const handlers = handlersOf();
     const originals = { del: handlers.MESSAGE_DELETE, bulk: handlers.MESSAGE_DELETE_BULK, update: handlers.MESSAGE_UPDATE };
 
-    // The accessories renderer and Discord's content renderer live in lazy chunks: load chunks until
-    // both are registered, then run them the way opening a chat would: Discord's lazy "Channel"
-    // route component declares the chunks it needs next to its name
+    // The accessories renderer and Discord's content renderer live in the chat's lazy chunks: load
+    // them, then run both the way opening a chat would
     const wanted = [["channelMessageProps:{message:", "isAutomodBlockedMessage:"], ['"useMessageRenderedContent"', "hideSimpleEmbedContent"]];
-    const route = /createPromise:\(\)=>Promise\.all\(\[((?:\w\.e\("\d+"\),?)+)\]\)\.then\(\w\.bind\(\w,(\d+)\)\),webpackId:\d+,name:"Channel"[,}]/;
-    let chunkIds: string[] = [];
-    let channelModule: string | undefined;
-    for (const id of api.findModuleIds('name:"Channel"')) {
-        const m = api.functionSource(wreq.m[id]).match(route);
-        if (m) {
-            chunkIds = [...m[1].matchAll(/"(\d+)"/g)].map((x: RegExpMatchArray) => x[1]);
-            channelModule = m[2];
-            break;
-        }
-    }
     const loadStart = performance.now();
-    let chunksLoaded = 0;
-    await Promise.all(chunkIds.map(id => wreq.e(id).then(() => chunksLoaded++, () => { })));
+    const { module: channelModule, chunkIds, loaded: chunksLoaded } = await (window as any).__qa.loadRoute("Channel");
     const loadMs = Math.round(performance.now() - loadStart);
     const moduleIds = wanted.map(code => api.findModuleIds(...code)[0]);
     const requireErrors: string[] = [];
@@ -1757,6 +1856,215 @@ check("Plugins' profile badges show on the profile and in Discord's badge direct
     JSON.stringify(pluginBadges.profile) === '["premium","evi-test-status"]' && JSON.stringify(pluginBadges.nobodyElse) === '["premium"]'
     && pluginBadges.directory.includes("evi-plugin:test-status") && pluginBadges.stable && pluginBadges.entry?.name === "Testing" && /Badge User/.test(pluginBadges.entry.label), pluginBadges);
 
+// Evi collectibles, part of the core: Discord's own collectible code draws them. The patched modules are
+// all in Discord's main bundle (the avatar decoration hook is lazy); each is checked on Discord's real
+// code here, with the stand-in list and files from the fake native (one bundle, worn by the tester)
+const collectibles = await page.evaluate(async () => {
+    const D = (window as any).Evi;
+    const { api } = D;
+    const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+    const uid = "123456789012345678", other = "223456789012345678", stranger = "323456789012345678";
+    const out: Record<string, any> = {};
+    const fn = (m: any, ...code: string[]) => Object.values(m ?? {}).find((v: any) => typeof v === "function" && code.every(c => api.functionSource(v).includes(c))) as any;
+    const load = (...code: string[]) => api.findModuleIds(...code).map((id: string) => api.requireModule(id))[0];
+    // You, as UserStore says once logged in: your own always show
+    const userStore = api.findStore("UserStore");
+    (window as any).__test.unhookMe = api.hook(userStore, "getCurrentUser", "instead", () => ({ id: uid, username: "evi-tester", globalName: "Evi Tester", getAvatarURL: () => "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" }));
+    try {
+        const assets = load("/media/v1/collectibles-shop/");
+        const urls = load(".AVATAR_DECORATION_PRESETS(");
+        const records = load("get avatarDecoration(){return this.avatarDecorationData}");
+        const merge = load("pendingValue:", "guildValue:", "\"\"===");
+        const profiles = load("this.profileEffect=");
+        const nameplateUrls = load("previewToolKey&&\"\"!==");
+        const player = load("delayIntro", "layerData", "reducedMotionSrc");
+        out.health = Object.fromEntries(D.diagnosePatches().filter((d: any) => d.plugin === "evi" && JSON.stringify(d.patch.replace).includes("collectibles") && !JSON.stringify(d.patch.replace).includes("collectiblesShop")).map((d: any) => [String(d.patch.find).slice(0, 80), d.health]));
+
+        // The list and its stills arrive through main
+        for (let i = 0; i < 40 && !D.collectibles.decorationUrl("evi:sakura", false).startsWith("blob:"); i++) await sleep(100);
+
+        out.cdn = [assets.getCollectiblesItemAssetUrl({ skuId: "evi:sakura", assetFormat: "static" }), assets.getCollectiblesItemAssetUrl({ skuId: "1144058522808614923", assetFormat: "static" })];
+        const decorationUrl = fn(urls, "AVATAR_DECORATION_PRESETS(");
+        out.decorationStill = decorationUrl({ avatarDecoration: { skuId: "evi:sakura" }, canAnimate: false });
+        // The first draw loads the animation, for the next hover
+        decorationUrl({ avatarDecoration: { skuId: "evi:sakura" }, canAnimate: true });
+        await sleep(300);
+        out.decorationAnimated = decorationUrl({ avatarDecoration: { skuId: "evi:sakura" }, canAnimate: true });
+
+        const User = Object.values(records).find((v: any) => typeof v === "function" && Object.getOwnPropertyDescriptor(v.prototype ?? {}, "avatarDecoration")) as any;
+        const user = (id: string, extra: object = {}) => new User({ id, username: "x", discriminator: "0", ...extra });
+        const real = { asset: "a_123", sku_id: "1144058522808614923" };
+        const me = user(uid, { avatar_decoration_data: real }), them = user(other, { avatar_decoration_data: real }), nobody = user(stranger, { avatar_decoration_data: real });
+        out.me = { decoration: me.avatarDecoration?.skuId, nameplate: me.nameplate?.skuId, palette: me.nameplate?.palette?.name, label: me.nameplate?.imgAlt };
+        out.them = { decoration: them.avatarDecoration?.skuId, nameplate: them.nameplate?.skuId };
+        out.nobody = { decoration: nobody.avatarDecoration?.skuId, nameplate: nobody.nameplate ?? null };
+        D.settings.update((s: any) => void (s.collectiblesOnOthers = false));
+        await sleep(50);
+        out.othersOff = { me: me.nameplate?.skuId, them: them.nameplate?.skuId ?? null };
+        D.settings.update((s: any) => void (s.collectiblesOnOthers = undefined));
+        await sleep(50);
+
+        const lw = fn(merge, "userValue:", "\"\"===");
+        out.merge = [lw({ userValue: me.avatarDecoration, guildValue: { skuId: "server" }, pendingValue: undefined, guildId: "9" })?.skuId, lw({ userValue: nobody.avatarDecoration, guildValue: { skuId: "server" }, pendingValue: undefined, guildId: "9" })?.skuId];
+
+        const displayProfile = fn(profiles, "getUserProfile(", "getGuildMemberProfile(");
+        const stores = [{ getUser: () => ({}) }, { getUserProfile: (id: string) => ({ userId: id, profileEffect: { skuId: "1139323098643333240" } }), getGuildMemberProfile: () => null }];
+        out.effects = [displayProfile(uid, undefined, stores)?.profileEffect?.skuId, displayProfile(stranger, undefined, stores)?.profileEffect?.skuId];
+
+        // Discord's hooks, in a component: the nameplate's files, and Discord's effect player on a profile
+        const h = api.React.createElement;
+        const useUrls = fn(nameplateUrls, "previewToolKey");
+        const Player = fn(player, "skuId");
+        const host = document.createElement("div");
+        host.id = "evi-test-collectibles";
+        host.style.cssText = "position:fixed;left:16px;top:16px;z-index:2147483647;width:300px;height:586px;overflow:hidden;background:#232428;border-radius:8px";
+        document.body.append(host);
+        function Probe() {
+            out.nameplateFiles = useUrls({ skuId: "evi:sakura" });
+            return h("div", { style: { position: "absolute", inset: 0 } }, h(Player, { skuId: "evi:sakura", isHovering: true, autoPlay: true }));
+        }
+        api.createRoot(host).render(h(Probe));
+        await sleep(1500);
+        out.playerImages = [...host.querySelectorAll("img")].map(img => img.src.slice(0, 5));
+    } catch (err) {
+        out.error = String((err as Error)?.stack ?? err);
+    }
+    return out;
+});
+await page.screenshot({ path: join(OUT, "collectibles-effect.png"), clip: { x: 0, y: 0, width: 340, height: 620 } });
+await page.evaluate(() => document.getElementById("evi-test-collectibles")?.remove());
+// Lazy modules a logged-out page never loads: the avatar decoration hook, and the profile editor's
+// pickers, save and preview (collectibles/pickerPatches.ts)
+const LAZY_COLLECTIBLE_MODULES = ["onlyAnimateOnHoverOrFocus", "collectibles_sku_ids", "canUsePremiumCollectibles", "getCategoryForProduct", "previewSkuId", "guildNameplate", "parentComponent", "_userProfile"];
+check("Collectibles: every patch applies to Discord's code, analytics scrubbing included (lazy modules may wait for their chunks)",
+    !collectibles.error && Object.entries(collectibles.health ?? {}).length === 29 && Object.entries(collectibles.health).every(([find, health]) => health === "applied" || (LAZY_COLLECTIBLE_MODULES.some(m => find.includes(m)) && (health === "waiting" || health === "broken"))), collectibles.health ?? collectibles.error);
+check("Collectibles: Discord's CDN is never asked for an evi: SKU; avatar decorations get the page's blobs, still then animated",
+    collectibles.cdn?.[0] === null && /^https:\/\/cdn\.discordapp\.com\/media\/v1\/collectibles-shop\/1144058522808614923\/static$/.test(collectibles.cdn?.[1])
+    && collectibles.decorationStill?.startsWith("blob:") && collectibles.decorationAnimated?.startsWith("blob:") && collectibles.decorationAnimated !== collectibles.decorationStill, { cdn: collectibles.cdn, still: collectibles.decorationStill, animated: collectibles.decorationAnimated });
+check("Collectibles: the user record wears Evi's over Discord's own, with Discord's palette; strangers keep theirs",
+    JSON.stringify(collectibles.me) === "{\"decoration\":\"evi:sakura\",\"nameplate\":\"evi:sakura\",\"palette\":\"bubble_gum\",\"label\":\"Sakura River\"}"
+    && JSON.stringify(collectibles.them) === "{\"decoration\":\"1144058522808614923\",\"nameplate\":\"evi:sakura\"}"
+    && JSON.stringify(collectibles.nobody) === "{\"decoration\":\"1144058522808614923\",\"nameplate\":null}", { me: collectibles.me, them: collectibles.them, nobody: collectibles.nobody });
+check("Collectibles: turned off for others, yours still show",
+    JSON.stringify(collectibles.othersOff) === "{\"me\":\"evi:sakura\",\"them\":null}", collectibles.othersOff);
+check("Collectibles: a server profile's decoration doesn't hide an Evi one, and Evi's effect goes on profiles",
+    JSON.stringify(collectibles.merge) === "[\"evi:sakura\",\"server\"]" && JSON.stringify(collectibles.effects) === "[\"evi:sakura\",\"1139323098643333240\"]", { merge: collectibles.merge, effects: collectibles.effects });
+check("Collectibles: Discord's nameplate hook and effect player draw the page's blobs",
+    // Layers that haven't started yet are Discord's blank data: image
+    collectibles.nameplateFiles?.staticImageUrl?.startsWith("blob:") && collectibles.playerImages?.includes("blob:") && collectibles.playerImages.every((s: string) => s === "blob:" || s === "data:"), { nameplate: collectibles.nameplateFiles, player: collectibles.playerImages });
+
+// Evi items in Discord's own pickers (collectibles/pickerPatches.ts): the profile editor's modules are in
+// chunks a logged-out page never loads. They're loaded the way Discord loads them for the four pickers
+// (Change Nameplate, Avatar Decoration, Profile Effect, Profile Frame), the profile save and the editor's
+// nameplate row, and every patch on them has to apply. Chunk ids from Discord's build of 2026-10-13.
+const PICKER_CHUNKS = ["27682", "669130", "629972", "582012", "162775", "959311", "454048", "300699", "349619", "599666", "398125", "221825", "930758", "244560", "707826", "183776", "776195", "87306", "27773", "894747", "718573", "631825", "851243", "77473", "820683", "527462", "598421", "550019", "6721", "291103", "315513", "253781", "552653", "691398", "82389", "132502", "230029", "891089", "861973", "174554", "329172", "196063", "392028", "124054", "441674", "152862", "148326", "148729", "650195", "401317", "311580", "67702", "662387", "85427", "247917", "89530", "296956", "334168", "319714", "675327", "325522", "790340", "147119", "425292", "209994", "457428", "116815", "495296", "162182", "327545", "860640", "681801", "179652", "916885", "826139", "405714", "360732", "352456", "638781", "678906", "415695", "64769", "644013", "971156", "260009", "219798", "266201", "752704", "56606", "206516", "163466", "755688", "234017", "40791", "358404", "996907", "831130", "398929", "377989", "529787", "358931", "880150", "168248", "490743", "533240", "962953", "734818", "216870", "89100", "340363", "459086", "720210", "61531", "177086", "189281", "205035", "200075", "896995", "82171", "157064", "560570", "336046", "58495", "156957", "363189", "604153", "641877", "126301", "866212", "896691", "779367", "992956", "7452", "60002", "189423", "535308", "762309", "340341", "918786", "352421", "970760", "701335", "257935", "712340", "424199", "496818", "587618", "828598", "342551", "615643", "888326", "695765", "777489", "968201", "76428", "863232", "174016", "331988", "733115", "188941", "755936", "543039", "901555", "253729", "827708", "266900", "948804", "721690", "161379", "695445", "611523", "136022", "417286", "199999", "828111", "890027", "536200", "832817", "425544", "416143", "844695", "234236", "92124", "851130", "672727", "988077", "809915", "776750", "812310", "361626", "428296", "561216", "50015", "646506", "165595", "445124", "313681", "445421", "631608", "343550", "552712", "829177", "832823", "592028", "761935", "106943", "232551", "511527", "631644", "892340", "763070", "425906", "381933", "14962", "502018", "123216", "123353", "936320", "249366", "728633", "786751", "588940", "35403", "628439", "756148", "570506", "225990", "539620", "133902", "252264", "183534", "248329", "222464", "770697", "147786", "534822", "401590", "790244", "498215", "482861", "401827", "398793", "836545", "273232", "466322", "593176", "621624", "489949", "121435", "592731", "53374", "482815", "170653", "256616", "858514", "240511", "344265", "637721", "784103", "958428", "643612", "346102", "486792", "463095", "537894", "128534", "799657", "810034", "869546", "124060", "817852", "831145", "556967", "133179", "146566", "614784", "317225", "444376", "32661", "187856", "334127", "696123", "400954", "610449", "32781", "238412", "499941", "693832", "488990", "332470", "469187", "318546", "124006", "843719", "912773", "710638", "73500", "662355", "371133", "231578", "418943", "41991", "959134", "377766", "872648", "565065", "288705", "834386", "4780", "784727", "130674", "959669", "371482", "126780", "220518", "360781", "329218", "622825", "661008", "748015", "278424", "237834", "807771", "478476", "496715", "681541", "115754", "88160", "29664", "243100", "982699", "863076", "680986", "462276", "28561", "90373", "324622", "795093", "963584", "446800", "896137", "306306", "348900", "920282", "293697", "384996", "121570", "617823", "509856", "568980", "168177", "654282", "631573", "644816", "195468", "830938", "534928", "860177", "784813", "703166", "262841", "800311", "23172", "121046", "489020", "221856", "25279", "235996", "940668", "222589", "660264", "36877", "414501"];
+const pickerHealth = await page.evaluate(async chunks => {
+    const D = (window as any).Evi;
+    const wreq = D.api.getWreq();
+    const failed: string[] = [];
+    await Promise.all(chunks.map((c: string) => wreq.e(c).catch(() => void failed.push(c))));
+    const health = Object.fromEntries(D.diagnosePatches().filter((d: any) => d.plugin === "evi" && JSON.stringify(d.patch.replace).includes("collectibles") && !JSON.stringify(d.patch.replace).includes("collectiblesShop")).map((d: any) => [String(d.patch.find).slice(0, 80), d.health]));
+    return { failed: failed.length, health };
+}, PICKER_CHUNKS);
+check("Collectibles: with the profile editor's chunks loaded, every patch applies (pickers, save, preview)",
+    pickerHealth.failed === 0 && Object.values(pickerHealth.health).length === 29 && Object.entries(pickerHealth.health).every(([find, health]) => health === "applied" || (find.includes("onlyAnimateOnHoverOrFocus") && health === "waiting")), pickerHealth);
+
+// Evi's tab in Discord's Shop (ui/CollectiblesShop.tsx). The Shop is only routed once logged in, so its
+// modules are loaded the way Discord loads them for /shop?tab=…, and its real header bar is drawn here
+// with Evi's content beside it, the way the Shop page puts them together
+const shop = await page.evaluate(async () => {
+    const D = (window as any).Evi;
+    const { api } = D;
+    const wreq = api.getWreq();
+    const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+    const until = async (test: () => unknown, ms = 3000) => {
+        for (let waited = 0; !test() && waited < ms; waited += 50) await sleep(50);
+        return !!test();
+    };
+    const out: Record<string, any> = {};
+    try {
+        // The route renders a lazy page: Object.values(tabs).includes(t)?(0,b.jsx)(rh,{tab:t,...e})
+        const router = Object.values(wreq.m).map(String).find(s => s.includes('COLLECTIBLES_SHOP_WITH_TAB(":tab")'));
+        const pageVar = router?.match(/\.includes\((\w+)\)\?\(0,\w+\.jsx\)\(([\w$]+),\{tab:\1,/)?.[2];
+        // …and loads it like rh=(0,i7.Fe)({createPromise:()=>Promise.all([n.e("830836"),…]).then(…)})
+        const defined = pageVar ? router!.indexOf(`,${pageVar}=(0,`) : -1;
+        const lazy = defined >= 0 ? router!.slice(defined).match(/^[^{]*\{createPromise:\(\)=>Promise\.all\(\[([^\]]*)\]\)/)?.[1] : undefined;
+        const chunks = [...(lazy ?? "").matchAll(/\.e\("(\d+)"\)/g)].map(m => m[1]);
+        out.chunks = chunks.length;
+        await Promise.all(chunks.map(c => wreq.e(c)));
+        const headerId = api.findModuleIds('"useCollectiblesShopNavigationMenuOptions"')[0];
+        const Header = headerId && Object.values(api.requireModule(headerId) ?? {}).find(v => typeof v === "function") as any;
+        // The Shop page itself runs, so its content patch is in place
+        const pageId = api.findModuleIds("refreshCategories:", "transitionToTab:", "updateAnalyticsState:")[0];
+        if (pageId) api.requireModule(pageId);
+        out.health = Object.fromEntries(D.diagnosePatches().filter((d: any) => d.plugin === "evi" && JSON.stringify(d.patch.replace).includes("collectiblesShop")).map((d: any) => [String(d.patch.find).slice(0, 48), d.health]));
+        if (!Header) return { ...out, error: "no Shop header bar" };
+
+        const h = api.React.createElement;
+        const host = document.createElement("div");
+        host.id = "evi-test-shop";
+        host.style.cssText = "position:fixed;inset:0;z-index:1000;display:flex;flex-direction:column;background:var(--background-base-lower)";
+        document.body.append(host);
+        const moves: string[] = [];
+        function Shop() {
+            const [tab, setTab] = api.React.useState("home");
+            // What the Shop's transitionToTab does, Evi's patch included
+            const transition = api.React.useCallback((next: string) => { D.collectiblesShop.leave(); moves.push(next); setTab(next); }, []);
+            return h(api.React.Fragment, null,
+                h(Header, { selectedTab: tab, handleTransition: transition }),
+                h("div", { style: { flex: 1, minHeight: 0, display: "flex" } }, D.collectiblesShop.content(h("div", { id: "evi-test-shop-discord" }, `Discord's ${tab}`), tab)));
+        }
+        api.createRoot(host).render(h(Shop));
+        const link = () => host.querySelector<HTMLAnchorElement>('nav ul a[href="/shop?tab=evi"]');
+        await until(link);
+        out.tabs = [...host.querySelectorAll("nav ul > li")].map(li => li.textContent);
+        out.mark = !!link()?.querySelector("svg path");
+        link()?.click();
+        await until(() => host.querySelector(".evi-shop-card"));
+        out.selected = host.querySelector('nav ul [aria-current="page"]')?.textContent;
+        out.discordShown = !!host.querySelector("#evi-test-shop-discord");
+        out.title = host.querySelector("#evi-shop-title")?.textContent;
+        out.cards = [...host.querySelectorAll<HTMLElement>(".evi-shop-card")].map(c => `${c.dataset.kind}:${c.querySelector("h3")?.textContent}`);
+        out.buttons = [...host.querySelectorAll(".evi-shop-card button:not(.evi-shop-card-open)")].map(b => b.textContent);
+        out.hero = host.querySelector(".evi-shop-hero-actions")?.textContent;
+        out.meta = [...host.querySelectorAll(".evi-shop-card-meta")].map(m => m.textContent);
+
+        // A card opens the bundle; not linked yet, so it asks for the link first
+        host.querySelector<HTMLButtonElement>(".evi-shop-card-open")?.click();
+        await until(() => document.querySelector(".evi-shop-dialog"));
+        const dialog = document.querySelector(".evi-shop-dialog");
+        out.dialog = { title: dialog?.querySelector("h2")?.textContent, label: dialog?.getAttribute("aria-labelledby"), parts: [...dialog?.querySelectorAll(".evi-shop-dialog-part") ?? []].map(p => p.textContent), link: !!dialog?.querySelector(".dl-account-card") };
+        window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+        out.dialogClosed = await until(() => !document.querySelector(".evi-shop-dialog"));
+
+        // Back to one of Discord's tabs: its content again, Discord's click went through
+        [...host.querySelectorAll<HTMLAnchorElement>("nav ul a")].find(a => a.getAttribute("href")?.endsWith("tab=orbs"))?.click();
+        await until(() => !host.querySelector(".evi-shop"));
+        out.back = { evi: !!host.querySelector(".evi-shop"), discord: host.querySelector("#evi-test-shop-discord")?.textContent, selected: host.querySelector('nav ul [aria-current="page"]')?.textContent, moves };
+    } catch (err) {
+        out.error = String((err as Error)?.stack ?? err);
+    }
+    return out;
+});
+await page.screenshot({ path: join(OUT, "collectibles-shop.png") });
+await page.evaluate(() => {
+    (window as any).Evi.collectiblesShop.leave();
+    document.getElementById("evi-test-shop")?.remove();
+});
+check("Shop: Evi's three patches apply to Discord's Shop",
+    !shop.error && Object.keys(shop.health ?? {}).length === 3 && Object.values(shop.health).every(h => h === "applied"), shop.health ?? shop.error);
+check("Shop: Discord's tab bar has Evi's tab, with its mark, right after Featured",
+    shop.tabs?.[1] === "Evi" && shop.tabs.length >= 4 && shop.mark, shop.tabs);
+check("Shop: the Evi tab shows Evi's page in place of Discord's content, selected in Discord's tab bar",
+    shop.selected === "Evi" && !shop.discordShown && shop.title === "Evi Collection" && JSON.stringify(shop.cards) === JSON.stringify(["bundle:Sakura River", "nameplate:Sakura River", "decoration:Sakura River", "effect:Sakura River"]),
+    { selected: shop.selected, title: shop.title, cards: shop.cards });
+check("Shop: Sparks: Redeem a code in the hero; what you own shows as owned or worn, not a price",
+    !!shop.hero?.includes("Redeem a code") && shop.meta?.length === 4 && shop.meta.every((m: string) => /Wearing|Owned/.test(m) && !/1,200|500/.test(m)), { hero: shop.hero, meta: shop.meta });
+check("Shop: a card opens the bundle, which asks to link Evi before wearing; Escape closes it",
+    shop.dialog?.title === "Sakura River" && shop.dialog.parts.length === 3 && shop.dialog.link && shop.dialogClosed, shop.dialog);
+check("Shop: Discord's own tabs close Evi's page and go where Discord sends them",
+    !shop.back?.evi && shop.back?.discord === "Discord's orbs" && shop.back.selected !== "Evi" && JSON.stringify(shop.back.moves) === "[\"orbs\"]", shop.back);
+
 // A new version found in the background gets a notice over Discord; skipping it keeps it quiet
 {
     await page.evaluate(() => (window as any).Evi.updates.check(true));
@@ -1793,7 +2101,7 @@ async function findPlugin(id: string, on = page) {
     await on.waitForSelector(`li[aria-labelledby="dl-plugin-${id}"]`, { timeout: 3000 });
 }
 
-// Four pages in the sidebar, each with its tabs along the top
+// Five pages in the sidebar, each with its tabs along the top (Collectibles is one, without a bar)
 {
     const layout = await page.evaluate(() => ({
         pages: [...document.querySelectorAll(".dl-nav-item")].map(b => b.id),
@@ -1801,8 +2109,8 @@ async function findPlugin(id: string, on = page) {
         cards: document.querySelectorAll(".dl-plugin-grid > li").length,
         pager: document.querySelector('.dl-pagination [aria-current="page"]')?.textContent,
     }));
-    check("the panel has four pages, Plugins shows Installed and Store tabs and its plugins a page at a time",
-        JSON.stringify(layout.pages) === '["dl-tab-plugins","dl-tab-themes","dl-tab-general","dl-tab-advanced"]'
+    check("the panel has five pages, Plugins shows Installed and Store tabs and its plugins a page at a time",
+        JSON.stringify(layout.pages) === '["dl-tab-plugins","dl-tab-themes","dl-tab-collectibles","dl-tab-general","dl-tab-advanced"]'
         && layout.tabs[0] === "Installed" && layout.tabs[1]?.startsWith("Store") && layout.cards === 12 && layout.pager === "1", layout);
     await page.getByRole("button", { name: "Page 2", exact: true }).click();
     await page.waitForTimeout(150);
@@ -1813,6 +2121,53 @@ async function findPlugin(id: string, on = page) {
     await findPlugin("experiments");
     const searched = await page.evaluate(() => document.querySelector('.dl-pagination [aria-current="page"]')?.textContent ?? "one page");
     check("Page 2 shows the next plugins; a new search starts over from the first page", second.pager === "2" && !!second.first && searched !== "2", { second, searched });
+}
+
+// The Collectibles page: each bundle previewed on you, worn from there; a refusal puts it back
+{
+    await page.click("#dl-tab-collectibles");
+    const body = page.locator(".dl-body");
+    const card = body.locator(".dl-coll-card").first();
+    await card.waitFor({ timeout: 3000 });
+    await card.hover();
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: join(OUT, "ui-collectibles.png") });
+    const before = await page.evaluate(() => ({
+        tabBar: !!document.querySelector(".dl-body .dl-tabbar"),
+        cards: document.querySelectorAll(".dl-coll-card").length,
+        worn: document.querySelector(".dl-coll-card")?.hasAttribute("data-worn"),
+        previews: [...document.querySelectorAll(".dl-coll-card img, .dl-coll-card video")].map(m => (m as HTMLImageElement).src.slice(0, 5)),
+        parts: [...document.querySelectorAll(".dl-coll-part")].map(p => p.textContent),
+    }));
+    // Wearing all of it: one press takes it all off, here and on evi.rest
+    await card.getByRole("button", { name: "Take off bundle" }).click();
+    await card.getByRole("button", { name: "Wear bundle" }).waitFor({ timeout: 2000 });
+    const tookOff = await page.evaluate(() => ({ equips: (window as any).__test.equips, mine: (window as any).Evi.collectibles.wears("123456789012345678", "nameplate") }));
+    // evi.rest refuses (this Evi is linked to someone else): put back, with a toast
+    await page.evaluate(() => void ((window as any).__test.equipAnswer = { ok: false, error: "This Evi is linked to someone else" }));
+    await card.getByRole("button", { name: "Wear the Nameplate from Sakura River" }).click();
+    const wears = () => page.evaluate(() => (window as any).Evi.collectibles.wears("123456789012345678", "nameplate"));
+    await page.waitForTimeout(150);
+    const shownAtOnce = await wears();
+    await page.waitForTimeout(600);
+    const refused = {
+        shownAtOnce,
+        putBack: !await wears(),
+        calls: await page.evaluate(() => (window as any).__test.equips.length),
+        // Discord's toasts, when this Discord has the toast module Evi knows
+        toast: await page.evaluate(() => document.body.textContent?.includes("Couldn’t change that: This Evi is linked to someone else")),
+    };
+    await page.evaluate(() => {
+        delete (window as any).__test.equipAnswer;
+        (window as any).__test.unhookMe?.();
+    });
+    check("Collectibles page: a page without a tab bar, the bundle previewed on you with its parts, marked worn",
+        !before.tabBar && before.cards === 1 && before.worn === true && before.previews.length >= 4 && before.previews.every(s => s === "blob:" || s === "data:")
+        && before.parts.length === 3 && before.parts[0].startsWith("Nameplate") && before.parts.every(p => p.includes("Wearing") && p.endsWith("Take off")), before);
+    check("Collectibles page: Take off bundle takes off all three through evi.rest",
+        JSON.stringify(tookOff.equips?.[0]) === "{\"userId\":\"123456789012345678\",\"changes\":{\"nameplate\":null,\"decoration\":null,\"effect\":null}}" && tookOff.mine === false, tookOff);
+    check("Collectibles page: wearing shows at once; when evi.rest refuses, it's put back (with a toast where Discord's toasts are found)",
+        refused.shownAtOnce === true && refused.putBack && refused.calls === 2 && (refused.toast || !toolkit.toastModule), refused);
 }
 
 // No scrollbars in Evi's UI, and nothing reserves room for one
@@ -1949,8 +2304,8 @@ check("Evi's panel shows no scrollbars", scrollbars.every(s => s.width === "none
         hiddenBefore && hiddenAfter && !!shown.stats[0]?.includes("1,284") && shown.bars === 30 && shown.segments === 3
         && !!shown.legend.at(-1)?.startsWith("Before 1.5.0") && shown.plugins[0] === "View Icons" && !!tooltip?.includes("people"),
         { hiddenBefore, hiddenAfter, shown, tooltip });
-    check("the Developers page has Overview, Plugins, Review, Announcements and People, with what waits on Review",
-        JSON.stringify(shown.tabs) === '["overview","plugins","review","announcements","people"]' && !!shown.reviewPill?.includes("4"), shown);
+    check("the Developers page has Overview, Plugins, Review, Announcements, People and Collectibles, with what waits on Review",
+        JSON.stringify(shown.tabs) === '["overview","plugins","review","announcements","people","collectibles"]' && !!shown.reviewPill?.includes("4"), shown);
     check("approving an upload and sending an announcement each ask first, then call evi.rest",
         calls.some((c: any) => c.method === "POST" && c.path === "/admin/submissions/41/approve")
         && calls.some((c: any) => c.method === "POST" && c.path === "/admin/announcements" && c.body?.title === "Evi 1.6.0 is out")

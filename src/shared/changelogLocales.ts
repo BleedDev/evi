@@ -11,6 +11,20 @@ export type ReleaseNotes = Partial<Record<SectionKind, string[]>>;
 /** Language -> version -> section -> lines */
 export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
     de: {
+        "2.5.0": {
+            added: [
+                "**Evi-Sammlerstücke.** Gemalte Namensschilder, Avatar-Dekorationen und Profileffekte, die alle mit Evi an dir sehen, zum Start Sakura River und Snowed-In Cabin. Du findest sie im neuen Evi-Tab in Discords Shop und legst sie in Discords eigenen Auswahlfenstern an, wenn du dein Profil bearbeitest.",
+                "**Sparks.** Evis eigene Währung für Sammlerstücke. Löse Codes vom Evi-Team ein, und Unterstützer bekommen jeden Monat Sparks.",
+                "**Zwei neue Plugins.** Pop Out Chat öffnet jeden Chat in einem eigenen Fenster, und Look Inside zeigt, was in einer ZIP-Datei steckt, bevor du sie herunterlädst, und warnt dich vor Programmen und getarnten Dateien.",
+            ],
+            improved: [
+                "**Deine Sammlerstücke bleiben vor Discord privat.** Evi hält sie aus Discords Analysen und aus dem heraus, was Discords App sendet, damit sie Discord nicht verraten, dass du Evi nutzt.",
+            ],
+            fixed: [
+                "**Hinweise von Evi und Plugins erscheinen wieder.** Discord hat geändert, wie es sie zeigt, und sie waren verstummt.",
+                "**Plugins starten zuverlässig in Discords neuesten Versionen.** Für einen Moment beim Start von Discord konnte Evi an der falschen Stelle nach Discords Code suchen.",
+            ],
+        },
         "2.4.1": {
             fixed: [
                 "**Der Spielmodus ist zurück im Tab Leistung.** Discord hat seinen Spielmodus geändert, und Evis Schalter war verschwunden.",
@@ -350,6 +364,20 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     es: {
+        "2.5.0": {
+            added: [
+                "**Coleccionables de Evi.** Placas de nombre, decoraciones de avatar y efectos de perfil pintados que todos los que usan Evi ven en ti, empezando por Sakura River y Snowed-In Cabin. Encuéntralos en la nueva pestaña Evi de la Tienda de Discord y póntelos desde los selectores de Discord al editar tu perfil.",
+                "**Sparks.** La moneda propia de Evi para coleccionables. Canjea códigos del equipo de Evi, y quienes apoyan reciben Sparks cada mes.",
+                "**Dos plugins nuevos.** Pop Out Chat abre cualquier chat en su propia ventana, y Look Inside muestra qué hay en un zip antes de descargarlo y te avisa de programas y archivos disfrazados.",
+            ],
+            improved: [
+                "**Tus coleccionables quedan en privado frente a Discord.** Evi los mantiene fuera de las analíticas de Discord y de lo que envía la app de Discord, para que no le digan a Discord que usas Evi.",
+            ],
+            fixed: [
+                "**Los avisos de Evi y de los plugins vuelven a aparecer.** Discord cambió cómo los muestra y se habían quedado en silencio.",
+                "**Los plugins arrancan bien en las versiones más nuevas de Discord.** Durante un momento al iniciar Discord, Evi podía buscar el código de Discord en el lugar equivocado.",
+            ],
+        },
         "2.4.1": {
             fixed: [
                 "**El Modo juego vuelve a la pestaña Rendimiento.** Discord cambió su Modo juego y el interruptor de Evi había desaparecido.",
@@ -689,6 +717,20 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     fr: {
+        "2.5.0": {
+            added: [
+                "**Les objets à collectionner d'Evi.** Des plaques de nom, décorations d'avatar et effets de profil peints que tous les utilisateurs d'Evi voient sur toi, en commençant par Sakura River et Snowed-In Cabin. Trouve-les dans le nouvel onglet Evi de la boutique de Discord, et porte-les depuis les sélecteurs de Discord quand tu modifies ton profil.",
+                "**Sparks.** La monnaie d'Evi pour les objets à collectionner. Utilise les codes de l'équipe d'Evi, et les soutiens reçoivent des Sparks chaque mois.",
+                "**Deux nouveaux plugins.** Pop Out Chat ouvre n'importe quel chat dans sa propre fenêtre, et Look Inside montre ce que contient un zip avant que tu le télécharges et te prévient des programmes et des fichiers déguisés.",
+            ],
+            improved: [
+                "**Tes objets restent privés vis-à-vis de Discord.** Evi les garde hors des statistiques de Discord et de ce que l'appli de Discord envoie, pour qu'ils ne révèlent pas à Discord que tu utilises Evi.",
+            ],
+            fixed: [
+                "**Les notifications d'Evi et des plugins s'affichent à nouveau.** Discord a changé leur affichage et elles étaient devenues muettes.",
+                "**Les plugins démarrent de façon fiable sur les dernières versions de Discord.** Pendant un instant au démarrage de Discord, Evi pouvait chercher le code de Discord au mauvais endroit.",
+            ],
+        },
         "2.4.1": {
             fixed: [
                 "**Le mode jeu est de retour dans l'onglet Performances.** Discord a modifié son mode jeu, et l'interrupteur d'Evi avait disparu.",
@@ -1028,6 +1070,20 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ja: {
+        "2.5.0": {
+            added: [
+                "**Evi コレクティブル。** Evi を使っている全員にあなたの姿として見える、手描きのネームプレート、アバターデコレーション、プロフィールエフェクト。まずは Sakura River と Snowed-In Cabin から。Discord ショップの新しい Evi タブにあり、プロフィール編集時に Discord の選択画面から身につけられます。",
+                "**Sparks。** コレクティブル用の Evi 独自の通貨です。Evi チームのコードを引き換えられ、サポーターには毎月 Sparks が届きます。",
+                "**新しいプラグインが 2 つ。** Pop Out Chat はどのチャットも専用ウィンドウで開き、Look Inside はダウンロード前に zip の中身を表示して、プログラムや偽装ファイルを警告します。",
+            ],
+            improved: [
+                "**コレクティブルは Discord に対して非公開のまま。** Evi はそれを Discord の分析や Discord アプリの送信内容から外すので、あなたが Evi を使っていることは Discord に伝わりません。",
+            ],
+            fixed: [
+                "**Evi とプラグインのポップアップが再び表示されます。** Discord が表示方法を変え、表示されなくなっていました。",
+                "**最新の Discord でもプラグインが確実に起動します。** Discord の起動中の一瞬、Evi が Discord のコードを間違った場所で探すことがありました。",
+            ],
+        },
         "2.4.1": {
             fixed: [
                 "**ゲームモードがパフォーマンスタブに戻りました。** Discord がゲームモードを変更したため、Evi のスイッチが消えていました。",
@@ -1367,6 +1423,20 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     pl: {
+        "2.5.0": {
+            added: [
+                "**Kolekcje Evi.** Malowane tabliczki z nazwą, dekoracje awatara i efekty profilu, które widzą na tobie wszyscy z Evi, na start Sakura River i Snowed-In Cabin. Znajdziesz je w nowej karcie Evi w Sklepie Discorda i założysz w wyborach Discorda, gdy edytujesz profil.",
+                "**Sparks.** Własna waluta Evi na kolekcje. Wykorzystuj kody od zespołu Evi, a wspierający dostają Sparks co miesiąc.",
+                "**Dwa nowe pluginy.** Pop Out Chat otwiera dowolny czat w osobnym oknie, a Look Inside pokazuje, co jest w pliku zip, zanim go pobierzesz, i ostrzega przed programami i udawanymi plikami.",
+            ],
+            improved: [
+                "**Twoje kolekcje pozostają prywatne wobec Discorda.** Evi trzyma je z dala od analityki Discorda i tego, co wysyła aplikacja Discorda, więc nie zdradzają Discordowi, że używasz Evi.",
+            ],
+            fixed: [
+                "**Powiadomienia Evi i pluginów znów się pokazują.** Discord zmienił sposób ich wyświetlania i ucichły.",
+                "**Pluginy uruchamiają się niezawodnie w najnowszych wersjach Discorda.** Przez chwilę podczas startu Discorda Evi mogło szukać kodu Discorda w złym miejscu.",
+            ],
+        },
         "2.4.1": {
             fixed: [
                 "**Tryb gry wrócił do karty Wydajność.** Discord zmienił swój tryb gry i przełącznik Evi zniknął.",
@@ -1706,6 +1776,20 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     "pt-BR": {
+        "2.5.0": {
+            added: [
+                "**Colecionáveis do Evi.** Placas de nome, decorações de avatar e efeitos de perfil pintados que todos que usam o Evi veem em você, começando com Sakura River e Snowed-In Cabin. Encontre-os na nova aba Evi da Loja do Discord e use-os pelos seletores do próprio Discord ao editar seu perfil.",
+                "**Sparks.** A moeda própria do Evi para colecionáveis. Resgate códigos da equipe do Evi, e apoiadores recebem Sparks todo mês.",
+                "**Dois plugins novos.** Pop Out Chat abre qualquer chat em uma janela própria, e Look Inside mostra o que há em um zip antes de baixar e avisa sobre programas e arquivos disfarçados.",
+            ],
+            improved: [
+                "**Seus colecionáveis ficam privados para o Discord.** O Evi os mantém fora das análises do Discord e do que o app do Discord envia, para que não contem ao Discord que você usa o Evi.",
+            ],
+            fixed: [
+                "**Os avisos do Evi e dos plugins voltaram a aparecer.** O Discord mudou como os mostra e eles tinham sumido.",
+                "**Os plugins iniciam de forma confiável nas versões mais novas do Discord.** Por um momento enquanto o Discord iniciava, o Evi podia procurar o código do Discord no lugar errado.",
+            ],
+        },
         "2.4.1": {
             fixed: [
                 "**O Modo Jogo voltou à aba Desempenho.** O Discord mudou o Modo Jogo dele, e o botão do Evi tinha sumido.",
@@ -2045,6 +2129,20 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ru: {
+        "2.5.0": {
+            added: [
+                "**Коллекционные предметы Evi.** Рисованные таблички с именем, украшения аватара и эффекты профиля, которые видят на тебе все пользователи Evi; для начала Sakura River и Snowed-In Cabin. Ищи их на новой вкладке Evi в магазине Discord и надевай через окна выбора Discord, когда редактируешь профиль.",
+                "**Sparks.** Собственная валюта Evi для коллекционных предметов. Активируй коды от команды Evi, а поддерживающие получают Sparks каждый месяц.",
+                "**Два новых плагина.** Pop Out Chat открывает любой чат в отдельном окне, а Look Inside показывает, что внутри zip, до скачивания и предупреждает о программах и замаскированных файлах.",
+            ],
+            improved: [
+                "**Твои предметы остаются скрытыми от Discord.** Evi убирает их из аналитики Discord и из того, что отправляет приложение Discord, чтобы они не выдавали Discord, что ты пользуешься Evi.",
+            ],
+            fixed: [
+                "**Уведомления Evi и плагинов снова показываются.** Discord изменил способ их показа, и они пропали.",
+                "**Плагины надёжно запускаются в новейших версиях Discord.** На мгновение при запуске Discord Evi могло искать код Discord не в том месте.",
+            ],
+        },
         "2.4.1": {
             fixed: [
                 "**Игровой режим снова на вкладке «Производительность».** Discord изменил свой игровой режим, и переключатель Evi пропал.",
@@ -2384,6 +2482,20 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     tr: {
+        "2.5.0": {
+            added: [
+                "**Evi koleksiyonları.** Evi kullanan herkesin sende gördüğü elle çizilmiş isim plakaları, avatar süslemeleri ve profil efektleri; ilk olarak Sakura River ve Snowed-In Cabin. Onları Discord Mağazası'ndaki yeni Evi sekmesinde bulabilir, profilini düzenlerken Discord'un kendi seçicilerinden takabilirsin.",
+                "**Sparks.** Koleksiyonlar için Evi'nin kendi para birimi. Evi ekibinin kodlarını kullan; destekçiler her ay Sparks alır.",
+                "**İki yeni eklenti.** Pop Out Chat herhangi bir sohbeti kendi penceresinde açar, Look Inside ise bir zip'i indirmeden önce içinde ne olduğunu gösterir ve programlar ile kılık değiştirmiş dosyalar için uyarır.",
+            ],
+            improved: [
+                "**Koleksiyonların Discord'a karşı gizli kalır.** Evi onları Discord'un analizlerinden ve Discord uygulamasının gönderdiklerinden uzak tutar, böylece Discord'a Evi kullandığını söylemezler.",
+            ],
+            fixed: [
+                "**Evi'nin ve eklentilerin bildirimleri yeniden görünüyor.** Discord bunları gösterme biçimini değiştirmişti ve sessiz kalmışlardı.",
+                "**Eklentiler Discord'un en yeni sürümlerinde güvenilir şekilde başlıyor.** Discord açılırken kısa bir an, Evi Discord'un kodunu yanlış yerde arayabiliyordu.",
+            ],
+        },
         "2.4.1": {
             fixed: [
                 "**Oyun Modu, Performans sekmesine geri döndü.** Discord kendi Oyun Modu'nu değiştirdi ve Evi'nin anahtarı kaybolmuştu.",

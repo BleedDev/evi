@@ -4,6 +4,7 @@ import { isDiscordAppUrl } from "@shared/appHosts";
 import type { AuthorLink, AuthorStatsResult } from "@shared/authorStats";
 import type { ImportMode } from "@shared/backup";
 import type { BadgeAdminAction, BadgeAdminResult, BadgePrefs, BadgePrefsResult, BadgesResult, CreditsDocument } from "@shared/badges";
+import type { CollectibleKind } from "@shared/collectibles";
 import type { Breadcrumb, CrashRecord } from "@shared/crashDetective";
 import type { CrashReportInput } from "@shared/crashReports";
 import type { AdminMethod } from "@shared/devAdmin";
@@ -11,7 +12,7 @@ import type { DevLive } from "@shared/devLive";
 import type { HealthReportInput } from "@shared/health";
 import type { Hotfix } from "@shared/hotfixes";
 import type { IdleReport, MemoryUsage } from "@shared/idle";
-import { AddThemeResult, AuthorsResult, BackupApplyResult, BackupExportResult, BackupOpenResult, BootData, CommunityResult, CrashReportResult, EviSettings, HealthReportResult, HealthResult, IPC, OpenPathTarget, PluginChange, PluginReportResult, PreviewMediaResult, SettingsSaveResult, ThemeChange, ThemeSaveInput, ThemeSaveResult, ThemeSubmitResult, WallpaperPickResult, WallpaperReadResult } from "@shared/ipc";
+import { AddThemeResult, AuthorsResult, BackupApplyResult, BackupExportResult, BackupOpenResult, BootData, CollectibleFileResult, CollectiblesChanges, CollectiblesEquipResult, CollectiblesResult, CommunityResult, CrashReportResult, EviSettings, HealthReportResult, HealthResult, IPC, OpenPathTarget, PluginChange, PluginReportResult, PreviewMediaResult, SettingsSaveResult, ThemeChange, ThemeSaveInput, ThemeSaveResult, ThemeSubmitResult, WallpaperPickResult, WallpaperReadResult, RedeemResult, WalletResult } from "@shared/ipc";
 import type { EviNotification } from "@shared/notifications";
 import type { StorePreviewResult } from "@shared/pluginPermissions";
 import type { PluginReportInput } from "@shared/pluginReports";
@@ -74,6 +75,21 @@ const EviNative = {
     onBadgesChange(cb: (badges: BadgesResult) => void) {
         ipcRenderer.on(IPC.BADGES_CHANGED, (_, badges) => cb(badges));
     },
+    getCollectibles: (cachedOnly = false): Promise<CollectiblesResult> => ipcRenderer.invoke(IPC.COLLECTIBLES_GET, cachedOnly),
+    onCollectiblesChange(cb: (result: CollectiblesResult) => void) {
+        ipcRenderer.on(IPC.COLLECTIBLES_CHANGED, (_, result) => cb(result));
+    },
+    /** One of the collectibles' files (an evi.rest URL from the document), from main's disk cache */
+    collectibleFile: (url: string): Promise<CollectibleFileResult> => ipcRenderer.invoke(IPC.COLLECTIBLES_FILE, url),
+    equipCollectibles: (userId: string, changes: CollectiblesChanges): Promise<CollectiblesEquipResult> => ipcRenderer.invoke(IPC.COLLECTIBLES_EQUIP, userId, changes),
+    /** Your Sparks and what you own; `fresh` asks evi.rest even when main has it */
+    collectiblesWallet: (userId: string, fresh = false): Promise<WalletResult> => ipcRenderer.invoke(IPC.COLLECTIBLES_WALLET, userId, fresh),
+    onCollectiblesWallet(cb: (result: WalletResult) => void) {
+        ipcRenderer.on(IPC.COLLECTIBLES_WALLET_CHANGED, (_, result) => cb(result));
+    },
+    /** One part of a bundle, or the rest of the bundle without `kind` */
+    buyCollectible: (userId: string, bundle: string, kind?: CollectibleKind): Promise<WalletResult> => ipcRenderer.invoke(IPC.COLLECTIBLES_BUY, userId, bundle, kind),
+    redeemCollectibleCode: (userId: string, code: string): Promise<RedeemResult> => ipcRenderer.invoke(IPC.COLLECTIBLES_REDEEM, userId, code),
     accountStatus: (): Promise<AccountStatus> => ipcRenderer.invoke(IPC.ACCOUNT_STATUS),
     linkAccount: (): Promise<AccountLinkResult> => ipcRenderer.invoke(IPC.ACCOUNT_LINK),
     openDashboard: (): Promise<void> => ipcRenderer.invoke(IPC.ACCOUNT_DASHBOARD),

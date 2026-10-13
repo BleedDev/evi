@@ -37,18 +37,18 @@ function apply(patch: AnyPatch, code: string, self = "S") {
 const parses = (code: string) => new Function(`return (${code});`);
 
 describe("patches on Discord's code", () => {
-    test("code block: our tools go first in its container, given the parsed node", () => {
+    test("code block: its container gets our props, our tools go first, and Discord's Copy steps aside", () => {
         const rule = `{${SOURCES.codeBlock}}`;
         expect(matchesFind(`location:"MarkupReactRules"${rule}`, PATCHES.codeBlock.find)).toBe(true);
         const out = apply({ ...PATCHES.codeBlock, find: "codeBlock:" }, rule);
-        expect(out).toContain("className:ea.Hy,children:[S?.renderCodeTools?.(e),y.p5?");
+        expect(out).toContain('(0,i.jsxs)("div",{...S?.containerProps?.(e),className:ea.Hy,children:[S?.renderCodeTools?.(e),!S?.ownsCopy?.()&&y.p5?');
         expect(() => parses(out)).not.toThrow();
     });
 
-    test("plaintext preview: shows useText's text and gets our footer buttons before the language picker", () => {
+    test("plaintext preview: shows useText's text and gets our footer buttons after the language picker", () => {
         const out = apply({ ...PATCHES.preview, replace: PATCHES.preview.replace[0] }, SOURCES.preview);
         expect(out).toContain("p=(a=S?.useText?.(t,a)??a)?.split(");
-        expect(out).toContain('S?.renderPreviewTools?.({url:t,fileName:n,text:a,bytesLeft:h})??null,(0,r.jsx)(eT,{language:d,setLanguage:c,align:"top"})');
+        expect(out).toContain('(0,r.jsx)(eT,{language:d,setLanguage:c,align:"top"}),S?.renderPreviewTools?.({url:t,fileName:n,text:a,bytesLeft:h})??null,null!=a?');
         expect(() => parses(out)).not.toThrow();
     });
 
@@ -78,6 +78,9 @@ describe("patches on Discord's code", () => {
         expect(!S?.numbersFirst?.()).toBe(true);
         expect({ ...S?.preProps?.("t", "c"), children: 1 }).toEqual({ children: 1 });
         expect(S?.renderCodeTools?.({})).toBeUndefined();
+        expect({ ...S?.containerProps?.({}), className: "c" }).toEqual({ className: "c" });
+        // Discord's own Copy shows: !undefined && y.p5 is y.p5
+        expect(!S?.ownsCopy?.() && "copy").toBe("copy");
     });
 });
 
@@ -183,5 +186,7 @@ describe("line numbers", () => {
         expect(gutterCss("a\nb\n...")).toBe('"1\\A 2\\A  "');
         // A real line that happens to start with dots keeps its number
         expect(gutterCss("a\n...rest of a sentence")).toBe('"1\\A 2"');
+        // Code blocks have no notice: a last line of dots is a line like any other
+        expect(gutterCss("a\nb\n...", false)).toBe('"1\\A 2\\A 3"');
     });
 });

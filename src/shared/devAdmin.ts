@@ -5,7 +5,7 @@
  * Anything malformed in an answer is dropped or becomes empty.
  */
 
-export type AdminMethod = "GET" | "POST" | "PUT" | "DELETE";
+export type AdminMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 const ID = "\\d{1,15}";
 const PLUGIN = "[a-z0-9][a-z0-9-]{0,63}";
@@ -13,6 +13,9 @@ const STATUS = "(?:\\?status=[a-z]{1,16})?";
 const USER = "\\d{17,20}";
 /** Badge ids are like plugin ids (badges.ts checks them the same way) */
 const BADGE = PLUGIN;
+/** Collectible bundles and codes (shared/collectibles.ts) */
+const BUNDLE = "[a-z0-9][a-z0-9-]{0,39}";
+const CODE = "[A-Z0-9-]{4,40}";
 
 /** Paths relative to /v1, query included */
 const ROUTES: [AdminMethod, RegExp][] = [
@@ -39,6 +42,19 @@ const ROUTES: [AdminMethod, RegExp][] = [
     ["POST", new RegExp(`^/admin/plugins/${PLUGIN}/pull$`)],
     ["DELETE", new RegExp(`^/admin/plugins/${PLUGIN}/pull(?:\\?version=[\\w.+-]{1,32})?$`)],
     ["DELETE", new RegExp(`^/admin/hotfixes/${ID}$`)],
+    // Collectibles: prices, codes, wallets, the supporters' monthly Sparks (shared/collectiblesAdmin.ts)
+    ["GET", /^\/admin\/collectibles\/(?:prices|codes|allowance)$/],
+    ["GET", new RegExp(`^/admin/collectibles/prices/${BUNDLE}$`)],
+    ["PUT", new RegExp(`^/admin/collectibles/prices/${BUNDLE}$`)],
+    ["POST", /^\/admin\/collectibles\/codes$/],
+    ["GET", new RegExp(`^/admin/collectibles/codes/${CODE}$`)],
+    ["PATCH", new RegExp(`^/admin/collectibles/codes/${CODE}$`)],
+    ["DELETE", new RegExp(`^/admin/collectibles/codes/${CODE}$`)],
+    ["PUT", /^\/admin\/collectibles\/allowance$/],
+    ["GET", new RegExp(`^/admin/users/${USER}/wallet$`)],
+    ["POST", new RegExp(`^/admin/users/${USER}/sparks$`)],
+    ["PUT", new RegExp(`^/admin/users/${USER}/collectibles$`)],
+    ["DELETE", new RegExp(`^/admin/users/${USER}/collectibles$`)],
     ["GET", /^\/admin\/required-version$/],
     ["PUT", /^\/admin\/required-version$/],
     ["DELETE", /^\/admin\/required-version$/],

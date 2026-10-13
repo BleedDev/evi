@@ -69,12 +69,13 @@ export function gutterText(count: number): string {
 }
 
 /**
- * The numbers beside a text file preview, as a CSS string for `content:` ("1\A 2\A 3"). Discord
- * ends a cut-off preview with a line like "... 120 more lines": that line gets no number.
+ * The numbers beside a code block or text file, as a CSS string for `content:` ("1\A 2\A 3"). In a
+ * file preview (`previewNotice`), Discord ends a cut-off text with a line like "... 120 more lines":
+ * that line gets no number.
  */
-export function gutterCss(text: string): string {
+export function gutterCss(text: string, previewNotice = true): string {
     const lines = text.split("\n");
-    const notice = lines.length > 1 && /^\.\.\.(?:\s|$)/.test(lines[lines.length - 1]);
+    const notice = previewNotice && lines.length > 1 && /^\.\.\.(?:\s|$)/.test(lines[lines.length - 1]);
     const numbered = lineCount(text) - (notice ? 1 : 0);
     const numbers = Array.from({ length: Math.max(1, numbered) }, (_, i) => String(i + 1));
     if (notice) numbers.push(" ");

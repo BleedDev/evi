@@ -25,13 +25,15 @@ import { execFile, execFileSync, spawn } from "child_process";
 import { createHash } from "crypto";
 import { app, ipcMain, net, WebContents } from "electron";
 import { accessSync, constants, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "fs";
-import { join, resolve } from "path";
+import { join } from "path";
 
 import { applyCorePayload, parseCorePayload } from "./coreUpdate";
 import { mt } from "./locale";
-import { DATA_DIR } from "./paths";
+import { DATA_DIR, isDevBuild } from "./paths";
 import { settings } from "./settings";
 import { broadcast } from "./util";
+
+export { isDevBuild };
 
 /** evi.rest's mirror of GitHub's release API, then GitHub itself. EVI_UPDATE_API alone when set: tests serve fake releases from a local server */
 const APIS = releaseApis(process.env.EVI_UPDATE_API);
@@ -58,11 +60,6 @@ let staging: { version: string; promise: Promise<StagedUpdate>; } | undefined;
 const silentOn = () => settings.silentUpdates === true;
 
 const DEV_BUILD_ERROR = "This Evi runs from a dev build. Update it with git pull and bun run build.";
-
-/** Running from a repo's build output rather than the core `evi install` put in the data folder */
-export function isDevBuild() {
-    return resolve(globalThis.__eviCoreDir ?? "") !== resolve(DATA_DIR, "core");
-}
 
 /** Why this Discord can't update itself, if it can't. Linux packages install Discord as root */
 function blockedReason(): string | undefined {

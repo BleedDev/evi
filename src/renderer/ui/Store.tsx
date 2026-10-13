@@ -1286,7 +1286,7 @@ function CopyShareLink({ id }: { id: string; }) {
 }
 
 /** "Supporters", in the gold of the supporter trophies */
-function SupportersPill() {
+export function SupportersPill() {
     return <span className="dl-supporters-pill"><Icon name="heart" size={12} />{t("community.supportersOnly")}</span>;
 }
 

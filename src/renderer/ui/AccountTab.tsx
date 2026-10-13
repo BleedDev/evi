@@ -24,7 +24,10 @@ type State =
     | { kind: "waiting"; code: string; since: number; }
     | { kind: "linked"; user: AccountUser; };
 
-export function AccountTab() {
+export type AccountLinkState = State;
+
+/** Whether this install is linked, and starting a link: the Account tab's, also where something needs a link */
+export function useAccountLink() {
     const [state, setState] = React.useState<State>({ kind: "loading" });
 
     const check = React.useCallback(async () => {
@@ -62,64 +65,77 @@ export function AccountTab() {
         setState(res.ok ? { kind: "waiting", code: res.code, since: Date.now() } : { kind: "idle", note: res.error });
     };
 
+    return { state, setState, check, start };
+}
+
+/** The account card: who this install is linked to, or the steps to link it */
+export function AccountCard({ link }: { link: ReturnType<typeof useAccountLink>; }) {
+    const { state, setState, check, start } = link;
+    return (
+        <div className="dl-account-card" aria-live="polite">
+            {state.kind === "loading" && <Text variant="text-sm/normal" color="text-muted">{t("account.checking")}</Text>}
+
+            {state.kind === "offline" && (
+                <>
+                    <div className="dl-account-text">
+                        <Text variant="text-md/semibold" color="text-strong">{t("account.offline")}</Text>
+                        <Status tone="danger">{state.error}</Status>
+                    </div>
+                    <Button onClick={() => { setState({ kind: "loading" }); check(); }}>{t("common.tryAgain")}</Button>
+                </>
+            )}
+
+            {(state.kind === "idle" || state.kind === "starting") && (
+                <>
+                    <div className="dl-account-text">
+                        <Text variant="text-md/semibold" color="text-strong">{t("account.notLinked")}</Text>
+                        <Text variant="text-sm/normal" color="text-subtle">{t("account.notLinkedHint")}</Text>
+                        {state.kind === "idle" && state.note && <Status tone="danger">{state.note}</Status>}
+                    </div>
+                    <Button variant="accent" icon="link" onClick={start} disabled={state.kind === "starting"}>
+                        {state.kind === "starting" ? t("account.opening") : t("account.link")}
+                    </Button>
+                </>
+            )}
+
+            {state.kind === "waiting" && (
+                <div className="dl-account-waiting">
+                    <Text variant="text-sm/normal" color="text-subtle">{t("account.confirmCode")}</Text>
+                    <span className="dl-account-code">{state.code}</span>
+                    <Status tone="muted">{t("account.waiting")}</Status>
+                    <div className="dl-account-actions">
+                        <Button onClick={start}>{t("account.newCode")}</Button>
+                        <Button onClick={() => setState({ kind: "idle" })}>{t("common.cancel")}</Button>
+                    </div>
+                </div>
+            )}
+
+            {state.kind === "linked" && (
+                <>
+                    <img className="dl-account-avatar" src={discordAvatarUrl(state.user.id, state.user.avatar, 80, "auto")} alt="" width={40} height={40} />
+                    <div className="dl-account-text">
+                        <Text variant="text-md/semibold" color="text-strong">{state.user.globalName || state.user.username}</Text>
+                        <Status tone="success" quiet>{t("account.linkedAs", { username: state.user.username })}</Status>
+                    </div>
+                    <Button onClick={() => Native.openDashboard()}>{t("account.openDashboard")}</Button>
+                </>
+            )}
+        </div>
+    );
+}
+
+export function AccountTab() {
+    const link = useAccountLink();
     return (
         <div className="dl-tab">
         <Section
             title={t("account.title")}
             description={t("account.description")}
         >
-            <div className="dl-account-card" aria-live="polite">
-                {state.kind === "loading" && <Text variant="text-sm/normal" color="text-muted">{t("account.checking")}</Text>}
-
-                {state.kind === "offline" && (
-                    <>
-                        <div className="dl-account-text">
-                            <Text variant="text-md/semibold" color="text-strong">{t("account.offline")}</Text>
-                            <Status tone="danger">{state.error}</Status>
-                        </div>
-                        <Button onClick={() => { setState({ kind: "loading" }); check(); }}>{t("common.tryAgain")}</Button>
-                    </>
-                )}
-
-                {(state.kind === "idle" || state.kind === "starting") && (
-                    <>
-                        <div className="dl-account-text">
-                            <Text variant="text-md/semibold" color="text-strong">{t("account.notLinked")}</Text>
-                            <Text variant="text-sm/normal" color="text-subtle">{t("account.notLinkedHint")}</Text>
-                            {state.kind === "idle" && state.note && <Status tone="danger">{state.note}</Status>}
-                        </div>
-                        <Button variant="accent" icon="link" onClick={start} disabled={state.kind === "starting"}>
-                            {state.kind === "starting" ? t("account.opening") : t("account.link")}
-                        </Button>
-                    </>
-                )}
-
-                {state.kind === "waiting" && (
-                    <div className="dl-account-waiting">
-                        <Text variant="text-sm/normal" color="text-subtle">{t("account.confirmCode")}</Text>
-                        <span className="dl-account-code">{state.code}</span>
-                        <Status tone="muted">{t("account.waiting")}</Status>
-                        <div className="dl-account-actions">
-                            <Button onClick={start}>{t("account.newCode")}</Button>
-                            <Button onClick={() => setState({ kind: "idle" })}>{t("common.cancel")}</Button>
-                        </div>
-                    </div>
-                )}
-
-                {state.kind === "linked" && (
-                    <>
-                        <img className="dl-account-avatar" src={discordAvatarUrl(state.user.id, state.user.avatar, 80, "auto")} alt="" width={40} height={40} />
-                        <div className="dl-account-text">
-                            <Text variant="text-md/semibold" color="text-strong">{state.user.globalName || state.user.username}</Text>
-                            <Status tone="success" quiet>{t("account.linkedAs", { username: state.user.username })}</Status>
-                        </div>
-                        <Button onClick={() => Native.openDashboard()}>{t("account.openDashboard")}</Button>
-                    </>
-                )}
-            </div>
+            <AccountCard link={link} />
         </Section>
         {/* Perks follow the account: evi.rest only takes them from a linked Evi */}
-        {state.kind === "linked" && <SupporterPerks />}
+        {link.state.kind === "linked" && <SupporterPerks />}
         </div>
     );
 }

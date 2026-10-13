@@ -9,9 +9,12 @@
  * fake chunk whose runtime callback hands us __webpack_require__, then wrap each factory so source
  * patches are applied lazily, right before a module first executes.
  *
- * Several runtimes share the chunk global (libdiscore, fast-connect, sentry and the main app), each
- * chaining its push onto the previous one, and every one of them receives every chunk. We capture all
- * of them and treat the one that executes the most modules as Discord's main runtime.
+ * Several runtimes share the chunk global (libdiscore-wasm-fetch, fast-connect, sentry and the main
+ * app, in that order), each chaining its push onto the previous one, and every one of them receives
+ * every chunk. We capture all of them; Discord's main runtime is the one that executes the most modules
+ * among those with a module cache (`c`, which every finder reads). fast-connect and sentry are built
+ * without one, and their entries run before the app's, so by count alone one of them would be "main"
+ * until the app's first modules run, and for good if they never do (a chunk script that failed to load).
  */
 import { Logger } from "../logger";
 import { applySourcePatches } from "../patching/source";
@@ -49,14 +52,32 @@ export let wreq: WebpackRequire | undefined;
 /** Every runtime sharing the chunk global */
 export const allRuntimes = new Set<WebpackRequire>();
 const executions = new Map<WebpackRequire, number>();
+/** Script each runtime came from, for the log */
+const origins = new Map<WebpackRequire, string>();
+
+/** Finders read the module cache, a runtime built without one can't be searched */
+const hasCache = (require: WebpackRequire) => typeof require.c === "object" && require.c !== null;
+
+const executedBy = (require: WebpackRequire) => executions.get(require) ?? 0;
+
+/** A runtime with a module cache beats one without, then the one that executed more modules wins */
+function isBetterMain(candidate: WebpackRequire) {
+    if (!wreq) return true;
+    const cached = hasCache(candidate);
+    if (cached !== hasCache(wreq)) return cached;
+    return executedBy(candidate) > executedBy(wreq);
+}
+
+function selectMain(require: WebpackRequire) {
+    if (require === wreq || !isBetterMain(require)) return;
+    const previous = wreq;
+    wreq = require;
+    if (previous) logger.info(`Main runtime changed to #${[...allRuntimes].indexOf(require) + 1}${origins.get(require) ?? ""}`);
+}
 
 function countExecution(require: WebpackRequire) {
-    const n = (executions.get(require) ?? 0) + 1;
-    executions.set(require, n);
-    if (require !== wreq && n > (executions.get(wreq!) ?? 0)) {
-        wreq = require;
-        if (n > 1) logger.info("Main runtime changed");
-    }
+    executions.set(require, executedBy(require) + 1);
+    selectMain(require);
 }
 
 /** Time Evi adds to module loading, see Evi.stats */
@@ -139,8 +160,11 @@ function captureRequire(require: WebpackRequire) {
     // Assigned in place: the runtime calls factories through this same object.
     for (const id in require.m) require.m[id] = wrapFactory(id, require.m[id]);
 
-    wreq ??= require;
-    logger.info(`Captured runtime #${allRuntimes.size}`);
+    // The runtime's own script is still running: its file name tells the runtimes apart in the log
+    const src = (document.currentScript as HTMLScriptElement | null)?.src;
+    if (typeof src === "string" && src) origins.set(require, ` (${src.slice(src.lastIndexOf("/") + 1)})`);
+    logger.info(`Captured runtime #${allRuntimes.size}${origins.get(require) ?? ""}`);
+    selectMain(require);
 }
 
 function hookChunkArray(chunks: unknown[]) {

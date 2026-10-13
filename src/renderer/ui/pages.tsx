@@ -11,7 +11,9 @@ import { Store } from "../store";
 import { AccountTab } from "./AccountTab";
 import { PublishButton } from "./author/Author";
 import { BackupTab } from "./BackupTab";
+import { CollectiblesTab } from "./CollectiblesTab";
 import { AnnouncementsTab } from "./developers/Announcements";
+import { CollectiblesAdminTab } from "./developers/Collectibles";
 import { Live } from "./developers/data";
 import { OverviewTab } from "./developers/Overview";
 import { PeopleTab } from "./developers/People";
@@ -84,6 +86,15 @@ export const pages: readonly Page[] = [
         ],
     },
     {
+        // Nameplates, avatar decorations and profile effects from evi.rest
+        id: "collectibles",
+        label: () => t("collectibles.page"),
+        icon: "collectibles",
+        tabs: [
+            { id: "bundles", label: () => t("collectibles.page"), icon: "collectibles", Component: CollectiblesTab },
+        ],
+    },
+    {
         id: "general",
         label: () => t("tabs.general"),
         icon: "settings",
@@ -117,6 +128,7 @@ export const pages: readonly Page[] = [
             { id: "review", label: () => t("dev.reviewTab"), icon: "circleCheck", Component: ReviewTab, count: Live.waiting },
             { id: "announcements", label: () => t("dev.announcementsTab"), icon: "bell", Component: AnnouncementsTab },
             { id: "people", label: () => t("dev.people"), icon: "people", Component: PeopleTab },
+            { id: "collectibles", label: () => t("dev.collectiblesTab"), icon: "collectibles", Component: CollectiblesAdminTab },
         ],
     },
 ];
@@ -135,6 +147,15 @@ export function PageView({ page }: { page: Page; }) {
     useStore(Live.subscribe, Live.get);
     const current = page.tabs.find(tab => tab.id === selected) ?? page.tabs[0];
     const barId = `dl-subtab-${page.id}`;
+
+    // A page of one tab is just that tab: no bar of one
+    if (page.tabs.length === 1) {
+        return (
+            <div className="dl-page-view">
+                <ErrorBoundary resetKey={current.id}><current.Component /></ErrorBoundary>
+            </div>
+        );
+    }
 
     return (
         <div className="dl-page-view">

@@ -298,7 +298,7 @@
         "name": "showToast",
         "kind": "function",
         "signature": "showToast(message: ReactNode, options: ToastOptions = {}): boolean",
-        "doc": "Shows a toast. Returns false if Discord's toast module isn't available.",
+        "doc": "Shows a toast, through Discord's toasts when Evi finds them and drawn by Evi otherwise. Returns false only if neither could show it.",
         "example": "showToast(\"Copied\", { type: \"success\" });"
     },
     {

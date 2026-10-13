@@ -1,5 +1,8 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "fs";
+import { join } from "path";
 
+import { filters } from "../src/renderer/webpack/find";
 import { attachmentsToSave, MAX_SAVED_BYTES, MediaCache, mediaKind, MessageLog, removedAttachments, shouldLog } from "../plugins/message-logger/log";
 
 const v = (content: string, timestamp = 1) => ({ content, timestamp });
@@ -184,5 +187,36 @@ describe("message logger media", () => {
         expect(log.addEditMedia("c", "1", 7, [saved("p")])).toBe(true);
         expect(log.addEditMedia("c", "1", 8, [saved("q")])).toBe(false);
         expect(log.mediaOf("c", "1").map(m => m.key)).toEqual(["p"]);
+    });
+});
+
+// Verbatim from Discord's web build (2026-10-13), both in the chat's lazy chunks: the accessories renderer
+// (embeds, attachments...) the plugin hooks, a chat row calling it through its module's export, and the
+// hook that renders a message's content, which old versions go through
+const DISCORD = {
+    accessories: "function r(e){let{channelMessageProps:{message:t,channel:n,compact:a=!1},hasSpoilerEmbeds:o,hasBailedAst:d,handleContextMenu:c,isInteracting:u,isAutomodBlockedMessage:m,isMessageSnapshot:h,renderThreadAccessory:g,renderSuppressEmbeds:p,renderReactions:A,hideInviteEmbedBanner:x,hideActivityInvite:f,disableComponentInteractivity:I,className:E}=e;return m?null:(0,i.jsx)(l.A,{message:t,children:(0,i.jsx)(s.Ay,{renderAccessories:r,className:E,isInteracting:u,message:t,channel:n,compact:a,hasSpoilerEmbeds:o,hasBailedAst:d,isMessageSnapshot:h,onMediaItemContextMenu:c,renderThreadAccessory:g,disableComponentInteractivity:I,renderSuppressEmbeds:p,renderReactions:A,hideInviteEmbedBanner:x,hideActivityInvite:f})})}",
+    row: "repliedMessage:b,roleIcon:ea}),childrenAccessories:(0,tv.A)({channelMessageProps:e,hasSpoilerEmbeds:Q,hasBailedAst:ee,handleContextMenu:R,isInteracting:W,isAutomodBlockedMessage:ex,hideInviteEmbedBanner:C,hideA",
+    renderedContent: "function b(e,n){let{hideSimpleEmbedContent:b=!0,formatInline:C=!1,noStyleAndInteraction:E=!1,allowHeading:g=!1,allowList:f=!1,allowLinks:k=!1,allowDevLinks:I=!1,previewLinkTarget:S=!1,viewingChannelId:_,postProcessor:y}=n,M=(0,a.I)({location:\"useMessageRenderedContent\"}),[j,v]=d.useState(!1),G=d.useCallback(e=>{e&&v(!0)},[]);return d.useEffect(()=>{v(!1)},[e.content]),d.useMemo(()=>{if(null!=e.customRenderedContent)return e.customRenderedContent;if(e.isUnsupported)return{content:m.intl.string(m.t.sWi5EU),hasSpoilerEmbeds:!1,hasBailedAst:!1};if(e.isCommandType()&&0===e.content.length||e.hasFlag(p.pr7.LOADING))return{content:(0,s.jsx)(c.Ay,{message:e}),hasSpoilerEmbeds:!1,hasBailedAst:!1};if(e.type===p.lAJ.CHANGELOG){let{renderChangelogMessageMarkup:n}=t(550997);return n(e,A,{track:(e,n)=>{o.default.track(e,n)}})}return M.enabled&&null==y?{content:(0,s.jsx)(d.Suspense,{children:(0,s.jsx)(h.O.Provider,{value:{messageId:e.id,channelId:e.channel_id,viewingChannelId:_,guildId:(0,r.U)(e),authorId:e.author?.id,setHasSpoilerEmbeds:G},children:(0,s.jsx)(i.A,{content:e.content,allowJumboEmoji:e.type!==p.lAJ.MEDIA_MENTION_MESSAGE,hideSingleLinkContent:b&&(0,l.k5)(e.embeds)})})}),hasSpoilerEmbeds:j,hasBailedAst:!1}:(0,u.Ay)(e,{hideSimpleEmbedContent:b,formatInline:C,noStyleAndInteraction:E,allowHeading:g,allowList:f,allowLinks:k,allowDevLinks:I,previewLinkTarget:S,viewingChannelId:_,allowGameMentions:!0,postProcessor:y})},[e.content,e.customRenderedContent,e.embeds,e.interaction,e.state,e.type,b,C,E,g,f,k,S,I,_,y,M.enabled,j])}",
+};
+
+/** The code a filter in the plugin looks for, read from its source so the test follows the plugin */
+const pluginSource = readFileSync(join(import.meta.dir, "../plugins/message-logger/index.tsx"), "utf8");
+function pluginFilter(name: string) {
+    const args = pluginSource.match(new RegExp(String.raw`const ${name} = filters\.byCode\((.+)\);`))?.[1];
+    if (!args) throw new Error(`${name} isn't a filters.byCode(...) in the plugin`);
+    return filters.byCode(...(new Function(`return [${args}]`)() as string[]));
+}
+const fn = (source: string) => new Function(`return ${source}`)() as Function;
+
+describe("message logger finds on Discord's code", () => {
+    test("finds the accessories renderer, which every chat row calls through its export", () => {
+        expect(pluginFilter("accessoriesFilter")(fn(DISCORD.accessories))).toBe(true);
+        expect(pluginFilter("accessoriesFilter")(fn(DISCORD.renderedContent))).toBe(false);
+        expect(DISCORD.row).toContain("childrenAccessories:(0,tv.A)({channelMessageProps:e,");
+    });
+
+    test("finds Discord's message content renderer", () => {
+        expect(pluginFilter("renderedContentFilter")(fn(DISCORD.renderedContent))).toBe(true);
+        expect(pluginFilter("renderedContentFilter")(fn(DISCORD.accessories))).toBe(false);
     });
 });

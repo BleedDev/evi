@@ -6,6 +6,7 @@ import { isPluginEnabled } from "@shared/ipc";
 import { pullFor } from "@shared/pulls";
 
 import { Backup } from "./backup";
+import { CollectiblesApi, installCollectibles, startCollectibles } from "./collectibles";
 import { CrashDetective } from "./crashDetective";
 import { Developer } from "./developer";
 import { GameMode, installGameMode, startGameMode } from "./gameMode";
@@ -35,6 +36,7 @@ import { installLayerStyles } from "./toolkit/layer";
 import { renderPanelSlot } from "./toolkit/panel";
 import { installHotkey, SettingsUI } from "./ui";
 import { whenAppReady } from "./ui/appReady";
+import { CollectiblesShopApi } from "./ui/CollectiblesShop";
 import { startAccountSync } from "./accountSync";
 import { startBadges } from "./ui/badges";
 import { startPluginShare } from "./ui/pluginShare";
@@ -90,6 +92,10 @@ const Evi = {
     typingDots: TypingDots,
     /** What Discord's patched GameModeStore asks (gameMode.ts) */
     gameMode: GameMode,
+    /** What Discord's patched collectible code asks (collectibles/) */
+    collectibles: CollectiblesApi,
+    /** What Discord's patched Shop asks for the Evi tab (ui/CollectiblesShop.tsx) */
+    collectiblesShop: CollectiblesShopApi,
 };
 
 function boot() {
@@ -142,6 +148,7 @@ function boot() {
     if (!SafeMode.active) {
         installTypingDots();
         installGameMode();
+        installCollectibles();
     }
     PluginManager.boot(data.plugins, data.pulled, data.hotfixes);
     installHotkey();
@@ -153,6 +160,7 @@ function boot() {
         // Part of Evi itself, not a plugin: on for everyone. Safe mode keeps even this off.
         if (!SafeMode.active) {
             startBadges();
+            startCollectibles();
             startAccountSync();
             startPluginShare();
             startGameMode();

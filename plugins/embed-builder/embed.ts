@@ -519,7 +519,7 @@ export function convertToV2(d: Draft): Block[] {
         const head: string[] = [];
         if (e.title.trim()) head.push(`### ${e.url.trim() ? `[${e.title.trim()}](${e.url.trim()})` : e.title.trim()}`);
         if (e.description.trim()) head.push(e.description);
-        if (e.thumbnail.trim()) children.push({ kind: "section", texts: head.length ? head : ["​"], accessory: { kind: "thumbnail", url: e.thumbnail.trim(), description: "", spoiler: false } });
+        if (e.thumbnail.trim()) children.push({ kind: "section", texts: head.length ? head : [String.fromCharCode(0x200b)], accessory: { kind: "thumbnail", url: e.thumbnail.trim(), description: "", spoiler: false } });
         else if (head.length) children.push({ kind: "text", content: head.join("\n") });
         const fields = e.fields.filter(f => f.name.trim() && f.value.trim());
         if (fields.length) children.push({ kind: "text", content: fields.map(f => `**${f.name}**\n${f.value}`).join("\n\n") });

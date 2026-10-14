@@ -2,7 +2,7 @@
     "id": "embed-builder",
     "name": "Embed Builder",
     "description": "Compose rich embeds with a title, colour, fields and images, see them exactly as they'll look, and send them through a channel's webhook, or edit one sent before. For server admins.",
-    "version": "1.0.2",
+    "version": "1.1.0",
     "authors": [
         "Evi"
     ],
@@ -18,6 +18,13 @@
         "sendMessages": true
     },
     "changelog": [
+        {
+            "version": "1.1.0",
+            "notes": [
+                "Sending and editing work again. Discord started refusing webhook requests made from inside its own page (\"Invalid request origin\"), so Embed Builder now sends them from Evi itself. That's why it now asks for full access.",
+                "The preview shows headings, small text, lists and masked links the way they'll look in the channel."
+            ]
+        },
         {
             "version": "1.0.2",
             "notes": [
@@ -46,6 +53,10 @@
             "name": "Embed-Builder",
             "description": "Erstelle Embeds mit Titel, Farbe, Feldern und Bildern, sieh genau, wie sie aussehen, und sende sie über einen Webhook des Kanals oder bearbeite einen früher gesendeten. Für Server-Admins.",
             "changelog": {
+                "1.1.0": [
+                    "Senden und Bearbeiten gehen wieder. Discord lehnt Webhook-Anfragen aus seiner eigenen Seite ab („Invalid request origin“), deshalb sendet Embed Builder sie jetzt über Evi selbst. Darum fragt es jetzt nach vollem Zugriff.",
+                    "Die Vorschau zeigt Überschriften, kleinen Text, Listen und verlinkten Text so, wie sie im Kanal aussehen."
+                ],
                 "1.0.2": [
                     "Ruhiger und luftiger: mehr Abstand überall, und die optionalen Teile eines Embeds (Felder, Bilder, Autor, Fußzeile) bleiben eingeklappt, bis du sie brauchst.",
                     "Nichts wird mehr rot, während du noch schreibst. Leere Teile werden erst gezeigt, wenn du auf Senden drückst.",
@@ -64,6 +75,10 @@
             "name": "Creador de embeds",
             "description": "Crea embeds con título, color, campos e imágenes, mira exactamente cómo se verán y envíalos con un webhook del canal, o edita uno enviado antes. Para administradores de servidores.",
             "changelog": {
+                "1.1.0": [
+                    "Enviar y editar vuelven a funcionar. Discord empezó a rechazar las peticiones de webhook hechas desde su propia página («Invalid request origin»), así que Embed Builder ahora las envía desde Evi. Por eso ahora pide acceso completo.",
+                    "La vista previa muestra títulos, texto pequeño, listas y enlaces con texto tal como se verán en el canal."
+                ],
                 "1.0.2": [
                     "Más tranquilo y espacioso: más aire entre todo, y las partes opcionales de un embed (campos, imágenes, autor, pie) quedan plegadas hasta que las necesites.",
                     "Nada se pone en rojo mientras sigues escribiendo. Las partes vacías solo se señalan al pulsar Enviar.",
@@ -82,6 +97,10 @@
             "name": "Créateur d'embeds",
             "description": "Compose des embeds avec titre, couleur, champs et images, vois exactement leur rendu et envoie-les via un webhook du salon, ou modifie un message déjà envoyé. Pour les admins de serveur.",
             "changelog": {
+                "1.1.0": [
+                    "L'envoi et la modification remarchent. Discord refuse désormais les requêtes de webhook faites depuis sa propre page (« Invalid request origin »), donc Embed Builder les envoie maintenant depuis Evi. C'est pour ça qu'il demande maintenant un accès complet.",
+                    "L'aperçu affiche les titres, le petit texte, les listes et les liens masqués comme ils apparaîtront dans le salon."
+                ],
                 "1.0.2": [
                     "Plus calme et plus aéré : plus d'espace partout, et les parties facultatives d'un embed (champs, images, auteur, pied de page) restent repliées jusqu'à ce que vous en ayez besoin.",
                     "Plus rien ne devient rouge pendant que vous écrivez. Les parties vides ne sont signalées que lorsque vous appuyez sur Envoyer.",
@@ -100,6 +119,10 @@
             "name": "埋め込みビルダー",
             "description": "タイトル、色、フィールド、画像付きの埋め込みを作成し、実際の見た目を確認してチャンネルのWebhookで送信、または送信済みのものを編集できます。サーバー管理者向け。",
             "changelog": {
+                "1.1.0": [
+                    "送信と編集が再び使えるようになりました。Discord が自身のページから送られた Webhook リクエストを拒否するようになったため（「Invalid request origin」）、Embed Builder は Evi 自体から送信するようになりました。そのためフルアクセスを求めるようになりました。",
+                    "プレビューで見出し、小さい文字、リスト、マスクリンクがチャンネルでの見た目どおりに表示されます。"
+                ],
                 "1.0.2": [
                     "落ち着いたゆとりのあるレイアウトに。余白を広げ、埋め込みの任意項目(フィールド、画像、作成者、フッター)は必要になるまで折りたたまれます。",
                     "入力中に赤く表示されることはなくなりました。空の項目は「送信」を押したときだけ指摘されます。",
@@ -118,6 +141,10 @@
             "name": "Kreator embedów",
             "description": "Twórz embedy z tytułem, kolorem, polami i obrazami, zobacz dokładnie, jak będą wyglądać, i wysyłaj je webhookiem kanału albo edytuj wcześniej wysłane. Dla administratorów serwerów.",
             "changelog": {
+                "1.1.0": [
+                    "Wysyłanie i edytowanie znów działają. Discord zaczął odrzucać żądania webhooków wysyłane z jego własnej strony („Invalid request origin”), więc Embed Builder wysyła je teraz przez samo Evi. Dlatego prosi teraz o pełny dostęp.",
+                    "Podgląd pokazuje nagłówki, mały tekst, listy i linki z tekstem tak, jak będą wyglądać na kanale."
+                ],
                 "1.0.2": [
                     "Spokojniej i przestronniej: więcej miejsca wszędzie, a opcjonalne części embeda (pola, obrazy, autor, stopka) pozostają zwinięte, dopóki ich nie potrzebujesz.",
                     "Nic nie robi się czerwone, gdy wciąż piszesz. Puste części są wskazywane dopiero po naciśnięciu Wyślij.",
@@ -136,6 +163,10 @@
             "name": "Criador de embeds",
             "description": "Crie embeds com título, cor, campos e imagens, veja exatamente como vão ficar e envie por um webhook do canal, ou edite um enviado antes. Para admins de servidores.",
             "changelog": {
+                "1.1.0": [
+                    "Enviar e editar voltaram a funcionar. O Discord passou a recusar pedidos de webhook feitos da própria página (\"Invalid request origin\"), então o Embed Builder agora os envia pelo próprio Evi. Por isso agora ele pede acesso total.",
+                    "A prévia mostra títulos, texto pequeno, listas e links com texto do jeito que vão aparecer no canal."
+                ],
                 "1.0.2": [
                     "Mais calmo e espaçoso: mais espaço entre tudo, e as partes opcionais de um embed (campos, imagens, autor, rodapé) ficam recolhidas até você precisar delas.",
                     "Nada fica vermelho enquanto você ainda está escrevendo. Partes vazias só são apontadas quando você aperta Enviar.",
@@ -154,6 +185,10 @@
             "name": "Конструктор эмбедов",
             "description": "Создавайте эмбеды с заголовком, цветом, полями и изображениями, смотрите, как они будут выглядеть, и отправляйте через вебхук канала или редактируйте отправленные ранее. Для админов серверов.",
             "changelog": {
+                "1.1.0": [
+                    "Отправка и редактирование снова работают. Discord начал отклонять запросы вебхуков со своей же страницы («Invalid request origin»), поэтому Embed Builder теперь отправляет их через сам Evi. Поэтому теперь он просит полный доступ.",
+                    "Предпросмотр показывает заголовки, мелкий текст, списки и ссылки с текстом так, как они будут выглядеть в канале."
+                ],
                 "1.0.2": [
                     "Спокойнее и просторнее: больше места между всем, а необязательные части эмбеда (поля, изображения, автор, подпись) свёрнуты, пока они вам не понадобятся.",
                     "Пока вы пишете, ничего не краснеет. О пустых частях сообщается только после нажатия «Отправить».",
@@ -172,6 +207,10 @@
             "name": "Embed Oluşturucu",
             "description": "Başlık, renk, alan ve görsellerle embed'ler oluştur, tam olarak nasıl görüneceklerini gör ve kanalın webhook'u ile gönder ya da daha önce gönderileni düzenle. Sunucu yöneticileri için.",
             "changelog": {
+                "1.1.0": [
+                    "Gönderme ve düzenleme yeniden çalışıyor. Discord kendi sayfasından yapılan webhook isteklerini reddetmeye başladı (\"Invalid request origin\"), bu yüzden Embed Builder artık onları Evi'nin kendisinden gönderiyor. Bu yüzden artık tam erişim istiyor.",
+                    "Önizleme başlıkları, küçük metni, listeleri ve metinli bağlantıları kanalda görünecekleri gibi gösteriyor."
+                ],
                 "1.0.2": [
                     "Daha sakin ve ferah: her şeyin arasında daha fazla boşluk var, bir embed'in isteğe bağlı kısımları (alanlar, görseller, yazar, alt bilgi) gerekene kadar kapalı kalıyor.",
                     "Sen daha yazarken hiçbir şey kırmızı olmuyor. Boş kısımlar yalnızca Gönder'e bastığında gösteriliyor.",

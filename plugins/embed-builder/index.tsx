@@ -104,24 +104,20 @@ async function createWebhook(channel: any): Promise<Webhook> {
     return hook;
 }
 
-/** Calls a webhook URL, as JSON or (with files) multipart; Discord's error message on failure */
+/**
+ * Calls a webhook URL, as JSON or (with files) multipart; Discord's error message on failure. Sent from
+ * the main process (native.ts): Discord refuses webhook calls made from its own page since 2026-10.
+ */
 async function callWebhook(url: string, method: "GET" | "POST" | "PATCH", body?: Record<string, unknown>, files: File[] = []): Promise<any> {
-    let init: RequestInit = { method };
-    if (body && files.length) {
-        const form = new FormData();
-        form.append("payload_json", JSON.stringify(body));
-        files.forEach((f, i) => form.append(`files[${i}]`, f, f.name));
-        init = { method, body: form };
-    } else if (body) {
-        init = { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) };
-    }
-    const res = await fetch(url, init);
-    const text = await res.text();
+    const sent = await Promise.all(files.map(async f => ({ name: f.name, type: f.type, bytes: new Uint8Array(await f.arrayBuffer()) })));
+    const res = await context!.native.call<{ status: number; text: string; }>("webhook", url, method, body, sent);
+    const text = res.text;
     let json: any;
     try {
         json = text ? JSON.parse(text) : undefined;
     } catch { /* not JSON */ }
-    if (!res.ok) {
+    const ok = res.status >= 200 && res.status < 300;
+    if (!ok) {
         if (res.status === 429) throw new Error(t("error.rateLimited", { seconds: Math.ceil(Number(json?.retry_after) || 1) }));
         if (res.status === 404) throw new Error(t("error.notFound"));
         if (res.status === 413) throw new Error(t("error.tooBig"));
@@ -239,6 +235,19 @@ function IconButton({ label, icon, onClick, disabled, danger }: { label: string;
     );
 }
 
+/**
+ * Discord's message markup class (markup__xxxx), where its headings, small text, lists and masked links
+ * are styled. Its module exports it under a minified name, so it's found by its value.
+ */
+let markupCache: string | null | undefined;
+function markupClass(): string {
+    if (markupCache === undefined) {
+        const mod = find((m: any) => m && typeof m === "object" && !Array.isArray(m) && Object.values(m).some(v => typeof v === "string" && /^markup_[\w-]+$/.test(v)));
+        markupCache = mod ? (Object.values(mod).find(v => typeof v === "string" && /^markup_[\w-]+$/.test(v as string)) as string) : null;
+    }
+    return markupCache ?? "";
+}
+
 /** Discord's own markdown: its embed title rules for titles, its message rules for the rest */
 function Markdown({ text, channelId, inline }: { text: string; channelId: string; inline?: boolean; }) {
     let nodes: ReactNode = text;
@@ -247,7 +256,7 @@ function Markdown({ text, channelId, inline }: { text: string; channelId: string
         if (inline && typeof md?.parseEmbedTitle === "function") nodes = md.parseEmbedTitle(text, true, { channelId });
         else if (md?.parse) nodes = md.parse(text, true, { channelId, allowLinks: true, allowHeading: !inline, allowList: !inline, allowEmojiLinks: true });
     } catch { /* plain text */ }
-    return <>{nodes}</>;
+    return inline ? <>{nodes}</> : <div className={`evi-eb-markup ${markupClass()}`}>{nodes}</div>;
 }
 
 /** What a picture link shows as: a web link as is, attachment://name as the picked file */
@@ -1789,6 +1798,14 @@ const css = `
 .evi-eb-time { margin-inline-start: 4px; font-size: 12px; color: var(--text-muted, #949ba4); }
 .evi-eb-preview-empty { margin-top: 2px; font-size: 15px; font-style: italic; color: var(--text-muted, #949ba4); }
 .evi-eb-content, .evi-eb-ptext { font-size: 16px; line-height: 1.375; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text-default, #dbdee1); }
+.evi-eb-markup { white-space: pre-wrap; }
+.evi-eb-markup h1 { font-size: 1.5rem; font-weight: 700; margin: 8px 0 4px; }
+.evi-eb-markup h2 { font-size: 1.25rem; font-weight: 700; margin: 8px 0 4px; }
+.evi-eb-markup h3 { font-size: 1rem; font-weight: 700; margin: 8px 0 4px; }
+.evi-eb-markup small { display: block; font-size: 0.8125rem; color: var(--text-muted, #949ba4); }
+.evi-eb-markup ul, .evi-eb-markup ol { margin: 4px 0 0 16px; padding: 0; list-style-position: outside; }
+.evi-eb-markup ul { list-style-type: disc; }
+.evi-eb-markup a { color: var(--text-link, #00a8fc); }
 .evi-eb-content { margin-top: 2px; }
 .evi-eb-embed { box-sizing: border-box; max-width: 516px; margin-top: 4px; border-radius: 4px; border-inline-start: 4px solid var(--background-modifier-accent, #1e1f22);
   background: var(--background-mod-subtle, var(--background-secondary, #2b2d31)); }

@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import discord from "./fixtures/collectibles-discord.json";
 import pickers from "./fixtures/picker-discord.json";
-import { ALL_COLLECTIBLE_PATCHES, assetUrlPatch, decorationHookPatch, decorationUrlPatch, effectConfigPatch, memberDecorationPatch, mergePatch, nameplateHookPatch, nameplateUrlPatch, profileEffectPatch, userDecorationPatch, userNameplatePatch } from "../src/renderer/collectibles/patches";
+import { ALL_COLLECTIBLE_PATCHES, assetUrlPatch, decorationHookPatch, decorationUrlPatch, effectConfigPatch, memberDecorationPatch, mergePatch, nameplateHookPatch, nameplateUrlPatch, profileEffectPatch, rpcUserPatch, userDecorationPatch, userNameplatePatch } from "../src/renderer/collectibles/patches";
 import { layerPlay } from "../src/renderer/collectibles/timeline";
 import type { Replacement, SourcePatch } from "../src/renderer/patching/source";
 import { canonicalizeMatch, matchesFind, normalizeFactorySource } from "../src/renderer/patching/source";
@@ -120,6 +120,17 @@ describe("collectibles patches on Discord's code", () => {
         expect(U({ id: "1", avatarDecoration: { skuId: "evi:sakura" } }, "9", [store])).toEqual({ skuId: "evi:sakura" });
         expect(U({ id: "2", avatarDecoration: { skuId: "own" } }, "9", [store])).toEqual({ skuId: "server" });
         expect(U({ id: "2", avatarDecoration: { skuId: "own" } }, null, [store])).toEqual({ skuId: "own" });
+    });
+
+    test("activities and RPC clients get the user's own Discord decoration, never an Evi one", () => {
+        const { window } = evi();
+        // Discord's Xq: its server shape, null for none
+        const Xq = (d: any) => d && typeof d === "object" ? { skuId: d.skuId, ...typeof d.asset === "string" && { asset: d.asset } } : null;
+        const { A } = run(apply(rpcUserPatch, moduleFor(rpcUserPatch)), { 821956: { Xq } }, window);
+        const own = { asset: "a_1", skuId: "100" };
+        expect(A({ id: "1", avatarDecoration: { skuId: "evi:sakura" }, avatarDecorationData: own }).avatar_decoration_data).toEqual(own);
+        expect(A({ id: "1", avatarDecoration: { skuId: "evi:sakura" }, avatarDecorationData: undefined }).avatar_decoration_data).toBeNull();
+        expect(A({ id: "2", avatarDecoration: own, avatarDecorationData: own }).avatar_decoration_data).toEqual(own);
     });
 
     test("avatar decoration URL: an evi: SKU gets the page's blob, still or animated as Discord asks", () => {

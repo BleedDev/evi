@@ -144,6 +144,21 @@ export const assetUrlPatch: SourcePatch = {
 };
 
 /**
+ * A user as Discord hands it to activities and RPC clients (module 639621):
+ *     function r(e){let{id:t,…,avatarDecoration:l,bot:o,flags:d,premiumType:c}=e;return{…,avatar_decoration_data:(0,i.Xq)(l),…}}
+ * They get the user's own Discord decoration instead of an Evi one: the Embedded App SDK refuses a
+ * decoration without an asset, and an activity waiting on its participants never finished loading.
+ */
+export const rpcUserPatch: SourcePatch = {
+    find: /avatarDecoration:[\w$]+,bot:[\w$]+,flags:[\w$]+,premiumType:/,
+    optional: true,
+    replace: {
+        match: /(function \i\((\i)\)\{let\{[^}]*?avatarDecoration:(\i)[^}]*\}=\2;return\{[^}]*?avatar_decoration_data:\(0,\i\.\i\)\()\3\)/,
+        with: `$1${E}?.isOurs($3)?$2.avatarDecorationData:$3)`,
+    },
+};
+
+/**
  * Discord asking its API for a product it doesn't know (module 815996, fetchCollectiblesProduct):
  *     async function ea(e,t){o.h.dispatch({type:"COLLECTIBLES_PRODUCT_FETCH",skuId:e,…
  * Never for an evi: SKU, which would name it in a request to Discord.
@@ -302,4 +317,5 @@ export const ALL_COLLECTIBLE_PATCHES: SourcePatch[] = [
     userDecorationPatch, userNameplatePatch, mergePatch, memberDecorationPatch, decorationHookPatch, decorationUrlPatch,
     nameplateHookPatch, nameplateUrlPatch, assetUrlPatch, profileEffectPatch, effectConfigPatch, analyticsPatch,
     productFetchPatch, ownEffectPatch, ownFramePatch, editorPreviewPatch, profileFramePatch, frameConfigPatch,
+    rpcUserPatch,
 ];

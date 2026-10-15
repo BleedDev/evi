@@ -11,6 +11,11 @@ export type ReleaseNotes = Partial<Record<SectionKind, string[]>>;
 /** Language -> version -> section -> lines */
 export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
     de: {
+        "2.5.1": {
+            fixed: [
+                "**Aktivitäten laden wieder, während du eine Evi-Dekoration trägst.** Spiele wie Farm Merge Valley blieben beim Laden hängen, weil Discord deine Evi-Dekoration an sie weitergab. Aktivitäten sehen jetzt deine normale Discord-Dekoration.",
+            ],
+        },
         "2.5.0": {
             added: [
                 "**Evi-Sammlerstücke.** Gemalte Namensschilder, Avatar-Dekorationen und Profileffekte, die alle mit Evi an dir sehen, zum Start Sakura River und Snowed-In Cabin. Du findest sie im neuen Evi-Tab in Discords Shop und legst sie in Discords eigenen Auswahlfenstern an, wenn du dein Profil bearbeitest.",
@@ -364,6 +369,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     es: {
+        "2.5.1": {
+            fixed: [
+                "**Las actividades vuelven a cargar mientras llevas una decoración de Evi.** Juegos como Farm Merge Valley se quedaban cargando porque Discord les pasaba tu decoración de Evi. Ahora las actividades ven tu decoración normal de Discord.",
+            ],
+        },
         "2.5.0": {
             added: [
                 "**Coleccionables de Evi.** Placas de nombre, decoraciones de avatar y efectos de perfil pintados que todos los que usan Evi ven en ti, empezando por Sakura River y Snowed-In Cabin. Encuéntralos en la nueva pestaña Evi de la Tienda de Discord y póntelos desde los selectores de Discord al editar tu perfil.",
@@ -717,6 +727,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     fr: {
+        "2.5.1": {
+            fixed: [
+                "**Les activités se chargent à nouveau quand tu portes une décoration Evi.** Des jeux comme Farm Merge Valley restaient bloqués au chargement, car Discord leur transmettait ta décoration Evi. Les activités voient maintenant ta décoration Discord habituelle.",
+            ],
+        },
         "2.5.0": {
             added: [
                 "**Les objets à collectionner d'Evi.** Des plaques de nom, décorations d'avatar et effets de profil peints que tous les utilisateurs d'Evi voient sur toi, en commençant par Sakura River et Snowed-In Cabin. Trouve-les dans le nouvel onglet Evi de la boutique de Discord, et porte-les depuis les sélecteurs de Discord quand tu modifies ton profil.",
@@ -1070,6 +1085,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ja: {
+        "2.5.1": {
+            fixed: [
+                "**Evi のデコレーションを着けていてもアクティビティが読み込まれます。** Discord が Evi のデコレーションをアクティビティに渡していたため、Farm Merge Valley などのゲームが読み込み中のまま止まっていました。アクティビティには通常の Discord のデコレーションが表示されます。",
+            ],
+        },
         "2.5.0": {
             added: [
                 "**Evi コレクティブル。** Evi を使っている全員にあなたの姿として見える、手描きのネームプレート、アバターデコレーション、プロフィールエフェクト。まずは Sakura River と Snowed-In Cabin から。Discord ショップの新しい Evi タブにあり、プロフィール編集時に Discord の選択画面から身につけられます。",
@@ -1423,6 +1443,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     pl: {
+        "2.5.1": {
+            fixed: [
+                "**Aktywności znów się wczytują, gdy nosisz dekorację Evi.** Gry takie jak Farm Merge Valley zawieszały się podczas wczytywania, bo Discord przekazywał im twoją dekorację Evi. Teraz aktywności widzą twoją zwykłą dekorację z Discorda.",
+            ],
+        },
         "2.5.0": {
             added: [
                 "**Kolekcje Evi.** Malowane tabliczki z nazwą, dekoracje awatara i efekty profilu, które widzą na tobie wszyscy z Evi, na start Sakura River i Snowed-In Cabin. Znajdziesz je w nowej karcie Evi w Sklepie Discorda i założysz w wyborach Discorda, gdy edytujesz profil.",
@@ -1776,6 +1801,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     "pt-BR": {
+        "2.5.1": {
+            fixed: [
+                "**As atividades voltaram a carregar enquanto você usa uma decoração do Evi.** Jogos como Farm Merge Valley travavam no carregamento porque o Discord repassava sua decoração do Evi para eles. Agora as atividades veem sua decoração normal do Discord.",
+            ],
+        },
         "2.5.0": {
             added: [
                 "**Colecionáveis do Evi.** Placas de nome, decorações de avatar e efeitos de perfil pintados que todos que usam o Evi veem em você, começando com Sakura River e Snowed-In Cabin. Encontre-os na nova aba Evi da Loja do Discord e use-os pelos seletores do próprio Discord ao editar seu perfil.",
@@ -2129,6 +2159,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ru: {
+        "2.5.1": {
+            fixed: [
+                "**Активности снова загружаются, когда на тебе украшение Evi.** Игры вроде Farm Merge Valley зависали на загрузке, потому что Discord передавал им твоё украшение Evi. Теперь активности видят твоё обычное украшение Discord.",
+            ],
+        },
         "2.5.0": {
             added: [
                 "**Коллекционные предметы Evi.** Рисованные таблички с именем, украшения аватара и эффекты профиля, которые видят на тебе все пользователи Evi; для начала Sakura River и Snowed-In Cabin. Ищи их на новой вкладке Evi в магазине Discord и надевай через окна выбора Discord, когда редактируешь профиль.",
@@ -2482,6 +2517,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     tr: {
+        "2.5.1": {
+            fixed: [
+                "**Evi dekorasyonu takarken etkinlikler yeniden yükleniyor.** Discord, Evi dekorasyonunu onlara ilettiği için Farm Merge Valley gibi oyunlar yüklenirken takılı kalıyordu. Etkinlikler artık normal Discord dekorasyonunu görüyor.",
+            ],
+        },
         "2.5.0": {
             added: [
                 "**Evi koleksiyonları.** Evi kullanan herkesin sende gördüğü elle çizilmiş isim plakaları, avatar süslemeleri ve profil efektleri; ilk olarak Sakura River ve Snowed-In Cabin. Onları Discord Mağazası'ndaki yeni Evi sekmesinde bulabilir, profilini düzenlerken Discord'un kendi seçicilerinden takabilirsin.",

@@ -28,6 +28,15 @@ export interface Release {
  */
 export const RELEASES: Release[] = [
     {
+        version: "2.5.1",
+        date: "2026-10-15",
+        sections: {
+            fixed: [
+                "**Activities load again while you wear an Evi decoration.** Games like Farm Merge Valley got stuck loading, because Discord passed your Evi decoration on to them. Activities now see your regular Discord decoration.",
+            ],
+        },
+    },
+    {
         version: "2.5.0",
         date: "2026-10-14",
         sections: {

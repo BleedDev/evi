@@ -2,7 +2,7 @@
     "id": "look-inside",
     "name": "Look Inside",
     "description": "See what's inside a zip before you download it, and get warned about programs, files pretending to be pictures or documents, password-locked files and zip bombs. Only the list of files is read, never the files.",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "authors": [
         "Evi"
     ],
@@ -12,11 +12,16 @@
     ],
     "permissions": {
         "network": [
-            "cdn.discordapp.com",
-            "media.discordapp.net"
+            "cdn.discordapp.com"
         ]
     },
     "changelog": [
+        {
+            "version": "1.1.0",
+            "notes": [
+                "Works again: Discord's servers don't let its own page read zip files, so Look Inside now reads a zip's list of files through Evi itself. That's why it now asks for full access. It still only reads the list, never the files."
+            ]
+        },
         {
             "version": "1.0.0",
             "notes": [
@@ -29,6 +34,9 @@
             "name": "Reinschauen",
             "description": "Sieh vor dem Herunterladen, was in einer ZIP-Datei steckt, und werde gewarnt vor Programmen, Dateien, die sich als Bilder oder Dokumente ausgeben, passwortgeschützten Dateien und ZIP-Bomben. Gelesen wird nur die Dateiliste, nie die Dateien.",
             "changelog": {
+                "1.1.0": [
+                    "Funktioniert wieder: Discords Server lassen die eigene Seite keine ZIP-Dateien lesen, deshalb liest Reinschauen die Dateiliste jetzt über Evi selbst. Darum fragt es jetzt nach vollem Zugriff. Gelesen wird weiterhin nur die Liste, nie die Dateien."
+                ],
                 "1.0.0": [
                     "Erste Version."
                 ]
@@ -38,6 +46,9 @@
             "name": "Ver dentro",
             "description": "Mira qué hay dentro de un zip antes de descargarlo y recibe avisos de programas, archivos que se hacen pasar por imágenes o documentos, archivos con contraseña y bombas zip. Solo se lee la lista de archivos, nunca los archivos.",
             "changelog": {
+                "1.1.0": [
+                    "Vuelve a funcionar: los servidores de Discord no dejan que su propia página lea archivos zip, así que ahora la lista de archivos se lee a través de Evi. Por eso ahora pide acceso completo. Sigue leyendo solo la lista, nunca los archivos."
+                ],
                 "1.0.0": [
                     "Primera versión."
                 ]
@@ -47,6 +58,9 @@
             "name": "Regarder dedans",
             "description": "Vois ce que contient un zip avant de le télécharger, et sois prévenu des programmes, des fichiers qui se font passer pour des images ou des documents, des fichiers protégés par mot de passe et des bombes zip. Seule la liste des fichiers est lue, jamais les fichiers.",
             "changelog": {
+                "1.1.0": [
+                    "Fonctionne à nouveau : les serveurs de Discord ne laissent pas sa propre page lire les fichiers zip, la liste des fichiers est donc maintenant lue par Evi lui-même. C'est pourquoi il demande maintenant un accès complet. Il ne lit toujours que la liste, jamais les fichiers."
+                ],
                 "1.0.0": [
                     "Première version."
                 ]
@@ -56,6 +70,9 @@
             "name": "中身を見る",
             "description": "ZIPをダウンロードする前に中身を確認でき、プログラム、画像や文書に見せかけたファイル、パスワード付きファイル、ZIP爆弾を警告します。読み込むのはファイル一覧だけで、ファイル自体は読み込みません。",
             "changelog": {
+                "1.1.0": [
+                    "再び動作するようになりました。Discord のサーバーは Discord 自身のページに zip ファイルを読ませないため、ファイル一覧は Evi 本体を通して読むようになりました。そのためフルアクセスを求めるようになりました。読むのは引き続き一覧だけで、ファイル自体は読みません。"
+                ],
                 "1.0.0": [
                     "初回リリース。"
                 ]
@@ -65,6 +82,9 @@
             "name": "Zajrzyj do środka",
             "description": "Zobacz, co jest w pliku zip, zanim go pobierzesz, i dostań ostrzeżenie o programach, plikach udających obrazy lub dokumenty, plikach chronionych hasłem i bombach zip. Odczytywana jest tylko lista plików, nigdy same pliki.",
             "changelog": {
+                "1.1.0": [
+                    "Znowu działa: serwery Discorda nie pozwalają jego własnej stronie czytać plików zip, więc lista plików jest teraz czytana przez samo Evi. Dlatego wtyczka prosi teraz o pełny dostęp. Nadal czyta tylko listę, nigdy same pliki."
+                ],
                 "1.0.0": [
                     "Pierwsze wydanie."
                 ]
@@ -74,6 +94,9 @@
             "name": "Ver o conteúdo",
             "description": "Veja o que tem dentro de um zip antes de baixar e receba avisos sobre programas, arquivos que fingem ser imagens ou documentos, arquivos com senha e bombas zip. Só a lista de arquivos é lida, nunca os arquivos.",
             "changelog": {
+                "1.1.0": [
+                    "Voltou a funcionar: os servidores do Discord não deixam a própria página ler arquivos zip, então a lista de arquivos agora é lida pelo próprio Evi. Por isso agora pede acesso total. Continua lendo só a lista, nunca os arquivos."
+                ],
                 "1.0.0": [
                     "Primeira versão."
                 ]
@@ -83,6 +106,9 @@
             "name": "Заглянуть внутрь",
             "description": "Смотрите, что внутри zip-архива, до скачивания, и получайте предупреждения о программах, файлах под видом картинок или документов, файлах с паролем и zip-бомбах. Читается только список файлов, но не сами файлы.",
             "changelog": {
+                "1.1.0": [
+                    "Снова работает: серверы Discord не дают его собственной странице читать zip-файлы, поэтому список файлов теперь читается через сам Evi. Поэтому плагин теперь просит полный доступ. Он по-прежнему читает только список, а не сами файлы."
+                ],
                 "1.0.0": [
                     "Первый выпуск."
                 ]
@@ -92,6 +118,9 @@
             "name": "İçine Bak",
             "description": "Bir zip'i indirmeden önce içinde ne olduğunu gör; programlar, resim ya da belge gibi görünen dosyalar, parolalı dosyalar ve zip bombaları için uyarı al. Yalnızca dosya listesi okunur, dosyalar asla okunmaz.",
             "changelog": {
+                "1.1.0": [
+                    "Yeniden çalışıyor: Discord'un sunucuları kendi sayfasının zip dosyalarını okumasına izin vermiyor, bu yüzden dosya listesi artık Evi'nin kendisi üzerinden okunuyor. Bu yüzden artık tam erişim istiyor. Yine yalnızca liste okunur, dosyalar asla okunmaz."
+                ],
                 "1.0.0": [
                     "İlk sürüm."
                 ]

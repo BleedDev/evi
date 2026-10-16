@@ -7,8 +7,9 @@
  * size], adjacent content</div>), the same card Code Block Tools hooks for text files. Ours goes around
  * it: a button joins the card's children, and the warning and the list go under it.
  *
- * Only the end of the zip is fetched (a range request to Discord's CDN, which its page may reach), and
- * only the directory after that if it's longer: never the files themselves. See zip.ts.
+ * Only the end of the zip is fetched (a range request to Discord's CDN), and only the directory after
+ * that if it's longer: never the files themselves. See zip.ts. The CDN doesn't let Discord's page read
+ * zips (no CORS header), so the requests go through native.ts.
  */
 import { Components, definePlugin, filters, React } from "@evi/api";
 import type { PluginContext } from "@evi/api";
@@ -30,15 +31,10 @@ let ctx: PluginContext<typeof settings> | undefined;
 /** Discord's generic file attachment card */
 const fileCardFilter = filters.byCode("renderAdjacentContent:", ".filesize(", "href:", "onContextMenu:");
 
-/** Bytes [start, end) of an attachment. A server that ignores the range would send the whole file: that's cancelled. */
+/** Bytes [start, end) of an attachment, read by native.ts */
 async function readRange(url: string, start: number, end: number) {
-    const res = await fetch(url, { headers: { Range: `bytes=${start}-${end - 1}` } });
-    const whole = res.status === 200 && start === 0 && Number(res.headers.get("content-length")) === end;
-    if (res.status !== 206 && !whole) {
-        void res.body?.cancel();
-        throw new Error(`HTTP ${res.status}`);
-    }
-    return new Uint8Array(await res.arrayBuffer());
+    if (!ctx) throw new Error("Look Inside isn't running");
+    return new Uint8Array(await ctx.native.call<Uint8Array>("range", url, start, end));
 }
 
 type Result = { listing: Listing; review?: Review; } | { error: true; };

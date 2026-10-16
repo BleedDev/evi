@@ -28,7 +28,7 @@ import { parseArgs } from "util";
 
 import pkg from "../package.json";
 import { buildEntry, versionedUrl as versioned } from "../src/shared/registryEntry";
-import { parseRegistry, REGISTRY_SCHEMA, RegistryEntry, sha256Hex, STORE_FILES, StoreFileName, storeThemeFile, ThemeEntry, whyNotStoreUrl } from "../src/shared/store";
+import { compareVersions, parseRegistry, REGISTRY_SCHEMA, RegistryEntry, sha256Hex, STORE_FILES, StoreFileName, storeThemeFile, ThemeEntry, whyNotStoreUrl } from "../src/shared/store";
 import { parseThemeMeta, whyNotCss } from "../src/shared/themes";
 
 const ROOT = resolve(import.meta.dir, "..");
@@ -110,6 +110,11 @@ for (const id of ids) {
         authorIds: official.has(id) ? ["evi", ...coAuthorSlugs(dir)] : undefined,
     });
     if ("error" in built) fail(`${id}: ${built.error}`);
+    // A co-author may have published a newer version on evi.rest: never roll it back
+    const published = oldPlugins.find(e => e.id === id);
+    if (published && compareVersions(published.version, built.entry.version) > 0) {
+        fail(`${id}: the store has ${published.version}, newer than ${built.entry.version} here (a co-author's version from evi.rest?). Bring it into plugins/${id} first`);
+    }
     entries.push(built.entry);
 
     // A clean copy, so files from an older build of this plugin don't linger

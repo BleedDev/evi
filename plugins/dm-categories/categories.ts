@@ -194,11 +194,17 @@ export function layout(
  * The list's sections: Discord's own rows (Friends, Nitro...) first, one per category, then Direct
  * Messages. Direct Messages keeps one row when it's the only thing there, for Discord's empty
  * illustration; when categories hold every DM it has none, and just its header shows.
+ * Discord's list drops a section with no rows, header and all, so a category showing no DMs
+ * (collapsed, or every DM closed) keeps one empty row, which `isPlaceholder` gives no height.
  */
 export function sectionSizes(l: Layout, pinnedRows: number, dmCount: number): number[] {
     if (l.plain) return [pinnedRows, Math.max(dmCount, 1)];
-    return [pinnedRows, ...l.categories.map(c => c.rows.length), l.rest.length];
+    return [pinnedRows, ...l.categories.map(c => Math.max(c.rows.length, 1)), l.rest.length];
 }
+
+/** The empty row that keeps a category with no DMs showing on the list */
+export const isPlaceholder = (l: Layout, section: number, row: number) =>
+    !l.plain && row === 0 && l.categories[section - 1]?.rows.length === 0;
 
 /** The category a section shows, or undefined for Discord's sections */
 export const sectionCategory = (l: Layout, section: number) => l.plain ? undefined : l.categories[section - 1];

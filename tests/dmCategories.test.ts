@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import {
     assign, CategoryState, categoryOf, cleanName, createCategory, deleteCategory, EMPTY, layout, LIST_PATCH, locate, MAX_CATEGORIES, MAX_CHANNELS,
-    moveCategory, nameError, parseState, PLAIN, renameCategory, rowIndex, rowOffset, sectionCategory, sectionSizes, setCollapsed,
+    isPlaceholder, moveCategory, nameError, parseState, PLAIN, renameCategory, rowIndex, rowOffset, sectionCategory, sectionSizes, setCollapsed,
 } from "../plugins/dm-categories/categories";
 import type { Layout } from "../plugins/dm-categories/categories";
 import type { Replacement } from "../src/renderer/patching/source";
@@ -151,6 +151,16 @@ describe("dm categories: laying out the list", () => {
         expect(locate(l, ids, "11")).toBe("collapsed");
         expect(locate(l, ids, "14")).toEqual({ section: 3, row: 1 });
         expect(locate(l, ids, "404")).toBeUndefined();
+    });
+
+    test("a category showing no DMs keeps one placeholder row, so its header stays", () => {
+        const l = layout(ids, setCollapsed(state, "c0", true));
+        expect(sectionSizes(l, 3, ids.length)).toEqual([3, 1, 1, 2]);
+        expect(isPlaceholder(l, 1, 0)).toBe(true);
+        expect(rowIndex(l, 1, 0)).toBe(-1);
+        expect(isPlaceholder(l, 2, 0)).toBe(false);
+        expect(isPlaceholder(l, 3, 0)).toBe(false);
+        expect(isPlaceholder(layout(ids, state), 1, 0)).toBe(false);
     });
 
     test("every DM in a category leaves Direct Messages with no rows", () => {

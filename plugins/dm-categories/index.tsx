@@ -19,7 +19,7 @@ import type { CloseLayer, PluginContext } from "@evi/api";
 import type { FormEvent, MouseEvent as ReactMouseEvent, ReactNode } from "react";
 
 import {
-    assign, Category, CategoryState, categoryOf, createCategory, deleteCategory, EMPTY, getCategory, LaidOutCategory, layout, Layout, LIST_PATCH,
+    assign, Category, CategoryState, categoryOf, createCategory, deleteCategory, EMPTY, getCategory, isPlaceholder, LaidOutCategory, layout, Layout, LIST_PATCH,
     MAX_NAME_LENGTH, moveCategory, nameError, parseState, PLAIN, renameCategory, rowIndex, rowOffset, sectionCategory, sectionSizes, setCollapsed,
 } from "./categories";
 import { t } from "./strings";
@@ -61,6 +61,15 @@ interface DmList {
     getSectionHeight(section: number): number;
     getRowHeight(section: number, row: number): number;
     forceUpdate(): void;
+    eviDmcRowHeight?: true;
+}
+
+/** Gives a category's placeholder row (see sectionSizes) no height; every other row keeps Discord's */
+function wrapRowHeight(instance: DmList | undefined) {
+    if (!instance || instance.eviDmcRowHeight || typeof instance.getRowHeight !== "function") return;
+    const own = instance.getRowHeight;
+    instance.getRowHeight = (section, row) => ctx && isPlaceholder(current, section, row) ? 0 : own.call(instance, section, row);
+    instance.eviDmcRowHeight = true;
 }
 
 /** The mounted DM list and what it last rendered */
@@ -76,6 +85,7 @@ const listeners = new Set<() => void>();
 /** Re-renders the DM list, and the category headers with it */
 function refresh() {
     list ??= findMountedList();
+    wrapRowHeight(list);
     for (const listener of listeners) listener();
     try {
         list?.forceUpdate();
@@ -412,6 +422,7 @@ export default definePlugin({
     /** Patched in: the list's section sizes, or undefined for Discord's own */
     sections(instance: DmList, ids: string[], pinnedRows: number) {
         list = instance;
+        wrapRowHeight(instance);
         try {
             if (!ctx || !Array.isArray(ids)) return void (current = PLAIN);
             current = laidOut(ids, instance.props.selectedChannelId);

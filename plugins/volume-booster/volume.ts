@@ -96,9 +96,9 @@ export const PATCHES = {
     syncWrite: {
         find: "AudioContextSettingsMigrated",
         replace: [
-            // One-time migration of local volumes: {muted:!1,modifiedAt:s,...l[e],volume:(0,f.z)(t,n)}
+            // One-time migration of local volumes: {let i=l[e];l[e]={...i??{muted:!1,modifiedAt:s},volume:(0,I.z)(t,n)}
             {
-                match: /(?<=localVolumes\)\)\i\[\i\]=\{[^}]*?volume:)\(0,\i\.\i\)\(\i,\i\)/,
+                match: /(?<=localVolumes\)\).{0,80}?volume:)\(0,\i\.\i\)\(\i,\i\)/,
                 with: guard("clampSynced", "$&"),
             },
             // Remote session (console voice) update: N(r,n,t,{muted:E.Ay.isLocalMute(n,t),volume:i})

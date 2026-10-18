@@ -2,7 +2,7 @@
     "id": "volume-booster",
     "name": "Volume Booster",
     "description": "Turn people up past Discord's 200% limit. The volume slider in a user's menu and on stream tiles goes up to 400% by default, or up to 1000% if you set it higher.",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "authors": [
         "Evi"
     ],
@@ -11,6 +11,12 @@
     ],
     "permissions": {},
     "changelog": [
+        {
+            "version": "1.1.1",
+            "notes": [
+                "Works again after Discord's update: boosted volumes are kept under Discord's cap when your settings sync."
+            ]
+        },
         {
             "version": "1.1.0",
             "notes": [
@@ -36,6 +42,9 @@
             "name": "Lautstärke-Booster",
             "description": "Dreh andere über Discords 200-%-Grenze hinaus auf. Der Lautstärkeregler im Nutzermenü und auf Stream-Kacheln geht standardmäßig bis 400 %, oder bis 1000 %, wenn du es höher einstellst.",
             "changelog": {
+                "1.1.1": [
+                    "Funktioniert nach Discords Update wieder: verstärkte Lautstärken bleiben beim Synchronisieren deiner Einstellungen unter Discords Grenze."
+                ],
                 "1.1.0": [
                     "Folgt der Sprache von Discord: Deutsch, Spanisch, Französisch, Japanisch, Polnisch, Portugiesisch, Russisch und Türkisch, dazu Englisch."
                 ],
@@ -51,6 +60,9 @@
             "name": "Potenciador de volumen",
             "description": "Sube el volumen de la gente por encima del límite del 200 % de Discord. El control de volumen del menú de un usuario y de los recuadros de stream llega hasta el 400 % por defecto, o hasta el 1000 % si lo configuras más alto.",
             "changelog": {
+                "1.1.1": [
+                    "Vuelve a funcionar tras la actualización de Discord: los volúmenes potenciados se mantienen bajo el límite de Discord al sincronizar tus ajustes."
+                ],
                 "1.1.0": [
                     "Sigue el idioma de Discord: alemán, español, francés, japonés, polaco, portugués, ruso y turco, además de inglés."
                 ],
@@ -66,6 +78,9 @@
             "name": "Booster de volume",
             "description": "Monte le volume des gens au-delà de la limite de 200 % de Discord. Le curseur de volume du menu d'un utilisateur et des vignettes de stream va jusqu'à 400 % par défaut, ou jusqu'à 1000 % si tu le règles plus haut.",
             "changelog": {
+                "1.1.1": [
+                    "Fonctionne à nouveau après la mise à jour de Discord : les volumes boostés restent sous la limite de Discord quand tes paramètres se synchronisent."
+                ],
                 "1.1.0": [
                     "Suit la langue de Discord : allemand, espagnol, français, japonais, polonais, portugais, russe et turc, en plus de l'anglais."
                 ],
@@ -81,6 +96,9 @@
             "name": "音量ブースター",
             "description": "Discordの200%の上限を超えて、相手の音量を上げられます。ユーザーメニューと配信タイルの音量スライダーは、デフォルトで400%まで、設定を上げれば1000%まで調整できます。",
             "changelog": {
+                "1.1.1": [
+                    "Discordのアップデート後も再び動作します。設定の同期時、ブーストした音量はDiscordの上限内に収められます。"
+                ],
                 "1.1.0": [
                     "Discordの言語設定に合わせて表示されます。英語のほか、ドイツ語、スペイン語、フランス語、日本語、ポーランド語、ポルトガル語、ロシア語、トルコ語に対応しています。"
                 ],
@@ -96,6 +114,9 @@
             "name": "Wzmacniacz głośności",
             "description": "Podgłaśniaj ludzi ponad limit 200% w Discordzie. Suwak głośności w menu użytkownika i na kafelkach transmisji domyślnie sięga 400%, a po zmianie ustawienia nawet 1000%.",
             "changelog": {
+                "1.1.1": [
+                    "Znów działa po aktualizacji Discorda: podbite głośności mieszczą się w limicie Discorda podczas synchronizacji ustawień."
+                ],
                 "1.1.0": [
                     "Mówi w języku Discorda: po niemiecku, hiszpańsku, francusku, japońsku, polsku, portugalsku, rosyjsku i turecku, oprócz angielskiego."
                 ],
@@ -111,6 +132,9 @@
             "name": "Amplificador de volume",
             "description": "Aumente o volume das pessoas além do limite de 200% do Discord. O controle de volume no menu de um usuário e nos blocos de transmissão vai até 400% por padrão, ou até 1000% se você configurar mais alto.",
             "changelog": {
+                "1.1.1": [
+                    "Volta a funcionar após a atualização do Discord: volumes amplificados ficam dentro do limite do Discord quando suas configurações sincronizam."
+                ],
                 "1.1.0": [
                     "Segue o idioma do Discord: alemão, espanhol, francês, japonês, polonês, português, russo e turco, além do inglês."
                 ],
@@ -126,6 +150,9 @@
             "name": "Усилитель громкости",
             "description": "Делайте собеседников громче, чем позволяет лимит Discord в 200%. Ползунок громкости в меню пользователя и на плитках трансляций по умолчанию доходит до 400%, а если поднять предел — до 1000%.",
             "changelog": {
+                "1.1.1": [
+                    "Снова работает после обновления Discord: усиленная громкость не выходит за предел Discord при синхронизации настроек."
+                ],
                 "1.1.0": [
                     "Говорит на языке Discord: немецком, испанском, французском, японском, польском, португальском, русском и турецком, а также на английском."
                 ],
@@ -141,6 +168,9 @@
             "name": "Ses Yükseltici",
             "description": "İnsanların sesini Discord'un %200 sınırının ötesine çıkar. Kullanıcı menüsündeki ve yayın kutucuklarındaki ses kaydırıcısı varsayılan olarak %400'e, daha yüksek ayarlarsan %1000'e kadar çıkar.",
             "changelog": {
+                "1.1.1": [
+                    "Discord güncellemesinden sonra yeniden çalışıyor: ayarların eşitlenirken yükseltilmiş ses seviyeleri Discord'un sınırında tutulur."
+                ],
                 "1.1.0": [
                     "Discord'un dilini kullanır: İngilizcenin yanı sıra Almanca, İspanyolca, Fransızca, Japonca, Lehçe, Portekizce, Rusça ve Türkçe."
                 ],

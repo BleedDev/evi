@@ -11,6 +11,11 @@ export type ReleaseNotes = Partial<Record<SectionKind, string[]>>;
 /** Language -> version -> section -> lines */
 export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
     de: {
+        "2.5.2": {
+            fixed: [
+                "**Evi bleibt nach Discord-Updates in Discord.** Discord installiert seine Updates jetzt beim Start und startet direkt neu, dabei konnte Evi die neue Version verpassen und war weg, bis du Evi Setup erneut ausgeführt hast. Evi zieht jetzt in eine neue Discord-Version um, sobald sie geschrieben ist.",
+            ],
+        },
         "2.5.1": {
             fixed: [
                 "**Aktivitäten laden wieder, während du eine Evi-Dekoration trägst.** Spiele wie Farm Merge Valley blieben beim Laden hängen, weil Discord deine Evi-Dekoration an sie weitergab. Aktivitäten sehen jetzt deine normale Discord-Dekoration.",
@@ -369,6 +374,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     es: {
+        "2.5.2": {
+            fixed: [
+                "**Evi se queda en Discord después de sus actualizaciones.** Discord ahora instala sus actualizaciones al iniciarse y se reinicia directamente en ellas, y Evi podía perderse la nueva versión y desaparecer hasta que volvieras a ejecutar Evi Setup. Ahora Evi se pasa a la nueva versión de Discord en cuanto se escribe.",
+            ],
+        },
         "2.5.1": {
             fixed: [
                 "**Las actividades vuelven a cargar mientras llevas una decoración de Evi.** Juegos como Farm Merge Valley se quedaban cargando porque Discord les pasaba tu decoración de Evi. Ahora las actividades ven tu decoración normal de Discord.",
@@ -727,6 +737,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     fr: {
+        "2.5.2": {
+            fixed: [
+                "**Evi reste dans Discord après ses mises à jour.** Discord installe maintenant ses mises à jour au démarrage et redémarre directement dessus, et Evi pouvait rater la nouvelle version et disparaître jusqu'à ce que tu relances Evi Setup. Evi passe maintenant dans la nouvelle version de Discord dès qu'elle est écrite.",
+            ],
+        },
         "2.5.1": {
             fixed: [
                 "**Les activités se chargent à nouveau quand tu portes une décoration Evi.** Des jeux comme Farm Merge Valley restaient bloqués au chargement, car Discord leur transmettait ta décoration Evi. Les activités voient maintenant ta décoration Discord habituelle.",
@@ -1085,6 +1100,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ja: {
+        "2.5.2": {
+            fixed: [
+                "**Discord がアップデートしても Evi が残ります。** Discord は起動時にアップデートをインストールしてすぐ再起動するようになり、Evi が新しいバージョンに入りそびれて、Evi Setup をもう一度実行するまで消えることがありました。Evi は新しい Discord のバージョンが書き込まれた時点ですぐに移るようになりました。",
+            ],
+        },
         "2.5.1": {
             fixed: [
                 "**Evi のデコレーションを着けていてもアクティビティが読み込まれます。** Discord が Evi のデコレーションをアクティビティに渡していたため、Farm Merge Valley などのゲームが読み込み中のまま止まっていました。アクティビティには通常の Discord のデコレーションが表示されます。",
@@ -1443,6 +1463,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     pl: {
+        "2.5.2": {
+            fixed: [
+                "**Evi zostaje w Discordzie po jego aktualizacjach.** Discord instaluje teraz aktualizacje przy starcie i od razu się w nie restartuje, przez co Evi mogło przegapić nową wersję i zniknąć, dopóki nie uruchomiłeś ponownie Evi Setup. Evi przenosi się teraz do nowej wersji Discorda, gdy tylko zostanie zapisana.",
+            ],
+        },
         "2.5.1": {
             fixed: [
                 "**Aktywności znów się wczytują, gdy nosisz dekorację Evi.** Gry takie jak Farm Merge Valley zawieszały się podczas wczytywania, bo Discord przekazywał im twoją dekorację Evi. Teraz aktywności widzą twoją zwykłą dekorację z Discorda.",
@@ -1801,6 +1826,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     "pt-BR": {
+        "2.5.2": {
+            fixed: [
+                "**O Evi continua no Discord depois das atualizações dele.** O Discord agora instala as atualizações ao iniciar e reinicia direto nelas, e o Evi podia perder a nova versão e sumir até você rodar o Evi Setup de novo. Agora o Evi passa para a nova versão do Discord assim que ela é gravada.",
+            ],
+        },
         "2.5.1": {
             fixed: [
                 "**As atividades voltaram a carregar enquanto você usa uma decoração do Evi.** Jogos como Farm Merge Valley travavam no carregamento porque o Discord repassava sua decoração do Evi para eles. Agora as atividades veem sua decoração normal do Discord.",
@@ -2159,6 +2189,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ru: {
+        "2.5.2": {
+            fixed: [
+                "**Evi остаётся в Discord после его обновлений.** Discord теперь ставит обновления при запуске и сразу перезапускается в них, и Evi мог пропустить новую версию и пропасть, пока ты снова не запустишь Evi Setup. Теперь Evi переходит в новую версию Discord, как только она записана.",
+            ],
+        },
         "2.5.1": {
             fixed: [
                 "**Активности снова загружаются, когда на тебе украшение Evi.** Игры вроде Farm Merge Valley зависали на загрузке, потому что Discord передавал им твоё украшение Evi. Теперь активности видят твоё обычное украшение Discord.",
@@ -2517,6 +2552,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     tr: {
+        "2.5.2": {
+            fixed: [
+                "**Evi, Discord güncellendikten sonra Discord'da kalıyor.** Discord artık güncellemelerini açılırken kuruyor ve hemen yeni sürümle yeniden başlıyor; Evi bu yeni sürümü kaçırabiliyor ve Evi Setup'ı tekrar çalıştırana kadar kayboluyordu. Evi artık yeni Discord sürümüne yazılır yazılmaz geçiyor.",
+            ],
+        },
         "2.5.1": {
             fixed: [
                 "**Evi dekorasyonu takarken etkinlikler yeniden yükleniyor.** Discord, Evi dekorasyonunu onlara ilettiği için Farm Merge Valley gibi oyunlar yüklenirken takılı kalıyordu. Etkinlikler artık normal Discord dekorasyonunu görüyor.",

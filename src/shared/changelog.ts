@@ -28,6 +28,15 @@ export interface Release {
  */
 export const RELEASES: Release[] = [
     {
+        version: "2.5.2",
+        date: "2026-10-20",
+        sections: {
+            fixed: [
+                "**Evi stays in Discord after Discord updates.** Discord now installs its updates while it starts and restarts straight into them, and Evi could miss the new version and be gone until you ran Evi Setup again. Evi now moves into a new Discord version as soon as it's written.",
+            ],
+        },
+    },
+    {
         version: "2.5.1",
         date: "2026-10-15",
         sections: {

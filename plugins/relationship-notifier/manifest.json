@@ -1,10 +1,15 @@
 {
     "id": "relationship-notifier",
     "name": "Relationship Notifier",
-    "description": "Tells you when someone removes you as a friend, declines your friend request, or removes you from a group DM or server. Kept in memory only: nothing is saved, and the log is gone when Discord restarts.",
-    "version": "1.1.0",
+    "description": "Tells you when someone removes you as a friend, declines or accepts your friend request, leaves it unanswered for a week, or removes you from a group DM or server, including what changed while you were offline. Search and filter the history here or with /relationships. The last 500, and a list of your friends, sent requests and servers to compare with, are kept on this device only.",
+    "version": "1.2.0",
     "authors": [
-        "Evi"
+        "Evi",
+        "Kaz"
+    ],
+    "authorIds": [
+        "evi",
+        "kazdevger"
     ],
     "tags": [
         "social"
@@ -13,6 +18,14 @@
         "readMessages": true
     },
     "changelog": [
+        {
+            "version": "1.2.0",
+            "notes": [
+                "Brings in Kaz's BetterRelations+: accepted friend requests, requests with no answer for a week, and what changed while you were offline.",
+                "The history now stays after Discord restarts: the last 500, on this device only. Turn off Keep history to keep it in memory, as before.",
+                "Search the history by name or ID, filter it by kind and page through it, in settings or with /relationships."
+            ]
+        },
         {
             "version": "1.1.0",
             "notes": [
@@ -42,8 +55,13 @@
     "locales": {
         "de": {
             "name": "Beziehungs-Benachrichtigungen",
-            "description": "Sagt dir Bescheid, wenn dich jemand als Freund entfernt, deine Freundschaftsanfrage ablehnt oder dich aus einer Gruppen-DM oder von einem Server entfernt. Nur im Arbeitsspeicher: nichts wird gespeichert, und das Protokoll ist beim Neustart von Discord weg.",
+            "description": "Sagt dir Bescheid, wenn dich jemand als Freund entfernt, deine Freundschaftsanfrage ablehnt oder annimmt, sie eine Woche unbeantwortet lässt oder dich aus einer Gruppen-DM oder von einem Server entfernt, auch was sich geändert hat, während du offline warst. Durchsuche und filtere den Verlauf hier oder mit /relationships. Die letzten 500 und eine Liste deiner Freunde, gesendeten Anfragen und Server zum Vergleichen bleiben nur auf diesem Gerät.",
             "changelog": {
+                "1.2.0": [
+                    "Übernimmt BetterRelations+ von Kaz: angenommene Freundschaftsanfragen, Anfragen, die eine Woche unbeantwortet sind, und was sich geändert hat, während du offline warst.",
+                    "Der Verlauf bleibt jetzt nach einem Neustart von Discord erhalten: die letzten 500, nur auf diesem Gerät. Schalte „Verlauf behalten“ aus, um ihn wie bisher nur im Arbeitsspeicher zu halten.",
+                    "Durchsuche den Verlauf nach Name oder ID, filtere ihn nach Art und blättere durch die Seiten, in den Einstellungen oder mit /relationships."
+                ],
                 "1.1.0": [
                     "Folgt der Sprache von Discord: Deutsch, Spanisch, Französisch, Japanisch, Polnisch, Portugiesisch, Russisch und Türkisch, dazu Englisch."
                 ],
@@ -60,8 +78,13 @@
         },
         "es": {
             "name": "Avisos de relaciones",
-            "description": "Te avisa cuando alguien te elimina como amigo, rechaza tu solicitud de amistad o te saca de un MD grupal o de un servidor. Solo en memoria: no se guarda nada y el registro desaparece al reiniciar Discord.",
+            "description": "Te avisa cuando alguien te elimina como amigo, rechaza o acepta tu solicitud de amistad, la deja una semana sin respuesta o te saca de un MD grupal o de un servidor, incluido lo que cambió mientras no estabas. Busca y filtra el historial aquí o con /relationships. Los últimos 500, y una lista de tus amigos, solicitudes enviadas y servidores para comparar, se guardan solo en este dispositivo.",
             "changelog": {
+                "1.2.0": [
+                    "Incorpora BetterRelations+ de Kaz: solicitudes de amistad aceptadas, solicitudes que llevan una semana sin respuesta y lo que cambió mientras no estabas.",
+                    "El historial ahora sigue ahí después de reiniciar Discord: los últimos 500, solo en este dispositivo. Desactiva Guardar historial para tenerlo solo en memoria, como antes.",
+                    "Busca en el historial por nombre o ID, fíltralo por tipo y recórrelo por páginas, en los ajustes o con /relationships."
+                ],
                 "1.1.0": [
                     "Sigue el idioma de Discord: alemán, español, francés, japonés, polaco, portugués, ruso y turco, además de inglés."
                 ],
@@ -78,8 +101,13 @@
         },
         "fr": {
             "name": "Notifications de relations",
-            "description": "Te prévient quand quelqu'un te retire de ses amis, refuse ta demande d'ami ou te retire d'un groupe de MP ou d'un serveur. Gardé en mémoire uniquement : rien n'est enregistré et le journal disparaît au redémarrage de Discord.",
+            "description": "Te prévient quand quelqu'un te retire de ses amis, refuse ou accepte ta demande d'ami, la laisse sans réponse pendant une semaine ou te retire d'un groupe de MP ou d'un serveur, y compris ce qui a changé pendant ton absence. Recherche et filtre l'historique ici ou avec /relationships. Les 500 derniers, et une liste de tes amis, demandes envoyées et serveurs pour comparer, sont gardés sur cet appareil uniquement.",
             "changelog": {
+                "1.2.0": [
+                    "Reprend BetterRelations+ de Kaz : les demandes d'ami acceptées, les demandes sans réponse depuis une semaine et ce qui a changé pendant ton absence.",
+                    "L'historique reste maintenant après un redémarrage de Discord : les 500 derniers, sur cet appareil uniquement. Désactive Garder l'historique pour le garder en mémoire, comme avant.",
+                    "Recherche dans l'historique par nom ou ID, filtre-le par type et parcours-le page par page, dans les paramètres ou avec /relationships."
+                ],
                 "1.1.0": [
                     "Suit la langue de Discord : allemand, espagnol, français, japonais, polonais, portugais, russe et turc, en plus de l'anglais."
                 ],
@@ -96,8 +124,13 @@
         },
         "ja": {
             "name": "リレーション通知",
-            "description": "誰かにフレンドから削除されたとき、フレンド申請を拒否されたとき、グループDMやサーバーから削除されたときにお知らせします。メモリ上にのみ保持され、何も保存されません。ログはDiscordを再起動すると消えます。",
+            "description": "誰かにフレンドから削除されたとき、フレンド申請が拒否・承認されたとき、1週間返事がないとき、グループDMやサーバーから削除されたときにお知らせします。オフライン中に変わったことも含みます。履歴はここか /relationships で検索・絞り込みできます。直近500件と、比較用のフレンド・送った申請・サーバーの一覧は、このデバイスにのみ保存されます。",
             "changelog": {
+                "1.2.0": [
+                    "KazさんのBetterRelations+を取り込みました。承認されたフレンド申請、1週間返事のない申請、オフライン中に変わったことをお知らせします。",
+                    "履歴がDiscordを再起動しても残るようになりました。直近500件を、このデバイスにのみ保存します。「履歴を保存」をオフにすると、これまでどおりメモリ上にのみ保持されます。",
+                    "履歴を名前やIDで検索し、種類で絞り込み、ページごとに見られます。設定画面か /relationships で使えます。"
+                ],
                 "1.1.0": [
                     "Discordの言語設定に合わせて表示されます。英語のほか、ドイツ語、スペイン語、フランス語、日本語、ポーランド語、ポルトガル語、ロシア語、トルコ語に対応しています。"
                 ],
@@ -114,8 +147,13 @@
         },
         "pl": {
             "name": "Powiadomienia o relacjach",
-            "description": "Powiadamia, gdy ktoś usuwa cię ze znajomych, odrzuca twoje zaproszenie do znajomych albo usuwa cię z grupowego DM-a lub serwera. Tylko w pamięci: nic nie jest zapisywane, a dziennik znika po ponownym uruchomieniu Discorda.",
+            "description": "Powiadamia, gdy ktoś usuwa cię ze znajomych, odrzuca lub przyjmuje twoje zaproszenie do znajomych, zostawia je na tydzień bez odpowiedzi albo usuwa cię z grupowego DM-a lub serwera, także o tym, co zmieniło się podczas twojej nieobecności. Przeszukuj i filtruj historię tutaj lub przez /relationships. Ostatnie 500 oraz lista twoich znajomych, wysłanych zaproszeń i serwerów do porównania są przechowywane tylko na tym urządzeniu.",
             "changelog": {
+                "1.2.0": [
+                    "Przejmuje BetterRelations+ od Kaz: przyjęte zaproszenia do znajomych, zaproszenia bez odpowiedzi od tygodnia i to, co zmieniło się podczas twojej nieobecności.",
+                    "Historia zostaje teraz po ponownym uruchomieniu Discorda: ostatnie 500, tylko na tym urządzeniu. Wyłącz Zachowuj historię, żeby trzymać ją tylko w pamięci, jak wcześniej.",
+                    "Przeszukuj historię po nazwie lub ID, filtruj ją według rodzaju i przeglądaj stronami, w ustawieniach lub przez /relationships."
+                ],
                 "1.1.0": [
                     "Mówi w języku Discorda: po niemiecku, hiszpańsku, francusku, japońsku, polsku, portugalsku, rosyjsku i turecku, oprócz angielskiego."
                 ],
@@ -132,8 +170,13 @@
         },
         "pt-BR": {
             "name": "Avisos de relacionamento",
-            "description": "Avisa quando alguém te remove dos amigos, recusa seu pedido de amizade ou te remove de uma DM em grupo ou de um servidor. Fica só na memória: nada é salvo e o registro some quando o Discord reinicia.",
+            "description": "Avisa quando alguém te remove dos amigos, recusa ou aceita seu pedido de amizade, deixa ele uma semana sem resposta ou te remove de uma DM em grupo ou de um servidor, incluindo o que mudou enquanto você estava fora. Pesquise e filtre o histórico aqui ou com /relationships. Os últimos 500, e uma lista dos seus amigos, pedidos enviados e servidores para comparar, ficam só neste dispositivo.",
             "changelog": {
+                "1.2.0": [
+                    "Traz o BetterRelations+ do Kaz: pedidos de amizade aceitos, pedidos sem resposta há uma semana e o que mudou enquanto você estava fora.",
+                    "O histórico agora continua depois que o Discord reinicia: os últimos 500, só neste dispositivo. Desative Manter histórico para deixá-lo só na memória, como antes.",
+                    "Pesquise no histórico por nome ou ID, filtre por tipo e navegue pelas páginas, nas configurações ou com /relationships."
+                ],
                 "1.1.0": [
                     "Segue o idioma do Discord: alemão, espanhol, francês, japonês, polonês, português, russo e turco, além do inglês."
                 ],
@@ -150,8 +193,13 @@
         },
         "ru": {
             "name": "Уведомления об удалении",
-            "description": "Сообщает, когда кто-то удаляет вас из друзей, отклоняет вашу заявку в друзья или удаляет вас из группового чата или с сервера. Всё хранится только в памяти: ничего не сохраняется, а журнал пропадает при перезапуске Discord.",
+            "description": "Сообщает, когда кто-то удаляет вас из друзей, отклоняет или принимает вашу заявку в друзья, неделю оставляет её без ответа или удаляет вас из группового чата или с сервера, в том числе о том, что изменилось, пока вас не было. Ищите и фильтруйте историю здесь или через /relationships. Последние 500 и список ваших друзей, отправленных заявок и серверов для сравнения хранятся только на этом устройстве.",
             "changelog": {
+                "1.2.0": [
+                    "Включает BetterRelations+ от Kaz: принятые заявки в друзья, заявки без ответа уже неделю и то, что изменилось, пока вас не было.",
+                    "История теперь сохраняется после перезапуска Discord: последние 500, только на этом устройстве. Выключите «Сохранять историю», чтобы хранить её только в памяти, как раньше.",
+                    "Ищите в истории по имени или ID, фильтруйте по виду и листайте по страницам, в настройках или через /relationships."
+                ],
                 "1.1.0": [
                     "Говорит на языке Discord: немецком, испанском, французском, японском, польском, португальском, русском и турецком, а также на английском."
                 ],
@@ -168,8 +216,13 @@
         },
         "tr": {
             "name": "İlişki Bildirici",
-            "description": "Biri seni arkadaşlıktan çıkardığında, arkadaşlık isteğini reddettiğinde veya seni bir grup DM'sinden ya da sunucudan çıkardığında haber verir. Yalnızca bellekte tutulur: hiçbir şey kaydedilmez ve günlük Discord yeniden başlatıldığında silinir.",
+            "description": "Biri seni arkadaşlıktan çıkardığında, arkadaşlık isteğini reddettiğinde veya kabul ettiğinde, bir hafta yanıtsız bıraktığında ya da seni bir grup DM'sinden veya sunucudan çıkardığında haber verir; sen yokken değişenler de dahil. Geçmişi burada veya /relationships ile ara ve filtrele. Son 500 kayıt ve karşılaştırma için arkadaşlarının, gönderdiğin isteklerin ve sunucularının listesi yalnızca bu cihazda tutulur.",
             "changelog": {
+                "1.2.0": [
+                    "Kaz'ın BetterRelations+ eklentisini getirir: kabul edilen arkadaşlık istekleri, bir haftadır yanıtsız istekler ve sen yokken değişenler.",
+                    "Geçmiş artık Discord yeniden başladıktan sonra da kalır: son 500 kayıt, yalnızca bu cihazda. Eskisi gibi yalnızca bellekte tutmak için Geçmişi sakla'yı kapat.",
+                    "Geçmişte ada veya ID'ye göre ara, türe göre filtrele ve sayfa sayfa gez; ayarlarda ya da /relationships ile."
+                ],
                 "1.1.0": [
                     "Discord'un dilini kullanır: İngilizcenin yanı sıra Almanca, İspanyolca, Fransızca, Japonca, Lehçe, Portekizce, Rusça ve Türkçe."
                 ],

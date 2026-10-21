@@ -44,10 +44,15 @@ const { values } = parseArgs({
     },
 });
 
-/** Author slugs of an official plugin's co-authors: every name after "Evi" in its manifest */
+/**
+ * Author slugs of an official plugin's co-authors: every name after "Evi" in its manifest, or its
+ * "authorIds" after "evi" when a profile's slug isn't the one the name makes ("Kaz" is kazdevger)
+ */
 function coAuthorSlugs(dir: string): string[] {
     try {
-        const authors: unknown = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8")).authors;
+        const manifest = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8"));
+        if (Array.isArray(manifest.authorIds)) return manifest.authorIds.slice(1).filter((a: unknown): a is string => typeof a === "string");
+        const authors: unknown = manifest.authors;
         if (!Array.isArray(authors)) return [];
         return authors.slice(1).filter((a): a is string => typeof a === "string")
             .map(a => a.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")).filter(Boolean);

@@ -1,7 +1,9 @@
 import { describe, expect, test } from "bun:test";
 
 import {
-    ChannelSnapshot, decide, DEDUPE_WINDOW, GROUP_DM, groupName, Lookup, NotificationLog, RelationshipType, SELF_WINDOW, storeLookup, Tracker,
+    CAP, ChannelSnapshot, countByFilter, decide, DEDUPE_WINDOW, filterEntries, GROUP_DM, groupName, isRepeat, Lookup, matches, missedChanges, notification,
+    NotificationLog, PAGE_SIZE, paginate, parseHistory, parseSnapshot, RelationshipType, REPEAT_WINDOW, SELF_WINDOW, settleSnapshot, Snapshot, storedHistory,
+    storeLookup, Tracker, UNANSWERED_AFTER, unansweredRequests,
 } from "../plugins/relationship-notifier/events";
 
 const ME = "me";
@@ -219,5 +221,173 @@ describe("relationship notifier: store lookup", () => {
         expect(lookup.currentUserId).toBe(ME);
         expect(lookup.guildName("s")).toBe("Server");
         expect(lookup.channel("g")).toEqual({ type: GROUP_DM, name: "Pals", recipients: ["a"] });
+    });
+});
+
+describe("relationship notifier: friend requests", () => {
+    const people = lookup({
+        relationships: { b: RelationshipType.OUTGOING, c: RelationshipType.INCOMING, a: RelationshipType.FRIEND },
+        users: { a: "Alice", b: "Bob", c: "Carol" },
+    });
+
+    test("a request you sent becoming a friendship is reported as accepted, once", () => {
+        const t = new Tracker();
+        const n = decide({ type: "RELATIONSHIP_ADD", relationship: { id: "b", type: 1, user: { username: "bob" } } }, people, t, 5);
+        expect(n).toEqual({ kind: "requestAccepted", id: "b", name: "Bob", username: "bob", at: 5, text: "Bob accepted your friend request" });
+        expect(decide({ type: "RELATIONSHIP_UPDATE", relationship: { id: "b", type: 1 } }, people, t, 10)).toBeNull();
+        expect(decide({ type: "RELATIONSHIP_UPDATE", relationship: { id: "b", type: 1 } }, people, t, DEDUPE_WINDOW + 20)?.kind).toBe("requestAccepted");
+    });
+
+    test("accepting their request, new requests and updates to friends aren't acceptances", () => {
+        const t = new Tracker();
+        expect(decide({ type: "RELATIONSHIP_ADD", relationship: { id: "c", type: 1 } }, people, t)).toBeNull();
+        expect(decide({ type: "RELATIONSHIP_ADD", relationship: { id: "b", type: 4 } }, people, t)).toBeNull();
+        expect(decide({ type: "RELATIONSHIP_UPDATE", relationship: { id: "a", type: 1 } }, people, t)).toBeNull();
+        expect(decide({ type: "RELATIONSHIP_ADD", relationship: {} }, people, t)).toBeNull();
+    });
+
+    test("a request going away says it may be a block", () => {
+        expect(decide({ type: "RELATIONSHIP_REMOVE", relationship: { id: "b" } }, people, new Tracker())?.text)
+            .toBe("Your friend request to Bob was declined, or they blocked you");
+    });
+
+    test("a friend removal keeps how long you were friends and their @username, when known", () => {
+        const known: Lookup = { ...people, since: () => 1000, username: () => "alice" };
+        const n = decide({ type: "RELATIONSHIP_REMOVE", relationship: { id: "a" } }, known, new Tracker(), 5);
+        expect(n).toMatchObject({ kind: "friendRemoved", since: 1000, username: "alice" });
+    });
+
+    test("unanswered after a week, reported once, forgotten when the request goes", () => {
+        const now = 10 * UNANSWERED_AFTER;
+        const outgoing = [["old", now - UNANSWERED_AFTER], ["new", now - UNANSWERED_AFTER + 1], ["unknown", undefined], ["told", now - 2 * UNANSWERED_AFTER]] as const;
+        const first = unansweredRequests(outgoing, new Set(["told", "gone"]), now);
+        expect(first.due).toEqual(["old"]);
+        expect(first.remember.sort()).toEqual(["old", "told"]);
+        expect(unansweredRequests(outgoing, new Set(first.remember), now).due).toEqual([]);
+    });
+});
+
+describe("relationship notifier: while offline", () => {
+    const snapshot = (over: Partial<Snapshot> = {}): Snapshot => ({
+        user: ME,
+        at: 100,
+        friends: { a: { name: "Alice", since: 50 }, d: { name: "Dave" } },
+        requests: { b: { name: "Bob", username: "bob" }, c: { name: "Carol" } },
+        servers: { s: "Cool Server", u: "Down Server" },
+        ...over,
+    });
+
+    test("friends, requests and servers that are gone are reported, worded for not knowing who did it", () => {
+        const now = snapshot({ at: 200, friends: { d: { name: "Dave" }, c: { name: "Carol" } }, requests: {}, servers: { u: "Down Server" } });
+        expect(missedChanges(snapshot(), now, 300)).toEqual([
+            { kind: "friendRemoved", id: "a", name: "Alice", since: 50, at: 300, offlineSince: 100, text: "Alice is no longer your friend" },
+            { kind: "requestCancelled", id: "b", name: "Bob", username: "bob", at: 300, offlineSince: 100, text: "Your friend request to Bob is gone: declined, cancelled, or they blocked you" },
+            { kind: "requestAccepted", id: "c", name: "Carol", at: 300, offlineSince: 100, text: "Carol accepted your friend request" },
+            { kind: "serverRemoved", id: "s", name: "Cool Server", at: 300, offlineSince: 100, text: "You're no longer in Cool Server" },
+        ]);
+    });
+
+    test("servers that are only unavailable aren't gone, and stay in the snapshot", () => {
+        const now = snapshot({ servers: { s: "Cool Server" } });
+        expect(missedChanges(snapshot(), now, 300, id => id === "u")).toEqual([]);
+        expect(settleSnapshot(snapshot(), now, id => id === "u").servers).toEqual({ s: "Cool Server", u: "Down Server" });
+        expect(settleSnapshot(snapshot(), now).servers).toEqual({ s: "Cool Server" });
+    });
+
+    test("an empty section is one Discord hasn't loaded: nothing is reported, the old one is kept", () => {
+        const now = snapshot({ at: 200, friends: {}, requests: {}, servers: {} });
+        expect(missedChanges(snapshot(), now, 300)).toEqual([]);
+        const kept = settleSnapshot(snapshot(), now);
+        expect(kept.friends).toEqual(snapshot().friends);
+        expect(kept.requests).toEqual(snapshot().requests);
+        expect(kept.servers).toEqual(snapshot().servers);
+        expect(kept.at).toBe(200);
+    });
+
+    test("friends and requests load together: the last request answered isn't an unloaded section", () => {
+        const before = snapshot({ friends: {}, requests: { b: { name: "Bob" } } });
+        expect(missedChanges(before, snapshot({ friends: { b: { name: "Bob" } }, requests: {} }), 300).map(e => e.kind)).toEqual(["requestAccepted"]);
+        expect(missedChanges(before, snapshot({ friends: {}, requests: {} }), 300)).toEqual([]);
+    });
+
+    test("nothing to compare with, or another account's snapshot: nothing reported", () => {
+        expect(missedChanges(undefined, snapshot(), 300)).toEqual([]);
+        const other = snapshot({ user: "someone else", friends: {} });
+        expect(missedChanges(snapshot(), other, 300)).toEqual([]);
+        expect(settleSnapshot(snapshot(), other)).toBe(other);
+    });
+
+    test("stored snapshots are read back, junk isn't", () => {
+        expect(parseSnapshot(JSON.parse(JSON.stringify(snapshot())))).toEqual(snapshot());
+        expect(parseSnapshot(null)).toBeUndefined();
+        expect(parseSnapshot({ user: ME })).toBeUndefined();
+        expect(parseSnapshot({ user: ME, at: 1, friends: { x: { name: 5 }, y: "nope" }, servers: { s: 3 } })).toEqual({ user: ME, at: 1, friends: {}, requests: {}, servers: {} });
+    });
+});
+
+describe("relationship notifier: history", () => {
+    type Kind = "friendRemoved" | "serverRemoved" | "requestAccepted";
+    const entry = (id: string, at = 1, kind: Kind = "friendRemoved", extra: { username?: string; offlineSince?: number; } = {}) =>
+        notification({ kind, id, name: `Name ${id.toUpperCase()}`, at, ...extra });
+
+    test("keeps the last 500", () => {
+        const log = new NotificationLog();
+        for (let i = 0; i < CAP + 20; i++) log.add(entry(`u${i}`, i));
+        expect(log.entries.length).toBe(CAP);
+        expect(log.entries[0].id).toBe(`u${CAP + 19}`);
+        expect(log.entries.at(-1)?.id).toBe("u20");
+    });
+
+    test("the same thing reported again within a minute is a repeat", () => {
+        const log = new NotificationLog();
+        expect(log.add(entry("a", 0))).toBe(true);
+        expect(log.add(entry("a", REPEAT_WINDOW - 1))).toBe(false);
+        expect(log.add(entry("a", 10, "serverRemoved"))).toBe(true);
+        expect(log.add(entry("b", 10))).toBe(true);
+        expect(log.add(entry("a", REPEAT_WINDOW + 1))).toBe(true);
+        expect(log.entries.length).toBe(4);
+    });
+
+    test("something noticed after being offline repeats anything logged since it could have happened", () => {
+        const logged = [entry("a", 5_000_000)];
+        expect(isRepeat(logged, entry("a", 9_000_000, "friendRemoved", { offlineSince: 4_000_000 }))).toBe(true);
+        expect(isRepeat(logged, entry("a", 9_000_000, "friendRemoved", { offlineSince: 6_000_000 }))).toBe(false);
+        expect(isRepeat(logged, entry("a", 9_000_000))).toBe(false);
+    });
+
+    test("stored without the English text, read back with it, junk dropped, newest first, capped", () => {
+        const entries = [entry("b", 2, "requestAccepted", { username: "bee" }), entry("a", 3, "friendRemoved", { offlineSince: 1 })];
+        const stored = JSON.parse(JSON.stringify(storedHistory(entries)));
+        expect(stored[0].text).toBeUndefined();
+        const read = parseHistory([...stored, { kind: "nope", id: "x", name: "x", at: 1 }, { kind: "friendRemoved", id: 5 }, null, "x"]);
+        expect(read).toEqual([entries[1], entries[0]]);
+        expect(read[0].text).toBe("Name A is no longer your friend");
+        expect(parseHistory({})).toEqual([]);
+        expect(parseHistory(Array.from({ length: CAP + 5 }, (_, i) => ({ kind: "friendRemoved", id: `u${i}`, name: "x", at: i }))).length).toBe(CAP);
+    });
+
+    test("filters by kind, and searches name, @username and id", () => {
+        const entries = [entry("111", 1), entry("222", 2, "serverRemoved"), entry("333", 3, "requestAccepted", { username: "SomeOne" })];
+        expect(filterEntries(entries, "all").length).toBe(3);
+        expect(filterEntries(entries, "serverRemoved").map(e => e.id)).toEqual(["222"]);
+        expect(filterEntries(entries, "requestUnanswered")).toEqual([]);
+        expect(matches(entries[0], "all", "  name 1 ")).toBe(true);
+        expect(matches(entries[2], "all", "someone")).toBe(true);
+        expect(matches(entries[1], "all", "22")).toBe(true);
+        expect(matches(entries[1], "friendRemoved", "22")).toBe(false);
+        expect(filterEntries(entries, "all", "nobody")).toEqual([]);
+        expect(countByFilter(entries)).toEqual({
+            all: 3, friendRemoved: 1, requestCancelled: 0, requestAccepted: 1, requestUnanswered: 0, groupRemoved: 0, serverRemoved: 1,
+        });
+    });
+
+    test("pages of 20, clamped into range", () => {
+        const list = Array.from({ length: 45 }, (_, i) => i);
+        expect(paginate(list, 0)).toEqual({ items: list.slice(0, PAGE_SIZE), page: 0, pages: 3 });
+        expect(paginate(list, 2).items).toEqual([40, 41, 42, 43, 44]);
+        expect(paginate(list, 9).page).toBe(2);
+        expect(paginate(list, -3).page).toBe(0);
+        expect(paginate(list, NaN).page).toBe(0);
+        expect(paginate([], 4)).toEqual({ items: [], page: 0, pages: 1 });
     });
 });

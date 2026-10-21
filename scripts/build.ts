@@ -16,6 +16,7 @@ import pkg from "../package.json";
 import type { PluginManifest } from "../src/shared/ipc";
 import { RELEASE_ASSETS } from "../src/shared/release";
 import { RETIRED_PLUGINS } from "../src/shared/store";
+import { mainLocales, strayKeys } from "./mainLocales";
 
 const ROOT = resolve(import.meta.dir, "..");
 const DIST = join(ROOT, "dist");
@@ -84,7 +85,8 @@ async function buildCore() {
             target: "node",
             format: "cjs",
             external: ["electron", "original-fs"],
-        }),
+            plugins: WATCH ? [] : [mainLocales],
+        }).then(ok => ok && mainKeysOk()),
         bundle("preload", {
             entrypoints: [join(ROOT, "src/preload/index.ts")],
             outdir: CORE_OUT,
@@ -104,6 +106,15 @@ async function buildCore() {
         }),
     ]);
     if (results.every(Boolean)) console.log(`✓ core (${Math.round(performance.now() - start)}ms)`);
+}
+
+/** Every key main.js names is in the tables it carries (scripts/mainLocales.ts) */
+function mainKeysOk() {
+    if (WATCH) return true;
+    const stray = strayKeys(readFileSync(join(CORE_OUT, "main.js"), "utf8"));
+    if (!stray.length) return true;
+    console.error(`✗ main uses ${stray.join(", ")}, which main.js doesn't carry. Main's text goes under the prefixes in scripts/mainLocales.ts`);
+    process.exit(1);
 }
 
 function findEntry(dir: string, name: string) {

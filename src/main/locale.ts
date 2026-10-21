@@ -1,6 +1,7 @@
 /**
  * Evi's language in main, for what main says itself: native dialogs and the errors it sends back.
  * The renderer knows Discord's language and tells main through IPC.SET_LOCALE; until it does, English.
+ * main.js only carries the keys under scripts/mainLocales.ts's MAIN_KEYS, so main's text goes there.
  */
 import { FALLBACK_LOCALE, matchLocale, translate, Vars } from "@shared/i18n";
 import { CATALOGS, EviKey, LOCALES } from "@shared/locales";

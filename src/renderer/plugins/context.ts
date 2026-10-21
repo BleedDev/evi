@@ -99,6 +99,10 @@ function sameValues(a: Record<string, unknown>, b: Record<string, unknown>) {
 const nativeGrants = new WeakSet<PluginContext<any>>();
 export const grantNative = (ctx: PluginContext<any>) => void nativeGrants.add(ctx);
 
+/** Who hears that part of a context's plugin only works after a Discord reload (the plugin manager) */
+const reloadReporters = new WeakMap<PluginContext<any>, (reason: string) => void>();
+export const onReloadNeeded = (ctx: PluginContext<any>, report: (reason: string) => void) => void reloadReporters.set(ctx, report);
+
 /**
  * Everything a plugin registers goes through its context, which undoes all of it on stop.
  * That's what makes disabling and hot-reloading a plugin safe without a Discord reload.
@@ -294,7 +298,9 @@ export class PluginContext<S extends SettingsSchema = SettingsSchema> {
     panelToggle(toggle: PanelToggle) {
         // One switch per plugin: a stopped run's would replace the running one's, then take it away
         if (this.disposed) return () => { };
-        ensurePanelPatch();
+        // Turned on after the user panel loaded, and it can't be re-run with Evi's spot
+        const reloadReason = ensurePanelPatch();
+        if (reloadReason) reloadReporters.get(this)?.(reloadReason);
         return this.onDispose(addPanelToggle(this.id, toggle));
     }
 

@@ -11,12 +11,14 @@ import type { ComponentType, MouseEvent as ReactMouseEvent } from "react";
 
 import { t, useLocale } from "../i18n";
 import { Logger } from "../logger";
+import { loadedModulesMatching, replaceLive } from "../patching/live";
 import type { SourcePatch } from "../patching/source";
 import { registerPatches } from "../patching/source";
 import { createStyle } from "../styles";
 import { DiscordUI } from "../ui/discord";
 import { Dispatcher, React } from "../webpack/common";
 import { filters, find } from "../webpack/find";
+import { wreq } from "../webpack/runtime";
 import { Menu } from "./contextMenu";
 
 const logger = new Logger("Panel", "#5865f2");
@@ -70,11 +72,24 @@ export const panelPatch: SourcePatch = {
 };
 
 let patched = false;
-/** Registered at boot only when an enabled plugin asks for a switch (toolkit/index.ts) */
-export function ensurePanelPatch() {
-    if (patched) return;
+/** Why the user panel only gets Evi's spot after a Discord reload, when it couldn't be re-run */
+let reloadReason: string | undefined;
+/**
+ * Registered at boot only when an enabled plugin asks for a switch (toolkit/index.ts). A plugin
+ * turned on later finds the user panel already loaded: it's re-run with the patch (patching/live.ts).
+ * Returns why Discord needs a reload first, if it does.
+ */
+export function ensurePanelPatch(): string | undefined {
+    if (patched) return reloadReason;
     patched = true;
     registerPatches("evi", [panelPatch]);
+    if (!wreq) return;
+    const failures = replaceLive(loadedModulesMatching([panelPatch])).filter(o => !o.ok);
+    if (failures.length) {
+        reloadReason = [...new Set(failures.map(f => f.reason))].join(", ");
+        logger.warn("The user panel needs a reload for plugin switches", failures);
+    }
+    return reloadReason;
 }
 
 /** The user panel's button, the one mute and deafen use */

@@ -16,7 +16,7 @@ import { Settings } from "../settings";
 import { React, ReactDOM } from "../webpack/common";
 import { wreq } from "../webpack/runtime";
 import { PluginActivity } from "./activity";
-import { grantNative, PluginContext } from "./context";
+import { grantNative, onReloadNeeded, PluginContext } from "./context";
 import { PluginGuard } from "./guard";
 import { AppliedHotfixes } from "./hotfixes";
 import type { PluginDefinition } from "./types";
@@ -245,6 +245,12 @@ async function start(state: PluginState) {
 
     const ctx = new PluginContext(state.manifest, definition.settings ?? {});
     if (state.manifest.native) grantNative(ctx);
+    onReloadNeeded(ctx, reason => {
+        if (state.ctx !== ctx || state.needsReload) return;
+        state.needsReload = true;
+        state.reloadReason = reason;
+        emit();
+    });
     state.ctx = ctx;
     state.running = true;
     state.error = undefined;

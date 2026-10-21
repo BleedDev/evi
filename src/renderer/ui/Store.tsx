@@ -870,7 +870,13 @@ function StoreListing({ kind, state, items, query, setQuery, filter, setFilter, 
         const save = () => void (memory.scroll = { scroller: new WeakRef(scroller), top: scroller.scrollTop });
         save();
         scroller.addEventListener("scroll", save, { passive: true });
-        return () => scroller.removeEventListener("scroll", save);
+        return () => {
+            scroller.removeEventListener("scroll", save);
+            // Once more on the way out: a scroll in the same frame as the click that leaves (the
+            // browser bringing a half-hidden card into view) has no scroll event yet, and the list
+            // is gone by the time it fires. Still before the cards are removed, so nothing is clamped
+            save();
+        };
     }, [ready, memory, topRef]);
     const categories = [{ value: "all", label: t("store.allCategories") }, ...tags.map(tag => ({ value: tag, label: tagLabel(tag) }))];
 

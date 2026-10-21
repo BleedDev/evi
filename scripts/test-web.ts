@@ -2900,13 +2900,20 @@ await page.waitForSelector('[data-store-id="store-clock"]', { timeout: 2000 });
     await page.waitForSelector('[data-store-id="store-filler-01"]', { timeout: 5000 });
     await page.getByRole("button", { name: "Page 2", exact: true }).click();
     await page.waitForTimeout(150);
-    // Scroll the store's scroller (the panel's body) part way down page 2
+    // Scroll the store's scroller (the panel's body) part way down page 2, then open a card that's
+    // fully in view there: a half-hidden one is scrolled into view by the click first, and the list
+    // rightly comes back to that scroll, not this one
     const before = await page.evaluate(() => {
-        const card = document.querySelector<HTMLElement>(".dl-store-grid li:nth-child(4)")!;
-        let scroller = card.parentElement;
+        const grid = document.querySelector<HTMLElement>(".dl-store-grid")!;
+        let scroller = grid.parentElement;
         while (scroller && !(/auto|scroll/.test(getComputedStyle(scroller).overflowY) && scroller.scrollHeight > scroller.clientHeight)) scroller = scroller.parentElement;
         scroller!.scrollTop = Math.min(scroller!.scrollHeight - scroller!.clientHeight, scroller!.scrollTop + 260);
-        return { top: scroller!.scrollTop, id: card.getAttribute("data-store-id"), page: document.querySelector('.dl-pagination [aria-current="page"]')?.textContent };
+        const view = scroller!.getBoundingClientRect();
+        const card = [...grid.querySelectorAll<HTMLElement>("li[data-store-id]")].find(li => {
+            const rect = li.getBoundingClientRect();
+            return rect.top >= view.top && rect.bottom <= view.bottom;
+        });
+        return { top: scroller!.scrollTop, id: card?.getAttribute("data-store-id"), page: document.querySelector('.dl-pagination [aria-current="page"]')?.textContent };
     });
     await page.waitForTimeout(150);
     await page.locator(`[data-store-id="${before.id}"] .dl-store-card-link`).click();

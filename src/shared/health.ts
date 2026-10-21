@@ -99,9 +99,10 @@ export function parseHealth(raw: unknown): Record<string, PluginHealth> {
 
 /**
  * Whether a status applies to the version someone has: statuses are about one version, and a user
- * already on a newer one isn't affected. "fixed" never warns.
+ * already on a newer one isn't affected. "fixed" never warns, and neither does anything that isn't a
+ * status: health["constructor"] is Object's, not a plugin's.
  */
 export function healthWarns(health: PluginHealth | undefined, installedVersion?: string): boolean {
-    if (!health || health.state === "fixed") return false;
+    if (!health || !HEALTH_STATES.includes(health.state) || health.state === "fixed") return false;
     return !health.version || !installedVersion || health.version === installedVersion;
 }

@@ -59,7 +59,8 @@ export function parsePulled(raw: unknown): PulledPlugins {
 
 /** The pull that applies to a plugin at this version, if any */
 export function pullFor(pulled: PulledPlugins | undefined, id: string, version: string | undefined): PulledPlugin | undefined {
-    const p = pulled?.[id];
+    // Own keys only: a plugin called "constructor" would otherwise find Object's
+    const p = pulled && Object.hasOwn(pulled, id) ? pulled[id] : undefined;
     if (!p) return;
     if (p.versions === "all") return p;
     return version && p.versions.includes(version) ? p : undefined;

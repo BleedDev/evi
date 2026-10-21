@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
-import { validateHealthReport } from "../src/shared/health";
+import { healthWarns, parseHealth, validateHealthReport } from "../src/shared/health";
+import { parsePulled, pullFor } from "../src/shared/pulls";
 import {
     applyPatchFixes, Hotfix, hotfixDraft, HotfixInput, hotfixFor, hotfixRangesOverlap, hotfixTag, inHotfixRange, isHotfixTag,
     lookupFixFor, parseHotfixes, validateHotfixInput,
@@ -184,6 +185,15 @@ describe("hotfixes: health reports and the Patch Helper", () => {
         expect(validateHealthReport({ ...report, hotfix: "7.2" })).toEqual({ report: { ...report, hotfix: "7.2" } as any });
         expect(validateHealthReport(report)).toEqual({ report: report as any });
         expect(validateHealthReport({ ...report, hotfix: "latest" })).toHaveProperty("error");
+    });
+
+    test("a plugin named like one of Object's own properties isn't pulled or broken", () => {
+        const pulled = parsePulled({ pulled: { a: { versions: "all", reason: "Bad", at: 1 } } });
+        expect(pullFor(pulled, "constructor", "1.0.0")).toBeUndefined();
+        expect(pullFor(pulled, "a", "1.0.0")).toMatchObject({ reason: "Bad" });
+        const health = parseHealth({ plugins: { a: { state: "broken", since: 1 } } });
+        expect(healthWarns((health as any).constructor, "1.0.0")).toBe(false);
+        expect(healthWarns(health.a, "1.0.0")).toBe(true);
     });
 
     test("a new revision is a new report, and plain reports keep their old key", () => {

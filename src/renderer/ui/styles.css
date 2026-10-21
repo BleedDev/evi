@@ -1394,7 +1394,7 @@
 
 .dl-store-updates-head > svg { flex: none; color: var(--dl-text-positive); }
 
-/* What each pending update is: name, old → new version and its release notes */
+/* What each pending update is: name, old -> new version and its release notes */
 .dl-store-update-list {
     display: flex;
     flex-direction: column;

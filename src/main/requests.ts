@@ -4,7 +4,7 @@ export type RequestFilter = (details: OnBeforeRequestListenerDetails) => { cance
 
 /**
  * Electron allows a single onBeforeRequest listener per session, so plugins share this one.
- * It's only installed once something subscribes, to keep the network path free otherwise.
+ * It's only installed while something subscribes, to keep the network path free otherwise.
  */
 const filters = new Set<RequestFilter>();
 let installedOn: Session | undefined;
@@ -27,5 +27,11 @@ export function addRequestFilter(session: Session, filter: RequestFilter) {
         });
     }
 
-    return () => void filters.delete(filter);
+    return () => {
+        filters.delete(filter);
+        // The last one gone: requests stop going through main again
+        if (filters.size || !installedOn) return;
+        installedOn.webRequest.onBeforeRequest(null);
+        installedOn = undefined;
+    };
 }

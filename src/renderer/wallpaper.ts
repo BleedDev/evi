@@ -132,7 +132,9 @@ function updatePlayback() {
     if (!(media instanceof HTMLVideoElement)) return set({ paused: false });
     const w = normalizeWallpaper(Settings.data.wallpaper);
     const paused = (w.pauseOnBattery && state.onBattery) || reducedMotion();
-    if (paused) media.pause();
+    // Minimized or covered, nobody sees it, so it holds still until Discord shows again. `paused` is
+    // only what the Wallpaper tab explains (battery, reduced motion)
+    if (paused || document.hidden) media.pause();
     else media.play().catch(() => { });
     if (paused !== state.paused) set({ paused });
 }
@@ -239,6 +241,7 @@ export const Wallpaper = {
         if (isOverlayWindow(location.href, window.name)) return;
         Settings.subscribe(() => apply());
         motionQuery.addEventListener("change", updatePlayback);
+        document.addEventListener("visibilitychange", updatePlayback);
         // A main older than this renderer (dev, after Ctrl+R) has none of these
         Native.onPowerChange?.(onBattery => {
             set({ onBattery });

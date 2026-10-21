@@ -5,7 +5,7 @@ import { compareVersions, meetsMinEvi, storeAction } from "../src/shared/store";
 
 const release = (tag: string, extra: Record<string, unknown> = {}) => ({
     tag_name: tag, draft: false, prerelease: tag.includes("-"), html_url: `https://github.com/BleedDev/evi/releases/tag/${tag}`,
-    assets: ["evi.exe", "evi.exe.sha256"].map(name => ({ name, browser_download_url: `https://example.com/${tag}/${name}` })),
+    assets: ["evi.exe", "evi.exe.sha256"].map(name => ({ name, browser_download_url: `https://github.com/BleedDev/evi/releases/download/${tag}/${name}` })),
     ...extra,
 });
 

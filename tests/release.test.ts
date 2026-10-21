@@ -31,6 +31,26 @@ describe("Evi's releases", () => {
         expect(parseRelease({ tag_name: "v0.3.0", assets: [] })).toEqual({ error: "Release v0.3.0 is missing evi-core.json" });
     });
 
+    test("files only count when they're Evi's own on GitHub, whatever the mirror sent", () => {
+        const core = (url: string) => parseRelease({ tag_name: "v1.5.0", assets: [{ name: "evi-core.json", browser_download_url: url }, asset("evi-core.json.sha256")] });
+        for (const url of [
+            "http://github.com/BleedDev/evi/releases/download/v1.5.0/evi-core.json",
+            "https://evil.example/BleedDev/evi/releases/download/v1.5.0/evi-core.json",
+            "https://github.com/someone/else/releases/download/v1.5.0/evi-core.json",
+            "https://github.com/BleedDev/evi/releases/download/../../../someone/else/releases/download/v1/evi-core.json",
+            "https://github.com/BleedDev/evi/releases/download/%2e%2e/%2e%2e/%2e%2e/someone/evi-core.json",
+            "https://github.com@evil.example/BleedDev/evi/releases/download/v1.5.0/evi-core.json",
+            "https://github.com:8443/BleedDev/evi/releases/download/v1.5.0/evi-core.json",
+            "not a url",
+        ]) {
+            expect(core(url)).toEqual({ error: "Release v1.5.0 is missing evi-core.json" });
+        }
+        expect(core("https://github.com/BleedDev/evi/releases/download/v1.5.0/evi-core.json")).toMatchObject({ coreUrl: "https://github.com/BleedDev/evi/releases/download/v1.5.0/evi-core.json" });
+        // A local test server can stand in for GitHub when asked
+        expect(parseRelease({ tag_name: "v1.5.0", assets: ["evi-core.json", "evi-core.json.sha256"].map(name => ({ name, browser_download_url: `http://127.0.0.1:4000/download/${name}` })) }, "http://127.0.0.1:4000/download/"))
+            .toMatchObject({ coreUrl: "http://127.0.0.1:4000/download/evi-core.json" });
+    });
+
     test("versions", () => {
         expect(cleanVersion("v1.2.3-beta")).toBe("1.2.3-beta");
         expect(isNewerRelease("v0.3.0", "0.2.0")).toBe(true);

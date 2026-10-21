@@ -133,10 +133,29 @@ function isGithubPage(url: unknown): url is string {
     }
 }
 
-/** One release as GitHub's API describes it, or undefined if it isn't a usable release */
-export function parseRelease(json: any): ReleaseInfo | { error: string; } | undefined {
+/** Where Evi's release files are downloaded from: this repo's releases on GitHub, over https */
+export const RELEASE_DOWNLOADS = `https://github.com/${RELEASE_REPO}/releases/download/`;
+
+/** A release file's URL when it's one of Evi's own on GitHub, as the URL that was checked */
+function releaseDownload(url: unknown, downloads: string): string | undefined {
+    if (typeof url !== "string") return;
+    try {
+        const u = new URL(url), prefix = new URL(downloads);
+        if (u.protocol !== prefix.protocol || u.host !== prefix.host || u.username || u.password) return;
+        return u.pathname.toLowerCase().startsWith(prefix.pathname.toLowerCase()) ? u.href : undefined;
+    } catch {
+        return undefined;
+    }
+}
+
+/**
+ * One release as GitHub's API describes it, or undefined if it isn't a usable release. Its files count
+ * only where they're downloaded from `downloads` (Evi's repo on GitHub): the checksum comes from the
+ * same answer, so it can't vouch for a file from anywhere else.
+ */
+export function parseRelease(json: any, downloads = RELEASE_DOWNLOADS): ReleaseInfo | { error: string; } | undefined {
     if (!json || typeof json !== "object" || typeof json.tag_name !== "string" || json.draft) return;
-    const asset = (name: string) => Array.isArray(json.assets) ? json.assets.find((a: any) => a?.name === name)?.browser_download_url : undefined;
+    const asset = (name: string) => Array.isArray(json.assets) ? releaseDownload(json.assets.find((a: any) => a?.name === name)?.browser_download_url, downloads) : undefined;
     const exeUrl = asset(EXE_ASSET), checksumUrl = asset(CHECKSUM_ASSET);
     const coreUrl = asset(CORE_ASSET), coreChecksumUrl = asset(CORE_CHECKSUM_ASSET);
     const hasCore = typeof coreUrl === "string" && typeof coreChecksumUrl === "string";

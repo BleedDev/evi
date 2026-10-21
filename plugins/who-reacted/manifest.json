@@ -2,7 +2,7 @@
     "id": "who-reacted",
     "name": "Who Reacted",
     "description": "Small avatars of who reacted, right on each reaction next to its count, and how many more when there are lots.",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "authors": [
         "Evi"
     ],
@@ -17,6 +17,12 @@
         "readMessages": true
     },
     "changelog": [
+        {
+            "version": "1.1.1",
+            "notes": [
+                "Turning it off while reactions are on screen no longer breaks the message when someone reacts."
+            ]
+        },
         {
             "version": "1.1.0",
             "notes": [
@@ -37,6 +43,9 @@
             "name": "Wer hat reagiert",
             "description": "Kleine Avatare der Leute, die reagiert haben, direkt an jeder Reaktion neben der Anzahl, und wie viele weitere es sind, wenn es viele gibt.",
             "changelog": {
+                "1.1.1": [
+                    "Wenn du es ausschaltest, während Reaktionen zu sehen sind, geht die Nachricht nicht mehr kaputt, sobald jemand reagiert."
+                ],
                 "1.1.0": [
                     "Folgt der Sprache von Discord: Deutsch, Spanisch, Französisch, Japanisch, Polnisch, Portugiesisch, Russisch und Türkisch, dazu Englisch."
                 ],
@@ -49,6 +58,9 @@
             "name": "Quién reaccionó",
             "description": "Pequeños avatares de quienes reaccionaron, justo en cada reacción junto a su contador, y cuántas personas más hay cuando son muchas.",
             "changelog": {
+                "1.1.1": [
+                    "Desactivarlo con reacciones en pantalla ya no rompe el mensaje cuando alguien reacciona."
+                ],
                 "1.1.0": [
                     "Sigue el idioma de Discord: alemán, español, francés, japonés, polaco, portugués, ruso y turco, además de inglés."
                 ],
@@ -61,6 +73,9 @@
             "name": "Qui a réagi",
             "description": "De petits avatars de ceux qui ont réagi, directement sur chaque réaction à côté de son compteur, et combien d'autres quand ils sont nombreux.",
             "changelog": {
+                "1.1.1": [
+                    "Le désactiver pendant que des réactions sont à l'écran ne casse plus le message quand quelqu'un réagit."
+                ],
                 "1.1.0": [
                     "Suit la langue de Discord : allemand, espagnol, français, japonais, polonais, portugais, russe et turc, en plus de l'anglais."
                 ],
@@ -73,6 +88,9 @@
             "name": "リアクションした人",
             "description": "リアクションした人の小さなアバターを、各リアクションのカウントの横に表示します。人数が多いときは残りの人数も表示します。",
             "changelog": {
+                "1.1.1": [
+                    "リアクションが表示されている間にオフにしても、誰かがリアクションしたときにメッセージが壊れなくなりました。"
+                ],
                 "1.1.0": [
                     "Discordの言語設定に合わせて表示されます。英語のほか、ドイツ語、スペイン語、フランス語、日本語、ポーランド語、ポルトガル語、ロシア語、トルコ語に対応しています。"
                 ],
@@ -85,6 +103,9 @@
             "name": "Kto zareagował",
             "description": "Małe awatary osób, które zareagowały, tuż przy każdej reakcji obok licznika, a gdy jest ich dużo, także ile jeszcze osób zareagowało.",
             "changelog": {
+                "1.1.1": [
+                    "Wyłączenie go, gdy reakcje są na ekranie, nie psuje już wiadomości, gdy ktoś zareaguje."
+                ],
                 "1.1.0": [
                     "Mówi w języku Discorda: po niemiecku, hiszpańsku, francusku, japońsku, polsku, portugalsku, rosyjsku i turecku, oprócz angielskiego."
                 ],
@@ -97,6 +118,9 @@
             "name": "Quem reagiu",
             "description": "Avatares pequenos de quem reagiu, direto em cada reação ao lado da contagem, e quantas pessoas a mais quando são muitas.",
             "changelog": {
+                "1.1.1": [
+                    "Desativar com reações na tela não quebra mais a mensagem quando alguém reage."
+                ],
                 "1.1.0": [
                     "Segue o idioma do Discord: alemão, espanhol, francês, japonês, polonês, português, russo e turco, além do inglês."
                 ],
@@ -109,6 +133,9 @@
             "name": "Кто отреагировал",
             "description": "Маленькие аватары тех, кто отреагировал, прямо на каждой реакции рядом со счётчиком, а если людей много — сколько ещё.",
             "changelog": {
+                "1.1.1": [
+                    "Если выключить его, пока на экране есть реакции, сообщение больше не ломается, когда кто-то реагирует."
+                ],
                 "1.1.0": [
                     "Говорит на языке Discord: немецком, испанском, французском, японском, польском, португальском, русском и турецком, а также на английском."
                 ],
@@ -121,6 +148,9 @@
             "name": "Kim Tepki Verdi",
             "description": "Tepki verenlerin küçük avatarları, her tepkinin üzerinde sayının yanında görünür; çok kişi olduğunda kaç kişi daha olduğu da gösterilir.",
             "changelog": {
+                "1.1.1": [
+                    "Tepkiler ekrandayken kapatmak, biri tepki verdiğinde artık mesajı bozmuyor."
+                ],
                 "1.1.0": [
                     "Discord'un dilini kullanır: İngilizcenin yanı sıra Almanca, İspanyolca, Fransızca, Japonca, Lehçe, Portekizce, Rusça ve Türkçe."
                 ],

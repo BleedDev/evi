@@ -64,13 +64,24 @@ interface ReactionProps {
     hideCount?: boolean;
 }
 
+const noSettings = () => undefined;
+const noSubscribe = () => () => { };
+
+/**
+ * The settings, or undefined once the plugin stopped. The patch stays in Discord's code, so avatars
+ * already drawn still re-render when the store changes, without the pill calling renderUsers again.
+ * Either way it's one useSyncExternalStore, so the hooks stay in the same order.
+ */
+const useSettings = () => context ? context.settings.use() : React.useSyncExternalStore(noSubscribe, noSettings);
+
 function Reactors({ message, emoji, type = 0, count }: { message: ReactionProps["message"]; emoji: ReactionEmoji; type?: number; count: number; }) {
-    const { max, showExtra } = context!.settings.use();
+    const values = useSettings();
     const channelId = message.getChannelId();
     const key = reactionKey(message.id, emoji, type);
 
     // On screen: ask for who reacted, in turn. Scrolled away before its turn: never asked.
     React.useEffect(() => {
+        if (!context) return;
         queue.add(key, () => {
             reactionsStore()?.getReactions?.(channelId, message.id, emoji, FETCH_LIMIT, type);
             for (const listener of asked) listener();
@@ -84,8 +95,9 @@ function Reactors({ message, emoji, type = 0, count }: { message: ReactionProps[
         const users: Map<string, unknown> | undefined = reactionsStore()?.getReactions?.(channelId, message.id, emoji, FETCH_LIMIT, type);
         return users ? [...users.keys()].join(",") : "";
     });
-    if (!ids) return null;
+    if (!values || !ids) return null;
 
+    const { max, showExtra } = values;
     const users = ids.split(",").map(id => ({ id }));
     const { shown, extra } = pickReactors(users, count, max, isHidden);
     if (!shown.length) return null;

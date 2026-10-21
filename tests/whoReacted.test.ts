@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, mock, test } from "bun:test";
 
 import type { Replacement } from "../src/renderer/patching/source";
 import { canonicalizeMatch, matchesFind } from "../src/renderer/patching/source";
@@ -145,5 +145,53 @@ describe("fetch queue", () => {
         q.clear();
         expect(timers()).toEqual([]);
         expect(q.has("a")).toBe(false);
+    });
+});
+
+describe("after stop", () => {
+    // Avatars already drawn stay mounted (the patch stays in Discord's code) and re-render on their own
+    // when the store changes: they draw nothing, with the same hooks, instead of crashing the message
+    test("a drawn Reactors re-renders to nothing once the plugin stopped", async () => {
+        const shim = await import("../src/renderer/react/jsx-runtime");
+        const hooks: string[] = [];
+        const jsx = (type: unknown, props: any) => ({ type, props });
+        const runtime = { jsx, jsxs: jsx, jsxDEV: jsx, Fragment: "F" };
+        mock.module("react/jsx-runtime", () => runtime);
+        mock.module("react/jsx-dev-runtime", () => runtime);
+        const stores: Record<string, unknown> = {
+            MessageReactionsStore: { getReactions: () => new Map([["1", {}], ["2", {}]]), addChangeListener() { }, removeChangeListener() { } },
+            UserStore: { getUser: (id: string) => ({ getAvatarURL: () => `avatar-${id}` }) },
+        };
+        mock.module("@evi/api", () => ({
+            definePlugin: (plugin: unknown) => plugin,
+            defineStrings: () => (key: string) => key,
+            findStore: (name: string) => stores[name],
+            React: {
+                useEffect: (fn: () => void) => (hooks.push("effect"), fn()),
+                useSyncExternalStore: (_: unknown, snapshot: () => unknown) => (hooks.push("store"), snapshot()),
+            },
+        }));
+        try {
+            const plugin: any = (await import("../plugins/who-reacted/index")).default;
+            const disposers: (() => void)[] = [];
+            const ctx = { settings: { use: () => (hooks.push("store"), { max: 5, showExtra: true }) }, onDispose: (fn: () => void) => disposers.push(fn), logger: console };
+            plugin.start(ctx);
+            const el = plugin.renderUsers({ message: { id: "m", getChannelId: () => "c" }, emoji: { name: "x" }, count: 2 });
+            const render = () => {
+                hooks.length = 0;
+                return { out: el.type(el.props), hooks: [...hooks] };
+            };
+            render();
+            await new Promise(r => setTimeout(r, 5)); // the queue asks for this reaction
+            const drawn = render();
+            expect(drawn.out.props.className).toBe("evi-who-reacted");
+            for (const fn of disposers) fn();
+            const stopped = render();
+            expect(stopped.out).toBeNull();
+            expect(stopped.hooks).toEqual(drawn.hooks);
+        } finally {
+            mock.module("react/jsx-runtime", () => shim);
+            mock.module("react/jsx-dev-runtime", () => shim);
+        }
     });
 });

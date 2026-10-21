@@ -359,7 +359,13 @@ export function initPlugins() {
     // Left over from before these became part of Evi; a store-installed copy stays
     for (const id of RETIRED_PLUGINS) {
         const dir = join(PLUGINS_DIR, id);
-        if (existsSync(dir) && !existsSync(join(dir, STORE_MARKER))) rmSync(dir, { recursive: true, force: true });
+        if (!existsSync(dir) || existsSync(join(dir, STORE_MARKER))) continue;
+        // A file in it held open (Explorer, an antivirus scan) stops this, not every plugin: it's skipped when read
+        try {
+            rmSync(dir, { recursive: true, force: true });
+        } catch (err) {
+            console.warn(`[Evi] Couldn't remove the retired plugin folder ${id}`, err);
+        }
     }
 
     for (const { dir, source } of roots) {

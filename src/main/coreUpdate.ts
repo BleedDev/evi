@@ -67,8 +67,14 @@ export function applyCorePayload(payload: CorePayload) {
         if (removed.has(id) || !existsSync(join(dir, "manifest.json")) || existsSync(join(dir, STORE_MARKER))) continue;
         writeDir(dir, files);
     }
+    // The core is already in: a folder that can't go now (a file held open) goes on the next start (plugins.ts)
     for (const id of [...RETIRED_PLUGINS, ...payload.retired ?? []]) {
         const dir = join(PLUGINS_DIR, id);
-        if (existsSync(dir) && !existsSync(join(dir, STORE_MARKER))) rmSync(dir, { recursive: true, force: true });
+        if (!existsSync(dir) || existsSync(join(dir, STORE_MARKER))) continue;
+        try {
+            rmSync(dir, { recursive: true, force: true });
+        } catch (err) {
+            console.warn(`[Evi] Couldn't remove the retired plugin folder ${id}`, err);
+        }
     }
 }

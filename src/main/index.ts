@@ -209,7 +209,7 @@ function setup() {
     applyChromiumSwitches();
     app.on("session-created", addPreload);
     app.whenReady().then(() => addPreload(session.defaultSession));
-    app.whenReady().then(initPlugins);
+    app.whenReady().then(initPlugins).catch(err => console.error("[Evi] Couldn't start plugins", err));
     app.on("accessibility-support-changed", (_, on) => broadcast(IPC.ASSISTIVE_CHANGED, on));
     initBackup();
     // Themes need nothing from Electron to load, have them ready for the first window's boot

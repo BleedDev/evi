@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import type { Replacement } from "../src/renderer/patching/source";
 import { canonicalizeMatch, matchesFind } from "../src/renderer/patching/source";
+import { analyticsPatch } from "../src/renderer/collectibles/patches";
 import { isTracking } from "../plugins/no-track/native";
 import { PATCHES } from "../plugins/no-track/patches";
 
@@ -38,6 +39,20 @@ describe("analytics", () => {
         expect(matchesFind(module, PATCHES.analytics.find)).toBe(true);
         expect(matchesFind(SOURCES.metrics + SOURCES.sentry, PATCHES.analytics.find)).toBe(false);
         for (const r of replacements(PATCHES.analytics)) apply(r, module);
+    });
+
+    test("still applies after Evi's collectibles patched the module first, as they do at runtime", async () => {
+        let code = module;
+        for (const r of replacements(analyticsPatch)) code = apply(r, code);
+        for (const r of replacements(PATCHES.analytics)) code = apply(r, code);
+
+        // The batch still never posts, and returns before the collectibles' scrub even runs
+        const submitCode = apply(submit, apply(replacements(analyticsPatch)[2], SOURCES.submit));
+        const window = { Evi: { collectibles: { scrubAll: () => { throw new Error("scrubbed"); } } } };
+        let posted = 0;
+        const g = new Function("m", "_", "window", `${submitCode} return g;`)({ Bo: { post: () => (posted++, Promise.resolve()) } }, null, window);
+        await expect(g([{ type: "x", properties: {} }])).resolves.toBeUndefined();
+        expect(posted).toBe(0);
     });
 
     test("track resolves straight away: no breadcrumb, no dispatch, counted", async () => {

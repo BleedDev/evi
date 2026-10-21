@@ -21,6 +21,11 @@ export const PATCHES = {
      *
      *     function g(e,t){let n=Date.now(),r=e.map(e=>({...e,properties:{...e.properties,client_send_timestamp:n}}));...
      * sends a batch (also the hourly client telemetry): never posts, so nothing is retried.
+     *
+     * Evi's own collectibles patch this module first (they take Evi SKUs out of every event) and
+     * put a call at the start of each of these functions, `function g(e,t){…scrubAll(e);let n=…`
+     * included. So the batch match allows a few statements before `let`, but no braces, which
+     * keeps it inside that one function.
      */
     analytics: {
         find: '"AnalyticsTrackingStore"',
@@ -35,7 +40,7 @@ export const PATCHES = {
                 with: "$&return $self?.dropped?.(),$1?.resolve?.(),!1;",
             },
             {
-                match: /function \i\(\i,\i\)\{(?=let \i=Date\.now\(\),\i=\i\.map\(\i=>\(\{\.\.\.\i,properties:\{\.\.\.\i\.properties,client_send_timestamp)/,
+                match: /function \i\(\i,\i\)\{(?=[^{}]{0,200}?let \i=Date\.now\(\),\i=\i\.map\(\i=>\(\{\.\.\.\i,properties:\{\.\.\.\i\.properties,client_send_timestamp)/,
                 with: "$&return Promise.resolve();",
             },
         ],

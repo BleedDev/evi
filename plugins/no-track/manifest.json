@@ -2,7 +2,7 @@
     "id": "no-track",
     "name": "No Track",
     "description": "Turns off Discord's analytics, metrics and error reporting inside Discord, and blocks anything that still tries to send before it leaves your machine.",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "authors": [
         "Evi"
     ],
@@ -11,6 +11,12 @@
     ],
     "permissions": {},
     "changelog": [
+        {
+            "version": "1.2.1",
+            "notes": [
+                "Works fully again with Evi 2.5: Discord's analytics batches are stopped in Discord again, not only blocked on their way out."
+            ]
+        },
         {
             "version": "1.2.0",
             "notes": [
@@ -43,6 +49,9 @@
             "name": "No Track",
             "description": "Schaltet die Analysen, Metriken und Fehlerberichte von Discord in Discord selbst ab und blockiert alles, was trotzdem senden will, bevor es deinen Rechner verlässt.",
             "changelog": {
+                "1.2.1": [
+                    "Funktioniert mit Evi 2.5 wieder vollständig: Discords Analyse-Pakete werden wieder in Discord selbst gestoppt, nicht erst beim Hinausgehen blockiert."
+                ],
                 "1.2.0": [
                     "Discord erstellt, sammelt und wiederholt keine Analyse-Ereignisse mehr, und seine Fehlerberichte beobachten nicht mehr jede Anfrage, jedes Log und jeden Klick. Weniger Arbeit im Hintergrund, zusätzlich zu den blockierten Uploads.",
                     "Fehlerberichte an Sentry werden ebenfalls blockiert."
@@ -62,6 +71,9 @@
             "name": "No Track",
             "description": "Desactiva las analíticas, métricas e informes de errores de Discord dentro del propio Discord, y bloquea lo que aún intente enviarse antes de que salga de tu equipo.",
             "changelog": {
+                "1.2.1": [
+                    "Vuelve a funcionar por completo con Evi 2.5: los lotes de analíticas de Discord se detienen de nuevo dentro de Discord, no solo se bloquean al salir."
+                ],
                 "1.2.0": [
                     "Discord ya no crea, pone en cola ni reintenta eventos de analíticas, y sus informes de errores dejan de vigilar cada solicitud, registro y clic. Menos trabajo en segundo plano, además de los envíos bloqueados.",
                     "Los informes de errores a Sentry también se bloquean."
@@ -81,6 +93,9 @@
             "name": "No Track",
             "description": "Désactive les analyses, métriques et rapports d'erreurs de Discord dans Discord même, et bloque ce qui tente encore d'être envoyé avant que ça ne quitte votre machine.",
             "changelog": {
+                "1.2.1": [
+                    "Fonctionne de nouveau entièrement avec Evi 2.5 : les lots d'analyses de Discord sont à nouveau arrêtés dans Discord, et plus seulement bloqués à la sortie."
+                ],
                 "1.2.0": [
                     "Discord ne crée, ne met en file d'attente et ne renvoie plus d'événements d'analyse, et ses rapports d'erreurs ne surveillent plus chaque requête, journal et clic. Moins de travail en arrière-plan, en plus des envois bloqués.",
                     "Les rapports d'erreurs vers Sentry sont aussi bloqués."
@@ -100,6 +115,9 @@
             "name": "No Track",
             "description": "Discordの分析・メトリクス・エラーレポートをDiscord内でオフにし、それでも送信しようとするものはお使いのPCから出る前にブロックします。",
             "changelog": {
+                "1.2.1": [
+                    "Evi 2.5で再び完全に動作します。Discordの分析データの一括送信を、送信時にブロックするだけでなく、再びDiscord内で止めるようになりました。"
+                ],
                 "1.2.0": [
                     "Discordが分析イベントを作成・蓄積・再送しなくなり、エラーレポートがすべてのリクエスト、ログ、クリックを監視しなくなりました。送信のブロックに加えて、バックグラウンドの処理が減ります。",
                     "Sentryへのエラーレポートもブロックするようになりました。"
@@ -119,6 +137,9 @@
             "name": "No Track",
             "description": "Wyłącza analitykę, metryki i raporty błędów Discorda w samym Discordzie, a to, co mimo to próbuje wysłać, blokuje, zanim opuści Twój komputer.",
             "changelog": {
+                "1.2.1": [
+                    "Znów działa w pełni z Evi 2.5: paczki analityki Discorda są znowu zatrzymywane w samym Discordzie, a nie tylko blokowane przy wysyłce."
+                ],
                 "1.2.0": [
                     "Discord nie tworzy już, nie kolejkuje i nie ponawia zdarzeń analitycznych, a jego raporty błędów przestają śledzić każde żądanie, log i kliknięcie. Mniej pracy w tle, oprócz blokowania wysyłek.",
                     "Raporty błędów do Sentry też są blokowane."
@@ -138,6 +159,9 @@
             "name": "No Track",
             "description": "Desliga as análises, métricas e relatórios de erro do Discord dentro do próprio Discord, e bloqueia o que ainda tentar enviar antes que saia do seu computador.",
             "changelog": {
+                "1.2.1": [
+                    "Volta a funcionar por completo com o Evi 2.5: os lotes de análise do Discord são parados de novo dentro do Discord, e não só bloqueados na saída."
+                ],
                 "1.2.0": [
                     "O Discord não cria, enfileira nem reenvia mais eventos de análise, e os relatórios de erro dele deixam de vigiar cada requisição, log e clique. Menos trabalho em segundo plano, além dos envios bloqueados.",
                     "Os relatórios de erro para o Sentry também são bloqueados."
@@ -157,6 +181,9 @@
             "name": "No Track",
             "description": "Отключает аналитику, метрики и отчёты об ошибках Discord внутри самого Discord, а всё, что всё равно пытается отправиться, блокирует до того, как оно покинет ваш компьютер.",
             "changelog": {
+                "1.2.1": [
+                    "Снова полностью работает с Evi 2.5: пакеты аналитики Discord снова останавливаются внутри Discord, а не только блокируются при отправке."
+                ],
                 "1.2.0": [
                     "Discord больше не создаёт, не копит и не отправляет повторно события аналитики, а его отчёты об ошибках перестают следить за каждым запросом, логом и кликом. Меньше работы в фоне, помимо блокировки отправки.",
                     "Отчёты об ошибках в Sentry теперь тоже блокируются."
@@ -176,6 +203,9 @@
             "name": "No Track",
             "description": "Discord'un analiz, ölçüm ve hata raporlamasını Discord'un içinde kapatır; yine de gönderilmeye çalışılanı bilgisayarından çıkmadan engeller.",
             "changelog": {
+                "1.2.1": [
+                    "Evi 2.5 ile yeniden tam çalışıyor: Discord'un analiz paketleri, yalnızca çıkışta engellenmek yerine yeniden Discord'un içinde durduruluyor."
+                ],
                 "1.2.0": [
                     "Discord artık analiz olaylarını oluşturmuyor, biriktirmiyor ve yeniden göndermiyor; hata raporlaması da her isteği, günlüğü ve tıklamayı izlemeyi bırakıyor. Engellenen gönderimlere ek olarak arka planda daha az iş.",
                     "Sentry'ye giden hata raporları da artık engelleniyor."

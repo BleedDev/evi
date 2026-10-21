@@ -80,7 +80,7 @@ export const pages: readonly Page[] = [
             { id: "store", label: () => t("common.store"), icon: "store", Component: ThemeStore, count: themeUpdates },
             { id: "editor", label: () => t("themeEditor.tab"), icon: "pencil", Component: ThemeEditorTab },
             { id: "wallpaper", label: () => t("wallpaper.tab"), icon: "image", Component: WallpaperTab },
-            { id: "quickcss", label: () => "Quick CSS", icon: "code", Component: QuickCssTab },
+            { id: "quickcss", label: () => t("tabs.quickCss"), icon: "code", Component: QuickCssTab },
         ],
     },
     {
@@ -101,7 +101,7 @@ export const pages: readonly Page[] = [
         tabs: [
             { id: "patches", label: () => t("tabs.patches"), icon: "wrench", Component: PatchesTab },
             { id: "performance", label: () => t("tabs.performance"), icon: "clock", Component: PerformanceTab },
-            { id: "patchhelper", label: () => "Patch Helper", icon: "beaker", Component: PatchHelperTab },
+            { id: "patchhelper", label: () => t("tabs.patchHelper"), icon: "beaker", Component: PatchHelperTab },
             { id: "devtools", label: () => t("devtools.tab"), icon: "terminal", Component: DevToolsTab },
         ],
     },

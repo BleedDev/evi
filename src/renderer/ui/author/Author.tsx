@@ -26,7 +26,7 @@ const RECHECK_MS = 4000;
 function useAuthorStats(days: DayChoice) {
     const [state, setState] = React.useState<State>({ kind: "loading" });
     const load = React.useCallback(async () => {
-        if (!Native.authorStats) return setState({ kind: "error", error: "This Evi can't show author numbers" });
+        if (!Native.authorStats) return setState({ kind: "error", error: t("author.unsupported") });
         const res = await Native.authorStats(Number(days)).catch((e: unknown) => ({ ok: false as const, error: String(e) }));
         if (res.ok) setState({ kind: "author", stats: res.value });
         else if ("unlinked" in res && res.unlinked) setState({ kind: "unlinked" });

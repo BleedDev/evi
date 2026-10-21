@@ -35,4 +35,12 @@ describe("Fix Embeds", () => {
         expect(fixMessage(msg, defaults)).toBe("look https://fixupx.com/a/status/1 and <https://x.com/b/status/2> `https://x.com/c/status/3`\n```\nhttps://x.com/d/status/4\n```\n[here](https://fixupx.com/e/status/5)");
         expect(fixMessage("no links here", defaults)).toBe("no links here");
     });
+
+    test("spoilers, bold and punctuation after a link with a query are kept", () => {
+        expect(fixMessage("||https://x.com/a/status/1?s=20||", defaults)).toBe("||https://fixupx.com/a/status/1||");
+        expect(fixMessage("**https://x.com/a/status/1?s=20**", defaults)).toBe("**https://fixupx.com/a/status/1**");
+        expect(fixMessage("~~https://x.com/a/status/1?s=20~~", defaults)).toBe("~~https://fixupx.com/a/status/1~~");
+        expect(fixMessage("look: https://www.instagram.com/reel/Cx1abc/?igsh=xyz.", defaults)).toBe("look: https://kkinstagram.com/reel/Cx1abc/.");
+        expect(fixMessage("[here](https://x.com/a/status/1?t=abc) ok", defaults)).toBe("[here](https://fixupx.com/a/status/1) ok");
+    });
 });

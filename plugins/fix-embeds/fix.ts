@@ -32,7 +32,10 @@ const SAME_SITE = new Set(["www", "m", "mobile", "old", "new"]);
 /** Which fix-up site each service uses, or "off" */
 export type Choices = Record<string, string>;
 
-const URL_REGEX = /https?:\/\/[^\s<>"'`)\]]+/g;
+/** ) ] | * close masked links, spoilers and bold, so a link never runs into them */
+const URL_REGEX = /https?:\/\/[^\s<>"'`)\]|*]+/g;
+/** What ends a sentence or a ~~strikethrough~~ after a link rather than belonging to it */
+const TRAILING = /[.,!?:;~]+$/;
 /** Code blocks and inline code: links in them are quoted, not shared */
 const CODE = /```[\s\S]*?```|`[^`\n]*`/g;
 
@@ -75,5 +78,10 @@ export function fixMessage(content: string, choices: Choices): string {
 }
 
 function fixText(text: string, choices: Choices) {
-    return text.replace(URL_REGEX, (raw, offset: number) => text[offset - 1] === "<" ? raw : fixLink(raw, choices));
+    return text.replace(URL_REGEX, (raw, offset: number) => {
+        if (text[offset - 1] === "<") return raw;
+        // The fix-up link drops the query, so what follows the link has to be kept out of it
+        const tail = TRAILING.exec(raw)?.[0] ?? "";
+        return fixLink(raw.slice(0, raw.length - tail.length), choices) + tail;
+    });
 }

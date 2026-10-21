@@ -2,7 +2,7 @@
     "id": "fix-embeds",
     "name": "Fix Embeds",
     "description": "Rewrites X, Instagram, TikTok, Reddit, Bluesky and other links as you send them, so their videos and pictures play right in Discord.",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "authors": [
         "Evi"
     ],
@@ -15,6 +15,12 @@
     },
     "changelog": [
         {
+            "version": "1.0.1",
+            "notes": [
+                "A link with a query no longer eats what comes after it: the closing || of a spoiler, ** of bold and the full stop at the end of a sentence stay."
+            ]
+        },
+        {
             "version": "1.0.0",
             "notes": [
                 "First release."
@@ -26,6 +32,9 @@
             "name": "Embeds reparieren",
             "description": "Ändert Links von X, Instagram, TikTok, Reddit, Bluesky und mehr beim Senden so, dass ihre Videos und Bilder in Discord abgespielt werden.",
             "changelog": {
+                "1.0.1": [
+                    "Ein Link mit Parametern verschluckt nicht mehr, was danach kommt: das schließende || eines Spoilers, ** von Fettschrift und der Punkt am Satzende bleiben erhalten."
+                ],
                 "1.0.0": [
                     "Erste Version."
                 ]
@@ -35,6 +44,9 @@
             "name": "Arreglar vistas previas",
             "description": "Cambia los enlaces de X, Instagram, TikTok, Reddit, Bluesky y más al enviarlos para que sus vídeos e imágenes se vean en Discord.",
             "changelog": {
+                "1.0.1": [
+                    "Un enlace con parámetros ya no se come lo que va después: el || que cierra un spoiler, los ** de la negrita y el punto al final de la frase se mantienen."
+                ],
                 "1.0.0": [
                     "Primera versión."
                 ]
@@ -44,6 +56,9 @@
             "name": "Réparer les aperçus",
             "description": "Modifie les liens X, Instagram, TikTok, Reddit, Bluesky et d'autres à l'envoi pour que leurs vidéos et images s'affichent dans Discord.",
             "changelog": {
+                "1.0.1": [
+                    "Un lien avec des paramètres n'avale plus ce qui le suit : le || qui ferme un spoiler, les ** du gras et le point en fin de phrase restent."
+                ],
                 "1.0.0": [
                     "Première version."
                 ]
@@ -53,6 +68,9 @@
             "name": "埋め込み修正",
             "description": "X、Instagram、TikTok、Reddit、Blueskyなどのリンクを送信時に書き換え、動画や画像がDiscord内で再生されるようにします。",
             "changelog": {
+                "1.0.1": [
+                    "パラメーター付きのリンクが後ろの文字を消さなくなりました。スポイラーを閉じる ||、太字の **、文末の句点がそのまま残ります。"
+                ],
                 "1.0.0": [
                     "初回リリース。"
                 ]
@@ -62,6 +80,9 @@
             "name": "Naprawa osadzeń",
             "description": "Zmienia przy wysyłaniu linki z X, Instagrama, TikToka, Reddita, Bluesky i innych, żeby ich filmy i zdjęcia działały w Discordzie.",
             "changelog": {
+                "1.0.1": [
+                    "Link z parametrami nie zjada już tego, co stoi po nim: zamykające || spoilera, ** pogrubienia i kropka na końcu zdania zostają."
+                ],
                 "1.0.0": [
                     "Pierwsze wydanie."
                 ]
@@ -71,6 +92,9 @@
             "name": "Corrigir incorporações",
             "description": "Troca links do X, Instagram, TikTok, Reddit, Bluesky e outros ao enviar, para que vídeos e imagens apareçam no Discord.",
             "changelog": {
+                "1.0.1": [
+                    "Um link com parâmetros não engole mais o que vem depois dele: o || que fecha um spoiler, os ** do negrito e o ponto final da frase continuam lá."
+                ],
                 "1.0.0": [
                     "Primeira versão."
                 ]
@@ -80,6 +104,9 @@
             "name": "Исправление превью",
             "description": "При отправке меняет ссылки X, Instagram, TikTok, Reddit, Bluesky и других, чтобы их видео и картинки показывались в Discord.",
             "changelog": {
+                "1.0.1": [
+                    "Ссылка с параметрами больше не съедает то, что идёт после неё: закрывающие || спойлера, ** жирного текста и точка в конце предложения остаются на месте."
+                ],
                 "1.0.0": [
                     "Первый выпуск."
                 ]
@@ -89,6 +116,9 @@
             "name": "Önizleme Düzeltici",
             "description": "X, Instagram, TikTok, Reddit, Bluesky ve diğerlerinin bağlantılarını gönderirken değiştirir, böylece videolar ve resimler Discord'da oynar.",
             "changelog": {
+                "1.0.1": [
+                    "Parametreli bir bağlantı artık ardından gelenleri yutmuyor: spoiler'ı kapatan ||, kalın yazının **'ı ve cümle sonundaki nokta yerinde kalıyor."
+                ],
                 "1.0.0": [
                     "İlk sürüm."
                 ]

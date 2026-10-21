@@ -105,10 +105,3 @@ export function healthWarns(health: PluginHealth | undefined, installedVersion?:
     if (!health || health.state === "fixed") return false;
     return !health.version || !installedVersion || health.version === installedVersion;
 }
-
-/** How the app says it, short */
-export function healthLabel(health: PluginHealth): string {
-    if (health.state === "investigating") return "Being looked into";
-    if (health.state === "fixed") return health.hotfix ? "Fixed by Evi" : "Fixed";
-    return health.automatic ? "Broken since Discord's update" : "Known to be broken";
-}

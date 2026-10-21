@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { detectPluginUpdates, entriesBetween, mergeUpdates, updatesTitle } from "../src/shared/pluginChangelog";
+import { detectPluginUpdates, entriesBetween, mergeUpdates } from "../src/shared/pluginChangelog";
 
 const changelog = [
     { version: "1.3.0", notes: ["c"] },
@@ -85,7 +85,7 @@ describe("plugin changelogs: detecting updates", () => {
     });
 });
 
-describe("plugin changelogs: batching and titles", () => {
+describe("plugin changelogs: batching", () => {
     test("updates arriving one after another join the popup that's up", () => {
         const first = detectPluginUpdates([plugin("beta", "1.2.0")], { beta: "1.0.0" }).updates;
         const second = detectPluginUpdates([plugin("alpha", "1.3.0"), plugin("beta", "1.3.0")], { alpha: "1.2.0", beta: "1.2.0" }).updates;
@@ -94,11 +94,5 @@ describe("plugin changelogs: batching and titles", () => {
         const beta = merged.find(u => u.id === "beta")!;
         expect([beta.from, beta.to]).toEqual(["1.0.0", "1.3.0"]);
         expect(beta.entries.map(e => e.version)).toEqual(["1.3.0", "1.2.0", "1.1.0"]);
-    });
-
-    test("titles", () => {
-        const [one] = detectPluginUpdates([plugin("alpha", "1.3.0")], { alpha: "1.2.0" }).updates;
-        expect(updatesTitle([one])).toBe("What’s New in Alpha 1.3.0");
-        expect(updatesTitle([one, { ...one, id: "b", name: "B" }])).toBe("What’s New in 2 Plugins");
     });
 });

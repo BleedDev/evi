@@ -88,9 +88,3 @@ export function mergeUpdates(shown: readonly PluginUpdate[], incoming: readonly 
     }
     return [...byId.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
-
-/** The popup's title: one plugin by name and version, several by count */
-export function updatesTitle(updates: readonly PluginUpdate[]) {
-    if (updates.length === 1) return `What’s New in ${updates[0].name} ${updates[0].to}`;
-    return `What’s New in ${updates.length} Plugins`;
-}

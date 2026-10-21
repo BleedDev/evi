@@ -2,7 +2,7 @@
  * Renderer entry. Runs in Discord's page before any of Discord's scripts.
  */
 import * as api from "@evi/api";
-import { isPluginEnabled } from "@shared/ipc";
+import { type BootData, isPluginEnabled } from "@shared/ipc";
 import { pullFor } from "@shared/pulls";
 
 import { Backup } from "./backup";
@@ -92,6 +92,17 @@ const Evi = {
     gameMode: GameMode,
 };
 
+/**
+ * The code of the plugins that run at this start, for the toolkit's patches. Plugins Evi pulled never
+ * run (shared/pulls.ts), so their code doesn't count either. Out here, not a closure in boot(): one
+ * there reading `data` would keep all of the boot data, every plugin's code included, for the session.
+ */
+function bootPluginCode(data: BootData) {
+    return data.plugins
+        .filter(p => isPluginEnabled(data.settings, p.manifest) && (p.source === "dev" || !pullFor(data.pulled, p.manifest.id, p.manifest.version)))
+        .map(p => p.code ?? "");
+}
+
 function boot() {
     // Only handed over where our preload decided to load us
     if (!Native) return;
@@ -135,10 +146,8 @@ function boot() {
     QuickCss.init(data.quickCss);
     // Its see-through panels go before Quick CSS too, so Quick CSS can still restyle them
     Wallpaper.init();
-    // Plugins Evi pulled never run (shared/pulls.ts), so their code doesn't count either
-    const runs = (p: typeof data.plugins[number]) => isPluginEnabled(data.settings, p.manifest) && (p.source === "dev" || !pullFor(data.pulled, p.manifest.id, p.manifest.version));
     // Main sends the code of exactly these (main/plugins.ts getBootPlugins)
-    if (!SafeMode.active) registerToolkitPatches(data.plugins.filter(runs).map(p => p.code ?? ""));
+    if (!SafeMode.active) registerToolkitPatches(bootPluginCode(data));
     // Before Discord's first module runs: patches only search modules the saved index can't answer for
     if (!SafeMode.active) startFindCache(data.findCache, Native.saveFindCache);
     // Fixes to Discord's own rendering waste, for everyone

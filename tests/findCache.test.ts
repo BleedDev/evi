@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { buildFindIndex, FindCache, FindCacheData, findKey, fingerprint, parseFindCache } from "../src/renderer/patching/findCache";
+import { buildFindIndex, FindCache, FindCacheData, findKey, fingerprint, indexSaver, MAX_FIND_CACHE_BYTES, parseFindCache, textHash } from "../src/renderer/patching/findCache";
 import { applySourcePatches, getPatchRecords, matchesFind, registerPatches, setFindCache, SourcePatch, unregisterPatches } from "../src/renderer/patching/source";
 
 const BUILD = "build-a";
@@ -248,5 +248,34 @@ describe("patching: compiling once", () => {
         } finally {
             unregisterPatches("compile-a");
         }
+    });
+});
+
+describe("saving the index", () => {
+    test("the hash covers every character", () => {
+        const text = JSON.stringify({ v: 1, build: "b", modules: { 1: "x", 2: "y" }, finds: {} });
+        expect(textHash(text)).toBe(textHash(text.slice()));
+        // One character in the middle, which the module fingerprint's sampling would skip
+        const changed = text.slice(0, 20) + (text[20] === "a" ? "b" : "a") + text.slice(21);
+        expect(textHash(changed)).not.toBe(textHash(text));
+        expect(textHash(text + " ")).not.toBe(textHash(text));
+    });
+
+    test("an index the same as the one read at start isn't saved again; a changed one is, once", () => {
+        const saves: string[] = [];
+        const save = indexSaver("{\"a\":1}", data => saves.push(data));
+        expect(save("{\"a\":1}")).toBe("same");
+        expect(save("{\"a\":2}")).toBe("saved");
+        expect(save("{\"a\":2}")).toBe("same");
+        expect(save("{\"a\":1}")).toBe("saved");
+        expect(saves).toEqual(["{\"a\":2}", "{\"a\":1}"]);
+    });
+
+    test("nothing read at start: the first index is saved; a too big one never", () => {
+        const saves: string[] = [];
+        const save = indexSaver(undefined, data => saves.push(data));
+        expect(save("x".repeat(MAX_FIND_CACHE_BYTES + 1))).toBe("tooBig");
+        expect(save("{}")).toBe("saved");
+        expect(saves).toEqual(["{}"]);
     });
 });

@@ -127,15 +127,22 @@ const deferred = new WeakMap<PluginState, Deferred>();
  * the boot data left out (main/plugins.ts getBootPlugins) comes from main. Turning a plugin on reads
  * its definition (enablePatches), and so does anything showing its settings or permissions. Safe mode
  * never evaluates. Assigning either one keeps what's assigned.
+ *
+ * Once evaluated, the code isn't kept: the evaluated script already holds a copy of it, and only a
+ * plugin's details read it after that, from main (recentCode). Without main's pluginCode (a main
+ * older than this renderer, the web tests) it's kept as before.
  */
 function defer(state: PluginState, code: string | undefined) {
     const lazy: Deferred = { code, evaluated: false };
     deferred.set(state, lazy);
+    const evaluated = () => {
+        if (typeof Native?.pluginCode === "function") lazy.code = undefined;
+    };
     // Not enumerable: spreading a state (publicState) doesn't evaluate it
     Object.defineProperties(state, {
         code: {
             configurable: true,
-            get: () => lazy.code ??= Native.pluginCode?.(state.manifest.id) ?? undefined,
+            get: () => lazy.code ?? (lazy.evaluated && lazy.definition ? recentCode(state.manifest.id) : lazy.code = Native.pluginCode?.(state.manifest.id) ?? undefined),
             set: (value: string | undefined) => void (lazy.code = value),
         },
         definition: {
@@ -144,15 +151,30 @@ function defer(state: PluginState, code: string | undefined) {
                 if (!lazy.evaluated && !SafeMode.active) {
                     lazy.evaluated = true;
                     lazy.definition = evaluateDeferred(state);
+                    if (lazy.definition) evaluated();
                 }
                 return lazy.definition;
             },
             set: (value: PluginDefinition | undefined) => {
                 lazy.evaluated = true;
                 lazy.definition = value;
+                if (value) evaluated();
             },
         },
     });
+}
+
+/** The code of the last evaluated plugin whose code was read, so a details dialog re-rendering asks main once */
+let recent: { id: string; code: string | undefined; } | undefined;
+
+function recentCode(id: string) {
+    if (recent?.id !== id) recent = { id, code: Native.pluginCode?.(id) ?? undefined };
+    return recent.code;
+}
+
+/** Its code changed or it's gone: the next read asks main again */
+function forgetCode(id: string) {
+    if (recent?.id === id) recent = undefined;
 }
 
 function evaluateDeferred(state: PluginState) {
@@ -316,6 +338,7 @@ function load(payload: BootPlugin): PluginState {
 function upsert(payload: PluginPayload) {
     const { id } = payload.manifest;
     const previous = plugins.get(id);
+    forgetCode(id);
     // A pulled version stays off; a newer one that isn't pulled runs like any other
     const pulled = pullOf(payload);
     const enabled = isPluginEnabled(Settings.data, payload.manifest) && !pulled;
@@ -360,6 +383,7 @@ function upsert(payload: PluginPayload) {
     }
 
     setManifest(previous, payload.manifest);
+    // Kept only where main can't send it again: the definition takes it back out (defer)
     previous.code = payload.code;
     previous.definition = definition;
     previous.error = undefined;
@@ -389,6 +413,7 @@ function remove(id: string) {
     stop(state);
     disablePatches(state);
     plugins.delete(id);
+    forgetCode(id);
     emit();
 }
 

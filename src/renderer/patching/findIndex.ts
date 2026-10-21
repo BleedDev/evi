@@ -4,7 +4,7 @@
  */
 import { Logger } from "../logger";
 import { allRuntimes, getOriginalFactory, wreq } from "../webpack/runtime";
-import { buildFindIndex, FindCache, FindCacheData, findKey, MAX_FIND_CACHE_BYTES, parseFindCache } from "./findCache";
+import { buildFindIndex, FindCache, FindCacheData, findKey, indexSaver, parseFindCache } from "./findCache";
 import { getPatchRecords, matchesFind, setFindCache } from "./source";
 
 const logger = new Logger("FindCache", "#f7a072");
@@ -31,7 +31,8 @@ function* registeredSources(): Generator<[string, () => string]> {
 
 export function startFindCache(raw: string | undefined, save: ((data: string) => void) | undefined) {
     if (!save) return;
-    let saved = raw;
+    // Not the saved text itself: that would keep the whole index JSON for the session
+    const saveIndex = indexSaver(raw, save);
     let timer: ReturnType<typeof setTimeout> | undefined;
     let running = false;
     let missedWhileRunning = false;
@@ -80,9 +81,6 @@ export function startFindCache(raw: string | undefined, save: ((data: string) =>
             schedule();
         }
         const json = JSON.stringify(data);
-        if (json === saved) return;
-        if (json.length > MAX_FIND_CACHE_BYTES) return logger.warn(`Index too big to save (${json.length} bytes)`);
-        saved = json;
-        save!(json);
+        if (saveIndex(json) === "tooBig") logger.warn(`Index too big to save (${json.length} bytes)`);
     }
 }

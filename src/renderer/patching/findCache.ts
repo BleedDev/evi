@@ -43,6 +43,33 @@ export function fingerprint(source: string) {
     return `${length.toString(36)}.${(hash >>> 0).toString(36)}`;
 }
 
+/** Length and two hashes of every character: tells a changed index from the one saved, without keeping that */
+export function textHash(text: string) {
+    let a = 0x811c9dc5, b = 5381;
+    for (let i = 0; i < text.length; i++) {
+        const c = text.charCodeAt(i);
+        a = Math.imul(a ^ c, 0x01000193);
+        b = (Math.imul(b, 33) + c) | 0;
+    }
+    return `${text.length.toString(36)}.${(a >>> 0).toString(36)}.${(b >>> 0).toString(36)}`;
+}
+
+/**
+ * What saves the index: only when it differs from the last one saved (or read at start), and only
+ * when it isn't too big. Keeps a hash of it, not the text.
+ */
+export function indexSaver(raw: string | undefined, save: (data: string) => void) {
+    let saved = raw === undefined ? undefined : textHash(raw);
+    return (json: string): "same" | "tooBig" | "saved" => {
+        const hash = textHash(json);
+        if (hash === saved) return "same";
+        if (json.length > MAX_FIND_CACHE_BYTES) return "tooBig";
+        saved = hash;
+        save(json);
+        return "saved";
+    };
+}
+
 export function parseFindCache(raw: string | undefined): FindCacheData | undefined {
     if (!raw) return;
     try {

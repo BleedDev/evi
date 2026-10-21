@@ -118,13 +118,22 @@ function clearSearch() {
     setTerms([]);
 }
 
-const setFade = (v: number) => document.documentElement.style.setProperty("--evi-search-fade", String(v));
+/**
+ * The variable is on the root, so every change restyles the whole document: it's only written when
+ * it changes, and the fade goes in 8 steps rather than one per frame
+ */
+let lastFade = 1;
+const setFade = (v: number) => {
+    if (v === lastFade) return;
+    lastFade = v;
+    document.documentElement.style.setProperty("--evi-search-fade", String(v));
+};
 
 function fadeOut() {
     const start = performance.now();
     const step = (now: number) => {
         const p = Math.min(1, (now - start) / FADE_MS);
-        setFade(1 - p);
+        setFade(Math.round((1 - p) * 8) / 8);
         if (p < 1) fadeFrame = requestAnimationFrame(step);
         else {
             jump = undefined;
@@ -250,6 +259,8 @@ export default definePlugin({
             CSS.highlights.delete(ALL);
         }
         document.documentElement.style.removeProperty("--evi-search-fade");
+        // Unset reads as 1
+        lastFade = 1;
         context = undefined;
     },
 });

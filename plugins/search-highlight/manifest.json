@@ -2,7 +2,7 @@
     "id": "search-highlight",
     "name": "Search Highlight",
     "description": "When you jump to a search result, the words you searched for are highlighted in the message so you can spot them.",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "authors": [
         "Evi"
     ],
@@ -14,6 +14,12 @@
         "readMessages": true
     },
     "changelog": [
+        {
+            "version": "1.0.2",
+            "notes": [
+                "The highlight on a message you jump to now fades out in a few steps, so Discord's whole window isn't restyled on every frame of the fade."
+            ]
+        },
         {
             "version": "1.0.1",
             "notes": [
@@ -33,6 +39,9 @@
             "name": "Suchtreffer hervorheben",
             "description": "Springst du zu einem Suchtreffer, leuchten die gesuchten Wörter in der Nachricht auf, damit du sie sofort siehst.",
             "changelog": {
+                "1.0.2": [
+                    "Die Markierung einer Nachricht, zu der du springst, blendet jetzt in wenigen Schritten aus, sodass Discords ganzes Fenster nicht bei jedem Bild der Ausblendung neu gestaltet wird."
+                ],
                 "1.0.1": [
                     "Leichter, solange eine Suche offen ist: Es zeichnet nur neu, wenn sich Nachrichten ändern, nicht bei jeder Änderung irgendwo in Discord, und startet mit einer Suche statt zwei."
                 ],
@@ -45,6 +54,9 @@
             "name": "Resaltar búsqueda",
             "description": "Al saltar a un resultado de búsqueda, las palabras que buscaste se resaltan en el mensaje para que las veas enseguida.",
             "changelog": {
+                "1.0.2": [
+                    "El resaltado de un mensaje al que saltas ahora se desvanece en unos pocos pasos, así que la ventana entera de Discord no se vuelve a estilizar en cada fotograma del desvanecido."
+                ],
                 "1.0.1": [
                     "Más ligero mientras hay una búsqueda abierta: solo vuelve a pintar cuando cambian los mensajes, no con cada cambio en cualquier parte de Discord, y arranca con una búsqueda interna en lugar de dos."
                 ],
@@ -57,6 +69,9 @@
             "name": "Surligner la recherche",
             "description": "Quand tu sautes vers un résultat de recherche, les mots recherchés sont surlignés dans le message pour les repérer tout de suite.",
             "changelog": {
+                "1.0.2": [
+                    "Le surlignage d'un message vers lequel tu sautes s'estompe maintenant en quelques étapes, pour que toute la fenêtre de Discord ne soit pas restylée à chaque image du fondu."
+                ],
                 "1.0.1": [
                     "Plus léger pendant une recherche : il ne redessine que quand les messages changent, pas à chaque changement ailleurs dans Discord, et démarre avec une seule recherche interne au lieu de deux."
                 ],
@@ -69,6 +84,9 @@
             "name": "検索ハイライト",
             "description": "検索結果にジャンプすると、検索した言葉がメッセージ内でハイライトされ、すぐに見つけられます。",
             "changelog": {
+                "1.0.2": [
+                    "ジャンプ先のメッセージのハイライトは数段階でフェードアウトするようになりました。フェード中にフレームごとに Discord のウィンドウ全体のスタイルが再計算されることはありません。"
+                ],
                 "1.0.1": [
                     "検索中の負荷を軽くしました。Discord のどこかが変わるたびではなく、メッセージが変わったときだけ再描画し、起動時の検索も 2 回から 1 回に減りました。"
                 ],
@@ -81,6 +99,9 @@
             "name": "Podświetlanie wyszukiwania",
             "description": "Gdy przeskoczysz do wyniku wyszukiwania, szukane słowa są podświetlone w wiadomości, żebyś od razu je zauważył.",
             "changelog": {
+                "1.0.2": [
+                    "Podświetlenie wiadomości, do której przechodzisz, znika teraz w kilku krokach, więc całe okno Discorda nie jest przestylowywane w każdej klatce zanikania."
+                ],
                 "1.0.1": [
                     "Lżejszy, gdy wyszukiwanie jest otwarte: odświeża podświetlenie tylko przy zmianie wiadomości, a nie przy każdej zmianie gdziekolwiek w Discordzie, i startuje z jednym wyszukiwaniem zamiast dwóch."
                 ],
@@ -93,6 +114,9 @@
             "name": "Destaque da busca",
             "description": "Ao pular para um resultado da busca, as palavras que você buscou ficam destacadas na mensagem para você achá-las na hora.",
             "changelog": {
+                "1.0.2": [
+                    "O destaque de uma mensagem para a qual você pula agora some em poucas etapas, então a janela inteira do Discord não é reestilizada a cada quadro do esmaecimento."
+                ],
                 "1.0.1": [
                     "Mais leve enquanto uma busca está aberta: só redesenha quando as mensagens mudam, não a cada mudança em qualquer lugar do Discord, e inicia com uma busca interna em vez de duas."
                 ],
@@ -105,6 +129,9 @@
             "name": "Подсветка поиска",
             "description": "Когда вы переходите к результату поиска, искомые слова подсвечиваются в сообщении, чтобы их было сразу видно.",
             "changelog": {
+                "1.0.2": [
+                    "Подсветка сообщения, к которому вы перешли, теперь гаснет в несколько шагов, поэтому стили всего окна Discord не пересчитываются в каждом кадре затухания."
+                ],
                 "1.0.1": [
                     "Легче, пока открыт поиск: перерисовывает подсветку только при изменении сообщений, а не при любом изменении в Discord, и при запуске ищет один раз вместо двух."
                 ],
@@ -117,6 +144,9 @@
             "name": "Arama Vurgusu",
             "description": "Bir arama sonucuna atladığında, aradığın kelimeler mesajda vurgulanır, böylece onları hemen görürsün.",
             "changelog": {
+                "1.0.2": [
+                    "Atladığın mesajdaki vurgu artık birkaç adımda soluyor, böylece solma sırasında Discord'un tüm penceresi her karede yeniden biçimlendirilmiyor."
+                ],
                 "1.0.1": [
                     "Arama açıkken daha hafif: Discord'un herhangi bir yerindeki her değişiklikte değil, yalnızca mesajlar değiştiğinde yeniden çiziyor ve başlarken iki yerine tek arama yapıyor."
                 ],

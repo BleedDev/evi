@@ -3,6 +3,7 @@ import { describe as group, expect, test } from "bun:test";
 import {
     describe, deserialize, formatRelative, formatSpan, isIgnored, lineText, merge, observeActivity, observeMessage, observePresence, pack, prune, seenText, serialize,
 } from "../plugins/last-seen/track";
+import { load, save, state } from "../plugins/last-seen/state";
 import type { Tracker } from "../plugins/last-seen/track";
 
 const H = 3600_000;
@@ -372,5 +373,50 @@ group("describe", () => {
     test("nothing known", () => {
         expect(describe(undefined, false, now)).toBeNull();
         expect(describe({}, false, now)).toBeNull();
+    });
+});
+
+group("loading the saved data", () => {
+    test("a failed read is tried again, and nothing is saved over the data until it loads", async () => {
+        const timers: Array<() => void> = [];
+        const ctx = { logger: { error() { } }, setTimeout: (fn: () => void) => void timers.push(fn) } as any;
+        const saved: Tracker = new Map([["old", { seen: 1000 }]]);
+        let reads = 0;
+        const read = () => ++reads === 1 ? Promise.reject(new Error("backing store")) : Promise.resolve(pack(saved, 2000));
+
+        state.context = ctx;
+        state.loaded = false;
+        state.dirty = true;
+        state.tracker = new Map([["new", { online: true, seen: 3000 }]]);
+        let loaded = 0;
+        await load(ctx, () => loaded++, read);
+        expect(state.loaded).toBe(false);
+        expect(loaded).toBe(0);
+        expect(timers.length).toBe(1);
+        // save() waits for the load instead of writing only this session's people
+        await save();
+        expect(state.dirty).toBe(true);
+
+        timers.shift()!();
+        await new Promise(r => setTimeout(r, 0));
+        expect(state.loaded).toBe(true);
+        expect(loaded).toBe(1);
+        expect([...state.tracker.keys()].sort()).toEqual(["new", "old"]);
+        state.context = undefined;
+    });
+
+    test("a load that finishes after everything was replaced, or after stop, changes nothing", async () => {
+        const ctx = { logger: { error() { } }, setTimeout() { throw new Error("no retry expected"); } } as any;
+        state.context = ctx;
+        state.loaded = true;
+        state.tracker = new Map();
+        let loaded = 0;
+        await load(ctx, () => loaded++, () => Promise.resolve(pack(new Map([["old", { seen: 1 }]]), 2)));
+        await load(ctx, () => loaded++, () => Promise.reject(new Error("x")));
+        state.loaded = false;
+        state.context = undefined;
+        await load(ctx, () => loaded++, () => Promise.reject(new Error("x")));
+        expect(loaded).toBe(0);
+        expect(state.tracker.size).toBe(0);
     });
 });

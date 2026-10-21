@@ -26,10 +26,10 @@ import { friendsMethods, friendsPatches } from "./friends";
 import { lastSeenLine, lineCss } from "./line";
 import { SettingsPanel } from "./panel";
 import {
-    bumpNow, changed, dbGet, fullText, ignored, invalidateKeep, isBot, isOnline, mergeOnTop, opts, refreshOwnId, resetLookups, save, settings, state, statusOf,
+    bumpNow, changed, fullText, ignored, invalidateKeep, isBot, isOnline, load, opts, refreshOwnId, resetLookups, save, settings, state, statusOf,
     store, tick, versionOf,
 } from "./state";
-import { deserialize, isOnlineStatus, observeActivity, observeMessage, observePresence } from "./track";
+import { isOnlineStatus, observeActivity, observeMessage, observePresence } from "./track";
 
 const SAVE_EVERY = 30_000;
 
@@ -201,18 +201,11 @@ export default definePlugin({
         state.loaded = false;
         ctx.addStyle(lineCss);
 
-        dbGet().then(data => {
-            if (state.context !== ctx) return;
-            // What was seen while loading goes on top of the saved data
-            state.tracker = mergeOnTop(deserialize(data, opts), state.tracker);
-            state.loaded = true;
+        // What was seen while loading goes on top of the saved data
+        void load(ctx, () => {
             seed();
             state.dirty = true;
             bumpNow();
-        }).catch(e => {
-            ctx.logger.error("Couldn't load saved data", e);
-            state.loaded = true;
-            seed();
         });
 
         // Packing everyone takes a few frames' worth of time: do it when Discord has nothing else to do

@@ -5,7 +5,7 @@
 import { getStore, React } from "@evi/api";
 import type { PluginContext } from "@evi/api";
 
-import { DEFAULT_CAP, describe, isIgnored, isOnlineStatus, lineText, merge, pack, PRUNE_SLACK } from "./track";
+import { DEFAULT_CAP, describe, deserialize, isIgnored, isOnlineStatus, lineText, merge, pack, PRUNE_SLACK } from "./track";
 import type { Entry, Options, Tracker } from "./track";
 import { t, words } from "./strings";
 
@@ -258,6 +258,10 @@ export function lineOf(userId: string, setting: Where): string {
 const DB_NAME = "evi-last-seen";
 const DB_STORE = "kv";
 const DB_KEY = "data";
+/** Where a saved record that can't be read is kept before it's replaced */
+const UNREADABLE_KEY = "data-unreadable";
+const RETRY_FIRST = 5_000;
+const RETRY_MAX = 5 * 60_000;
 
 function openDb(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
@@ -282,19 +286,48 @@ export async function dbGet(): Promise<unknown> {
 }
 
 /** Writes `value`, or deletes the record when it's undefined */
-export async function dbPut(value: unknown): Promise<void> {
+export async function dbPut(value: unknown, key = DB_KEY): Promise<void> {
     const db = await openDb();
     try {
         await new Promise<void>((resolve, reject) => {
             const tx = db.transaction(DB_STORE, "readwrite");
-            if (value === undefined) tx.objectStore(DB_STORE).delete(DB_KEY);
-            else tx.objectStore(DB_STORE).put(value, DB_KEY);
+            if (value === undefined) tx.objectStore(DB_STORE).delete(key);
+            else tx.objectStore(DB_STORE).put(value, key);
             tx.oncomplete = () => resolve();
             tx.onerror = () => reject(tx.error);
         });
     } finally {
         db.close();
     }
+}
+
+/**
+ * Reads the saved data in under what was seen while it loaded, then calls `onLoaded`. Nothing is
+ * saved until then, so a read that fails (the database busy during an update, say) is tried again
+ * later rather than letting this session's data replace everything saved. Only a record that was
+ * read and can't be understood is started over, after it's kept aside.
+ */
+export function load(ctx: PluginContext<Settings>, onLoaded: () => void, read: () => Promise<unknown> = dbGet, attempt = 0): Promise<void> {
+    // Stopped, or everything was replaced (clear, import) while this was loading
+    const stale = () => state.context !== ctx || state.loaded;
+    return read().then(data => {
+        if (stale()) return;
+        let saved: Tracker;
+        try {
+            saved = deserialize(data, opts);
+        } catch (e) {
+            ctx.logger.error("Saved data can't be read, starting over", e);
+            dbPut(data, UNREADABLE_KEY).catch(() => { });
+            saved = new Map();
+        }
+        state.tracker = mergeOnTop(saved, state.tracker);
+        state.loaded = true;
+        onLoaded();
+    }, e => {
+        if (stale()) return;
+        ctx.logger.error("Couldn't load saved data, trying again", e);
+        ctx.setTimeout(() => void load(ctx, onLoaded, read, attempt + 1), Math.min(RETRY_FIRST * 2 ** attempt, RETRY_MAX));
+    });
 }
 
 export async function save() {

@@ -2,7 +2,7 @@
     "id": "strip-metadata",
     "name": "Strip Metadata",
     "description": "Removes EXIF, GPS location and other hidden metadata from JPEG, PNG and WebP images before you upload them, without re-encoding. Can also give uploads random file names.",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "authors": [
         "Evi"
     ],
@@ -12,6 +12,12 @@
     "minEviVersion": "0.3.2",
     "permissions": {},
     "changelog": [
+        {
+            "version": "1.1.1",
+            "notes": [
+                "JPEG photos lose everything stored after the picture too: the extra preview images phones add, each with its own EXIF and location, and motion photo videos."
+            ]
+        },
         {
             "version": "1.1.0",
             "notes": [
@@ -43,6 +49,9 @@
             "name": "Metadaten entfernen",
             "description": "Entfernt EXIF, GPS-Standort und andere versteckte Metadaten aus JPEG-, PNG- und WebP-Bildern, bevor du sie hochlädst, ohne sie neu zu kodieren. Kann Uploads auch zufällige Dateinamen geben.",
             "changelog": {
+                "1.1.1": [
+                    "JPEG-Fotos verlieren jetzt auch alles, was nach dem Bild gespeichert ist: die zusätzlichen Vorschaubilder, die Handys anhängen, jedes mit eigenen EXIF-Daten und eigenem Standort, und die Videos von Bewegungsfotos."
+                ],
                 "1.1.0": [
                     "Folgt der Sprache von Discord: Deutsch, Spanisch, Französisch, Japanisch, Polnisch, Portugiesisch, Russisch und Türkisch, dazu Englisch."
                 ],
@@ -61,6 +70,9 @@
             "name": "Quitar metadatos",
             "description": "Elimina EXIF, ubicación GPS y otros metadatos ocultos de imágenes JPEG, PNG y WebP antes de subirlas, sin recodificarlas. También puede dar nombres de archivo aleatorios a las subidas.",
             "changelog": {
+                "1.1.1": [
+                    "Las fotos JPEG también pierden todo lo que se guarda después de la imagen: las vistas previas extra que añaden los móviles, cada una con su propio EXIF y ubicación, y los vídeos de las fotos en movimiento."
+                ],
                 "1.1.0": [
                     "Sigue el idioma de Discord: alemán, español, francés, japonés, polaco, portugués, ruso y turco, además de inglés."
                 ],
@@ -79,6 +91,9 @@
             "name": "Supprimer les métadonnées",
             "description": "Retire les données EXIF, la position GPS et d'autres métadonnées cachées des images JPEG, PNG et WebP avant l'envoi, sans les réencoder. Peut aussi donner des noms de fichiers aléatoires aux envois.",
             "changelog": {
+                "1.1.1": [
+                    "Les photos JPEG perdent aussi tout ce qui est stocké après l'image : les aperçus supplémentaires ajoutés par les téléphones, chacun avec ses propres EXIF et sa position, et les vidéos des photos animées."
+                ],
                 "1.1.0": [
                     "Suit la langue de Discord : allemand, espagnol, français, japonais, polonais, portugais, russe et turc, en plus de l'anglais."
                 ],
@@ -97,6 +112,9 @@
             "name": "メタデータ削除",
             "description": "アップロード前に、JPEG、PNG、WebP画像からEXIF、GPS位置情報などの隠れたメタデータを再エンコードなしで取り除きます。アップロードするファイルにランダムな名前を付けることもできます。",
             "changelog": {
+                "1.1.1": [
+                    "JPEG写真から、画像の後ろに保存されているものもすべて取り除くようになりました。スマートフォンが追加するプレビュー画像(それぞれにEXIFと位置情報があります)や、モーションフォトの動画も含まれます。"
+                ],
                 "1.1.0": [
                     "Discordの言語設定に合わせて表示されます。英語のほか、ドイツ語、スペイン語、フランス語、日本語、ポーランド語、ポルトガル語、ロシア語、トルコ語に対応しています。"
                 ],
@@ -115,6 +133,9 @@
             "name": "Usuwanie metadanych",
             "description": "Usuwa EXIF, lokalizację GPS i inne ukryte metadane z obrazów JPEG, PNG i WebP przed przesłaniem, bez ponownego kodowania. Może też nadawać przesyłanym plikom losowe nazwy.",
             "changelog": {
+                "1.1.1": [
+                    "Zdjęcia JPEG tracą też wszystko, co jest zapisane za obrazem: dodatkowe podglądy dodawane przez telefony, każdy z własnym EXIF i lokalizacją, oraz filmy ze zdjęć ruchomych."
+                ],
                 "1.1.0": [
                     "Mówi w języku Discorda: po niemiecku, hiszpańsku, francusku, japońsku, polsku, portugalsku, rosyjsku i turecku, oprócz angielskiego."
                 ],
@@ -133,6 +154,9 @@
             "name": "Remover metadados",
             "description": "Remove EXIF, localização GPS e outros metadados ocultos de imagens JPEG, PNG e WebP antes de você enviá-las, sem recodificar. Também pode dar nomes aleatórios aos arquivos enviados.",
             "changelog": {
+                "1.1.1": [
+                    "Fotos JPEG também perdem tudo o que fica salvo depois da imagem: as prévias extras que os celulares adicionam, cada uma com seu próprio EXIF e localização, e os vídeos de fotos com movimento."
+                ],
                 "1.1.0": [
                     "Segue o idioma do Discord: alemão, espanhol, francês, japonês, polonês, português, russo e turco, além do inglês."
                 ],
@@ -151,6 +175,9 @@
             "name": "Удаление метаданных",
             "description": "Убирает EXIF, GPS-координаты и другие скрытые метаданные из изображений JPEG, PNG и WebP перед загрузкой, не перекодируя их. Также может давать загружаемым файлам случайные имена.",
             "changelog": {
+                "1.1.1": [
+                    "Из JPEG-фото теперь удаляется и всё, что записано после изображения: дополнительные превью, которые добавляют телефоны, каждое со своими EXIF и геоданными, и видео из живых фото."
+                ],
                 "1.1.0": [
                     "Говорит на языке Discord: немецком, испанском, французском, японском, польском, португальском, русском и турецком, а также на английском."
                 ],
@@ -169,6 +196,9 @@
             "name": "Meta Veri Temizleyici",
             "description": "JPEG, PNG ve WebP görsellerinden EXIF, GPS konumu ve diğer gizli meta verileri yeniden kodlamadan, yüklemeden önce kaldırır. Yüklemelere rastgele dosya adları da verebilir.",
             "changelog": {
+                "1.1.1": [
+                    "JPEG fotoğraflar artık resmin arkasında saklanan her şeyi de kaybediyor: telefonların eklediği, her biri kendi EXIF'ini ve konumunu taşıyan ek önizleme resimleri ve hareketli fotoğraf videoları."
+                ],
                 "1.1.0": [
                     "Discord'un dilini kullanır: İngilizcenin yanı sıra Almanca, İspanyolca, Fransızca, Japonca, Lehçe, Portekizce, Rusça ve Türkçe."
                 ],

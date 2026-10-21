@@ -5,6 +5,8 @@
  * - JPEG: drops APP1 (EXIF, XMP), APP13 (IPTC/Photoshop), every other APPn and COM segments.
  *   Kept: APP0 (JFIF), APP2 ICC_PROFILE (colours) and APP14 Adobe (needed to decode CMYK/YCCK).
  *   The EXIF Orientation is kept as a minimal 32 byte EXIF block, or phone photos would show sideways.
+ *   Anything after the image's EOI goes too: MPF secondary images (previews, gain maps, each with
+ *   its own EXIF) and a motion photo's video are appended there.
  * - PNG: drops tEXt, iTXt, zTXt, eXIf and tIME chunks, and anything after IEND.
  * - WebP: drops EXIF and XMP chunks and clears their VP8X flags.
  */
@@ -90,10 +92,25 @@ function keepJpegSegment(marker: number, payload: Uint8Array) {
     return false;
 }
 
+/**
+ * Where a scan's entropy-coded data ends: the first FF that starts a marker. FF 00 is a stuffed FF,
+ * FF D0-D7 are restart markers and FF FF is fill, all part of the data. The end of the file when none.
+ */
+function scanEnd(b: Uint8Array, i: number) {
+    while ((i = b.indexOf(0xff, i)) !== -1 && i + 1 < b.length) {
+        const next = b[i + 1];
+        if (next === 0xff) i++;
+        else if (next === 0 || (next >= 0xd0 && next <= 0xd7)) i += 2;
+        else return i;
+    }
+    return b.length;
+}
+
 function stripJpeg(b: Uint8Array): Uint8Array | null {
     const parts: Uint8Array[] = [b.subarray(0, 2)];
     let orientation: number | undefined;
     let removed = false;
+    let scanned = false;
     let i = 2;
 
     while (i < b.length) {
@@ -103,9 +120,10 @@ function stripJpeg(b: Uint8Array): Uint8Array | null {
         const marker = b[markerAt + 1];
         if (marker === undefined) return null;
 
-        // Start of scan or end of image: the rest is image data, copied untouched
-        if (marker === 0xda || marker === 0xd9) {
-            parts.push(b.subarray(markerAt));
+        // End of image: whatever follows isn't this image
+        if (marker === 0xd9) {
+            parts.push(b.subarray(markerAt, markerAt + 2));
+            if (markerAt + 2 < b.length) removed = true;
             break;
         }
         // Standalone markers have no length
@@ -115,10 +133,14 @@ function stripJpeg(b: Uint8Array): Uint8Array | null {
             continue;
         }
 
-        if (markerAt + 4 > b.length) return null;
-        const len = (b[markerAt + 2] << 8) | b[markerAt + 3];
+        const len = markerAt + 4 > b.length ? 0 : (b[markerAt + 2] << 8) | b[markerAt + 3];
         const end = markerAt + 2 + len;
-        if (len < 2 || end > b.length) return null;
+        if (len < 2 || end > b.length) {
+            if (!scanned) return null;
+            // Already past image data that decodes: the rest stays as it is
+            parts.push(b.subarray(markerAt));
+            break;
+        }
         const payload = b.subarray(markerAt + 4, end);
 
         const isMeta = (marker >= 0xe0 && marker <= 0xef) || marker === 0xfe;
@@ -129,6 +151,14 @@ function stripJpeg(b: Uint8Array): Uint8Array | null {
             parts.push(b.subarray(markerAt, end));
         }
         i = end;
+
+        // Start of scan: its image data is copied untouched, up to the next marker (another scan's
+        // tables or SOS in a progressive JPEG, or EOI)
+        if (marker === 0xda) {
+            scanned = true;
+            i = scanEnd(b, end);
+            parts.push(b.subarray(end, i));
+        }
     }
 
     if (!removed) return null;

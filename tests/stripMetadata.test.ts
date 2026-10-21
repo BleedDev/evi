@@ -69,6 +69,44 @@ describe("JPEG", () => {
         expect(result.data).toBe(input);
     });
 
+    test("drops MPF secondary images and anything else after the image's EOI", () => {
+        const mpf = seg(0xe2, bytes("MPF\0", "MM", [0, 42], u32be(8)));
+        const secondary = bytes([0xff, 0xd8], seg(0xe1, exif(1)), DQT, SCAN);
+        const { data, changed } = stripMetadata(bytes(jpeg(APP0, seg(0xe1, exif(1)), mpf, DQT), secondary, "ftypmp42 motion photo video"));
+        expect(changed).toBe(true);
+        expect(data).toEqual(jpeg(APP0, DQT));
+        expect(contains(data, "GPS")).toBe(false);
+        expect(contains(data, "motion")).toBe(false);
+    });
+
+    test("a clean JPEG with data appended after EOI is cut there", () => {
+        const { data, changed } = stripMetadata(bytes(jpeg(APP0, DQT), "GPS 52.5200N"));
+        expect(changed).toBe(true);
+        expect(data).toEqual(jpeg(APP0, DQT));
+    });
+
+    test("keeps every scan of a progressive JPEG, with restart markers, stuffing and tables between", () => {
+        const dht = seg(0xc4, bytes([0], new Array(16).fill(0)));
+        const scans = bytes(
+            [0xff, 0xda, 0, 8, 1, 1, 0, 0, 0x3f, 0], [0x12, 0xff, 0x00, 0x34, 0xff, 0xd0, 0x56, 0xff, 0xff, 0xd1, 0x78],
+            dht,
+            [0xff, 0xda, 0, 8, 1, 1, 0, 1, 0x3f, 0], [0x9a, 0xff, 0x00, 0xbc],
+            [0xff, 0xd9],
+        );
+        const input = bytes([0xff, 0xd8], APP0, seg(0xe1, exif(1)), DQT, scans);
+        const { data, changed } = stripMetadata(input);
+        expect(changed).toBe(true);
+        expect(data).toEqual(bytes([0xff, 0xd8], APP0, DQT, scans));
+    });
+
+    test("a broken segment after the first scan keeps the rest as it is", () => {
+        const scan = bytes([0xff, 0xda, 0, 8, 1, 1, 0, 0, 0x3f, 0], [0x12, 0x34]);
+        const rest = bytes([0xff, 0xc4, 0xff, 0xf0, 1, 2, 3], [0xff, 0xd9]);
+        const { data, changed } = stripMetadata(bytes([0xff, 0xd8], APP0, seg(0xe1, exif(1)), DQT, scan, rest));
+        expect(changed).toBe(true);
+        expect(data).toEqual(bytes([0xff, 0xd8], APP0, DQT, scan, rest));
+    });
+
     test("a truncated JPEG is left untouched", () => {
         const input = bytes([0xff, 0xd8], [0xff, 0xe1, 0x10, 0x00], "Exif");
         expect(stripMetadata(input)).toEqual({ data: input, changed: false, kind: "jpeg" });

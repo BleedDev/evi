@@ -443,8 +443,11 @@ function AuditLog({ guild, onClose }: { guild: { id: string; name: string; }; on
         } catch (err: any) {
             if (gen === generation.current) setError(String(err?.message ?? err));
         } finally {
-            busy.current = false;
-            if (gen === generation.current) setLoading(false);
+            // A load from before the person filter changed: busy is the newer load's now
+            if (gen === generation.current) {
+                busy.current = false;
+                setLoading(false);
+            }
         }
     }, [raw, guild.id, actorId]);
 

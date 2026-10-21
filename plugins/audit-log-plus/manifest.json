@@ -2,7 +2,7 @@
     "id": "audit-log-plus",
     "name": "Audit Log Plus",
     "description": "A readable audit log: right-click a server to search who did what, filter by person, kind of action or date, see exactly what changed, and export it as CSV or JSON.",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "authors": [
         "Evi"
     ],
@@ -17,6 +17,12 @@
         ]
     },
     "changelog": [
+        {
+            "version": "1.0.3",
+            "notes": [
+                "Picking a person while the log is still loading no longer asks Discord for the same first page twice."
+            ]
+        },
         {
             "version": "1.0.2",
             "notes": [
@@ -42,6 +48,9 @@
             "name": "Audit Log Plus",
             "description": "Ein lesbares Audit-Log: Rechtsklick auf einen Server, um zu durchsuchen, wer was getan hat, nach Person, Art der Aktion oder Datum zu filtern, genau zu sehen, was sich geändert hat, und es als CSV oder JSON zu exportieren.",
             "changelog": {
+                "1.0.3": [
+                    "Wählst du eine Person aus, während das Protokoll noch lädt, wird Discord nicht mehr zweimal nach derselben ersten Seite gefragt."
+                ],
                 "1.0.2": [
                     "Startet wieder, auch während Discord noch lädt. 1.0.1 konnte dann nicht starten."
                 ],
@@ -57,6 +66,9 @@
             "name": "Audit Log Plus",
             "description": "Un registro de auditoría legible: haz clic derecho en un servidor para buscar quién hizo qué, filtrar por persona, tipo de acción o fecha, ver exactamente qué cambió y exportarlo como CSV o JSON.",
             "changelog": {
+                "1.0.3": [
+                    "Elegir a una persona mientras el registro aún carga ya no le pide a Discord la misma primera página dos veces."
+                ],
                 "1.0.2": [
                     "Vuelve a iniciarse aunque Discord aún esté cargando. La 1.0.1 podía no iniciarse en ese caso."
                 ],
@@ -72,6 +84,9 @@
             "name": "Audit Log Plus",
             "description": "Des logs lisibles : clic droit sur un serveur pour chercher qui a fait quoi, filtrer par personne, type d'action ou date, voir exactement ce qui a changé et exporter en CSV ou JSON.",
             "changelog": {
+                "1.0.3": [
+                    "Choisir une personne pendant que le journal charge encore ne demande plus deux fois la même première page à Discord."
+                ],
                 "1.0.2": [
                     "Démarre de nouveau même quand Discord est encore en train de charger. La 1.0.1 pouvait alors ne pas démarrer."
                 ],
@@ -87,6 +102,9 @@
             "name": "Audit Log Plus",
             "description": "読みやすい監査ログ。サーバーを右クリックして、誰が何をしたかを検索し、人・操作の種類・日付で絞り込み、何が変わったかを確認して、CSVやJSONで書き出せます。",
             "changelog": {
+                "1.0.3": [
+                    "ログの読み込み中に人を選んでも、Discordに同じ最初のページを2回要求しなくなりました。"
+                ],
                 "1.0.2": [
                     "Discordの読み込み中でも再び起動するようになりました。1.0.1ではその場合に起動できないことがありました。"
                 ],
@@ -102,6 +120,9 @@
             "name": "Audit Log Plus",
             "description": "Czytelny dziennik zdarzeń: kliknij serwer prawym przyciskiem, aby sprawdzić, kto co zrobił, filtrować według osoby, rodzaju działania lub daty, zobaczyć dokładne zmiany i wyeksportować go jako CSV lub JSON.",
             "changelog": {
+                "1.0.3": [
+                    "Wybranie osoby, gdy dziennik jeszcze się wczytuje, nie prosi już Discorda dwa razy o tę samą pierwszą stronę."
+                ],
                 "1.0.2": [
                     "Znowu uruchamia się, gdy Discord jeszcze się wczytuje. Wersja 1.0.1 mogła się wtedy nie uruchomić."
                 ],
@@ -117,6 +138,9 @@
             "name": "Audit Log Plus",
             "description": "Um registro de auditoria legível: clique com o botão direito em um servidor para pesquisar quem fez o quê, filtrar por pessoa, tipo de ação ou data, ver exatamente o que mudou e exportar como CSV ou JSON.",
             "changelog": {
+                "1.0.3": [
+                    "Escolher uma pessoa enquanto o registro ainda carrega não pede mais a mesma primeira página ao Discord duas vezes."
+                ],
                 "1.0.2": [
                     "Volta a iniciar mesmo com o Discord ainda carregando. A 1.0.1 podia não iniciar nesse caso."
                 ],
@@ -132,6 +156,9 @@
             "name": "Audit Log Plus",
             "description": "Понятный журнал аудита: щёлкните сервер правой кнопкой, чтобы искать, кто что сделал, фильтровать по человеку, типу действия или дате, видеть, что именно изменилось, и экспортировать в CSV или JSON.",
             "changelog": {
+                "1.0.3": [
+                    "Если выбрать человека, пока журнал ещё загружается, Discord больше не получает два запроса одной и той же первой страницы."
+                ],
                 "1.0.2": [
                     "Снова запускается, даже пока Discord ещё загружается. Версия 1.0.1 в этом случае могла не запуститься."
                 ],
@@ -147,6 +174,9 @@
             "name": "Audit Log Plus",
             "description": "Okunabilir bir denetim kaydı: kimin ne yaptığını aramak, kişiye, eylem türüne veya tarihe göre filtrelemek, neyin değiştiğini tam olarak görmek ve CSV ya da JSON olarak dışa aktarmak için bir sunucuya sağ tıkla.",
             "changelog": {
+                "1.0.3": [
+                    "Kayıt hâlâ yüklenirken bir kişi seçmek artık Discord'dan aynı ilk sayfayı iki kez istemiyor."
+                ],
                 "1.0.2": [
                     "Discord hâlâ yüklenirken de yeniden başlıyor. 1.0.1 bu durumda başlamayabiliyordu."
                 ],

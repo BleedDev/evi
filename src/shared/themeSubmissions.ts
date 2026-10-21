@@ -8,7 +8,8 @@
  * has Discord open with that theme, from which address, every time. So @import is refused outright,
  * and every address a theme mentions must be Discord's own CDN, which Discord talks to anyway. Images
  * and fonts can still be embedded as data: URLs, or fonts named when people have them installed.
- * CSS escapes are decoded before looking, so `\75rl(` or `\2f\2f` can't slip one past.
+ * CSS escapes are decoded before looking, so `\75rl(` or `\2f\2f` can't slip one past, and every
+ * address is resolved the way the browser does, so https://cdn.discordapp.com@elsewhere is elsewhere.
  */
 import { isPluginId, isVersion } from "./store";
 import { whyNotCss } from "./themes";
@@ -75,13 +76,129 @@ const withoutDataUrls = (css: string) => css
     .replace(/(["'])data:[\s\S]*?\1/gi, "$1data:$1")
     .replace(/url\(\s*data:[^)]*\)/gi, "url(data:)");
 
+// Runs of characters the tokenizer below takes in one step: inside a "string", a 'string' and an
+// unquoted url(), and a name (url, color, -webkit-x): letters, digits, _, - and anything past ASCII
+const RUNS = {
+    "\"": /[^"\\\n]+/y,
+    "'": /[^'\\\n]+/y,
+    ")": /[^)\\]+/y,
+    name: /[^\0-,./:-@[-^`{-\x7f]+/y,
+};
+const isNameChar = (c: string | undefined) => !!c && /[^\0-,./:-@[-^`{-\x7f]/.test(c);
+/** Where the tokenizer has to look: a comment, a string, an escape, or what may be url( */
+const NEXT = /\/\*|["'\\]|url\(/gi;
+
+/**
+ * Every string and url() argument in the CSS, read the way the browser reads them: comments skipped
+ * (but not inside strings), escapes decoded where they are, so `"\""` stays one string. Any of them
+ * could be an address: url(), image-set() and @import all take strings.
+ */
+function cssStringsAndUrls(input: string): string[] {
+    const css = input.replace(/\r\n?|\f/g, "\n");
+    const out: string[] = [];
+    // Where the next token starts, and where the last one ended
+    let i = 0, end = 0;
+    const run = (re: RegExp) => {
+        re.lastIndex = i;
+        const found = re.exec(css)?.[0] ?? "";
+        i += found.length;
+        return found;
+    };
+    const isEscape = () => css[i] === "\\" && i + 1 < css.length && css[i + 1] !== "\n";
+    // The character the escape at i stands for, moving past it
+    const escape = () => {
+        i++;
+        const hex = /^[0-9a-f]{1,6}/i.exec(css.slice(i, i + 6))?.[0];
+        if (!hex) return css[i++] ?? "";
+        i += hex.length;
+        if (/[ \t\n]/.test(css[i] ?? "")) i++;
+        const code = parseInt(hex, 16);
+        return code > 0 && code <= 0x10ffff && (code < 0xd800 || code > 0xdfff) ? String.fromCodePoint(code) : "�";
+    };
+    for (; ; end = i) {
+        NEXT.lastIndex = i;
+        const next = NEXT.exec(css);
+        if (!next) break;
+        i = next.index;
+        const c = css[i];
+        if (c === "/") {
+            const close = css.indexOf("*/", i + 2);
+            i = close < 0 ? css.length : close + 2;
+        } else if (c === "\"" || c === "'") {
+            i++;
+            let text = "";
+            while (i < css.length && css[i] !== c && css[i] !== "\n") {
+                if (css[i] !== "\\") text += run(RUNS[c]);
+                else if (css[i + 1] === "\n") i += 2;
+                else text += escape();
+            }
+            if (css[i] === c) i++;
+            out.push(text);
+        } else {
+            // An escape or url( can be the middle of a longer name (u\72l, myurl): read all of it
+            while (i > end && isNameChar(css[i - 1])) i--;
+            const start = i;
+            let name = "";
+            for (let part = "x"; part;) name += part = isEscape() ? escape() : run(RUNS.name);
+            if (i === start) {
+                // A backslash that escapes nothing
+                i++;
+                continue;
+            }
+            if (css[i] !== "(" || name.toLowerCase() !== "url") continue;
+            i++;
+            while (/[ \t\n]/.test(css[i] ?? "")) i++;
+            // url("…") is a string, read as one next
+            if (css[i] === "\"" || css[i] === "'") continue;
+            let text = "";
+            while (i < css.length && css[i] !== ")") text += css[i] === "\\" ? escape() : run(RUNS[")"]);
+            out.push(text.trim());
+        }
+    }
+    return out;
+}
+
+/**
+ * Where an address in a theme loads from, the way the browser resolves it, so the userinfo in
+ * https://cdn.discordapp.com@elsewhere, http:elsewhere and %-escapes in the host can't hide it.
+ * Undefined when it loads nothing from anyone but Discord: data:, words, a path on Discord's own page.
+ */
+function addressHost(text: string): { host: string; hostname: string; allowed: boolean; } | undefined {
+    // No scheme and no // or \\: a word, or a path on the page's own host
+    if (!/[:/\\]/.test(text)) return;
+    let url: URL;
+    try {
+        // Resolved against two pages: a relative address lands on each page's own host
+        url = new URL(text, "https://a.invalid/");
+        if (url.host === "a.invalid" && new URL(text, "https://b.invalid/").host === "b.invalid") return;
+    } catch {
+        return;
+    }
+    if (!url.host) return;
+    const plain = url.protocol === "https:" && !url.username && !url.password;
+    const { hostname } = url;
+    if (plain) return { host: hostname, hostname, allowed: ALLOWED_THEME_HOSTS.includes(hostname) };
+    // Shown as written, so the reviewer sees why: http://, or a name and password before the host
+    const user = url.username || url.password ? `${url.username}${url.password ? `:${url.password}` : ""}@` : "";
+    return { host: `${url.protocol}//${user}${url.host}`, hostname, allowed: false };
+}
+
 export function scanThemeCss(css: string): ThemeScan {
     const decoded = decodeCss(css);
-    const hosts = new Map<string, number>();
-    // Anything that names a host: https://host, //host, and the same inside strings
+    const hosts = new Map<string, { allowed: boolean; count: number; }>();
+    const add = (host: string, allowed: boolean) => hosts.set(host, { allowed, count: (hosts.get(host)?.count ?? 0) + 1 });
+    // Every address, as the browser resolves it
+    const named = new Set<string>();
+    for (const text of cssStringsAndUrls(css)) {
+        const found = addressHost(text);
+        if (!found) continue;
+        named.add(found.hostname);
+        add(found.host, found.allowed);
+    }
+    // And as a second net, any other host it names that isn't Discord's: https://host, //host, inside strings too
     for (const [, host] of withoutDataUrls(decoded).matchAll(/\/\/([a-z0-9](?:[a-z0-9.-]*[a-z0-9])?)(?::\d+)?/gi)) {
         const key = host.toLowerCase();
-        hosts.set(key, (hosts.get(key) ?? 0) + 1);
+        if (!named.has(key) && !ALLOWED_THEME_HOSTS.includes(key)) add(key, false);
     }
     const fontFaces = new Set<string>();
     for (const [, block] of decoded.matchAll(/@font-face\s*\{([^}]*)\}/gi)) {
@@ -92,7 +209,7 @@ export function scanThemeCss(css: string): ThemeScan {
         bytes: new TextEncoder().encode(css).length,
         lines: css.split("\n").length,
         imports: (decoded.match(/@import\b/gi) ?? []).length,
-        hosts: [...hosts].map(([host, count]) => ({ host, allowed: ALLOWED_THEME_HOSTS.includes(host), count })).sort((a, b) => b.count - a.count),
+        hosts: [...hosts].map(([host, { allowed, count }]) => ({ host, allowed, count })).sort((a, b) => b.count - a.count),
         dataUrls: (decoded.match(/\bdata:/gi) ?? []).length,
         fontFaces: [...fontFaces],
         importants: (decoded.match(/!\s*important\b/gi) ?? []).length,

@@ -113,6 +113,37 @@ describe("community themes", () => {
         expect(whyNotCommunityCss("a { color: red }".padEnd(600 * 1024, " "))).toContain("at most 512 KB");
     });
 
+    test("addresses are read where the browser would go, not where they seem to point", () => {
+        const refused = [
+            "url(https://cdn.discordapp.com@evil.example/x.png)",
+            "url(https://cdn.discordapp.com:pw@evil.example/x.png)",
+            "url(http:evil.example/x.png)",
+            "url(//%65vil.example/x.png)",
+            "url(\\\\\\\\evil.example/x.png)",
+            "url(/\\\\evil.example/x.png)",
+            "url(https://[2001:db8::1]/x.png)",
+            "url(https://_evil.example/x)",
+            "url(\"h\\9ttps://evil.example/x\")",
+            "url(\"https:\\9//evil.example/x\")",
+            "u\\72l(http:evil.example/x)",
+            // An escaped quote doesn't end the string, so it can't hide what comes after
+            "content: \"\\\"\"; background: url(http:evil.example/x); content: \"a\"",
+            // Nor does a comment inside a string swallow the rule after it
+            "content: \"/*\"; background: url(http:evil.example/x); content: \"*/\"",
+            "image-set(\"http:evil.example/x\" 1x)",
+            // Discord's host, but not over https or with a name in front
+            "url(http://cdn.discordapp.com/x.png)",
+            "url(https://user@cdn.discordapp.com/x.png)",
+        ];
+        for (const value of refused) expect([value, whyNotCommunityCss(`a { background: ${value} }`)]).toEqual([value, expect.stringContaining("can't load anything")]);
+        expect(whyNotCommunityCss("a { background: url(https://cdn.discordapp.com@evil.example/x.png) }")).toContain("evil.example");
+        expect(scanThemeCss("a { background: url(https://cdn.discordapp.com@evil.example/x.png) }").hosts).toEqual([{ host: "https://cdn.discordapp.com@evil.example", allowed: false, count: 1 }]);
+        // Words, font names and paths on Discord's own page load nothing from anyone else
+        for (const value of ["content: \"Tip: hover me\"", "font-family: 'gg sans', \"Noto Sans\"", "background: url(/assets/x.png)", "background: url(\"https:x.png\")", "background: url(HTTPS://CDN.DISCORDAPP.COM/x.png)"]) {
+            expect([value, whyNotCommunityCss(`a { ${value} }`)]).toEqual([value, undefined]);
+        }
+    });
+
     test("the scan tells reviewers what the theme brings", () => {
         const scan = scanThemeCss("@font-face { font-family: 'Mine'; src: url(data:font/woff2;base64,AAAA) }\na { color: red !important; background: url(https://media.discordapp.net/x.png) }");
         expect(scan).toMatchObject({ imports: 0, dataUrls: 1, fontFaces: ["Mine"], importants: 1, hosts: [{ host: "media.discordapp.net", allowed: true, count: 1 }] });

@@ -2,7 +2,7 @@
     "id": "show-hidden-channels",
     "name": "Show Hidden Channels",
     "description": "Shows the channels you can't view in the channel list, with a lock. Opening one shows its topic, settings and who can see it, never its messages.",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "authors": [
         "Evi"
     ],
@@ -12,6 +12,12 @@
     ],
     "permissions": {},
     "changelog": [
+        {
+            "version": "1.1.1",
+            "notes": [
+                "Works again after Discord's update: hidden stage channels show the lock screen instead of the stage."
+            ]
+        },
         {
             "version": "1.1.0",
             "notes": [
@@ -55,6 +61,9 @@
             "name": "Versteckte Kanäle anzeigen",
             "description": "Zeigt die Kanäle, die du nicht ansehen kannst, mit einem Schloss in der Kanalliste. Beim Öffnen siehst du Thema, Einstellungen und wer ihn sehen kann, nie aber die Nachrichten.",
             "changelog": {
+                "1.1.1": [
+                    "Funktioniert nach Discords Update wieder: versteckte Stage-Kanäle zeigen das Schloss statt der Stage."
+                ],
                 "1.1.0": [
                     "Folgt der Sprache von Discord: Deutsch, Spanisch, Französisch, Japanisch, Polnisch, Portugiesisch, Russisch und Türkisch, dazu Englisch."
                 ],
@@ -79,6 +88,9 @@
             "name": "Mostrar canales ocultos",
             "description": "Muestra en la lista de canales los que no puedes ver, con un candado. Al abrir uno verás su tema, sus ajustes y quién puede verlo, nunca sus mensajes.",
             "changelog": {
+                "1.1.1": [
+                    "Vuelve a funcionar tras la actualización de Discord: los canales de escenario ocultos muestran el candado en lugar del escenario."
+                ],
                 "1.1.0": [
                     "Sigue el idioma de Discord: alemán, español, francés, japonés, polaco, portugués, ruso y turco, además de inglés."
                 ],
@@ -103,6 +115,9 @@
             "name": "Afficher les salons masqués",
             "description": "Affiche dans la liste les salons que tu ne peux pas voir, avec un cadenas. En ouvrir un montre son sujet, ses paramètres et qui peut le voir, jamais ses messages.",
             "changelog": {
+                "1.1.1": [
+                    "Fonctionne à nouveau après la mise à jour de Discord : les salons de conférence masqués affichent le cadenas au lieu de la conférence."
+                ],
                 "1.1.0": [
                     "Suit la langue de Discord : allemand, espagnol, français, japonais, polonais, portugais, russe et turc, en plus de l'anglais."
                 ],
@@ -127,6 +142,9 @@
             "name": "非表示チャンネルを表示",
             "description": "見ることのできないチャンネルを、鍵付きでチャンネル一覧に表示します。開くとトピック、設定、閲覧できる人が表示され、メッセージは表示されません。",
             "changelog": {
+                "1.1.1": [
+                    "Discordのアップデート後も再び動作します。非表示のステージチャンネルでは、ステージの代わりに鍵の画面が表示されます。"
+                ],
                 "1.1.0": [
                     "Discordの言語設定に合わせて表示されます。英語のほか、ドイツ語、スペイン語、フランス語、日本語、ポーランド語、ポルトガル語、ロシア語、トルコ語に対応しています。"
                 ],
@@ -151,6 +169,9 @@
             "name": "Pokaż ukryte kanały",
             "description": "Pokazuje na liście kanałów te, których nie możesz zobaczyć, z kłódką. Po otwarciu zobaczysz jego temat, ustawienia i to, kto go widzi, ale nigdy wiadomości.",
             "changelog": {
+                "1.1.1": [
+                    "Znów działa po aktualizacji Discorda: ukryte kanały sceny pokazują kłódkę zamiast sceny."
+                ],
                 "1.1.0": [
                     "Mówi w języku Discorda: po niemiecku, hiszpańsku, francusku, japońsku, polsku, portugalsku, rosyjsku i turecku, oprócz angielskiego."
                 ],
@@ -175,6 +196,9 @@
             "name": "Mostrar Canais Ocultos",
             "description": "Mostra na lista de canais os que você não pode ver, com um cadeado. Ao abrir um, você vê o tópico, as configurações e quem pode vê-lo, nunca as mensagens.",
             "changelog": {
+                "1.1.1": [
+                    "Volta a funcionar após a atualização do Discord: canais de palco ocultos mostram o cadeado em vez do palco."
+                ],
                 "1.1.0": [
                     "Segue o idioma do Discord: alemão, espanhol, francês, japonês, polonês, português, russo e turco, além do inglês."
                 ],
@@ -199,6 +223,9 @@
             "name": "Показывать скрытые каналы",
             "description": "Показывает в списке каналов те, которые вам недоступны, с замком. Открыв такой канал, вы увидите его тему, настройки и то, кто может его видеть, но никогда не сообщения.",
             "changelog": {
+                "1.1.1": [
+                    "Снова работает после обновления Discord: скрытые трибуны показывают замок вместо самой трибуны."
+                ],
                 "1.1.0": [
                     "Говорит на языке Discord: немецком, испанском, французском, японском, польском, португальском, русском и турецком, а также на английском."
                 ],
@@ -223,6 +250,9 @@
             "name": "Gizli Kanalları Göster",
             "description": "Görüntüleyemediğin kanalları kanal listesinde kilit simgesiyle gösterir. Birini açtığında konusunu, ayarlarını ve kimlerin görebildiğini görürsün, mesajlarını asla.",
             "changelog": {
+                "1.1.1": [
+                    "Discord güncellemesinden sonra yeniden çalışıyor: gizli sahne kanalları sahne yerine kilit ekranını gösterir."
+                ],
                 "1.1.0": [
                     "Discord'un dilini kullanır: İngilizcenin yanı sıra Almanca, İspanyolca, Fransızca, Japonca, Lehçe, Portekizce, Rusça ve Türkçe."
                 ],

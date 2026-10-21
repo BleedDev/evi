@@ -409,15 +409,16 @@ export default definePlugin({
         },
         {
             // Stage channels
-            find: '"HasBeenInStageChannel"',
+            find: ".STAGE_CHANNEL_CALL)",
             replace: [
                 {
                     match: /screenMessage:(\i)\?.+?children:(?=!\1)(?<=let \i,{channel:(\i).+?)/,
                     with: (m, _isPopoutOpen, channel) => `${m}$self.isHiddenChannel(${channel})?$self.HiddenChannelLockScreen(${channel}):`,
                 },
                 {
-                    match: /render(?:BottomLeft|BottomCenter|BottomRight|ChatToasts):\(\)=>(?<=let \i,{channel:(\i).+?)/g,
-                    with: (m, channel) => `${m}$self.isHiddenChannel(${channel})?null:`,
+                    // Arrow functions, or a function that returns (renderChatToasts)
+                    match: /render(?:BottomLeft|BottomCenter|BottomRight|ChatToasts):(?:\(\)=>|function\(\){return)(?<=let \i,{channel:(\i).+?)/g,
+                    with: (m, channel) => `${m} $self.isHiddenChannel(${channel})?null:`,
                 },
                 {
                     match: /"124px".+?disableGradients:(?<=let \i,{channel:(\i).+?)/,
@@ -430,13 +431,13 @@ export default definePlugin({
             ],
         },
         {
-            // Stage channel header (STAGE_FULL_MODERATOR_TITLE)
-            find: '.t["T+zF9M"]',
+            // Stage channel header
+            find: "numRequestToSpeak:",
             replace: [
                 {
                     // No divider and listener count on the lock screen
-                    match: /\(0,\i\.jsx\)\(\i\.\i\.Divider.+?}\)]}\)(?=.+?:(\i)\.guild_id)/,
-                    with: (m, channel) => `$self.isHiddenChannel(${channel})?null:(${m})`,
+                    match: /(?<={channel:(\i),toggleRequestToSpeakSidebar:.+?)\(0,\i\.jsx\)\(\i\.\i\.Divider.+?}\)]}\)/,
+                    with: (m, channel) => `...$self.isHiddenChannel(${channel})?[]:[${m}]`,
                 },
                 {
                     match: /(?<=numRequestToSpeak:\i\}\)\}\):null,!\i&&)\(0,\i\.jsxs?\).{0,280}?iconClassName:/,

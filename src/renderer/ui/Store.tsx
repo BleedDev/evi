@@ -1159,7 +1159,6 @@ function StoreDetail({ item, onBack, onAuthor, onOpen }: { item: Item; onBack():
     );
 }
 
-/** Their Discord avatar, or Discord's default one for their account */
 /** A verified author: who they are, where to find them, and what they've published here */
 function AuthorView({ kind, profile, items, backLabel, onBack, onOpen, onAuthor }: {
     kind: StoreKind;

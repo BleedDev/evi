@@ -145,8 +145,7 @@
     cursor: pointer;
 }
 
-.dl-nav-item > svg,
-.dl-nav-icon-space {
+.dl-nav-item > svg {
     flex: none;
     inline-size: 20px;
 }
@@ -1538,16 +1537,6 @@
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-}
-
-.dl-store-tag {
-    padding: 1px 8px;
-    border-radius: var(--dl-radius-round);
-    background: var(--dl-bg-emphasis);
-    color: var(--dl-text-subtle);
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 18px;
 }
 
 .dl-store-card-foot {

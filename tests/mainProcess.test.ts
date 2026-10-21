@@ -80,12 +80,12 @@ describe("staying in Discord across its updates", () => {
 describe("adding a theme from a link", () => {
     const css = "/**\n * @name Dark\n */\nbody { color: red; }";
 
-    test("a malformed %-escape in the file name still adds it, named after the theme", async () => {
+    test("a malformed %-escape in the file name still adds it, named as written", async () => {
         const { addThemeFromUrl } = await import("../src/main/themes");
         responses.set("https://example.com/dark%E0.css", () => new Response(css, { headers: { "content-type": "text/css" } }));
         const result = await addThemeFromUrl("https://example.com/dark%E0.css");
-        expect(result).toEqual({ ok: true, file: "Dark.css" });
-        expect(readFileSync(join(DATA, "themes", "Dark.css"), "utf8")).toBe(css);
+        expect(result).toEqual({ ok: true, file: "dark-E0.css" });
+        expect(readFileSync(join(DATA, "themes", "dark-E0.css"), "utf8")).toBe(css);
     });
 
     test("a folder in the way is an error result, not a thrown one", async () => {

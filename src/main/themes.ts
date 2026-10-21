@@ -112,14 +112,7 @@ export async function addThemeFromUrl(input: string): Promise<AddThemeResult> {
     const problem = whyNotCss(css, download.contentType, mt);
     if (problem) return { ok: false, error: problem };
 
-    const meta = parseThemeMeta(css, "");
-    let name: string;
-    try {
-        name = themeFileName(url, meta);
-    } catch {
-        // A malformed %-escape in the file name (dark%E0.css): named as if the link had none
-        name = themeFileName(new URL(url.origin), meta);
-    }
+    const name = themeFileName(url, parseThemeMeta(css, ""));
     let file: string;
     try {
         file = pickFile(name, css);

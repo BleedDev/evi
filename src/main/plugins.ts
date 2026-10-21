@@ -188,29 +188,75 @@ function stopNative(id: string) {
 
 const announce = (change: PluginChange) => broadcast(IPC.PLUGIN_CHANGED, change);
 
+/** Which root a plugin folder is in: later roots (dev) win over earlier ones (user) for the same id */
+const rootRank = (dir: string) => roots.findIndex(r => dir.startsWith(r.dir + sep));
+
+/** Takes a plugin out of main, its native side stopped. Whether that was running */
+function unload(plugin: LoadedPlugin) {
+    const { id } = plugin.manifest;
+    const running = natives.get(id)?.running ?? false;
+    stopNative(id);
+    natives.delete(id);
+    plugins.delete(id);
+    return running;
+}
+
+function load(plugin: LoadedPlugin, restartNative: boolean, action: "installed" | "updated") {
+    plugins.set(plugin.manifest.id, plugin);
+    SafeMode.recordChange({ kind: "plugin", id: plugin.manifest.id, action });
+    // Plugins added or re-enabled while Discord runs need their native side started too
+    if (restartNative || isPluginEnabled(settings, plugin.manifest)) startNative(plugin.manifest.id);
+    announce({ type: "upsert", plugin: toPayload(plugin) });
+}
+
+/** Another folder with this id, the one startup would pick: from the last root, the last of its folders */
+function findOther(id: string, except: string) {
+    for (const { dir: root, source } of roots.toReversed()) {
+        if (!existsSync(root)) continue;
+        for (const entry of readdirSync(root, { withFileTypes: true }).reverse()) {
+            const dir = join(root, entry.name);
+            if (!entry.isDirectory() || dir === except) continue;
+            try {
+                if (JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8"))?.id !== id) continue;
+            } catch {
+                continue;
+            }
+            const plugin = readPlugin(dir, source);
+            if (plugin?.manifest.id === id) return plugin;
+        }
+    }
+}
+
 function reloadFolder(root: string, source: Source, folder: string) {
     const dir = join(root, folder);
     const previous = [...plugins.values()].find(p => p.dir === dir);
-    const next = readPlugin(dir, source);
+    let next = readPlugin(dir, source);
+
+    // Another folder has this id already ("foo - Copy" beside foo, the user's beside a dev build):
+    // a later root takes it over, as at startup; otherwise the one running stays
+    const owner = next && plugins.get(next.manifest.id);
+    if (next && owner && owner.dir !== dir && rootRank(owner.dir) >= rootRank(dir)) {
+        console.warn(`[Evi] ${dir} has the same id as ${owner.dir} (${next.manifest.id}), skipped`);
+        next = null;
+    }
     // Editors and builds touch files without changing them, don't restart plugins for that
     if (previous && next && previous.signature === next.signature) return;
 
     let restartNative = false;
+    if (next && owner && owner.dir !== dir) restartNative = unload(owner);
     if (previous) {
         const { id } = previous.manifest;
-        restartNative = natives.get(id)?.running ?? false;
-        stopNative(id);
-        natives.delete(id);
-        plugins.delete(id);
-        if (next?.manifest.id !== id) announce({ type: "remove", id });
+        const running = unload(previous);
+        if (next?.manifest.id === id) restartNative ||= running;
+        else {
+            // Its folder went, or now has another id: a copy elsewhere takes over, if there is one
+            const other = findOther(id, dir);
+            if (other) load(other, running, "updated");
+            else announce({ type: "remove", id });
+        }
     }
 
-    if (!next) return;
-    plugins.set(next.manifest.id, next);
-    SafeMode.recordChange({ kind: "plugin", id: next.manifest.id, action: previous ? "updated" : "installed" });
-    // Plugins added or re-enabled while Discord runs need their native side started too
-    if (restartNative || isPluginEnabled(settings, next.manifest)) startNative(next.manifest.id);
-    announce({ type: "upsert", plugin: toPayload(next) });
+    if (next) load(next, restartNative, previous || owner ? "updated" : "installed");
 }
 
 /** Re-reads every plugin folder under a root, including ones that disappeared */

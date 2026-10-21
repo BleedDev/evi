@@ -9,11 +9,16 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, 
 import { tmpdir } from "os";
 import { join } from "path";
 
+import { IPC } from "../src/shared/ipc";
 import { ORIGINAL_ASAR } from "../src/shared/shim";
 
 const DATA = mkdtempSync(join(tmpdir(), "evi-main-"));
 process.env.EVI_DATA_DIR = DATA;
 afterAll(() => rmSync(DATA, { recursive: true, force: true }));
+
+/** What main sent the page */
+const sent: { channel: string; args: unknown[]; }[] = [];
+const page = { isDestroyed: () => false, send: (channel: string, ...args: unknown[]) => void sent.push({ channel, args }) };
 
 /** What net.fetch answers, by URL */
 const responses = new Map<string, () => Response>();
@@ -23,7 +28,7 @@ mock.module("electron", () => ({
     ipcMain: { on() { }, handle() { } },
     net: { fetch: async (url: string) => responses.get(url)?.() ?? new Response("", { status: 404 }) },
     session: { defaultSession: {} },
-    webContents: { getAllWebContents: () => [] },
+    webContents: { getAllWebContents: () => [page] },
     BrowserWindow: { fromWebContents: () => null },
     dialog: {},
     powerMonitor: {},
@@ -89,5 +94,51 @@ describe("adding a theme from a link", () => {
         expect(result.ok).toBe(false);
         expect(readdirSync(join(DATA, "themes"))).not.toContain("other-2.css");
         expect(existsSync(join(DATA, "themes", "other.css"))).toBe(true);
+    });
+});
+
+describe("two plugin folders with the same id", () => {
+    const write = (folder: string, version: string) => {
+        const dir = join(DATA, "plugins", folder);
+        mkdirSync(dir, { recursive: true });
+        writeFileSync(join(dir, "manifest.json"), JSON.stringify({ id: "twin", name: "Twin", version, description: "", authors: [] }));
+        writeFileSync(join(dir, "index.js"), `// ${version}`);
+    };
+    const changes = () => sent.filter(m => m.channel === IPC.PLUGIN_CHANGED).map(m => m.args[0] as { type: string; id?: string; plugin?: { manifest: { version: string; }; }; });
+
+    test("a copy doesn't take over, and deleting it leaves the original", async () => {
+        const { pluginLocation, refreshUserPlugin } = await import("../src/main/plugins");
+        write("twin", "1.0.0");
+        refreshUserPlugin("twin");
+        expect(pluginLocation("twin")?.version).toBe("1.0.0");
+
+        sent.length = 0;
+        write("twin - Copy", "1.0.1");
+        refreshUserPlugin("twin - Copy");
+        expect(pluginLocation("twin")?.dir).toBe(join(DATA, "plugins", "twin"));
+        expect(changes()).toEqual([]);
+
+        rmSync(join(DATA, "plugins", "twin - Copy"), { recursive: true });
+        refreshUserPlugin("twin - Copy");
+        expect(pluginLocation("twin")?.dir).toBe(join(DATA, "plugins", "twin"));
+        expect(changes()).toEqual([]);
+    });
+
+    test("deleting the folder that runs hands the id to the copy instead of removing the plugin", async () => {
+        const { pluginLocation, refreshUserPlugin } = await import("../src/main/plugins");
+        write("twin - Copy", "1.0.1");
+        refreshUserPlugin("twin - Copy");
+        sent.length = 0;
+
+        rmSync(join(DATA, "plugins", "twin"), { recursive: true });
+        refreshUserPlugin("twin");
+        expect(pluginLocation("twin")?.dir).toBe(join(DATA, "plugins", "twin - Copy"));
+        expect(changes().map(c => [c.type, c.plugin?.manifest.version])).toEqual([["upsert", "1.0.1"]]);
+
+        sent.length = 0;
+        rmSync(join(DATA, "plugins", "twin - Copy"), { recursive: true });
+        refreshUserPlugin("twin - Copy");
+        expect(pluginLocation("twin")).toBeUndefined();
+        expect(changes()).toEqual([{ type: "remove", id: "twin" }]);
     });
 });

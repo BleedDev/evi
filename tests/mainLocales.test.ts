@@ -8,7 +8,7 @@ import { CATALOGS } from "../src/shared/locales";
 const ROOT = join(import.meta.dir, "..");
 
 describe("main's locale tables", () => {
-    test("main.js carries every key main names, and only main's keys", async () => {
+    test("main.js carries every key main names, only main's keys, and only in English", async () => {
         const result = await Bun.build({
             entrypoints: [join(ROOT, "src/main/index.ts")],
             target: "node",
@@ -20,7 +20,9 @@ describe("main's locale tables", () => {
         const mainJs = await result.outputs[0].text();
         expect(strayKeys(mainJs)).toEqual([]);
         expect(mainJs).not.toContain("\"perf.gameMode.title\"");
-        expect(mainJs).toContain(JSON.stringify(CATALOGS.ru!["main.backup.notJson"]));
+        expect(mainJs).toContain(JSON.stringify(CATALOGS.en!["main.backup.notJson"]));
+        // The other languages are locale-<tag>.json files main reads when one is in use (scripts/coreData.ts)
+        expect(mainJs).not.toContain(JSON.stringify(CATALOGS.ru!["main.backup.notJson"]));
     });
 
     test("the stray-key check sees a key outside MAIN_KEYS", () => {

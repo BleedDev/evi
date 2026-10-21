@@ -424,6 +424,10 @@ function uninstallTheme(id: string, report: (p: StoreProgress) => void): StoreRe
     return { ok: true, id, version: installed.version };
 }
 
+/**
+ * Downloads under way, so an image asked for twice is fetched once. The page keeps what they return
+ * (renderer/store.ts): a second copy here held every screenshot seen twice, until Discord quit.
+ */
 const images = new Map<string, Promise<StoreImageResult>>();
 
 /**
@@ -447,8 +451,8 @@ async function fetchImage(url: unknown): Promise<StoreImageResult> {
             return dataUrl ? { ok: true, dataUrl } : { ok: false, error: "Not a PNG, JPEG, GIF or WebP image" };
         })();
         images.set(url, pending);
-        // Failures aren't remembered, the next look tries again
-        pending.then(r => !r.ok && images.delete(url));
+        const forget = () => images.delete(url);
+        pending.then(forget, forget);
     }
     return pending;
 }

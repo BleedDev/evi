@@ -10,7 +10,7 @@ import { CrashDetective } from "./crashDetective";
 import { Developer } from "./developer";
 import { GameMode, installGameMode, startGameMode } from "./gameMode";
 import { installCssFixes, warmUiFonts } from "./cssFixes";
-import { I18n } from "./i18n";
+import { I18n, loadCatalogsWith } from "./i18n";
 import { startIdleReports } from "./idle";
 import { startHealthReports } from "./health";
 import { Logger } from "./logger";
@@ -106,6 +106,9 @@ function boot() {
 
     const data = Native.boot();
     if (data.testHooks) Object.assign(Evi, { plugins: PluginManager, showTour2 });
+    // Evi's languages but English come from main, the one in use only. A main older than this page
+    // (a core update waiting for a restart) doesn't hand them out: Evi stays in English until then
+    if (data.locales) loadCatalogsWith(tag => Native.localeCatalog(tag));
     // Main words its own dialogs and errors in Discord's language too
     Native.setLocale?.(I18n.locale);
     I18n.subscribe(() => Native.setLocale?.(I18n.locale));

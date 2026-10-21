@@ -4,8 +4,9 @@
  * straight from the English catalog, so scripts, the server and tests get the same words as before.
  */
 import { translate, Vars } from "./i18n";
-import { CATALOGS, EviKey } from "./locales";
+import type { EviKey } from "./locales";
+import { en } from "./locales/en";
 
 export type Tr = (key: EviKey, vars?: Vars) => string;
 
-export const englishTr: Tr = (key, vars) => translate(CATALOGS, "en", key, vars);
+export const englishTr: Tr = (key, vars) => translate({ en }, "en", key, vars);

@@ -94,8 +94,19 @@ async function bundle(label: string, config: Parameters<typeof Bun.build>[0], co
     return true;
 }
 
+/** Evi's languages but English, files main reads when one is in use (scripts/coreData.ts) */
+async function writeCoreData() {
+    mkdirSync(CORE_OUT, { recursive: true });
+    const code = await Bun.spawn([process.execPath, join(ROOT, "scripts/coreData.ts"), CORE_OUT], { stdio: ["inherit", "inherit", "inherit"] }).exited;
+    if (code === 0) return true;
+    console.error("✗ core data");
+    if (!WATCH) process.exit(1);
+    return false;
+}
+
 async function buildCore() {
     const start = performance.now();
+    const data = writeCoreData();
     const results = await Promise.all([
         bundle("main", {
             entrypoints: [join(ROOT, "src/main/index.ts")],
@@ -124,6 +135,7 @@ async function buildCore() {
             sourcemap: WATCH ? "inline" : "none",
         }, true),
     ]);
+    results.push(await data);
     if (results.every(Boolean)) console.log(`✓ core (${Math.round(performance.now() - start)}ms)`);
 }
 

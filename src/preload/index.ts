@@ -29,6 +29,8 @@ import { contextBridge, ipcRenderer, webFrame } from "electron";
 const EviNative = {
     boot: (): BootData => ipcRenderer.sendSync(IPC.GET_BOOT),
     setLocale: (locale: string) => void ipcRenderer.send(IPC.SET_LOCALE, locale),
+    /** Only when BootData.locales says main answers it */
+    localeCatalog: (tag: string): string | null => ipcRenderer.sendSync(IPC.LOCALE_CATALOG, tag),
     saveSettings: (settings: EviSettings): Promise<SettingsSaveResult | void> => ipcRenderer.invoke(IPC.SETTINGS_SAVE, settings),
     saveQuickCss: (css: string) => ipcRenderer.invoke(IPC.CSS_SAVE, css),
     saveSettingsSync: (settings: EviSettings) => void ipcRenderer.sendSync(IPC.SETTINGS_SAVE_SYNC, settings),

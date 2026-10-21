@@ -11,7 +11,7 @@ import { initBadges } from "./badges";
 import { initCommunity } from "./community";
 import { initFindCache, readFindCache } from "./findCache";
 import { guardIpc } from "./ipcGuard";
-import { setLocale } from "./locale";
+import { readCatalog, setLocale } from "./locale";
 import { DATA_DIR, PLUGINS_DIR, QUICK_CSS_FILE, THEMES_DIR } from "./paths";
 import { persistAcrossUpdates } from "./persist";
 import { initIdle, relaunch } from "./idle";
@@ -73,11 +73,15 @@ function registerIpc() {
             pulled: currentPulls(),
             hotfixes: currentHotfixes(),
             findCache: readFindCache(),
+            locales: true,
         };
         e.returnValue = boot;
     });
 
     ipcMain.on(IPC.SET_LOCALE, (_, locale: unknown) => setLocale(locale));
+    ipcMain.on(IPC.LOCALE_CATALOG, (e, tag: unknown) => {
+        e.returnValue = readCatalog(tag);
+    });
 
     ipcMain.handle(IPC.SETTINGS_SAVE, (e, next: EviSettings) => saveFromPage(next, e.sender));
     ipcMain.handle(IPC.CSS_SAVE, (_, css: string) => writeFileSync(QUICK_CSS_FILE, css));

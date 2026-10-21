@@ -16,6 +16,8 @@ export const IPC = {
     GET_BOOT: "evi:get-boot",
     /** The renderer tells main Evi's language, for its native dialogs and error messages */
     SET_LOCALE: "evi:set-locale",
+    /** sync: one of Evi's languages but English, as JSON text, or null (see BootData.locales) */
+    LOCALE_CATALOG: "evi:locale-catalog",
     /** answers with SettingsSaveResult, after asking about plugins it turns on that reach beyond the page */
     SETTINGS_SAVE: "evi:settings-save",
     /** sync: last-chance flush while the page unloads, async IPC may not make it */
@@ -357,6 +359,11 @@ export interface BootData {
     hotfixes?: Hotfix[];
     /** The saved find index (renderer/patching/findCache.ts), as JSON */
     findCache?: string;
+    /**
+     * Main answers IPC.LOCALE_CATALOG. Unset by a main older than the page: one still running after a
+     * core update, until Discord restarts. A sync call it doesn't answer would hang the page.
+     */
+    locales?: boolean;
     /**
      * Only the web test's fake bridge sets this: `Evi.plugins` is then the plugin manager itself,
      * contexts and all, so the test can drive plugins. Main never does.

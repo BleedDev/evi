@@ -1,10 +1,13 @@
 /**
  * Evi speaks Discord's language. The language comes from Discord's LocaleStore (the one picked in
  * Discord's Language settings), else the `lang` Discord puts on <html>, else English, and follows
- * changes live: components re-render through useLocale().
+ * changes live: components re-render through useLocale(). English is bundled; the language in use
+ * comes from main once it's known (loadCatalogsWith), and is English until then.
  */
-import { FALLBACK_LOCALE, matchLocale, Message, translate, Vars } from "@shared/i18n";
-import { CATALOGS, EviKey, LOCALES } from "@shared/locales";
+import { FALLBACK_LOCALE, matchLocale, Message, Messages, translate, Vars } from "@shared/i18n";
+import type { EviKey } from "@shared/locales";
+import { en } from "@shared/locales/en";
+import { LOCALES } from "@shared/locales/tags";
 import type { ReactNode } from "react";
 
 import { React } from "./webpack/common";
@@ -19,6 +22,19 @@ let discordLocale = "";
 let locale = FALLBACK_LOCALE;
 let started = false;
 const listeners = new Set<() => void>();
+/** English and the language in use: another one replaces it */
+let catalogs: Record<string, Messages | undefined> = { en };
+let loadCatalog: ((tag: string) => string | null | undefined) | undefined;
+
+/** Fetches `tag`'s catalog once while it's in use: without an answer that language is English */
+function ensureCatalog(tag: string) {
+    if (tag === FALLBACK_LOCALE || tag in catalogs || !loadCatalog) return;
+    let messages: Messages | undefined;
+    try {
+        messages = JSON.parse(loadCatalog(tag) ?? "null") ?? undefined;
+    } catch { }
+    catalogs = { en, [tag]: messages };
+}
 
 function read() {
     let store: LocaleStore | undefined;
@@ -35,6 +51,7 @@ function refresh() {
     if (next === discordLocale) return;
     discordLocale = next;
     locale = matchLocale(next, LOCALES) ?? FALLBACK_LOCALE;
+    ensureCatalog(locale);
     listeners.forEach(l => l());
 }
 
@@ -78,9 +95,18 @@ export const I18n = {
     },
 };
 
+/** Where the languages but English come from: main, as JSON text. Set once, as Evi boots; not for plugins */
+export function loadCatalogsWith(load: (tag: string) => string | null | undefined) {
+    loadCatalog = load;
+    // The language may be known already
+    if (locale === FALLBACK_LOCALE || locale in catalogs) return;
+    ensureCatalog(locale);
+    listeners.forEach(l => l());
+}
+
 /** Evi's UI text for `key` in Discord's language, `{name}` placeholders filled from `vars` */
 export function t(key: EviKey, vars?: Vars): string {
-    return translate(CATALOGS, I18n.locale, key, vars);
+    return translate(catalogs, I18n.locale, key, vars);
 }
 
 /**

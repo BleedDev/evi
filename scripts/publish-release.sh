@@ -14,8 +14,8 @@ fi
 flags=(--latest)
 if [[ "$VERSION" == *-* ]]; then flags=(--prerelease --latest=false); fi
 ls -l
-# Evi Setup for every system, and evi-core.json for Evi Setup and in-app updates
-gh release create "$TAG" evi-core.json Evi-Setup.exe Evi-Setup-macos.zip Evi-Setup-linux-{x64,arm64} *.sha256 \
+# Evi Setup for every system, evi-core.json for Evi Setup and in-app updates, and its .gz that newer Evis update from
+gh release create "$TAG" evi-core.json evi-core.json.gz Evi-Setup.exe Evi-Setup-macos.zip Evi-Setup-linux-{x64,arm64} *.sha256 \
     "${flags[@]}" \
     --target "$GITHUB_SHA" \
     --title "Evi $VERSION" \

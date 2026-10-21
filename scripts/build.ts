@@ -14,7 +14,7 @@ import { basename, join, resolve } from "path";
 
 import pkg from "../package.json";
 import type { PluginManifest } from "../src/shared/ipc";
-import { RELEASE_ASSETS } from "../src/shared/release";
+import { CORE_GZ_ASSET, RELEASE_ASSETS } from "../src/shared/release";
 import { RETIRED_PLUGINS } from "../src/shared/store";
 import { escapeNonLatin1 } from "./escapeNonLatin1";
 import { mainLocales, strayKeys } from "./mainLocales";
@@ -291,9 +291,12 @@ function writeCoreAsset() {
     }
     const embed = JSON.parse(readFileSync(join(DIST, "embed.json"), "utf8"));
     const plugins = Object.fromEntries(Object.entries(embed.plugins).filter(([id]) => official.has(id)));
-    writeFileSync(join(DIST, CORE_ASSET), JSON.stringify({ ...embed, plugins, retired: RETIRED_PLUGINS }));
+    const core = JSON.stringify({ ...embed, plugins, retired: RETIRED_PLUGINS });
+    writeFileSync(join(DIST, CORE_ASSET), core);
     writeChecksum(CORE_ASSET);
-    console.log(`✓ dist/${CORE_ASSET}`);
+    // What updates download first. No checksum of its own: they check what it unpacks to against evi-core.json's
+    writeFileSync(join(DIST, CORE_GZ_ASSET), Bun.gzipSync(core, { level: 9 }));
+    console.log(`✓ dist/${CORE_ASSET} and ${CORE_GZ_ASSET}`);
 }
 
 /** Evi Setup (installer/): a Rust + Tauri app, built with cargo for this system */

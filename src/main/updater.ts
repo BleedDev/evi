@@ -26,6 +26,8 @@ import { createHash } from "crypto";
 import { app, ipcMain, net, WebContents } from "electron";
 import { accessSync, constants, createReadStream, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "fs";
 import { join } from "path";
+import { promisify } from "util";
+import { gunzip } from "zlib";
 
 import { applyCorePayload, parseCorePayload } from "./coreUpdate";
 import { mt } from "./locale";
@@ -49,6 +51,8 @@ const STAGED = join(DATA_DIR, "update-staged.json");
 /** A downloaded, verified evi-core.json waiting to be written in */
 const CORE_PENDING = join(DATA_DIR, "update-core.json.pending");
 const MAX_CORE_BYTES = 64 * 1024 * 1024;
+// Off the main thread: a silent update can download during a call
+const gunzipAsync = promisify(gunzip);
 /** A download that gets nothing for this long has stalled */
 const STALL_MS = 30_000;
 /** And none takes longer than this, the installer on a slow line included */
@@ -228,6 +232,20 @@ async function fetchBytes(url: string, max: number, onProgress?: (done: number, 
 }
 
 /**
+ * evi-core.json from evi-core.json.gz, if it unpacks to the file the checksum is for. Undefined
+ * otherwise, and the plain file is downloaded instead.
+ */
+async function fetchGzipped(url: string, checksum: string, onProgress?: (done: number, total: number) => void) {
+    try {
+        const bytes = await gunzipAsync(await fetchBytes(url, MAX_CORE_BYTES, onProgress), { maxOutputLength: MAX_CORE_BYTES });
+        if (createHash("sha256").update(bytes).digest("hex") === checksum) return bytes;
+        console.warn("[Evi] evi-core.json.gz doesn't match the checksum, downloading evi-core.json");
+    } catch (err) {
+        console.warn("[Evi] Couldn't use evi-core.json.gz, downloading evi-core.json:", err);
+    }
+}
+
+/**
  * Downloads the release's installer, checks it against the published SHA-256 and stages it as
  * evi.exe.pending. Idempotent: an installer already on disk with that hash isn't downloaded again,
  * and a download of the same version already running is joined.
@@ -248,7 +266,8 @@ function download(release: ReleaseInfo, report?: (progress: UpdateProgress) => v
         // Only where this kind of release goes: a core update has no business reading a 100 MB evi.exe
         if (!await findStagedFile(checksum, core ? [CORE_PENDING] : [PENDING, EXE])) {
             rmSync(target, { force: true });
-            const bytes = await fetchBytes(url, max, (done, total) => report?.({ phase: "downloading", done, total }));
+            const progress = (done: number, total: number) => report?.({ phase: "downloading", done, total });
+            const bytes = (core && release.coreGzUrl && await fetchGzipped(release.coreGzUrl, checksum, progress)) || await fetchBytes(url, max, progress);
             report?.({ phase: "verifying" });
             const actual = createHash("sha256").update(bytes).digest("hex");
             if (actual !== checksum) throw new Error(mt("main.update.mismatch"));

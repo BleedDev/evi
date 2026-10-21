@@ -22,6 +22,14 @@ describe("Evi's releases", () => {
         const release = parseRelease({ tag_name: "v1.5.0", assets: [asset("Evi-Setup.exe"), asset("evi-core.json"), asset("evi-core.json.sha256")] });
         expect(release).toMatchObject({ version: "1.5.0", coreUrl: asset("evi-core.json").browser_download_url, coreChecksumUrl: asset("evi-core.json.sha256").browser_download_url });
         expect(release).not.toHaveProperty("exeUrl");
+        expect(release).not.toHaveProperty("coreGzUrl");
+    });
+
+    test("evi-core.json.gz counts only beside evi-core.json and its checksum, and only from GitHub", () => {
+        const core = [asset("evi-core.json"), asset("evi-core.json.sha256")];
+        expect(parseRelease({ tag_name: "v2.6.0", assets: [...core, asset("evi-core.json.gz")] })).toMatchObject({ coreGzUrl: asset("evi-core.json.gz").browser_download_url });
+        expect(parseRelease({ tag_name: "v2.6.0", assets: [asset("evi-core.json"), asset("evi-core.json.gz")] })).toEqual({ error: "Release v2.6.0 is missing evi-core.json.sha256" });
+        expect(parseRelease({ tag_name: "v2.6.0", assets: [...core, { name: "evi-core.json.gz", browser_download_url: "https://evil.example/evi-core.json.gz" }] })).not.toHaveProperty("coreGzUrl");
     });
 
     test("drafts and junk aren't releases; a missing file is said plainly", () => {

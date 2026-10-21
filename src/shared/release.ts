@@ -57,6 +57,8 @@ export const CHECKSUM_ASSET = `${EXE_ASSET}.sha256`;
 /** Evi's own files (core and official plugins) as one JSON, a few MB: what Evi Setup downloads, and what updates install */
 export const CORE_ASSET = "evi-core.json";
 export const CORE_CHECKSUM_ASSET = `${CORE_ASSET}.sha256`;
+/** The same, gzipped: about a quarter of the download. Its checksum is the plain file's */
+export const CORE_GZ_ASSET = `${CORE_ASSET}.gz`;
 
 /** Discord's install folders in %LOCALAPPDATA%, by flavor. Also its executable's name on every system, minus spaces and .exe */
 export const FLAVORS = {
@@ -121,6 +123,8 @@ export interface ReleaseInfo {
     /** evi-core.json and its checksum: updating needs only these. Missing on releases from before Evi Setup */
     coreUrl?: string;
     coreChecksumUrl?: string;
+    /** evi-core.json.gz, which updates try first. Only with coreUrl, and missing on older releases */
+    coreGzUrl?: string;
 }
 
 function isGithubPage(url: unknown): url is string {
@@ -159,6 +163,7 @@ export function parseRelease(json: any, downloads = RELEASE_DOWNLOADS): ReleaseI
     const exeUrl = asset(EXE_ASSET), checksumUrl = asset(CHECKSUM_ASSET);
     const coreUrl = asset(CORE_ASSET), coreChecksumUrl = asset(CORE_CHECKSUM_ASSET);
     const hasCore = typeof coreUrl === "string" && typeof coreChecksumUrl === "string";
+    const coreGzUrl = hasCore ? asset(CORE_GZ_ASSET) : undefined;
     const hasExe = typeof exeUrl === "string" && typeof checksumUrl === "string";
     // Updating needs evi-core.json; releases from before it had only the CLI
     if (!hasCore && !hasExe) return { error: `Release ${json.tag_name} is missing ${exeUrl ? CHECKSUM_ASSET : coreUrl ? CORE_CHECKSUM_ASSET : CORE_ASSET}` };
@@ -172,6 +177,7 @@ export function parseRelease(json: any, downloads = RELEASE_DOWNLOADS): ReleaseI
         prerelease: json.prerelease === true || isPrerelease(json.tag_name),
         ...hasExe && { exeUrl, checksumUrl },
         ...hasCore && { coreUrl, coreChecksumUrl },
+        ...coreGzUrl && { coreGzUrl },
     };
 }
 

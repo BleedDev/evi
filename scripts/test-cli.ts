@@ -246,8 +246,10 @@ check("release.yml publishes with notes from the changelog, after everything it 
 check("release.yml reuses Evi Setup only while installer/ is unchanged, and checks its checksums",
     /git diff --quiet "\$last" HEAD -- installer/.test(reuse) && /sha256sum -c/.test(reuse) && /rebuild_setup/.test(JSON.stringify(workflow?.on?.workflow_dispatch)),
     reuse);
-check("release.yml attaches Evi Setup for every system and evi-core.json, and no CLI (gone since 1.5.0)",
-    ["Evi-Setup.exe", "Evi-Setup-macos.zip", "Evi-Setup-linux-{x64,arm64}", "evi-core.json"].every(f => publishScript.includes(f))
+check("release.yml attaches Evi Setup for every system and evi-core.json with its .gz, and no CLI (gone since 1.5.0)",
+    ["Evi-Setup.exe", "Evi-Setup-macos.zip", "Evi-Setup-linux-{x64,arm64}", "evi-core.json", "evi-core.json.gz"].every(f => publishScript.includes(f))
+    // Both ways to publish carry the .gz: copied for the release job, uploaded for the publish job
+    && JSON.stringify(steps).split("dist/evi-core.json.gz").length === 3
     && !/evi\.exe|evi-(macos|linux)-/.test(publishScript),
     publishScript);
 

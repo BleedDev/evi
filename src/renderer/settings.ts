@@ -1,8 +1,11 @@
 import { DEFAULT_SETTINGS, EviSettings, PluginSettingsEntry } from "@shared/ipc";
 
+import { Logger } from "./logger";
 import { Native } from "./native";
 
 type Listener = () => void;
+
+const logger = new Logger("Settings", "#7aa2f7");
 
 let data: EviSettings;
 const listeners = new Set<Listener>();
@@ -10,6 +13,17 @@ let saveTimer: ReturnType<typeof setTimeout> | undefined;
 
 // Saves are debounced; if the page goes away first (reload, quit, crash-free close) write synchronously
 addEventListener("pagehide", () => Settings.flush());
+
+/** Every listener hears about it: one that throws (a plugin's onChange) doesn't stop the others */
+function notify() {
+    for (const listener of listeners) {
+        try {
+            listener();
+        } catch (err) {
+            logger.error("A settings listener threw", err);
+        }
+    }
+}
 
 export const Settings = {
     init(initial: EviSettings) {
@@ -26,10 +40,10 @@ export const Settings = {
         mutate(data);
         // New object identity so React's useSyncExternalStore sees a change
         data = { ...data };
-        for (const listener of listeners) listener();
-
+        // Before the listeners: what they do with the change doesn't decide whether it's saved
         clearTimeout(saveTimer);
         saveTimer = setTimeout(() => void Settings.save(), 250);
+        notify();
     },
 
     /** Swap in settings main already saved (a restored backup) and notify subscribers, without saving again */
@@ -37,7 +51,7 @@ export const Settings = {
         clearTimeout(saveTimer);
         saveTimer = undefined;
         data = { ...structuredClone(DEFAULT_SETTINGS), ...next };
-        for (const listener of listeners) listener();
+        notify();
     },
 
     /**

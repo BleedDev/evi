@@ -45,4 +45,25 @@ describe("plugin settings", () => {
         settings.set("on", true);
         expect(calls.length).toBe(1);
     });
+
+    test("an onChange that throws doesn't stop the change or the listeners after it", () => {
+        const settings = new PluginSettings("ps-c", schema);
+        const offThrow = settings.onChange(() => {
+            throw new Error("plugin bug");
+        });
+        let heard = 0;
+        const offHeard = Settings.subscribe(() => void heard++);
+        const error = console.error;
+        console.error = () => { };
+        try {
+            expect(() => settings.set("size", 5)).not.toThrow();
+            expect(() => Settings.replace(Settings.data)).not.toThrow();
+        } finally {
+            console.error = error;
+            offThrow();
+            offHeard();
+        }
+        expect(settings.get("size")).toBe(5);
+        expect(heard).toBe(2);
+    });
 });

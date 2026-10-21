@@ -3,7 +3,7 @@
  * cost of depending on Discord's minified code. Prefer export hooks when they can do the job.
  *
  * Matching conveniences:
- *   \i      in a RegExp matches any identifier (minified names change every build)
+ *   \i      in a RegExp (find or match) matches any identifier (minified names change every build)
  *   $self   in a replacement refers to the plugin's definition object at runtime
  */
 import { Logger } from "../logger";
@@ -77,10 +77,19 @@ export function canonicalizeReplace(replace: Replacement["with"], plugin: string
     return (...args) => replace(...args).replaceAll("$self", self);
 }
 
+/** RegExp finds with `\i` expanded, made once per find: it's tested against every module */
+const canonicalFinds = new WeakMap<RegExp, RegExp>();
+
 export function matchesFind(code: string, find: string | RegExp) {
     if (typeof find === "string") return code.includes(find);
-    find.lastIndex = 0;
-    return find.test(code);
+    let canonical = canonicalFinds.get(find);
+    if (!canonical) {
+        const expanded = canonicalizeMatch(find) as RegExp;
+        // Without \i it's the find itself
+        canonicalFinds.set(find, canonical = expanded.source === find.source ? find : expanded);
+    }
+    canonical.lastIndex = 0;
+    return canonical.test(code);
 }
 
 /** Method shorthand factories like `123(e,t,n){...}` are not expressions, turn them into functions */

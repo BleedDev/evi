@@ -88,7 +88,7 @@ function LookupRow({ d, index }: { d: LookupDiagnosis; index: number; }) {
 }
 
 export function PatchesTab() {
-    const check = () => ({ patches: diagnosePatches(), lookups: diagnoseLookups() });
+    const check = () => ({ patches: diagnosePatches(), lookups: diagnoseLookups(undefined, performance.now(), 0) });
     const [{ patches: results, lookups }, setResults] = React.useState(check);
     // What needs attention first; the sort is stable, so plugin order holds within each group
     const sorted = [...results].sort((a, b) => health[a.health].order - health[b.health].order);

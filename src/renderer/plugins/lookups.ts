@@ -60,8 +60,28 @@ export function getLookupRecords(plugin?: string) {
 
 export const isLookupProblem = (health: LookupHealth) => health === "broken" || health === "missing";
 
-/** Checks unanswered lookups against every module factory Discord has registered so far */
-export function diagnoseLookups(plugin?: string, now = performance.now()): LookupDiagnosis[] {
+/**
+ * A code scan walks every module factory Discord has registered (about 20 ms). The Plugins tab
+ * diagnoses each visible card on every re-render, so a lookup's scan is reused for this long.
+ */
+export const SCAN_TTL_MS = 10_000;
+
+const scans = new WeakMap<LookupRecord, { at: number; ids: string[]; }>();
+
+/** The record's last scan if it's younger than maxAge, otherwise a new one */
+export function scanFor(record: LookupRecord, now: number, maxAge: number, scan: () => string[]) {
+    const last = scans.get(record);
+    if (last && maxAge > 0 && now - last.at < maxAge) return last.ids;
+    const ids = scan();
+    scans.set(record, { at: now, ids });
+    return ids;
+}
+
+/**
+ * Checks unanswered lookups against every module factory Discord has registered so far. A lookup's
+ * code scan is reused for up to maxAge ms, pass 0 for a fresh one.
+ */
+export function diagnoseLookups(plugin?: string, now = performance.now(), maxAge = SCAN_TTL_MS): LookupDiagnosis[] {
     return getLookupRecords(plugin).map(record => {
         const { $code } = record.filter;
         let health: LookupHealth;
@@ -70,7 +90,7 @@ export function diagnoseLookups(plugin?: string, now = performance.now()): Looku
         if (record.found) health = "found";
         else if (!wreq || now - record.since < LOOKUP_GRACE_MS) health = "waiting";
         else if ($code) {
-            candidates = findModuleIds(...$code);
+            candidates = scanFor(record, now, maxAge, () => findModuleIds(...$code));
             // A candidate that already ran and still didn't match is no better than none
             health = candidates.some(id => !wreq!.c[id]) ? "waiting" : "broken";
         } else health = "missing";

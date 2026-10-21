@@ -530,49 +530,55 @@ function UpdateAll({ kind, items }: { kind: StoreKind; items: Item[]; }) {
 
     const run = async (includeAsking: boolean) => {
         setAsking(false);
+        setResult(undefined);
         setResult(await Store.updateAll(kind, { includeNative: includeAsking, includeMoreAccess: includeAsking }));
     };
 
-    if (result && !updates.length) {
-        const text = result.failed.length
-            ? t("store.updatedFailed", { updated: result.updated.length, count: result.failed.length, list: result.failed.join(", ") })
-            : t(`store.updated.${kind}`, { count: result.updated.length });
-        return <Notice tone={result.failed.length ? "danger" : "info"}>{text}</Notice>;
-    }
-    if (!updates.length) return null;
+    // Also above what's left: failed updates, and the ones Only the others skipped, stay in the list
+    const summary = result && (
+        <Notice tone={result.failed.length ? "danger" : "info"}>
+            {result.failed.length
+                ? t("store.updatedFailed", { updated: result.updated.length, count: result.failed.length, list: result.failed.join(", ") })
+                : t(`store.updated.${kind}`, { count: result.updated.length })}
+        </Notice>
+    );
+    if (!updates.length) return summary || null;
 
     return (
-        <div className="dl-store-updates" role="group" aria-label={t("tabs.updates")}>
-            <div className="dl-store-updates-head">
-                <Icon name="download" size={20} />
-                <Text variant="text-md/semibold" color="text-strong" className="dl-grow">
-                    {t("store.updatesAvailable", { count: updates.length })}
-                </Text>
-                <Button
-                    variant="accent"
-                    id={`dl-${kind}-update-all`}
-                    disabled={!!state.updatingAll || asking}
-                    onClick={() => native.length || more.length ? setAsking(true) : run(false)}
-                >
-                    {state.updatingAll === kind ? t("common.updating") : t("store.updateAll")}
-                </Button>
-            </div>
-            <ul className="dl-store-update-list" aria-label={t("store.pendingUpdates")}>
-                {updates.map(item => <UpdateRow key={item.entry.id} item={item} />)}
-            </ul>
-            {asking && (
-                <div className="dl-store-confirm" role="group" aria-label={t(native.length ? "store.fullAccessUpdates" : "declared.moreUpdates")}>
-                    {native.length > 0 && <p className="dl-store-confirm-title"><Icon name="warning" size={20} />{t("store.nativeUpdateTitle", { names: native.map(i => i.entry.name).join(", "), count: native.length })}</p>}
-                    {more.length > 0 && <p className="dl-store-confirm-title"><Icon name="warning" size={20} />{t("declared.moreUpdateTitle", { names: more.map(i => i.entry.name).join(", "), count: more.length })}</p>}
-                    <p className="dl-hint">{t("store.nativeUpdateHint", { count: native.length + more.length })}</p>
-                    <div className="dl-toolbar">
-                        <Button variant="accent" onClick={() => run(true)}>{t(native.length ? "store.updateAllNative" : "declared.updateAllMore")}</Button>
-                        {updates.length > native.length + more.length && <Button onClick={() => run(false)}>{t("store.onlyOthers")}</Button>}
-                        <Button onClick={() => setAsking(false)}>{t("common.cancel")}</Button>
-                    </div>
+        <>
+            {summary}
+            <div className="dl-store-updates" role="group" aria-label={t("tabs.updates")}>
+                <div className="dl-store-updates-head">
+                    <Icon name="download" size={20} />
+                    <Text variant="text-md/semibold" color="text-strong" className="dl-grow">
+                        {t("store.updatesAvailable", { count: updates.length })}
+                    </Text>
+                    <Button
+                        variant="accent"
+                        id={`dl-${kind}-update-all`}
+                        disabled={!!state.updatingAll || asking}
+                        onClick={() => native.length || more.length ? setAsking(true) : run(false)}
+                    >
+                        {state.updatingAll === kind ? t("common.updating") : t("store.updateAll")}
+                    </Button>
                 </div>
-            )}
-        </div>
+                <ul className="dl-store-update-list" aria-label={t("store.pendingUpdates")}>
+                    {updates.map(item => <UpdateRow key={item.entry.id} item={item} />)}
+                </ul>
+                {asking && (
+                    <div className="dl-store-confirm" role="group" aria-label={t(native.length ? "store.fullAccessUpdates" : "declared.moreUpdates")}>
+                        {native.length > 0 && <p className="dl-store-confirm-title"><Icon name="warning" size={20} />{t("store.nativeUpdateTitle", { names: native.map(i => i.entry.name).join(", "), count: native.length })}</p>}
+                        {more.length > 0 && <p className="dl-store-confirm-title"><Icon name="warning" size={20} />{t("declared.moreUpdateTitle", { names: more.map(i => i.entry.name).join(", "), count: more.length })}</p>}
+                        <p className="dl-hint">{t("store.nativeUpdateHint", { count: native.length + more.length })}</p>
+                        <div className="dl-toolbar">
+                            <Button variant="accent" onClick={() => run(true)}>{t(native.length ? "store.updateAllNative" : "declared.updateAllMore")}</Button>
+                            {updates.length > native.length + more.length && <Button onClick={() => run(false)}>{t("store.onlyOthers")}</Button>}
+                            <Button onClick={() => setAsking(false)}>{t("common.cancel")}</Button>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </>
     );
 }
 

@@ -250,9 +250,12 @@ export default definePlugin({
                 refresh();
             });
         }
-        // Covers settings opened some other way (or before we started): a cheap check while idle
+        // Covers settings opened some other way (or before we started). The classic settings view is
+        // one of Discord's layers: with none open (nearly always) the page isn't searched, since a
+        // class-substring selector reads every element. Without LayerStore it always looks.
         ctx.setInterval(() => {
-            if (!observer && isActive() && document.querySelector(CLASSIC_ROOT)) refresh();
+            if (observer || !isActive() || findStore("LayerStore")?.hasLayers?.() === false) return;
+            if (document.querySelector(CLASSIC_ROOT)) refresh();
         }, 1500);
 
         ctx.settings.onChange(() => {

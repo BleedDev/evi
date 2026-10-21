@@ -2,7 +2,7 @@
     "id": "hide-personal-info",
     "name": "Hide Personal Info",
     "description": "Blurs your email, phone, billing details, connected accounts, session locations and IPs in User Settings, for streams and screenshots. Hover or click to reveal.",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "authors": [
         "Evi"
     ],
@@ -11,6 +11,12 @@
     ],
     "permissions": {},
     "changelog": [
+        {
+            "version": "1.1.2",
+            "notes": [
+                "Less work in the background: while no settings screen is open, it no longer searches the whole page every second and a half."
+            ]
+        },
         {
             "version": "1.1.1",
             "notes": [
@@ -42,6 +48,9 @@
             "name": "Persönliche Infos verbergen",
             "description": "Verwischt deine E-Mail, Telefonnummer, Rechnungsdaten, verknüpften Konten sowie Standorte und IPs deiner Sitzungen in den Nutzereinstellungen, für Streams und Screenshots. Zum Aufdecken darüberfahren oder klicken.",
             "changelog": {
+                "1.1.2": [
+                    "Weniger Arbeit im Hintergrund: Solange keine Einstellungen offen sind, durchsucht es nicht mehr alle anderthalb Sekunden die ganze Seite."
+                ],
                 "1.1.1": [
                     "Das Öffnen der Nutzereinstellungen ist leichter: Wonach es sucht, wird einmal vorbereitet statt für jede Textzeile."
                 ],
@@ -60,6 +69,9 @@
             "name": "Ocultar información personal",
             "description": "Difumina tu correo, teléfono, datos de facturación, cuentas conectadas y las ubicaciones e IP de tus sesiones en Ajustes de usuario, para streams y capturas. Pasa el ratón o haz clic para mostrarlos.",
             "changelog": {
+                "1.1.2": [
+                    "Menos trabajo en segundo plano: mientras no hay ninguna pantalla de ajustes abierta, ya no revisa toda la página cada segundo y medio."
+                ],
                 "1.1.1": [
                     "Abrir Ajustes de usuario es más ligero: lo que busca se prepara una sola vez en lugar de para cada línea de texto."
                 ],
@@ -78,6 +90,9 @@
             "name": "Masquer les infos personnelles",
             "description": "Floute ton e-mail, ton téléphone, tes informations de facturation, tes comptes connectés ainsi que les lieux et IP de tes sessions dans les paramètres utilisateur, pour les streams et les captures d'écran. Survole ou clique pour afficher.",
             "changelog": {
+                "1.1.2": [
+                    "Moins de travail en arrière-plan : tant qu'aucun écran de paramètres n'est ouvert, il ne parcourt plus toute la page toutes les secondes et demie."
+                ],
                 "1.1.1": [
                     "Ouvrir les Paramètres utilisateur est plus léger : ce qu’il recherche est préparé une seule fois au lieu de pour chaque ligne de texte."
                 ],
@@ -96,6 +111,9 @@
             "name": "個人情報を隠す",
             "description": "ユーザー設定内のメールアドレス、電話番号、請求情報、連携アカウント、セッションの場所や IP をぼかします。配信やスクリーンショットに便利です。カーソルを合わせるかクリックすると表示されます。",
             "changelog": {
+                "1.1.2": [
+                    "バックグラウンドでの処理を減らしました。設定画面が開いていない間は、1.5秒ごとにページ全体を検索しなくなりました。"
+                ],
                 "1.1.1": [
                     "ユーザー設定を開くときの負荷が軽くなりました。検索する内容はテキストの行ごとではなく一度だけ準備されます。"
                 ],
@@ -114,6 +132,9 @@
             "name": "Ukryj dane osobowe",
             "description": "Rozmywa w Ustawieniach użytkownika Twój e-mail, telefon, dane rozliczeniowe, połączone konta oraz lokalizacje i adresy IP sesji, na potrzeby streamów i zrzutów ekranu. Najedź lub kliknij, aby odsłonić.",
             "changelog": {
+                "1.1.2": [
+                    "Mniej pracy w tle: gdy nie jest otwarty żaden ekran ustawień, nie przeszukuje już całej strony co półtorej sekundy."
+                ],
                 "1.1.1": [
                     "Otwieranie Ustawień użytkownika jest lżejsze: to, czego szuka, jest przygotowywane raz, a nie dla każdej linijki tekstu."
                 ],
@@ -132,6 +153,9 @@
             "name": "Ocultar informações pessoais",
             "description": "Desfoca seu e-mail, telefone, dados de cobrança, contas conectadas e os locais e IPs das suas sessões nas Configurações de usuário, para transmissões e capturas de tela. Passe o mouse ou clique para revelar.",
             "changelog": {
+                "1.1.2": [
+                    "Menos trabalho em segundo plano: enquanto nenhuma tela de configurações está aberta, ele não vasculha mais a página inteira a cada segundo e meio."
+                ],
                 "1.1.1": [
                     "Abrir as Configurações de usuário ficou mais leve: o que ele procura é preparado uma vez, em vez de para cada linha de texto."
                 ],
@@ -150,6 +174,9 @@
             "name": "Скрыть личные данные",
             "description": "Размывает в настройках пользователя вашу почту, телефон, платёжные данные, подключённые аккаунты, а также местоположение и IP сессий, для стримов и скриншотов. Наведите курсор или щёлкните, чтобы показать.",
             "changelog": {
+                "1.1.2": [
+                    "Меньше работы в фоне: пока не открыт ни один экран настроек, плагин больше не просматривает всю страницу каждые полторы секунды."
+                ],
                 "1.1.1": [
                     "Открытие настроек пользователя стало легче: то, что плагин ищет, готовится один раз, а не для каждой строки текста."
                 ],
@@ -168,6 +195,9 @@
             "name": "Kişisel Bilgileri Gizle",
             "description": "Kullanıcı Ayarları'nda e-postanı, telefonunu, fatura bilgilerini, bağlı hesaplarını ve oturumların konumlarını ile IP'lerini bulanıklaştırır; yayınlar ve ekran görüntüleri için. Göstermek için üzerine gel veya tıkla.",
             "changelog": {
+                "1.1.2": [
+                    "Arka planda daha az iş: hiçbir ayarlar ekranı açık değilken artık her bir buçuk saniyede bir tüm sayfayı taramıyor."
+                ],
                 "1.1.1": [
                     "Kullanıcı Ayarları’nı açmak daha hafif: aradığı şeyler her metin satırı için değil, bir kez hazırlanıyor."
                 ],

@@ -11,7 +11,7 @@
  *   scrolling a channel) backfills it from history.
  * - Presences and history are recorded when the browser is idle, never inside Discord's dispatch.
  * - Storage: IndexedDB (Discord removes window.localStorage), one record kept as columns (track.ts
- *   pack), written at most every 30 seconds and on stop/unload. Capped at 25000 people, least
+ *   pack), written at most every 5 minutes, when Discord is hidden and on stop/unload. Capped at 25000 people, least
  *   recently seen dropped first (a few hundred at a time), friends and DM contacts last.
  * - Profiles: a clock badge through ctx.profileBadges, also listed in Discord's badge directory;
  *   hovering shows the full summary, clicking jumps to their last message.
@@ -31,7 +31,7 @@ import {
 } from "./state";
 import { isOnlineStatus, observeActivity, observeMessage, observePresence } from "./track";
 
-const SAVE_EVERY = 30_000;
+const SAVE_EVERY = 5 * 60_000;
 
 const MUTED = "#949ba4";
 const CLOCK = `data:image/svg+xml,${encodeURIComponent(
@@ -212,8 +212,14 @@ export default definePlugin({
         ctx.setInterval(() => void (state.dirty && whenIdle(() => void save())), SAVE_EVERY);
         ctx.setInterval(tick, 60_000);
         const onUnload = () => void save();
+        // Minimised or in the tray: a good moment to save, in case Discord is then closed without unload
+        const onHide = () => void (document.visibilityState === "hidden" && state.dirty && whenIdle(() => void save()));
         window.addEventListener("beforeunload", onUnload);
-        ctx.onDispose(() => window.removeEventListener("beforeunload", onUnload));
+        document.addEventListener("visibilitychange", onHide);
+        ctx.onDispose(() => {
+            window.removeEventListener("beforeunload", onUnload);
+            document.removeEventListener("visibilitychange", onHide);
+        });
         ctx.settings.onChange(bumpNow);
 
         // On profiles and in Discord's badge directory, through Evi's badges. Asked on every

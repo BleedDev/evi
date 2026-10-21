@@ -5,7 +5,7 @@
  */
 
 export interface Entry {
-    /** Last time we saw them online (the moment they went offline, or the last observation while online) */
+    /** Last time we saw them online (the moment they went offline, or the last observation while online, refreshed at most every 5 minutes) */
     seen?: number;
     /**
      * `seen` is only a lower bound: they were online when Discord closed and may have stayed online
@@ -100,12 +100,26 @@ export function isIgnored(id: string | undefined, bot: boolean | undefined, me: 
 }
 
 /**
- * Records a presence observation. Online (online/idle/dnd): marks them online and seen now.
+ * Still online: their stamp only matters once they go offline (views say "Online now" meanwhile,
+ * and a saved "online" becomes the save time on restore), so it's refreshed at most this often.
+ * Activity, song and idle changes would otherwise mark the data changed, and due a save, all the time.
+ */
+export const RESTAMP_MS = 5 * 60_000;
+
+/**
+ * Records a presence observation. Online (online/idle/dnd): marks them online and seen now, or
+ * only keeps them recent if they were already online and seen within RESTAMP_MS.
  * Anything else (offline, invisible, unknown): if they were online, they were last seen now.
  * Someone we never saw online isn't recorded. Returns whether anything changed.
  */
 export function observePresence(tracker: Tracker, id: string, status: string | null | undefined, now: number, opts: Options = {}): boolean {
     if (isOnlineStatus(status)) {
+        const old = tracker.get(id);
+        const since = now - (old?.seen ?? 0);
+        if (old?.online && since >= 0 && since < RESTAMP_MS) {
+            touch(tracker, id);
+            return false;
+        }
         const entry = touch(tracker, id);
         entry.online = true;
         entry.seen = now;

@@ -1,7 +1,7 @@
 import { describe as group, expect, test } from "bun:test";
 
 import {
-    describe, deserialize, formatRelative, formatSpan, isIgnored, lineText, merge, observeActivity, observeMessage, observePresence, pack, prune, seenText, serialize,
+    describe, deserialize, formatRelative, formatSpan, isIgnored, lineText, merge, observeActivity, observeMessage, observePresence, pack, prune, RESTAMP_MS, seenText, serialize,
 } from "../plugins/last-seen/track";
 import { load, save, state } from "../plugins/last-seen/state";
 import type { Tracker } from "../plugins/last-seen/track";
@@ -14,13 +14,26 @@ group("observePresence", () => {
         const t: Tracker = new Map();
         expect(observePresence(t, "a", "online", 1000)).toBe(true);
         expect(t.get("a")).toEqual({ online: true, seen: 1000 });
-        expect(observePresence(t, "a", "idle", 2000)).toBe(true);
-        expect(t.get("a")!.seen).toBe(2000);
-        expect(observePresence(t, "a", "offline", 5000)).toBe(true);
-        expect(t.get("a")).toEqual({ online: false, seen: 5000 });
+        expect(observePresence(t, "a", "idle", 1000 + RESTAMP_MS)).toBe(true);
+        expect(t.get("a")!.seen).toBe(1000 + RESTAMP_MS);
+        const off = 5000 + RESTAMP_MS;
+        expect(observePresence(t, "a", "offline", off)).toBe(true);
+        expect(t.get("a")).toEqual({ online: false, seen: off });
         // Staying offline changes nothing
-        expect(observePresence(t, "a", "offline", 9000)).toBe(false);
-        expect(t.get("a")!.seen).toBe(5000);
+        expect(observePresence(t, "a", "offline", off + 4000)).toBe(false);
+        expect(t.get("a")!.seen).toBe(off);
+    });
+
+    test("staying online restamps at most every RESTAMP_MS, but still counts as a recent touch", () => {
+        const t: Tracker = new Map();
+        observePresence(t, "a", "online", 1000);
+        observePresence(t, "b", "online", 1500);
+        expect(observePresence(t, "a", "idle", 2000)).toBe(false);
+        expect(t.get("a")).toEqual({ online: true, seen: 1000 });
+        expect([...t.keys()]).toEqual(["b", "a"]);
+        // Going offline is always stamped
+        expect(observePresence(t, "a", "offline", 3000)).toBe(true);
+        expect(t.get("a")).toEqual({ online: false, seen: 3000 });
     });
 
     test("someone never seen online isn't recorded", () => {

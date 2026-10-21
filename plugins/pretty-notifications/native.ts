@@ -3,7 +3,8 @@
  * Discord is minimized, in the tray or behind a game, when its page can't show anything, so the
  * toasts live in their own small window: transparent, always on top, out of the taskbar and
  * Alt+Tab, never taking focus unless you click Reply, and letting clicks through everywhere but
- * the cards.
+ * the cards. It hides when the last card goes and closes a minute later, its renderer process
+ * with it; the next toast opens it again.
  */
 import type { NativeContext, NativePlugin } from "@evi/api/native";
 import { app, BrowserWindow, screen } from "electron";
@@ -19,10 +20,13 @@ const WIDTH = 392;
 const MAX_HEIGHT = 760;
 const CORNERS: readonly Corner[] = ["bottom-right", "bottom-left", "top-right", "top-left"];
 const SCREENS: readonly Screen[] = ["discord", "primary", "cursor"];
+/** How long the hidden window waits for another toast before it's closed, its renderer with it */
+const IDLE_CLOSE_MS = 60_000;
 
 let ctx: NativeContext | null = null;
 let preloadPath = "";
 let win: BrowserWindow | null = null;
+let idleClose: ReturnType<typeof setTimeout> | undefined;
 let ready = false;
 let queue: ToastCommand[] = [];
 let placement: Placement = { corner: "bottom-right", screen: "discord", maxVisible: 3 };
@@ -102,6 +106,12 @@ function onMessage(msg: ToastMessage) {
             setTyping(false);
             win.setIgnoreMouseEvents(true, { forward: true });
             win.hide();
+            // The next toast opens a new one
+            clearTimeout(idleClose);
+            idleClose = setTimeout(() => {
+                idleClose = undefined;
+                if (win && !win.isDestroyed() && !win.isVisible()) destroyWindow();
+            }, IDLE_CLOSE_MS);
             break;
         case "action": {
             const action = msg.action;
@@ -182,6 +192,8 @@ function ensureWindow(): BrowserWindow {
 }
 
 function destroyWindow() {
+    clearTimeout(idleClose);
+    idleClose = undefined;
     queue = [];
     ready = false;
     if (win && !win.isDestroyed()) win.destroy();
@@ -248,6 +260,8 @@ export default {
         const toast = cleanPayload(raw);
         if (!toast || !ctx || !preloadPath) return false;
         const next = cleanPlacement(rawPlacement);
+        clearTimeout(idleClose);
+        idleClose = undefined;
         const w = ensureWindow();
         const moved = next.corner !== placement.corner || next.screen !== placement.screen || !w.isVisible();
         placement = next;
@@ -258,8 +272,9 @@ export default {
         return true;
     },
 
+    // With no window there's no toast to dismiss or answer: queued, these would replay on the next one
     dismiss(id: unknown) {
-        if (typeof id === "string") send({ type: "dismiss", id });
+        if (typeof id === "string" && win && !win.isDestroyed()) send({ type: "dismiss", id });
     },
 
     clear() {
@@ -267,7 +282,7 @@ export default {
     },
 
     replyResult(id: unknown, ok: unknown) {
-        if (typeof id === "string") send({ type: "replyResult", id, ok: ok === true });
+        if (typeof id === "string" && win && !win.isDestroyed()) send({ type: "replyResult", id, ok: ok === true });
     },
 
     /** The page side's loop waits here for the next click, reply or close; null means stop waiting */

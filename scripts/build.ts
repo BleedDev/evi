@@ -239,10 +239,29 @@ function writeChecksum(asset: string) {
     writeFileSync(join(DIST, `${asset}.sha256`), `${hash}  ${asset}\n`);
 }
 
-/** What Evi Setup installs: the same as dist/embed.json, plus the plugins it should delete as retired */
+/** The ids of the plugins in one of PLUGIN_ROOTS */
+function pluginIds(root: string) {
+    if (!existsSync(root)) return new Set<string>();
+    return new Set(readdirSync(root, { withFileTypes: true }).filter(e => e.isDirectory() && existsSync(join(root, e.name, "manifest.json")))
+        .map(e => (JSON.parse(readFileSync(join(root, e.name, "manifest.json"), "utf8")) as PluginManifest).id ?? e.name));
+}
+
+/**
+ * What Evi Setup installs: the same as dist/embed.json, plus the plugins it should delete as retired.
+ * Official plugins only: userplugins/ are someone's own, and this file is published with the release.
+ */
 function writeCoreAsset() {
+    const [officialRoot, userRoot] = PLUGIN_ROOTS;
+    const official = pluginIds(officialRoot);
+    // Both build into dist/plugins/<id>, so the output could be either one
+    const clash = [...pluginIds(userRoot)].filter(id => official.has(id));
+    if (clash.length) {
+        console.error(`✗ userplugins/ has ${clash.join(", ")}, which official plugins use too. Move them out of userplugins/ before a release build.`);
+        process.exit(1);
+    }
     const embed = JSON.parse(readFileSync(join(DIST, "embed.json"), "utf8"));
-    writeFileSync(join(DIST, CORE_ASSET), JSON.stringify({ ...embed, retired: RETIRED_PLUGINS }));
+    const plugins = Object.fromEntries(Object.entries(embed.plugins).filter(([id]) => official.has(id)));
+    writeFileSync(join(DIST, CORE_ASSET), JSON.stringify({ ...embed, plugins, retired: RETIRED_PLUGINS }));
     writeChecksum(CORE_ASSET);
     console.log(`✓ dist/${CORE_ASSET}`);
 }

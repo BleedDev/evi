@@ -16,6 +16,8 @@ const SOURCES = {
     dm: 'o()(null!=a,"PrivateChannel.renderAvatar: Invalid prop configuration - no user or channel");let n=null;return a.isSystemUser()||(n=(0,w.A)(m)?el.clD.STREAMING:j),(0,i.jsx)(eb,{...eF,size:C._3.SIZE_32,src:eB,avatarDecoration:ez,status:n,isMobile:x,isVR:_,isTyping:h,"aria-label":a.username,statusTooltip:!0})}(),highlighted:e0&&!eZ,muted:eZ,name:(0,i.jsx)(N.A,{className:s()(eM.uN,{[eM.e8]:ta}),children:tl}),decorators:t.isSystemDM()?(0,i.jsx)(k.A,{className:eM.G$,type:k.A.Types.SYSTEM_DM,verified:!0}):null,withDisplayNameStyles:ta})}),(0,i.jsxs)("div",{className:s()(eM._q,{[eM.EY]:e8}),children:[eq?(0,i.jsx)(ek,{}):e$?(0,i.jsx)(eO,{}):eQ?(0,i.jsx)(eL,{}):null,tf&&null!=e2?(0,i.jsx)(eU,{channelName:e2,onClick:tA,showNameplate:e8}):null,tf?null:(0,i.jsx)(ew,{icon:D.P,"aria-label":eH?ea.intl.string(ea.t["26C4oi"]):ea.intl.string(ea.t.jsvgc3),onClick:eH?ti:e6,onMouseDown:te,nameplate:E,reducedClickTarget:!0,visibleElementRef:e5})]})',
     /** web.js: the same DM row, other minified names */
     dmWeb: 'PrivateChannel.renderAvatar;name:(0,i.jsx)(I.A,{className:s()(ev.uN,{[ev.e8]:tl}),children:ta}),decorators:t.isSystemDM()?(0,i.jsx)(k.A,{className:ev.G$,type:k.A.Types.SYSTEM_DM,verified:!0}):null,withDisplayNameStyles:tl})}),(0,i.jsxs)("div",{className:s()(ev._q,{[ev.EY]:e3}),children:[eQ?(0,i.jsx)(ex,{}):eZ?(0,i.jsx)(eG,{}):ez?(0,i.jsx)(ew,{}):null,t_&&null!=e1?(0,i.jsx)(eU,{channelName:e1,onClick:tE,showNameplate:e3}):null,t_?null:(0,i.jsx)(eP,{icon:v.P,"aria-label":ej?el.intl.string(el.t["26C4oi"]):el.intl.string(el.t.jsvgc3),onClick:ej?ti:e8,onMouseDown:te,nameplate:N,reducedClickTarget:!0,visibleElementRef:e2})]})',
+    /** 2026-10-21: the row's right side starts with an ongoing call's icon */
+    dmCall: 'PrivateChannel.renderAvatar;name:(0,i.jsx)(h.A,{className:s()(eM.uN,{[eM.e8]:tn}),children:te}),decorators:t.isSystemDM()?(0,i.jsx)(k.A,{className:eM.G$,type:k.A.Types.SYSTEM_DM,verified:!0}):null,withDisplayNameStyles:tn})}),(0,i.jsxs)("div",{className:s()(eM._q,{[eM.EY]:eQ}),children:[null!=eq&&(0,i.jsx)(em,{callMessageId:eq,className:eM.R4}),eK?(0,i.jsx)(eF,{}):eY?(0,i.jsx)(ek,{}):eH?(0,i.jsx)(ex,{}):null,tl&&null!=eX?(0,i.jsx)(eG,{channelName:eX,onClick:to,showNameplate:eQ}):null,tl?null:(0,i.jsx)(ew,{icon:D.P,"aria-label":ey?ea.intl.string(ea.t["26C4oi"]):ea.intl.string(ea.t.jsvgc3),onClick:ey?e8:e3,onMouseDown:e6,nameplate:g,visibleElementRef:eZ})]})',
 };
 
 function apply(key: keyof typeof PATCHES, code: string) {
@@ -57,6 +59,12 @@ describe("patches", () => {
             const out = apply("dm", code);
             expect(out).toMatch(/children:\[S\?\.renderIndicator\?\.\(arguments\[0\]\?\.channel,"dm"\),e\w\?\(0,i\.jsx\)/);
         }
+    });
+
+    test("DM: the dots still go first when the row starts with a call's icon", () => {
+        const out = apply("dm", SOURCES.dmCall);
+        expect(out).toContain('children:[S?.renderIndicator?.(arguments[0]?.channel,"dm"),null!=eq&&(0,i.jsx)(em,{callMessageId:eq,className:eM.R4}),eK?(0,i.jsx)(eF,{})');
+        expect(() => new Function(`return ${out.slice(out.indexOf("(0,i.jsxs)"))}`)).not.toThrow();
     });
 });
 

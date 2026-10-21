@@ -16,6 +16,7 @@ import pkg from "../package.json";
 import type { PluginManifest } from "../src/shared/ipc";
 import { RELEASE_ASSETS } from "../src/shared/release";
 import { RETIRED_PLUGINS } from "../src/shared/store";
+import { escapeNonLatin1 } from "./escapeNonLatin1";
 import { mainLocales, strayKeys } from "./mainLocales";
 
 const ROOT = resolve(import.meta.dir, "..");
@@ -64,13 +65,31 @@ const jsxShim: BunPlugin = {
     },
 };
 
-async function bundle(label: string, config: Parameters<typeof Bun.build>[0]) {
-    const result = await Bun.build({ define, minify: false, ...config });
+/**
+ * Core outside --watch drops whitespace and comments only (code and names stay as they are) and is
+ * one byte per character (see escapeNonLatin1): V8 keeps each script's source for as long as it runs.
+ * Plugins stay as built: their code is what store review reads.
+ */
+async function bundle(label: string, config: Parameters<typeof Bun.build>[0], core = false) {
+    const lean = core && !WATCH;
+    const result = await Bun.build({ define, minify: lean ? { whitespace: true } : false, ...config });
     if (!result.success) {
         console.error(`✗ ${label}`);
         for (const log of result.logs) console.error(log);
         if (!WATCH) process.exit(1);
         return false;
+    }
+    if (lean) {
+        for (const { path } of result.outputs) {
+            try {
+                const code = escapeNonLatin1(readFileSync(path, "utf8"));
+                new Function(code);
+                writeFileSync(path, code);
+            } catch (e) {
+                console.error(`✗ ${label}: ${e instanceof Error ? e.message : e}`);
+                process.exit(1);
+            }
+        }
     }
     return true;
 }
@@ -86,7 +105,7 @@ async function buildCore() {
             format: "cjs",
             external: ["electron", "original-fs"],
             plugins: WATCH ? [] : [mainLocales],
-        }).then(ok => ok && mainKeysOk()),
+        }, true).then(ok => ok && mainKeysOk()),
         bundle("preload", {
             entrypoints: [join(ROOT, "src/preload/index.ts")],
             outdir: CORE_OUT,
@@ -94,7 +113,7 @@ async function buildCore() {
             target: "node",
             format: "cjs",
             external: ["electron"],
-        }),
+        }, true),
         bundle("renderer", {
             entrypoints: [join(ROOT, "src/renderer/index.ts")],
             outdir: CORE_OUT,
@@ -103,7 +122,7 @@ async function buildCore() {
             format: "iife",
             plugins: [jsxShim],
             sourcemap: WATCH ? "inline" : "none",
-        }),
+        }, true),
     ]);
     if (results.every(Boolean)) console.log(`✓ core (${Math.round(performance.now() - start)}ms)`);
 }

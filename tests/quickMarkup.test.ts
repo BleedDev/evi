@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { arrowHead, blockFor, canMarkUp, isTiny, outputType, rectFrom, strokeFor } from "../plugins/quick-markup/draw";
+import { addNoise, arrowHead, BLOCK_NOISE, blockFor, blockGrid, canMarkUp, isTiny, outputType, rectFrom, seeded, strokeFor } from "../plugins/quick-markup/draw";
 
 describe("Quick Markup", () => {
     const size = { w: 1000, h: 500 };
@@ -13,10 +13,35 @@ describe("Quick Markup", () => {
     });
 
     test("blur blocks are big enough to hide text, lines scale with the picture", () => {
-        expect(blockFor({ x: 0, y: 0, w: 300, h: 30 })).toBe(8);
-        expect(blockFor({ x: 0, y: 0, w: 300, h: 120 })).toBe(20);
+        expect(blockFor({ x: 0, y: 0, w: 300, h: 30 })).toBe(16);
+        expect(blockFor({ x: 0, y: 0, w: 300, h: 120 })).toBe(60);
+        // A name in Discord's chat: one row of blocks taller than the letters, each wider than two of them
+        expect(blockGrid({ x: 0, y: 0, w: 120, h: 20 })).toEqual({ cols: 7, rows: 1 });
+        expect(blockGrid({ x: 0, y: 0, w: 300, h: 120 })).toEqual({ cols: 5, rows: 2 });
+        expect(blockGrid({ x: 0, y: 0, w: 10, h: 6 })).toEqual({ cols: 1, rows: 1 });
         expect(strokeFor({ w: 400, h: 300 })).toBe(3);
         expect(strokeFor({ w: 3840, h: 2160 })).toBe(15);
+    });
+
+    test("blur blocks get the same random brightness shift on each channel, the same for a seed", () => {
+        const blocks = () => new Uint8ClampedArray([100, 100, 100, 255, 0, 0, 0, 255, 255, 255, 255, 128, 40, 60, 80, 255]);
+        const a = blocks(), b = blocks(), c = blocks();
+        addNoise(a, seeded(1));
+        addNoise(b, seeded(1));
+        addNoise(c, seeded(2));
+        expect(a).toEqual(b);
+        expect(a).not.toEqual(c);
+        const shift = a[0] - 100;
+        expect(Math.abs(shift)).toBeLessThanOrEqual(BLOCK_NOISE);
+        expect([a[1], a[2], a[3]]).toEqual([100 + shift, 100 + shift, 255]);
+        expect(a[11]).toBe(128);
+        expect(a[13] - a[12]).toBe(20);
+    });
+
+    test("noise varies between blocks", () => {
+        const random = seeded(42);
+        const shifts = new Set(Array.from({ length: 50 }, () => Math.round((random() * 2 - 1) * BLOCK_NOISE)));
+        expect(shifts.size).toBeGreaterThan(10);
     });
 
     test("the arrow head points back along the line", () => {

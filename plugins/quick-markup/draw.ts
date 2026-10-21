@@ -8,7 +8,7 @@ export interface Point { x: number; y: number; }
 export interface Rect { x: number; y: number; w: number; h: number; }
 
 export type Mark =
-    | { kind: "blur"; rect: Rect; }
+    | { kind: "blur"; rect: Rect; seed: number; }
     | { kind: "box"; rect: Rect; color: string; width: number; }
     | { kind: "arrow"; from: Point; to: Point; color: string; width: number; }
     | { kind: "pen"; points: Point[]; color: string; width: number; };
@@ -30,8 +30,67 @@ export const isTiny = (r: Rect) => r.w < 4 || r.h < 4;
 /** Line width that reads the same on a phone screenshot and a 4K one */
 export const strokeFor = (size: { w: number; h: number; }) => Math.max(3, Math.round(Math.max(size.w, size.h) / 250));
 
-/** Blocks big enough that the text under them can't be read back */
-export const blockFor = (r: Rect) => Math.max(8, Math.round(Math.min(r.w, r.h) / 6));
+/**
+ * Blocks big enough that the text under them can't be read back: at most two across the short side,
+ * never under 16px. Blocks smaller than the letters, over a known font, can be matched back to the
+ * text they came from (that's how Depix reads pixelated passwords).
+ */
+export const blockFor = (r: Rect) => Math.max(16, Math.round(Math.min(r.w, r.h) / 2));
+
+/** How many blocks across and down: whole blocks only, so none is smaller than blockFor */
+export function blockGrid(r: Rect) {
+    const block = blockFor(r);
+    return { cols: Math.max(1, Math.floor(r.w / block)), rows: Math.max(1, Math.floor(r.h / block)) };
+}
+
+/** How far a block's brightness is moved at random, either way */
+export const BLOCK_NOISE = 12;
+
+/** Random numbers from a seed: a blur keeps its noise while it's redrawn, and nobody else knows it */
+export function seeded(seed: number) {
+    return () => {
+        seed = (seed + 0x6d2b79f5) | 0;
+        let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+}
+
+/**
+ * Moves each block's brightness by a random amount (RGBA pixels, one per block). The averages then
+ * don't match what any guessed text would give, which is what reading pixelation back relies on.
+ */
+export function addNoise(pixels: Uint8ClampedArray, random: () => number) {
+    for (let i = 0; i < pixels.length; i += 4) {
+        const n = Math.round((random() * 2 - 1) * BLOCK_NOISE);
+        pixels[i] += n;
+        pixels[i + 1] += n;
+        pixels[i + 2] += n;
+    }
+}
+
+/**
+ * The area scaled down to cols x rows, in halving steps: smoothing at 2:1 averages every pixel,
+ * while one big step only samples a few of them per block.
+ */
+function shrink(source: HTMLCanvasElement, r: Rect, cols: number, rows: number) {
+    let from: HTMLCanvasElement = source, { x, y, w, h } = r;
+    for (;;) {
+        const last = w <= cols * 2 && h <= rows * 2;
+        const canvas = document.createElement("canvas");
+        canvas.width = last ? cols : Math.max(cols, Math.ceil(w / 2));
+        canvas.height = last ? rows : Math.max(rows, Math.ceil(h / 2));
+        const g = canvas.getContext("2d", { willReadFrequently: last })!;
+        g.imageSmoothingEnabled = true;
+        g.imageSmoothingQuality = "high";
+        g.drawImage(from, x, y, w, h, 0, 0, canvas.width, canvas.height);
+        if (last) return canvas;
+        from = canvas;
+        x = y = 0;
+        w = canvas.width;
+        h = canvas.height;
+    }
+}
 
 /** The arrow head's two side points, for a head `len` long */
 export function arrowHead(from: Point, to: Point, len: number): [Point, Point] {
@@ -51,15 +110,14 @@ export function drawMark(ctx: CanvasRenderingContext2D, mark: Mark) {
         case "blur": {
             const { x, y, w, h } = mark.rect;
             if (w < 1 || h < 1) break;
-            const block = blockFor(mark.rect);
-            const small = document.createElement("canvas");
-            small.width = Math.max(1, Math.ceil(w / block));
-            small.height = Math.max(1, Math.ceil(h / block));
+            const { cols, rows } = blockGrid(mark.rect);
+            const small = shrink(ctx.canvas, mark.rect, cols, rows);
             const s = small.getContext("2d")!;
-            s.imageSmoothingEnabled = true;
-            s.drawImage(ctx.canvas, x, y, w, h, 0, 0, small.width, small.height);
+            const blocks = s.getImageData(0, 0, cols, rows);
+            addNoise(blocks.data, seeded(mark.seed));
+            s.putImageData(blocks, 0, 0);
             ctx.imageSmoothingEnabled = false;
-            ctx.drawImage(small, 0, 0, small.width, small.height, x, y, w, h);
+            ctx.drawImage(small, 0, 0, cols, rows, x, y, w, h);
             break;
         }
         case "box":

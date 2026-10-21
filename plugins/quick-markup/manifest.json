@@ -2,7 +2,7 @@
     "id": "quick-markup",
     "name": "Quick Markup",
     "description": "Crop, blur names, and draw arrows and boxes right in Discord's upload preview, before you send a picture.",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "authors": [
         "Evi"
     ],
@@ -12,6 +12,12 @@
     ],
     "permissions": {},
     "changelog": [
+        {
+            "version": "1.0.2",
+            "notes": [
+                "Blur hides text for real: bigger blocks, each the average of everything under it with a little random shading, so names can't be pieced back together from the blocks."
+            ]
+        },
         {
             "version": "1.0.1",
             "notes": [
@@ -30,6 +36,9 @@
             "name": "Schnell markieren",
             "description": "Zuschneiden, Namen verpixeln, Pfeile und Rahmen zeichnen, direkt in Discords Upload-Vorschau, bevor du ein Bild sendest.",
             "changelog": {
+                "1.0.2": [
+                    "Verpixeln versteckt Text jetzt wirklich: größere Blöcke, jeder der Durchschnitt von allem darunter mit etwas zufälliger Schattierung, sodass sich Namen nicht aus den Blöcken zurückgewinnen lassen."
+                ],
                 "1.0.1": [
                     "Zeichnen im Editor läuft auch bei großen Bildern flüssig: Er zeichnet nicht mehr bei jeder Mausbewegung das ganze Bild samt aller Markierungen neu."
                 ],
@@ -42,6 +51,9 @@
             "name": "Marcado rápido",
             "description": "Recorta, difumina nombres y dibuja flechas y recuadros en la vista previa de subida de Discord antes de enviar una imagen.",
             "changelog": {
+                "1.0.2": [
+                    "Difuminar oculta el texto de verdad: bloques más grandes, cada uno con la media de todo lo que tiene debajo y un poco de sombreado aleatorio, así que los nombres no se pueden reconstruir a partir de los bloques."
+                ],
                 "1.0.1": [
                     "Dibujar en el editor es fluido incluso con imágenes grandes: ya no vuelve a dibujar toda la imagen y cada marca cada vez que se mueve el puntero."
                 ],
@@ -54,6 +66,9 @@
             "name": "Annotation rapide",
             "description": "Rogne, floute des noms, dessine des flèches et des cadres dans l'aperçu d'envoi de Discord avant d'envoyer une image.",
             "changelog": {
+                "1.0.2": [
+                    "Flouter cache vraiment le texte : des blocs plus grands, chacun la moyenne de tout ce qu'il recouvre avec un léger ombrage aléatoire, pour que les noms ne puissent pas être reconstitués à partir des blocs."
+                ],
                 "1.0.1": [
                     "Dessiner dans l'éditeur reste fluide sur les grandes images : il ne redessine plus toute l'image et chaque annotation à chaque mouvement du pointeur."
                 ],
@@ -66,6 +81,9 @@
             "name": "クイック書き込み",
             "description": "画像を送る前に、Discordのアップロードプレビューで切り抜き、名前のぼかし、矢印や枠の書き込みができます。",
             "changelog": {
+                "1.0.2": [
+                    "ぼかしで文字を確実に隠せるようになりました。ブロックを大きくし、各ブロックを下にあるすべての平均色に少しランダムな濃淡を加えたものにしたので、ブロックから名前を復元できません。"
+                ],
                 "1.0.1": [
                     "大きな画像でもエディターでの描画がなめらかになりました。ポインターが動くたびに画像全体とすべてのマークを描き直さなくなりました。"
                 ],
@@ -78,6 +96,9 @@
             "name": "Szybkie oznaczanie",
             "description": "Przytnij, rozmyj imiona, rysuj strzałki i ramki w podglądzie przesyłania Discorda, zanim wyślesz obraz.",
             "changelog": {
+                "1.0.2": [
+                    "Rozmycie naprawdę ukrywa tekst: większe bloki, każdy jest średnią wszystkiego pod spodem z odrobiną losowego cieniowania, więc nazw nie da się odtworzyć z bloków."
+                ],
                 "1.0.1": [
                     "Rysowanie w edytorze jest płynne także na dużych obrazach: nie rysuje już od nowa całego obrazu i wszystkich oznaczeń przy każdym ruchu kursora."
                 ],
@@ -90,6 +111,9 @@
             "name": "Marcação rápida",
             "description": "Corte, desfoque nomes e desenhe setas e caixas na prévia de envio do Discord antes de mandar uma imagem.",
             "changelog": {
+                "1.0.2": [
+                    "Desfocar esconde o texto de verdade: blocos maiores, cada um a média de tudo o que está embaixo com um pouco de sombreamento aleatório, então nomes não podem ser reconstruídos a partir dos blocos."
+                ],
                 "1.0.1": [
                     "Desenhar no editor fica fluido mesmo em imagens grandes: ele não redesenha mais a imagem inteira e todas as marcações a cada movimento do ponteiro."
                 ],
@@ -102,6 +126,9 @@
             "name": "Быстрая разметка",
             "description": "Обрезайте, размывайте имена, рисуйте стрелки и рамки прямо в превью загрузки Discord перед отправкой картинки.",
             "changelog": {
+                "1.0.2": [
+                    "Размытие теперь действительно скрывает текст: блоки крупнее, каждый — среднее всего, что под ним, с небольшим случайным оттенком, поэтому имена нельзя восстановить по блокам."
+                ],
                 "1.0.1": [
                     "Рисовать в редакторе теперь плавно даже на больших картинках: он больше не перерисовывает всё изображение и все пометки при каждом движении указателя."
                 ],
@@ -114,6 +141,9 @@
             "name": "Hızlı İşaretleme",
             "description": "Bir resmi göndermeden önce Discord'un yükleme önizlemesinde kırp, isimleri bulanıklaştır, ok ve kutu çiz.",
             "changelog": {
+                "1.0.2": [
+                    "Bulanıklaştırma artık metni gerçekten gizliyor: daha büyük bloklar, her biri altındaki her şeyin ortalaması ve biraz rastgele gölgelendirme, böylece isimler bloklardan geri çıkarılamıyor."
+                ],
                 "1.0.1": [
                     "Düzenleyicide çizim büyük resimlerde de akıcı: işaretçi her hareket ettiğinde tüm resmi ve bütün işaretleri yeniden çizmiyor."
                 ],

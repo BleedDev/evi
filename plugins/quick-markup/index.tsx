@@ -69,6 +69,8 @@ function Editor({ file, onSave, onClose }: { file: File; onSave(file: File): voi
     const [saving, setSaving] = React.useState(false);
     const canvas = React.useRef<HTMLCanvasElement>(null);
     const start = React.useRef<Point | undefined>(undefined);
+    /** The blur being drawn's noise, kept for the whole drag */
+    const seed = React.useRef(0);
 
     React.useEffect(() => {
         let url: string | undefined;
@@ -128,7 +130,7 @@ function Editor({ file, onSave, onClose }: { file: File; onSave(file: File): voi
 
     const markFor = (from: Point, to: Point, points?: Point[]): Mark | undefined => {
         switch (tool) {
-            case "blur": return { kind: "blur", rect: rectFrom(from, to, size) };
+            case "blur": return { kind: "blur", rect: rectFrom(from, to, size), seed: seed.current };
             case "box": return { kind: "box", rect: rectFrom(from, to, size), color, width };
             case "arrow": return { kind: "arrow", from, to, color, width };
             case "pen": return { kind: "pen", points: points ?? [from, to], color, width };
@@ -140,6 +142,7 @@ function Editor({ file, onSave, onClose }: { file: File; onSave(file: File): voi
         e.currentTarget.setPointerCapture(e.pointerId);
         const p = toImage(e);
         start.current = p;
+        seed.current = crypto.getRandomValues(new Uint32Array(1))[0];
         setDraft(tool === "crop" ? { crop: rectFrom(p, p, size) } : { mark: markFor(p, p, [p]) });
     };
     const move = (e: ReactPointerEvent) => {

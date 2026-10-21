@@ -24,7 +24,7 @@ import { installerArgs, installerCommandLine, isStagedRelevant, parseStaged, sho
 import { execFile, execFileSync, spawn } from "child_process";
 import { createHash } from "crypto";
 import { app, ipcMain, net, WebContents } from "electron";
-import { accessSync, constants, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "fs";
+import { accessSync, constants, createReadStream, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "fs";
 import { join } from "path";
 
 import { applyCorePayload, parseCorePayload } from "./coreUpdate";
@@ -102,9 +102,30 @@ function sha256Of(file: string) {
     }
 }
 
-/** The staged file with this hash: the core, the installer still waiting as .pending, or already evi.exe (an apply whose install didn't get to run) */
-function stagedFile(sha256: string) {
-    return [CORE_PENDING, PENDING, EXE].find(file => existsSync(file) && sha256Of(file) === sha256);
+/** The same, read in pieces without holding up Discord's main process: an installer is over 100 MB */
+async function sha256OfStream(file: string) {
+    try {
+        const hash = createHash("sha256");
+        for await (const chunk of createReadStream(file)) hash.update(chunk);
+        return hash.digest("hex");
+    } catch {
+        return;
+    }
+}
+
+/** Where a staged update can be: the core, the installer still waiting as .pending, or already evi.exe (an apply whose install didn't get to run) */
+const STAGED_FILES = [CORE_PENDING, PENDING, EXE];
+
+/** The staged file with this hash. Synchronous, for will-quit */
+function stagedFile(sha256: string, files = STAGED_FILES) {
+    return files.find(file => existsSync(file) && sha256Of(file) === sha256);
+}
+
+/** The same, for everywhere else */
+async function findStagedFile(sha256: string, files = STAGED_FILES) {
+    for (const file of files) {
+        if (existsSync(file) && await sha256OfStream(file) === sha256) return file;
+    }
 }
 
 /** The newest release. /releases/latest never answers with a prerelease, so betas pick from the list instead */
@@ -195,7 +216,8 @@ function download(release: ReleaseInfo, report?: (progress: UpdateProgress) => v
         if (!checksum) throw new Error(mt("main.update.noChecksum"));
         const staged = { version: release.version, sha256: checksum };
 
-        if (!stagedFile(checksum)) {
+        // Only where this kind of release goes: a core update has no business reading a 100 MB evi.exe
+        if (!await findStagedFile(checksum, core ? [CORE_PENDING] : [PENDING, EXE])) {
             rmSync(target, { force: true });
             const bytes = await fetchBytes(url, max, (done, total) => report?.({ phase: "downloading", done, total }));
             report?.({ phase: "verifying" });
@@ -276,9 +298,8 @@ function launchDetachedNow(commandLine: string) {
     execFileSync("powershell.exe", wmiArgs(commandLine), { windowsHide: true, timeout: 20_000, stdio: "ignore" });
 }
 
-/** Puts the staged installer in place as evi.exe, ready to run */
-function swapIn(staged: StagedUpdate) {
-    const file = stagedFile(staged.sha256);
+/** Puts the staged installer (stagedFile) in place as evi.exe, ready to run */
+function swapIn(file: string | undefined) {
     if (!file) {
         forgetStaged();
         throw new Error(mt("main.update.damaged"));
@@ -297,9 +318,9 @@ function swapIn(staged: StagedUpdate) {
 
 const commandLineFor = (flavor: Flavor, mode: "restart" | "on-exit") => installerCommandLine(EXE, installerArgs(flavor, mode), LOG, process.platform);
 
-/** Writes a staged evi-core.json in, if that's what's staged. Synchronous, for will-quit too */
-function applyStagedCore(staged: StagedUpdate) {
-    if (stagedFile(staged.sha256) !== CORE_PENDING) return false;
+/** Writes a staged evi-core.json in, if that's what's staged (stagedFile). Synchronous, for will-quit too */
+function applyStagedCore(file: string | undefined) {
+    if (file !== CORE_PENDING) return false;
     applyCorePayload(parseCorePayload(readFileSync(CORE_PENDING, "utf8")));
     forgetStaged();
     return true;
@@ -307,7 +328,8 @@ function applyStagedCore(staged: StagedUpdate) {
 
 /** Installs the staged update and restarts Discord: the core in place and a relaunch, or the installer's `install --restart` */
 async function applyWithRestart(staged: StagedUpdate, flavor: Flavor) {
-    if (applyStagedCore(staged)) {
+    const file = await findStagedFile(staged.sha256);
+    if (applyStagedCore(file)) {
         // After the answer reaches the page, which says Discord is restarting
         setTimeout(() => {
             app.relaunch();
@@ -315,14 +337,16 @@ async function applyWithRestart(staged: StagedUpdate, flavor: Flavor) {
         }, 800);
         return;
     }
-    swapIn(staged);
+    swapIn(file);
     await launchDetached(commandLineFor(flavor, "restart"));
 }
 
 /** Installs the staged update as Discord quits: the core right away, or the installer's `install --wait`. Synchronous, for will-quit */
 function applyOnExit(staged: StagedUpdate, flavor: Flavor) {
-    if (applyStagedCore(staged)) return;
-    swapIn(staged);
+    // Hashed once: a staged installer is over 100 MB, read while Discord waits to quit
+    const file = stagedFile(staged.sha256);
+    if (applyStagedCore(file)) return;
+    swapIn(file);
     launchDetachedNow(commandLineFor(flavor, "on-exit"));
 }
 

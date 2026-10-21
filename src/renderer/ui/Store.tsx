@@ -776,8 +776,20 @@ const tagLabel = (tag: string) => {
     return text === key ? tag[0].toUpperCase() + tag.slice(1) : text;
 };
 
+/**
+ * One per entry object: a registry refresh or a change of Discord's language makes new entries (and
+ * a beta's entry is new each time, so it's simply built again)
+ */
+const searchables = new WeakMap<object, Searchable>();
+
 /** What search matches for an entry: as shown, as the registry wrote it, and in every translation */
 function searchable(kind: StoreKind, entry: ListingInfo & { locales?: RegistryEntry["locales"]; }): Searchable {
+    let built = searchables.get(entry);
+    if (!built) searchables.set(entry, built = buildSearchable(kind, entry));
+    return built;
+}
+
+function buildSearchable(kind: StoreKind, entry: ListingInfo & { locales?: RegistryEntry["locales"]; }): Searchable {
     const original = Store.original(kind, entry.id);
     const translations = Object.values(entry.locales ?? {});
     return {

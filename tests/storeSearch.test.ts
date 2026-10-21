@@ -56,6 +56,14 @@ describe("store search", () => {
         expect(searchScore(b, "chat voice")).toBeGreaterThan(searchScore(a, "chat voice"));
     });
 
+    test("searching the same items again (their fields are kept) gives the same results", () => {
+        for (const query of ["message", "tranlsate", "übersetzen", "messages translate"]) {
+            const first = searchItems(all, query, i => i);
+            expect(searchItems(all, query, i => i)).toEqual(first);
+            expect(all.map(i => searchScore(i, query))).toEqual(all.map(i => searchScore({ ...i }, query)));
+        }
+    });
+
     test("helpers", () => {
         expect(normalize("Café ÜBER")).toBe("cafe uber");
         expect(editDistance("quest", "qeust", 1)).toBe(1);

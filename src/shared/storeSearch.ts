@@ -56,7 +56,19 @@ interface Fields {
     all: string;
 }
 
+/**
+ * Normalizing and splitting every translation is most of a search's work, so it's done once per
+ * item: a Searchable is read as it was the first time, make a new one when its text changes
+ */
+const fieldsCache = new WeakMap<Searchable, Fields>();
+
 function fieldsOf(item: Searchable): Fields {
+    let fields = fieldsCache.get(item);
+    if (!fields) fieldsCache.set(item, fields = splitFields(item));
+    return fields;
+}
+
+function splitFields(item: Searchable): Fields {
     const names = [item.name, ...item.alsoNamed ?? []].map(normalize);
     const labels = [item.id, ...item.tags ?? [], ...item.authors ?? []].map(normalize);
     const descriptions = [item.description ?? "", ...item.alsoDescribed ?? []];
@@ -87,7 +99,10 @@ function wordScore(word: string, f: Fields) {
 
 /** How well `item` matches `query`: 0 when some word doesn't match at all, higher is better */
 export function searchScore(item: Searchable, query: string) {
-    const typed = words(query);
+    return scoreWords(words(query), item);
+}
+
+function scoreWords(typed: string[], item: Searchable) {
     if (!typed.length) return 1;
     const f = fieldsOf(item);
     let total = 0;
@@ -106,9 +121,10 @@ export function searchScore(item: Searchable, query: string) {
  * the listing's own sort.
  */
 export function searchItems<T>(items: T[], query: string, searchable: (item: T) => Searchable): T[] {
-    if (!words(query).length) return items;
+    const typed = words(query);
+    if (!typed.length) return items;
     return items
-        .map((item, index) => ({ item, index, score: searchScore(searchable(item), query) }))
+        .map((item, index) => ({ item, index, score: scoreWords(typed, searchable(item)) }))
         .filter(r => r.score > 0)
         .sort((a, b) => b.score - a.score || a.index - b.index)
         .map(r => r.item);

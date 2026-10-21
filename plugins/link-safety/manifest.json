@@ -2,7 +2,7 @@
     "id": "link-safety",
     "name": "Link Safety",
     "description": "Checks links before they open and warns you about likely scams: masked links that lie about where they go, lookalike domains like dlscord.com or steamcommunlty.com, hidden tricks in the address, free Nitro bait and links to programs.",
-    "version": "1.1.2",
+    "version": "1.1.3",
     "authors": [
         "Evi"
     ],
@@ -13,6 +13,12 @@
     "minEviVersion": "0.3.2",
     "permissions": {},
     "changelog": [
+        {
+            "version": "1.1.3",
+            "notes": [
+                "Links to domains Discord blocks get Discord's own block again, instead of a warning with Open anyway."
+            ]
+        },
         {
             "version": "1.1.2",
             "notes": [
@@ -55,6 +61,9 @@
             "name": "Linksicherheit",
             "description": "Prüft Links, bevor sie sich öffnen, und warnt vor wahrscheinlichem Betrug: getarnte Links, die über ihr Ziel lügen, ähnlich aussehende Domains wie dlscord.com oder steamcommunlty.com, versteckte Tricks in der Adresse, Köder für kostenloses Nitro und Links zu Programmen.",
             "changelog": {
+                "1.1.3": [
+                    "Links zu Domains, die Discord sperrt, bekommen wieder Discords eigene Sperre statt einer Warnung mit „Trotzdem öffnen“."
+                ],
                 "1.1.2": [
                     "Die Buttons des Dialogs sitzen jetzt auf dem Dialog selbst: Mit einem Hintergrundbild hatte der Streifen dahinter eine andere Farbe."
                 ],
@@ -79,6 +88,9 @@
             "name": "Seguridad de enlaces",
             "description": "Comprueba los enlaces antes de abrirlos y te avisa de posibles estafas: enlaces enmascarados que mienten sobre su destino, dominios parecidos como dlscord.com o steamcommunlty.com, trucos ocultos en la dirección, cebos de Nitro gratis y enlaces a programas.",
             "changelog": {
+                "1.1.3": [
+                    "Los enlaces a dominios que Discord bloquea vuelven a recibir el bloqueo de Discord, en lugar de un aviso con «Abrir de todos modos»."
+                ],
                 "1.1.2": [
                     "Los botones del diálogo están sobre el propio diálogo: con un fondo de pantalla, la franja detrás de ellos se veía de otro color."
                 ],
@@ -103,6 +115,9 @@
             "name": "Sécurité des liens",
             "description": "Vérifie les liens avant leur ouverture et vous avertit des arnaques probables : liens masqués qui mentent sur leur destination, domaines sosies comme dlscord.com ou steamcommunlty.com, astuces cachées dans l'adresse, appâts de Nitro gratuit et liens vers des programmes.",
             "changelog": {
+                "1.1.3": [
+                    "Les liens vers des domaines que Discord bloque reçoivent de nouveau le blocage de Discord, au lieu d'un avertissement avec « Ouvrir quand même »."
+                ],
                 "1.1.2": [
                     "Les boutons de la fenêtre sont posés sur la fenêtre elle-même : avec un fond d'écran, la bande derrière eux s'affichait d'une autre couleur."
                 ],
@@ -127,6 +142,9 @@
             "name": "リンクセーフティ",
             "description": "リンクを開く前にチェックし、詐欺の可能性が高いものを警告します。リンク先を偽るマスクされたリンク、dlscord.comやsteamcommunlty.comのようなそっくりなドメイン、アドレスに仕込まれた罠、無料Nitroの誘い文句、プログラムへのリンクなどが対象です。",
             "changelog": {
+                "1.1.3": [
+                    "Discordがブロックしているドメインへのリンクには、「このまま開く」付きの警告ではなく、再びDiscord自身のブロックが表示されます。"
+                ],
                 "1.1.2": [
                     "ダイアログのボタンがダイアログと同じ背景に並ぶようになりました。壁紙を使っていると、ボタンの後ろの帯だけ色が違って見えていました。"
                 ],
@@ -151,6 +169,9 @@
             "name": "Bezpieczne linki",
             "description": "Sprawdza linki, zanim się otworzą, i ostrzega przed prawdopodobnymi oszustwami: zamaskowanymi linkami, które kłamią o celu, domenami łudząco podobnymi, jak dlscord.com czy steamcommunlty.com, ukrytymi sztuczkami w adresie, przynętami na darmowe Nitro i linkami do programów.",
             "changelog": {
+                "1.1.3": [
+                    "Linki do domen blokowanych przez Discorda znów dostają blokadę Discorda zamiast ostrzeżenia z „Otwórz mimo to”."
+                ],
                 "1.1.2": [
                     "Przyciski okna leżą teraz na samym oknie: z tapetą pasek za nimi miał inny kolor."
                 ],
@@ -175,6 +196,9 @@
             "name": "Segurança de links",
             "description": "Confere os links antes de abrirem e avisa sobre prováveis golpes: links mascarados que mentem sobre o destino, domínios parecidos como dlscord.com ou steamcommunlty.com, truques escondidos no endereço, iscas de Nitro grátis e links para programas.",
             "changelog": {
+                "1.1.3": [
+                    "Links para domínios que o Discord bloqueia voltam a receber o bloqueio do próprio Discord, em vez de um aviso com \"Abrir mesmo assim\"."
+                ],
                 "1.1.2": [
                     "Os botões da janela ficam na própria janela: com um papel de parede, a faixa atrás deles aparecia em outra cor."
                 ],
@@ -199,6 +223,9 @@
             "name": "Безопасность ссылок",
             "description": "Проверяет ссылки перед открытием и предупреждает о вероятном мошенничестве: замаскированных ссылках, которые лгут о том, куда ведут, доменах-двойниках вроде dlscord.com или steamcommunlty.com, скрытых уловках в адресе, приманках с бесплатным Nitro и ссылках на программы.",
             "changelog": {
+                "1.1.3": [
+                    "Ссылки на домены, которые блокирует Discord, снова получают блокировку самого Discord, а не предупреждение с кнопкой «Всё равно открыть»."
+                ],
                 "1.1.2": [
                     "Кнопки окна теперь лежат на самом окне: с обоями полоса за ними была другого цвета."
                 ],
@@ -223,6 +250,9 @@
             "name": "Bağlantı Güvenliği",
             "description": "Bağlantıları açılmadan önce kontrol eder ve olası dolandırıcılıklara karşı uyarır: gideceği yer hakkında yalan söyleyen gizlenmiş bağlantılar, dlscord.com veya steamcommunlty.com gibi benzer alan adları, adresteki gizli hileler, bedava Nitro yemleri ve programlara giden bağlantılar.",
             "changelog": {
+                "1.1.3": [
+                    "Discord'un engellediği alan adlarına giden bağlantılar, \"Yine de aç\" seçenekli bir uyarı yerine yeniden Discord'un kendi engelini alıyor."
+                ],
                 "1.1.2": [
                     "Pencerenin düğmeleri artık pencerenin kendisinde duruyor: duvar kâğıdıyla arkalarındaki şerit farklı renkte görünüyordu."
                 ],

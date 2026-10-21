@@ -295,20 +295,23 @@ describe("source patch", () => {
         expect(matchesFind(HANDLER, PATCH.find)).toBe(true);
         const next = HANDLER.replace(canonicalizeMatch(replacement.match) as RegExp, replacement.with.replaceAll("$self", "S"));
         expect(next).not.toBe(HANDLER);
-        expect(next).toContain("(0,d.A)(P)}if(S?.intercept?.(P,t,V,b,arguments[0]))return;if(null!==I.isBlockedDomain(P))");
+        expect(next).toContain("(0,d.A)(P)}if(null===I.isBlockedDomain(P)&&S?.intercept?.(P,t,V,b,arguments[0]))return;if(null!==I.isBlockedDomain(P))");
         expect(() => new Function(`return ${next}`)).not.toThrow();
     });
 
     test("runs: takes over when the plugin says so, else Discord continues", () => {
         const next = HANDLER.replace(canonicalizeMatch(replacement.match) as RegExp, replacement.with.replaceAll("$self", "SELF"));
         const calls: string[] = [];
+        let blocked = "";
         const env = {
             r: () => ({ sanitizeUrl: (u: string) => u }),
             p: { A: { trackLinkClicked() { }, trackAnnouncementMessageLinkClicked() { } } },
             n: () => ({ default: () => null }),
             d: { A: (u: string) => calls.push(`open ${u}`) },
-            I: { isBlockedDomain: () => { calls.push("discord-checks"); return null; } },
-            C: { m: () => null }, S: new Set(), v: { J: () => "https:" }, F: { isTrustedDomain: () => true, isTrustedProtocol: () => false },
+            I: { isBlockedDomain: (u: string) => u === blocked ? u : null },
+            _: { show: (u: string) => calls.push(`blocked ${u}`) },
+            C: { m: () => { calls.push("discord-checks"); return null; } },
+            S: new Set(), v: { J: () => "https:" }, F: { isTrustedDomain: () => true, isTrustedProtocol: () => false },
         };
         const run = (plugin: unknown) => {
             calls.length = 0;
@@ -330,5 +333,11 @@ describe("source patch", () => {
         expect(run({ intercept: () => false })).toEqual(["discord-checks"]);
         expect(run({})).toEqual(["discord-checks"]);
         expect(run(undefined)).toEqual(["discord-checks"]);
+
+        // A domain Discord blocks gets Discord's hard block, not our dialog with its Open anyway
+        blocked = "https://evil.xyz";
+        got = [];
+        expect(run(plugin)).toEqual(["prevented", "blocked https://evil.xyz"]);
+        expect(got).toEqual([]);
     });
 });

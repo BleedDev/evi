@@ -584,13 +584,15 @@ export function analyzeLink(href: string, options: AnalyzeOptions = {}): Analysi
  *     function V(){(w&&p.A.trackAnnouncementMessageLinkClicked({...}),null!=E)?E():(0,d.A)(P)}
  *     if(null!==I.isBlockedDomain(P)){t?.preventDefault(),_.show(P),b();return}
  *
- * $self.intercept(url, event, open, cancel, props) returns true when it took over the click.
+ * $self.intercept(url, event, open, cancel, props) returns true when it took over the click. A
+ * domain on Discord's blocklist never reaches it: our "Open anyway" calls open() directly, so it
+ * would skip Discord's hard block.
  * Found against Discord's web build cached in test-results/chunks (Sep 2026).
  */
 export const PATCH: SourcePatch = {
     find: "isProtocol:!0,contextKey:",
     replace: {
-        match: /(?<=function (\i)\(\)\{\(\i&&\i\.\i\.trackAnnouncementMessageLinkClicked\([^}]*\}\),null!=\i\)\?\i\(\):\(0,\i\.\i\)\(\i\)\})(?=if\(null!==\i\.isBlockedDomain\((\i)\)\)\{(\i)\?\.preventDefault\(\),\i\.show\(\i\),(\i)\(\);return\})/,
-        with: "if($self?.intercept?.($2,$3,$1,$4,arguments[0]))return;",
+        match: /(?<=function (\i)\(\)\{\(\i&&\i\.\i\.trackAnnouncementMessageLinkClicked\([^}]*\}\),null!=\i\)\?\i\(\):\(0,\i\.\i\)\(\i\)\})(?=if\(null!==(\i)\.isBlockedDomain\((\i)\)\)\{(\i)\?\.preventDefault\(\),\i\.show\(\i\),(\i)\(\);return\})/,
+        with: "if(null===$2.isBlockedDomain($3)&&$self?.intercept?.($3,$4,$1,$5,arguments[0]))return;",
     },
 };

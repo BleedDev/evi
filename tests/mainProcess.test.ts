@@ -146,6 +146,50 @@ describe("two plugin folders with the same id", () => {
     });
 });
 
+describe("a plugin's code in main", () => {
+    const dir = join(DATA, "plugins", "coder");
+    const write = (code: string, version = "1.0.0") => {
+        mkdirSync(dir, { recursive: true });
+        writeFileSync(join(dir, "manifest.json"), JSON.stringify({ id: "coder", name: "Coder", version, description: "", authors: [] }));
+        writeFileSync(join(dir, "index.js"), code);
+    };
+    const upserts = () => sent.filter(m => m.channel === IPC.PLUGIN_CHANGED).map(m => m.args[0] as { type: string; plugin?: { code?: string; }; }).filter(c => c.type === "upsert");
+
+    test("files written again unchanged don't reload it; a change sends the new code", async () => {
+        const { refreshUserPlugin } = await import("../src/main/plugins");
+        write("// one");
+        refreshUserPlugin("coder");
+        sent.length = 0;
+
+        write("// one");
+        refreshUserPlugin("coder");
+        expect(upserts()).toEqual([]);
+
+        write("// two");
+        refreshUserPlugin("coder");
+        expect(upserts().map(c => c.plugin?.code)).toEqual(["// two"]);
+    });
+
+    test("the page gets it from the plugin's folder; a backup lists plugins without code", async () => {
+        const { getBootPlugins, getPluginPayloads, pluginCode, refreshUserPlugin } = await import("../src/main/plugins");
+        const settingsModule = await import("../src/main/settings");
+        write("// three");
+        refreshUserPlugin("coder");
+        expect(pluginCode("coder")).toBe("// three");
+        expect(pluginCode("nobody")).toBeNull();
+
+        const before = structuredClone(settingsModule.settings);
+        settingsModule.saveSettings({ ...before, plugins: { ...before.plugins, coder: { enabled: true } } });
+        try {
+            expect(getBootPlugins().find(p => p.manifest.id === "coder")?.code).toBe("// three");
+        } finally {
+            settingsModule.saveSettings(before);
+        }
+        expect(getBootPlugins().find(p => p.manifest.id === "coder")?.code).toBeUndefined();
+        expect(getPluginPayloads().find(p => p.manifest.id === "coder")).toEqual({ manifest: expect.objectContaining({ id: "coder" }), source: "user" });
+    });
+});
+
 describe("restoring a backup that turns on a plugin with native code", () => {
     test("saves made while the question is up are kept, and so is the restore", async () => {
         const { refreshUserPlugin } = await import("../src/main/plugins");

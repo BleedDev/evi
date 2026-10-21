@@ -2,6 +2,7 @@ import type { NativeContext, NativePlugin } from "@evi/api/native";
 import { BootPlugin, EviSettings, IPC, isPluginEnabled, PluginChange, PluginManifest, PluginPayload } from "@shared/ipc";
 import { pullFor } from "@shared/pulls";
 import { parseRemovedPlugins, REMOVED_PLUGINS_FILE, RETIRED_PLUGINS, STORE_MARKER } from "@shared/store";
+import { createHash } from "crypto";
 import { app, ipcMain, session, WebContents } from "electron";
 import { existsSync, FSWatcher, readdirSync, readFileSync, renameSync, rmSync, watch, writeFileSync } from "fs";
 import { join, resolve, sep } from "path";
@@ -15,10 +16,22 @@ import { SafeMode } from "./safeMode";
 import { settings } from "./settings";
 import { broadcast } from "./util";
 
-interface LoadedPlugin extends PluginPayload {
+/**
+ * A plugin main has loaded. Not its code: the page gets that when it loads (an upsert), at the first
+ * boot (bootCode), and otherwise from the plugin's folder (codeOf).
+ */
+interface LoadedPlugin {
+    manifest: PluginManifest;
+    source: Source;
     dir: string;
-    /** Everything that makes up the plugin on disk, to skip reloads when nothing changed */
+    /** A hash of everything that makes up the plugin on disk, to skip reloads when nothing changed */
     signature: string;
+}
+
+/** A plugin as read from its folder, with its code */
+interface ReadPlugin {
+    plugin: LoadedPlugin;
+    code: string;
 }
 
 interface NativeInstance {
@@ -36,6 +49,10 @@ if (devPlugins) roots.push({ dir: devPlugins, source: "dev" });
 
 const plugins = new Map<string, LoadedPlugin>();
 const natives = new Map<string, NativeInstance>();
+/** Manifests applyChromiumSwitches read before Electron was ready, by path, so initPlugins doesn't read them again */
+const preread = new Map<string, string>();
+/** The code of the plugins that run at this start, as initPlugins read it: for the first boot only */
+const bootCode = new Map<string, string>();
 
 const REMOVED_FILE = join(DATA_DIR, REMOVED_PLUGINS_FILE);
 let removed: Set<string> | undefined;
@@ -91,24 +108,44 @@ export function hideDevPlugin(id: string) {
     announce({ type: "remove", id });
 }
 
-function readPlugin(dir: string, source: Source): LoadedPlugin | null {
+const codeFile = ({ dir, manifest }: { dir: string; manifest: PluginManifest; }) => join(dir, manifest.main ?? "index.js");
+
+function readPlugin(dir: string, source: Source): ReadPlugin | null {
     const manifestPath = join(dir, "manifest.json");
-    if (!existsSync(manifestPath)) return null;
+    let text = preread.get(manifestPath);
+    preread.delete(manifestPath);
+    if (text === undefined && !existsSync(manifestPath)) return null;
 
     try {
-        const manifest: PluginManifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+        text ??= readFileSync(manifestPath, "utf8");
+        const manifest: PluginManifest = JSON.parse(text);
         if (skipped(manifest.id, dir, source)) return null;
-        const code = readFileSync(join(dir, manifest.main ?? "index.js"), "utf8");
+        const code = readFileSync(codeFile({ dir, manifest }), "utf8");
+        // Only read for the signature: a native side is loaded from its file
         const native = manifest.native ? readFileSync(join(dir, manifest.native), "utf8") : "";
-        return { manifest, code, source, dir, signature: JSON.stringify(manifest) + code + native };
+        const signature = createHash("sha1").update(JSON.stringify(manifest)).update("\0").update(code).update("\0").update(native).digest("hex");
+        return { plugin: { manifest, source, dir, signature }, code };
     } catch (err) {
         console.error(`[Evi] Failed to read plugin at ${dir}`, err);
         return null;
     }
 }
 
-function toPayload({ dir: _, signature: __, ...payload }: LoadedPlugin): PluginPayload {
-    return payload;
+/** A plugin's code for the page: as read at start for the first boot, from its folder otherwise */
+function codeOf(plugin: LoadedPlugin): string | undefined {
+    const kept = bootCode.get(plugin.manifest.id);
+    if (kept !== undefined) return kept;
+    try {
+        return readFileSync(codeFile(plugin), "utf8");
+    } catch (err) {
+        console.error(`[Evi] Couldn't read the code of ${plugin.manifest.id}`, err);
+    }
+}
+
+/** What the page's PLUGIN_CODE gets: null for a plugin main doesn't have, or whose code can't be read */
+export function pluginCode(id: string) {
+    const plugin = plugins.get(id);
+    return plugin ? codeOf(plugin) ?? null : null;
 }
 
 /** Turned off by Evi on every install (shared/pulls.ts). Dev builds are the developer's own, never pulled. */
@@ -198,15 +235,17 @@ function unload(plugin: LoadedPlugin) {
     stopNative(id);
     natives.delete(id);
     plugins.delete(id);
+    bootCode.delete(id);
     return running;
 }
 
-function load(plugin: LoadedPlugin, restartNative: boolean, action: "installed" | "updated") {
+function load({ plugin, code }: ReadPlugin, restartNative: boolean, action: "installed" | "updated") {
     plugins.set(plugin.manifest.id, plugin);
+    bootCode.delete(plugin.manifest.id);
     SafeMode.recordChange({ kind: "plugin", id: plugin.manifest.id, action });
     // Plugins added or re-enabled while Discord runs need their native side started too
     if (restartNative || isPluginEnabled(settings, plugin.manifest)) startNative(plugin.manifest.id);
-    announce({ type: "upsert", plugin: toPayload(plugin) });
+    announce({ type: "upsert", plugin: { manifest: plugin.manifest, source: plugin.source, code } });
 }
 
 /** Another folder with this id, the one startup would pick: from the last root, the last of its folders */
@@ -221,8 +260,8 @@ function findOther(id: string, except: string) {
             } catch {
                 continue;
             }
-            const plugin = readPlugin(dir, source);
-            if (plugin?.manifest.id === id) return plugin;
+            const read = readPlugin(dir, source);
+            if (read?.plugin.manifest.id === id) return read;
         }
     }
 }
@@ -230,24 +269,25 @@ function findOther(id: string, except: string) {
 function reloadFolder(root: string, source: Source, folder: string) {
     const dir = join(root, folder);
     const previous = [...plugins.values()].find(p => p.dir === dir);
-    let next = readPlugin(dir, source);
+    let read = readPlugin(dir, source);
+    const next = read?.plugin;
 
     // Another folder has this id already ("foo - Copy" beside foo, the user's beside a dev build):
     // a later root takes it over, as at startup; otherwise the one running stays
     const owner = next && plugins.get(next.manifest.id);
     if (next && owner && owner.dir !== dir && rootRank(owner.dir) >= rootRank(dir)) {
         console.warn(`[Evi] ${dir} has the same id as ${owner.dir} (${next.manifest.id}), skipped`);
-        next = null;
+        read = null;
     }
     // Editors and builds touch files without changing them, don't restart plugins for that
-    if (previous && next && previous.signature === next.signature) return;
+    if (previous && read && previous.signature === read.plugin.signature) return;
 
     let restartNative = false;
-    if (next && owner && owner.dir !== dir) restartNative = unload(owner);
+    if (read && owner && owner.dir !== dir) restartNative = unload(owner);
     if (previous) {
         const { id } = previous.manifest;
         const running = unload(previous);
-        if (next?.manifest.id === id) restartNative ||= running;
+        if (read?.plugin.manifest.id === id) restartNative ||= running;
         else {
             // Its folder went, or now has another id: a copy elsewhere takes over, if there is one
             const other = findOther(id, dir);
@@ -256,7 +296,7 @@ function reloadFolder(root: string, source: Source, folder: string) {
         }
     }
 
-    if (next) load(next, restartNative, previous || owner ? "updated" : "installed");
+    if (read) load(read, restartNative, previous || owner ? "updated" : "installed");
 }
 
 /** Re-reads every plugin folder under a root, including ones that disappeared */
@@ -371,7 +411,11 @@ export function applyChromiumSwitches() {
         for (const entry of readdirSync(dir, { withFileTypes: true })) {
             if (!entry.isDirectory()) continue;
             try {
-                const manifest: PluginManifest = JSON.parse(readFileSync(join(dir, entry.name, "manifest.json"), "utf8"));
+                const path = join(dir, entry.name, "manifest.json");
+                const text = readFileSync(path, "utf8");
+                // initPlugins reads every manifest again once Electron is ready: from here
+                preread.set(path, text);
+                const manifest: PluginManifest = JSON.parse(text);
                 if (!manifest.chromiumSwitches || !isPluginEnabled(settings, manifest) || isPulled({ manifest, source })) continue;
                 for (const [name, value] of Object.entries(manifest.chromiumSwitches)) {
                     if (value === true) app.commandLine.appendSwitch(name);
@@ -388,17 +432,21 @@ export function refreshUserPlugin(folder: string) {
     reloadFolder(PLUGINS_DIR, "user", folder);
 }
 
+/** The installed plugins, for a backup: which ones, not their code */
 export function getPluginPayloads() {
-    return [...plugins.values()].map(toPayload);
+    return [...plugins.values()].map(({ manifest, source }) => ({ manifest, source }));
 }
 
 /**
  * What the page boots with: code only for plugins that run now (the same test as for their native
  * side). The rest is most of it, and parsing it every start cost more than everything else plugins
  * do at boot; the page asks for one's code (PLUGIN_CODE) once it's turned on or its settings opened.
+ * The first boot gets the code initPlugins read; a reload reads it from the plugins' folders.
  */
 export function getBootPlugins(): BootPlugin[] {
-    return [...plugins.values()].map(plugin => mayRunNative(plugin) ? toPayload(plugin) : { manifest: plugin.manifest, source: plugin.source });
+    const boot = [...plugins.values()].map(plugin => mayRunNative(plugin) ? { manifest: plugin.manifest, source: plugin.source, code: codeOf(plugin) } : { manifest: plugin.manifest, source: plugin.source });
+    bootCode.clear();
+    return boot;
 }
 
 export function initPlugins() {
@@ -419,11 +467,18 @@ export function initPlugins() {
         for (const entry of readdirSync(dir, { withFileTypes: true })) {
             if (!entry.isDirectory()) continue;
             // Later roots (dev) win over earlier ones (user) for the same id
-            const plugin = readPlugin(join(dir, entry.name), source);
-            if (plugin) plugins.set(plugin.manifest.id, plugin);
+            const read = readPlugin(join(dir, entry.name), source);
+            if (!read) continue;
+            const { plugin, code } = read;
+            plugins.set(plugin.manifest.id, plugin);
+            // The first boot's data has the code of these; the rest isn't kept
+            if (mayRunNative(plugin)) bootCode.set(plugin.manifest.id, code);
+            else bootCode.delete(plugin.manifest.id);
         }
         watchRoot(dir, source);
     }
+    // Folders skipped or gone since
+    preread.clear();
 
     // Natives of enabled plugins start immediately so things like request blocking cover startup
     for (const plugin of plugins.values()) {
@@ -442,7 +497,7 @@ export function initPlugins() {
     });
 
     ipcMain.on(IPC.PLUGIN_CODE, (e, id: unknown) => {
-        e.returnValue = typeof id === "string" ? plugins.get(id)?.code ?? null : null;
+        e.returnValue = typeof id === "string" ? pluginCode(id) : null;
     });
 
     // Starting is checked in startNative; stopping is always fine

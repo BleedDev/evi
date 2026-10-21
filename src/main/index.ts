@@ -2,7 +2,7 @@ import { BootData, EviSettings, IPC, isPluginEnabled, OpenPathTarget, PluginMani
 import { diffSettings } from "@shared/safeMode";
 import { ORIGINAL_ASAR } from "@shared/shim";
 import { app, ipcMain, Session, session, shell, WebContents, webContents } from "electron";
-import { existsSync, readFileSync, watch, writeFileSync } from "fs";
+import { existsSync, FSWatcher, readFileSync, watch, writeFileSync } from "fs";
 import { dirname, join } from "path";
 
 import { initAccount } from "./account";
@@ -152,17 +152,37 @@ async function saveFromPage(next: EviSettings, sender: WebContents): Promise<Set
 
 function watchQuickCss() {
     let timer: ReturnType<typeof setTimeout> | undefined;
-    // Watch the folder rather than the file: editors often save by replacing the file
-    watch(DATA_DIR, (_event, filename) => {
-        if (filename !== "quick.css") return;
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-            const css = readQuickCss();
-            // Our own saves land here too: every edit is recorded, wherever it's made
-            SafeMode.recordChange({ kind: "quickCss", id: "quick.css", action: "edited" });
-            for (const wc of webContents.getAllWebContents()) wc.send(IPC.CSS_CHANGED, css);
-        }, 50);
-    });
+    const changed = () => {
+        const css = readQuickCss();
+        // Our own saves land here too: every edit is recorded, wherever it's made
+        SafeMode.recordChange({ kind: "quickCss", id: "quick.css", action: "edited" });
+        for (const wc of webContents.getAllWebContents()) wc.send(IPC.CSS_CHANGED, css);
+    };
+    const start = () => {
+        let watcher: FSWatcher;
+        try {
+            // Watch the folder rather than the file: editors often save by replacing the file
+            watcher = watch(DATA_DIR, (_event, filename) => {
+                if (filename !== "quick.css") return;
+                clearTimeout(timer);
+                timer = setTimeout(changed, 50);
+            });
+        } catch (err) {
+            return console.error("[Evi] Can't watch Quick CSS", err);
+        }
+        // A watcher that errors stops for good, and Quick CSS stopped reloading with it
+        watcher.on("error", err => {
+            console.warn("[Evi] Quick CSS watcher failed, restarting it", err);
+            watcher.close();
+            const before = readQuickCss();
+            setTimeout(() => {
+                start();
+                // An edit that landed meanwhile
+                if (readQuickCss() !== before) changed();
+            }, 500);
+        });
+    };
+    start();
 }
 
 /**

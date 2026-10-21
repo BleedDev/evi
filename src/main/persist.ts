@@ -12,6 +12,8 @@ const LOCKED = new Set(["EBUSY", "EPERM", "EACCES"]);
 const RETRY_MS = 250;
 /** How long a quit waits out such a lock. Discord starts the new version right after, and it would start without us */
 const QUIT_WAIT_MS = 10_000;
+/** How long a watcher that failed waits before watching again */
+const REWATCH_MS = 1000;
 
 const sleep = (ms: number) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 
@@ -95,17 +97,32 @@ export function persistAcrossUpdates(shimAsar: string) {
     // So move in as soon as the updater is done writing, without waiting for a quit
     if (!basename(dirname(dirname(shimAsar))).startsWith("app-")) return;
     let settle: NodeJS.Timeout | undefined;
-    try {
-        fs.watch(installRoot, { recursive: true }, (event, file) => {
-            // Discord's own updater writes a version into .app-x.y.z.installing and renames it to
-            // app-x.y.z when it's complete. At startup it relaunches into it a few seconds later,
-            // long before the settle below: move in right away
-            if (event === "rename" && file && /^app-[^\\/]+$/.test(file)) return runSoon();
-            clearTimeout(settle);
-            settle = setTimeout(runSoon, SETTLE_MS);
-            settle.unref();
-        }).unref();
-    } catch (err) {
-        console.error("[Evi] Can't watch Discord's folder for updates", err);
-    }
+    const watch = () => {
+        let watcher: ReturnType<typeof fs.watch>;
+        try {
+            watcher = fs.watch(installRoot, { recursive: true }, (event, file) => {
+                // Discord's own updater writes a version into .app-x.y.z.installing and renames it to
+                // app-x.y.z when it's complete. At startup it relaunches into it a few seconds later,
+                // long before the settle below: move in right away
+                if (event === "rename" && file && /^app-[^\\/]+$/.test(file)) return runSoon();
+                clearTimeout(settle);
+                settle = setTimeout(runSoon, SETTLE_MS);
+                settle.unref();
+            });
+        } catch (err) {
+            return console.error("[Evi] Can't watch Discord's folder for updates", err);
+        }
+        watcher.unref();
+        // On Windows, deleting a watched subfolder errors the watcher and it stops for good, and
+        // Discord's updater deletes the old app-x.y.z while Discord runs: look again, then watch anew
+        watcher.on("error", err => {
+            console.warn("[Evi] Discord folder watcher failed, restarting it", err);
+            watcher.close();
+            setTimeout(() => {
+                runSoon();
+                watch();
+            }, REWATCH_MS).unref();
+        });
+    };
+    watch();
 }

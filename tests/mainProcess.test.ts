@@ -3,9 +3,13 @@
  * folder in a temp dir. Electron is mocked once for the whole run: only this file imports src/main.
  */
 import { afterAll, describe, expect, mock, test } from "bun:test";
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "fs";
+import { EventEmitter } from "events";
+import * as realFs from "fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
+
+import { ORIGINAL_ASAR } from "../src/shared/shim";
 
 const DATA = mkdtempSync(join(tmpdir(), "evi-main-"));
 process.env.EVI_DATA_DIR = DATA;
@@ -25,6 +29,45 @@ mock.module("electron", () => ({
     powerMonitor: {},
     shell: {},
 }));
+
+/** Watchers persist.ts started, in order: tests make them fail */
+const watchers: (EventEmitter & { closed?: boolean; })[] = [];
+mock.module("original-fs", () => ({
+    ...realFs,
+    watch: () => {
+        const watcher = Object.assign(new EventEmitter(), { unref() { }, close() { watcher.closed = true; } }) as EventEmitter & { closed?: boolean; unref(): void; close(): void; };
+        watchers.push(watcher);
+        return watcher;
+    },
+}));
+
+describe("staying in Discord across its updates", () => {
+    test.skipIf(process.platform !== "win32")("watching Discord's folder starts again after the watcher fails", async () => {
+        const { persistAcrossUpdates } = await import("../src/main/persist");
+        const root = join(DATA, "Discord");
+        const running = join(root, "app-1.0.0", "resources");
+        mkdirSync(running, { recursive: true });
+        writeFileSync(join(running, "app.asar"), "evi");
+        writeFileSync(join(running, ORIGINAL_ASAR), "discord");
+
+        const exitListeners = process.listeners("exit");
+        persistAcrossUpdates(join(running, "app.asar"));
+        for (const listener of process.listeners("exit")) if (!exitListeners.includes(listener)) process.off("exit", listener);
+        expect(watchers.length).toBe(1);
+
+        // Discord's updater deletes the old version, which errors the watcher, and writes the new one
+        watchers[0].emit("error", Object.assign(new Error("EPERM"), { code: "EPERM" }));
+        expect(watchers[0].closed).toBe(true);
+        const next = join(root, "app-1.0.1", "resources");
+        mkdirSync(next, { recursive: true });
+        writeFileSync(join(next, "app.asar"), "discord 1.0.1");
+
+        await Bun.sleep(1200);
+        expect(watchers.length).toBe(2);
+        expect(readFileSync(join(next, "app.asar"), "utf8")).toBe("evi");
+        expect(readFileSync(join(next, ORIGINAL_ASAR), "utf8")).toBe("discord 1.0.1");
+    });
+});
 
 describe("adding a theme from a link", () => {
     const css = "/**\n * @name Dark\n */\nbody { color: red; }";

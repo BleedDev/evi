@@ -109,8 +109,8 @@ describe("declared permissions: requests", () => {
 
     test("other ways of writing the same endpoint need the same permission", () => {
         const d = declared({ network: ["discord.com"] });
-        const send = { permission: "sendMessages", host: "discord.com" };
-        const settings = { permission: "changeSettings", host: "discord.com" };
+        const send = { permission: "sendMessages", host: "discord.com" } as const;
+        const settings = { permission: "changeSettings", host: "discord.com" } as const;
         expect(checkRequest(d, "https://discord.com./api/v9/channels/123/messages", "POST")).toEqual({ ...send, host: "discord.com." });
         expect(checkRequest(d, "https://discord.com/api/v9//channels/123/messages", "POST")).toEqual(send);
         expect(checkRequest(d, "https://discord.com/api/V9/channels/123/messages", "POST")).toEqual(send);

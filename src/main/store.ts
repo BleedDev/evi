@@ -40,12 +40,12 @@ import {
 } from "@shared/store";
 import { MAX_THEME_BYTES, whyNotCss } from "@shared/themes";
 import { createHash } from "crypto";
-import { ipcMain, WebContents } from "electron";
+import { ipcMain, net, WebContents } from "electron";
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "fs";
 import { basename, dirname, join, resolve } from "path";
 
 import { confirmWithUser } from "./confirm";
-import { downloadHttps } from "./download";
+import { downloadHttps, readCapped } from "./download";
 import { mt } from "./locale";
 import { DATA_DIR, PLUGINS_DIR, THEMES_DIR } from "./paths";
 import { consentToRun, hideDevPlugin, pluginLocation, refreshUserPlugin, setRemoved } from "./plugins";
@@ -60,7 +60,11 @@ const CONFIG_FILE = join(DATA_DIR, "store.json");
 /** Themes are single files with no room for a marker, so the store remembers its own here */
 const THEMES_RECORD = join(DATA_DIR, "store-themes.json");
 
-let cache: { url: string; entries: Map<string, RegistryEntry>; themes: Map<string, ThemeEntry>; images: Set<string>; previews: Set<string>; } | undefined;
+let cache: {
+    url: string; entries: Map<string, RegistryEntry>; themes: Map<string, ThemeEntry>; images: Set<string>; previews: Set<string>;
+    /** What the server called this copy, and what it listed: a 304 for that ETag reuses it */
+    etag?: string; listing: { plugins: RegistryEntry[]; themes: ThemeEntry[]; problems: string[]; };
+} | undefined;
 const busy = new Set<string>();
 
 export function getRegistryUrl() {
@@ -149,6 +153,28 @@ function listInstalledThemes(): InstalledTheme[] {
         .map(([id, t]) => ({ id, version: t.version, file: t.file, fromStore: true }));
 }
 
+/**
+ * registry.json as downloadHttps would get it, plus its ETag. Given the ETag of the copy this session
+ * already has, the server answers 304 when it's unchanged: `{ ok: true }` with no body.
+ */
+async function downloadRegistry(registryUrl: string, etag: string | undefined): Promise<{ ok: true; body: Uint8Array; etag?: string; } | { ok: true; } | { ok: false; error: string; }> {
+    const url = new URL(registryUrl).href;
+    let res: Response;
+    try {
+        res = await net.fetch(url, { signal: AbortSignal.timeout(20_000), cache: "no-store", credentials: "omit", headers: etag ? { "If-None-Match": etag } : {} });
+    } catch (err) {
+        return { ok: false, error: mt("main.dl.failed", { error: (err as Error).message }) };
+    }
+    if (etag && res.status === 304) return { ok: true };
+    if (!res.ok) return { ok: false, error: mt("main.dl.status", { status: `${res.status} ${res.statusText}`.trim() }) };
+    if (new URL(res.url || url).protocol !== "https:") return { ok: false, error: mt("main.dl.redirect") };
+
+    const body = await readCapped(res, MAX_REGISTRY_BYTES).catch(() => undefined);
+    if (body === undefined) return { ok: false, error: mt("main.dl.interrupted") };
+    if (body === null) return { ok: false, error: mt("main.dl.tooLarge", { what: "The registry", size: `${MAX_REGISTRY_BYTES / 1024 / 1024} MB` }) };
+    return { ok: true, body, etag: res.headers.get("etag") ?? undefined };
+}
+
 async function fetchRegistry(): Promise<StoreListing> {
     const registryUrl = getRegistryUrl();
     const installed = listInstalled();
@@ -158,8 +184,11 @@ async function fetchRegistry(): Promise<StoreListing> {
     const badUrl = whyNotStoreUrl(registryUrl);
     if (badUrl) return fail(`The registry URL can't be used: ${badUrl}`);
 
-    const download = await downloadHttps(registryUrl, MAX_REGISTRY_BYTES, { what: "The registry", cache: "no-store" });
+    // Asked with the ETag of the copy already checked: unchanged, it isn't downloaded or checked again
+    const known = cache?.url === registryUrl ? cache : undefined;
+    const download = await downloadRegistry(registryUrl, known?.etag);
     if (!download.ok) return fail(download.error);
+    if (!("body" in download)) return { ok: true, registryUrl, ...known!.listing, installed, installedThemes };
 
     let json: unknown;
     try {
@@ -177,6 +206,8 @@ async function fetchRegistry(): Promise<StoreListing> {
         themes: new Map(themes.map(t => [t.id, t])),
         images: new Set([...plugins, ...themes].flatMap(e => e.screenshots)),
         previews: new Set([...plugins, ...themes].flatMap(e => e.preview ? [e.preview] : [])),
+        etag: download.etag,
+        listing: { plugins, themes, problems: parsed.problems },
     };
     if (parsed.problems.length) console.warn(`[Evi] Store registry: skipped ${parsed.problems.length} entries`, parsed.problems);
     return { ok: true, registryUrl, plugins, themes, problems: parsed.problems, installed, installedThemes };

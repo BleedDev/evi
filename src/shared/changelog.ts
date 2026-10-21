@@ -36,26 +36,14 @@ export const RELEASES: Release[] = [
             ],
         },
     },
-    {
-        version: "2.5.1",
-        date: "2026-10-15",
-        sections: {
-            fixed: [
-                "**Activities load again while you wear an Evi decoration.** Games like Farm Merge Valley got stuck loading, because Discord passed your Evi decoration on to them. Activities now see your regular Discord decoration.",
-            ],
-        },
-    },
+    // 2.5.1 fixed activities with an Evi decoration on, and 2.5.0 brought collectibles and Sparks:
+    // all of it is gone since, so What's new doesn't tell anyone updating past them about it
     {
         version: "2.5.0",
         date: "2026-10-14",
         sections: {
             added: [
-                "**Evi collectibles.** Painted nameplates, avatar decorations and profile effects that everyone using Evi sees on you, starting with Sakura River and Snowed-In Cabin. Find them in the new Evi tab of Discord's Shop, and wear them from Discord's own pickers when you edit your profile.",
-                "**Sparks.** Evi's own currency for collectibles. Redeem codes from the Evi team, and supporters get Sparks every month.",
                 "**Two new plugins.** Pop Out Chat opens any chat in its own window, and Look Inside shows what's in a zip before you download it and warns you about programs and disguised files.",
-            ],
-            improved: [
-                "**Your collectibles stay private from Discord.** Evi keeps them out of Discord's analytics and out of what Discord's app sends, so they don't tell Discord you use Evi.",
             ],
             fixed: [
                 "**Pop-ups from Evi and plugins show again.** Discord changed how it shows them, and they had gone silent.",

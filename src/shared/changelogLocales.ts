@@ -16,19 +16,9 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
                 "**Evi bleibt nach Discord-Updates in Discord.** Discord installiert seine Updates jetzt beim Start und startet direkt neu, dabei konnte Evi die neue Version verpassen und war weg, bis du Evi Setup erneut ausgeführt hast. Evi zieht jetzt in eine neue Discord-Version um, sobald sie geschrieben ist.",
             ],
         },
-        "2.5.1": {
-            fixed: [
-                "**Aktivitäten laden wieder, während du eine Evi-Dekoration trägst.** Spiele wie Farm Merge Valley blieben beim Laden hängen, weil Discord deine Evi-Dekoration an sie weitergab. Aktivitäten sehen jetzt deine normale Discord-Dekoration.",
-            ],
-        },
         "2.5.0": {
             added: [
-                "**Evi-Sammlerstücke.** Gemalte Namensschilder, Avatar-Dekorationen und Profileffekte, die alle mit Evi an dir sehen, zum Start Sakura River und Snowed-In Cabin. Du findest sie im neuen Evi-Tab in Discords Shop und legst sie in Discords eigenen Auswahlfenstern an, wenn du dein Profil bearbeitest.",
-                "**Sparks.** Evis eigene Währung für Sammlerstücke. Löse Codes vom Evi-Team ein, und Unterstützer bekommen jeden Monat Sparks.",
                 "**Zwei neue Plugins.** Pop Out Chat öffnet jeden Chat in einem eigenen Fenster, und Look Inside zeigt, was in einer ZIP-Datei steckt, bevor du sie herunterlädst, und warnt dich vor Programmen und getarnten Dateien.",
-            ],
-            improved: [
-                "**Deine Sammlerstücke bleiben vor Discord privat.** Evi hält sie aus Discords Analysen und aus dem heraus, was Discords App sendet, damit sie Discord nicht verraten, dass du Evi nutzt.",
             ],
             fixed: [
                 "**Hinweise von Evi und Plugins erscheinen wieder.** Discord hat geändert, wie es sie zeigt, und sie waren verstummt.",
@@ -379,19 +369,9 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
                 "**Evi se queda en Discord después de sus actualizaciones.** Discord ahora instala sus actualizaciones al iniciarse y se reinicia directamente en ellas, y Evi podía perderse la nueva versión y desaparecer hasta que volvieras a ejecutar Evi Setup. Ahora Evi se pasa a la nueva versión de Discord en cuanto se escribe.",
             ],
         },
-        "2.5.1": {
-            fixed: [
-                "**Las actividades vuelven a cargar mientras llevas una decoración de Evi.** Juegos como Farm Merge Valley se quedaban cargando porque Discord les pasaba tu decoración de Evi. Ahora las actividades ven tu decoración normal de Discord.",
-            ],
-        },
         "2.5.0": {
             added: [
-                "**Coleccionables de Evi.** Placas de nombre, decoraciones de avatar y efectos de perfil pintados que todos los que usan Evi ven en ti, empezando por Sakura River y Snowed-In Cabin. Encuéntralos en la nueva pestaña Evi de la Tienda de Discord y póntelos desde los selectores de Discord al editar tu perfil.",
-                "**Sparks.** La moneda propia de Evi para coleccionables. Canjea códigos del equipo de Evi, y quienes apoyan reciben Sparks cada mes.",
                 "**Dos plugins nuevos.** Pop Out Chat abre cualquier chat en su propia ventana, y Look Inside muestra qué hay en un zip antes de descargarlo y te avisa de programas y archivos disfrazados.",
-            ],
-            improved: [
-                "**Tus coleccionables quedan en privado frente a Discord.** Evi los mantiene fuera de las analíticas de Discord y de lo que envía la app de Discord, para que no le digan a Discord que usas Evi.",
             ],
             fixed: [
                 "**Los avisos de Evi y de los plugins vuelven a aparecer.** Discord cambió cómo los muestra y se habían quedado en silencio.",
@@ -742,19 +722,9 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
                 "**Evi reste dans Discord après ses mises à jour.** Discord installe maintenant ses mises à jour au démarrage et redémarre directement dessus, et Evi pouvait rater la nouvelle version et disparaître jusqu'à ce que tu relances Evi Setup. Evi passe maintenant dans la nouvelle version de Discord dès qu'elle est écrite.",
             ],
         },
-        "2.5.1": {
-            fixed: [
-                "**Les activités se chargent à nouveau quand tu portes une décoration Evi.** Des jeux comme Farm Merge Valley restaient bloqués au chargement, car Discord leur transmettait ta décoration Evi. Les activités voient maintenant ta décoration Discord habituelle.",
-            ],
-        },
         "2.5.0": {
             added: [
-                "**Les objets à collectionner d'Evi.** Des plaques de nom, décorations d'avatar et effets de profil peints que tous les utilisateurs d'Evi voient sur toi, en commençant par Sakura River et Snowed-In Cabin. Trouve-les dans le nouvel onglet Evi de la boutique de Discord, et porte-les depuis les sélecteurs de Discord quand tu modifies ton profil.",
-                "**Sparks.** La monnaie d'Evi pour les objets à collectionner. Utilise les codes de l'équipe d'Evi, et les soutiens reçoivent des Sparks chaque mois.",
                 "**Deux nouveaux plugins.** Pop Out Chat ouvre n'importe quel chat dans sa propre fenêtre, et Look Inside montre ce que contient un zip avant que tu le télécharges et te prévient des programmes et des fichiers déguisés.",
-            ],
-            improved: [
-                "**Tes objets restent privés vis-à-vis de Discord.** Evi les garde hors des statistiques de Discord et de ce que l'appli de Discord envoie, pour qu'ils ne révèlent pas à Discord que tu utilises Evi.",
             ],
             fixed: [
                 "**Les notifications d'Evi et des plugins s'affichent à nouveau.** Discord a changé leur affichage et elles étaient devenues muettes.",
@@ -1105,19 +1075,9 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
                 "**Discord がアップデートしても Evi が残ります。** Discord は起動時にアップデートをインストールしてすぐ再起動するようになり、Evi が新しいバージョンに入りそびれて、Evi Setup をもう一度実行するまで消えることがありました。Evi は新しい Discord のバージョンが書き込まれた時点ですぐに移るようになりました。",
             ],
         },
-        "2.5.1": {
-            fixed: [
-                "**Evi のデコレーションを着けていてもアクティビティが読み込まれます。** Discord が Evi のデコレーションをアクティビティに渡していたため、Farm Merge Valley などのゲームが読み込み中のまま止まっていました。アクティビティには通常の Discord のデコレーションが表示されます。",
-            ],
-        },
         "2.5.0": {
             added: [
-                "**Evi コレクティブル。** Evi を使っている全員にあなたの姿として見える、手描きのネームプレート、アバターデコレーション、プロフィールエフェクト。まずは Sakura River と Snowed-In Cabin から。Discord ショップの新しい Evi タブにあり、プロフィール編集時に Discord の選択画面から身につけられます。",
-                "**Sparks。** コレクティブル用の Evi 独自の通貨です。Evi チームのコードを引き換えられ、サポーターには毎月 Sparks が届きます。",
                 "**新しいプラグインが 2 つ。** Pop Out Chat はどのチャットも専用ウィンドウで開き、Look Inside はダウンロード前に zip の中身を表示して、プログラムや偽装ファイルを警告します。",
-            ],
-            improved: [
-                "**コレクティブルは Discord に対して非公開のまま。** Evi はそれを Discord の分析や Discord アプリの送信内容から外すので、あなたが Evi を使っていることは Discord に伝わりません。",
             ],
             fixed: [
                 "**Evi とプラグインのポップアップが再び表示されます。** Discord が表示方法を変え、表示されなくなっていました。",
@@ -1468,19 +1428,9 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
                 "**Evi zostaje w Discordzie po jego aktualizacjach.** Discord instaluje teraz aktualizacje przy starcie i od razu się w nie restartuje, przez co Evi mogło przegapić nową wersję i zniknąć, dopóki nie uruchomiłeś ponownie Evi Setup. Evi przenosi się teraz do nowej wersji Discorda, gdy tylko zostanie zapisana.",
             ],
         },
-        "2.5.1": {
-            fixed: [
-                "**Aktywności znów się wczytują, gdy nosisz dekorację Evi.** Gry takie jak Farm Merge Valley zawieszały się podczas wczytywania, bo Discord przekazywał im twoją dekorację Evi. Teraz aktywności widzą twoją zwykłą dekorację z Discorda.",
-            ],
-        },
         "2.5.0": {
             added: [
-                "**Kolekcje Evi.** Malowane tabliczki z nazwą, dekoracje awatara i efekty profilu, które widzą na tobie wszyscy z Evi, na start Sakura River i Snowed-In Cabin. Znajdziesz je w nowej karcie Evi w Sklepie Discorda i założysz w wyborach Discorda, gdy edytujesz profil.",
-                "**Sparks.** Własna waluta Evi na kolekcje. Wykorzystuj kody od zespołu Evi, a wspierający dostają Sparks co miesiąc.",
                 "**Dwa nowe pluginy.** Pop Out Chat otwiera dowolny czat w osobnym oknie, a Look Inside pokazuje, co jest w pliku zip, zanim go pobierzesz, i ostrzega przed programami i udawanymi plikami.",
-            ],
-            improved: [
-                "**Twoje kolekcje pozostają prywatne wobec Discorda.** Evi trzyma je z dala od analityki Discorda i tego, co wysyła aplikacja Discorda, więc nie zdradzają Discordowi, że używasz Evi.",
             ],
             fixed: [
                 "**Powiadomienia Evi i pluginów znów się pokazują.** Discord zmienił sposób ich wyświetlania i ucichły.",
@@ -1831,19 +1781,9 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
                 "**O Evi continua no Discord depois das atualizações dele.** O Discord agora instala as atualizações ao iniciar e reinicia direto nelas, e o Evi podia perder a nova versão e sumir até você rodar o Evi Setup de novo. Agora o Evi passa para a nova versão do Discord assim que ela é gravada.",
             ],
         },
-        "2.5.1": {
-            fixed: [
-                "**As atividades voltaram a carregar enquanto você usa uma decoração do Evi.** Jogos como Farm Merge Valley travavam no carregamento porque o Discord repassava sua decoração do Evi para eles. Agora as atividades veem sua decoração normal do Discord.",
-            ],
-        },
         "2.5.0": {
             added: [
-                "**Colecionáveis do Evi.** Placas de nome, decorações de avatar e efeitos de perfil pintados que todos que usam o Evi veem em você, começando com Sakura River e Snowed-In Cabin. Encontre-os na nova aba Evi da Loja do Discord e use-os pelos seletores do próprio Discord ao editar seu perfil.",
-                "**Sparks.** A moeda própria do Evi para colecionáveis. Resgate códigos da equipe do Evi, e apoiadores recebem Sparks todo mês.",
                 "**Dois plugins novos.** Pop Out Chat abre qualquer chat em uma janela própria, e Look Inside mostra o que há em um zip antes de baixar e avisa sobre programas e arquivos disfarçados.",
-            ],
-            improved: [
-                "**Seus colecionáveis ficam privados para o Discord.** O Evi os mantém fora das análises do Discord e do que o app do Discord envia, para que não contem ao Discord que você usa o Evi.",
             ],
             fixed: [
                 "**Os avisos do Evi e dos plugins voltaram a aparecer.** O Discord mudou como os mostra e eles tinham sumido.",
@@ -2194,19 +2134,9 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
                 "**Evi остаётся в Discord после его обновлений.** Discord теперь ставит обновления при запуске и сразу перезапускается в них, и Evi мог пропустить новую версию и пропасть, пока ты снова не запустишь Evi Setup. Теперь Evi переходит в новую версию Discord, как только она записана.",
             ],
         },
-        "2.5.1": {
-            fixed: [
-                "**Активности снова загружаются, когда на тебе украшение Evi.** Игры вроде Farm Merge Valley зависали на загрузке, потому что Discord передавал им твоё украшение Evi. Теперь активности видят твоё обычное украшение Discord.",
-            ],
-        },
         "2.5.0": {
             added: [
-                "**Коллекционные предметы Evi.** Рисованные таблички с именем, украшения аватара и эффекты профиля, которые видят на тебе все пользователи Evi; для начала Sakura River и Snowed-In Cabin. Ищи их на новой вкладке Evi в магазине Discord и надевай через окна выбора Discord, когда редактируешь профиль.",
-                "**Sparks.** Собственная валюта Evi для коллекционных предметов. Активируй коды от команды Evi, а поддерживающие получают Sparks каждый месяц.",
                 "**Два новых плагина.** Pop Out Chat открывает любой чат в отдельном окне, а Look Inside показывает, что внутри zip, до скачивания и предупреждает о программах и замаскированных файлах.",
-            ],
-            improved: [
-                "**Твои предметы остаются скрытыми от Discord.** Evi убирает их из аналитики Discord и из того, что отправляет приложение Discord, чтобы они не выдавали Discord, что ты пользуешься Evi.",
             ],
             fixed: [
                 "**Уведомления Evi и плагинов снова показываются.** Discord изменил способ их показа, и они пропали.",
@@ -2557,19 +2487,9 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
                 "**Evi, Discord güncellendikten sonra Discord'da kalıyor.** Discord artık güncellemelerini açılırken kuruyor ve hemen yeni sürümle yeniden başlıyor; Evi bu yeni sürümü kaçırabiliyor ve Evi Setup'ı tekrar çalıştırana kadar kayboluyordu. Evi artık yeni Discord sürümüne yazılır yazılmaz geçiyor.",
             ],
         },
-        "2.5.1": {
-            fixed: [
-                "**Evi dekorasyonu takarken etkinlikler yeniden yükleniyor.** Discord, Evi dekorasyonunu onlara ilettiği için Farm Merge Valley gibi oyunlar yüklenirken takılı kalıyordu. Etkinlikler artık normal Discord dekorasyonunu görüyor.",
-            ],
-        },
         "2.5.0": {
             added: [
-                "**Evi koleksiyonları.** Evi kullanan herkesin sende gördüğü elle çizilmiş isim plakaları, avatar süslemeleri ve profil efektleri; ilk olarak Sakura River ve Snowed-In Cabin. Onları Discord Mağazası'ndaki yeni Evi sekmesinde bulabilir, profilini düzenlerken Discord'un kendi seçicilerinden takabilirsin.",
-                "**Sparks.** Koleksiyonlar için Evi'nin kendi para birimi. Evi ekibinin kodlarını kullan; destekçiler her ay Sparks alır.",
                 "**İki yeni eklenti.** Pop Out Chat herhangi bir sohbeti kendi penceresinde açar, Look Inside ise bir zip'i indirmeden önce içinde ne olduğunu gösterir ve programlar ile kılık değiştirmiş dosyalar için uyarır.",
-            ],
-            improved: [
-                "**Koleksiyonların Discord'a karşı gizli kalır.** Evi onları Discord'un analizlerinden ve Discord uygulamasının gönderdiklerinden uzak tutar, böylece Discord'a Evi kullandığını söylemezler.",
             ],
             fixed: [
                 "**Evi'nin ve eklentilerin bildirimleri yeniden görünüyor.** Discord bunları gösterme biçimini değiştirmişti ve sessiz kalmışlardı.",

@@ -12,6 +12,30 @@ export type { Release, SectionKind } from "./changelogNotes";
  */
 export const RELEASES: Release[] = [
     {
+        version: "3.0.0",
+        date: "2026-10-21",
+        sections: {
+            added: [
+                "**Lower memory.** A new switch in the Performance tab: Discord keeps less spare memory for its code, and on Windows, while Discord's window is hidden and you're not in a call, it can give memory back to your other apps. Off until you turn it on.",
+                "**Memory by window.** The Performance tab now shows what Discord's window, its Activities and other windows, and its graphics each use, so an Activity that's still running shows up.",
+            ],
+            improved: [
+                "**Evi takes up less of Discord.** Evi loads only your language, What's new loads when you open it, popped-out windows and the in-game overlay no longer run all of Evi, and Evi's own code is kept in half the memory.",
+                "**Smaller updates.** An Evi update downloads about a quarter of what it did.",
+                "**Plugins hold on to less.** Message Logger keeps small copies of the images it saves, Last Seen writes to disk far less often, Look Inside forgets old zip listings, and Pretty Notifications closes its hidden window when it isn't needed.",
+                "**Collectibles and Sparks are gone.** Evi's nameplates, decorations, profile effects and Sparks have been retired.",
+            ],
+            fixed: [
+                "**The Plugins page doesn't break anymore** when you close a plugin's settings after searching for one of them.",
+                "**Link your account and Link your account to follow work again.** They did nothing when you clicked them.",
+                "**Clear URLs keeps your formatting.** A cleaned link at the end of a spoiler, a masked link or a sentence lost its closing ||, bracket or full stop.",
+                "**Evi Setup puts Discord back if something goes wrong.** An install or removal that failed partway could leave Discord without its files, or closed.",
+                "**Community themes can't load anything from other sites,** even through links written to slip past the check.",
+                "**And more than 70 smaller fixes** across Evi, Evi Setup and the plugins.",
+            ],
+        },
+    },
+    {
         version: "2.5.2",
         date: "2026-10-20",
         sections: {

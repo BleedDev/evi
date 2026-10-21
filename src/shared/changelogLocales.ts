@@ -11,6 +11,26 @@ export type ReleaseNotes = Partial<Record<SectionKind, string[]>>;
 /** Language -> version -> section -> lines */
 export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
     de: {
+        "3.0.0": {
+            added: [
+                "**Weniger Arbeitsspeicher.** Ein neuer Schalter im Leistungs-Tab: Discord hält weniger freien Speicher für seinen Code bereit, und unter Windows kann es Speicher an deine anderen Apps zurückgeben, solange sein Fenster ausgeblendet ist und du nicht in einem Anruf bist. Aus, bis du ihn einschaltest.",
+                "**Arbeitsspeicher nach Fenster.** Der Leistungs-Tab zeigt jetzt einzeln, was Discords Fenster, seine Aktivitäten und anderen Fenster und seine Grafik belegen, so fällt eine Aktivität auf, die noch läuft.",
+            ],
+            improved: [
+                "**Evi braucht weniger von Discord.** Evi lädt nur deine Sprache, „Neuigkeiten“ lädt erst, wenn du es öffnest, ausgekoppelte Fenster und das In-Game-Overlay führen nicht mehr ganz Evi aus, und Evis eigener Code belegt nur noch halb so viel Speicher.",
+                "**Kleinere Updates.** Ein Evi-Update lädt nur noch etwa ein Viertel dessen herunter, was es bisher geladen hat.",
+                "**Plugins halten weniger fest.** Message Logger speichert kleine Kopien der Bilder, die es sichert, Last Seen schreibt viel seltener auf die Festplatte, Look Inside vergisst alte ZIP-Inhaltslisten, und Pretty Notifications schließt sein verstecktes Fenster, wenn es nicht gebraucht wird.",
+                "**Sammlerstücke und Sparks sind weg.** Evis Namensschilder, Dekorationen, Profileffekte und Sparks wurden eingestellt.",
+            ],
+            fixed: [
+                "**Die Plugins-Seite geht nicht mehr kaputt,** wenn du die Einstellungen eines Plugins schließt, nachdem du nach einem gesucht hast.",
+                "**„Konto verknüpfen“ und „Verknüpfe dein Konto, um zu folgen“ funktionieren wieder.** Ein Klick darauf hat nichts bewirkt.",
+                "**Clear URLs behält deine Formatierung.** Ein bereinigter Link am Ende eines Spoilers, eines maskierten Links oder eines Satzes verlor sein schließendes ||, seine Klammer oder seinen Punkt.",
+                "**Evi Setup stellt Discord wieder her, wenn etwas schiefgeht.** Eine Installation oder Entfernung, die mittendrin fehlschlug, konnte Discord ohne seine Dateien oder geschlossen zurücklassen.",
+                "**Community-Themes können nichts von anderen Seiten laden,** auch nicht über Links, die so geschrieben sind, dass sie an der Prüfung vorbeischlüpfen.",
+                "**Und mehr als 70 kleinere Fehlerbehebungen** in Evi, Evi Setup und den Plugins.",
+            ],
+        },
         "2.5.2": {
             fixed: [
                 "**Evi bleibt nach Discord-Updates in Discord.** Discord installiert seine Updates jetzt beim Start und startet direkt neu, dabei konnte Evi die neue Version verpassen und war weg, bis du Evi Setup erneut ausgeführt hast. Evi zieht jetzt in eine neue Discord-Version um, sobald sie geschrieben ist.",
@@ -364,6 +384,26 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     es: {
+        "3.0.0": {
+            added: [
+                "**Menos memoria.** Un interruptor nuevo en la pestaña Rendimiento: Discord reserva menos memoria libre para su código y, en Windows, mientras su ventana está oculta y no estás en una llamada, puede devolver memoria a tus otras apps. Desactivado hasta que lo actives.",
+                "**Memoria por ventana.** La pestaña Rendimiento ahora muestra cuánto usa cada parte, la ventana de Discord, sus Actividades y otras ventanas, y sus gráficos, así que se nota si una Actividad sigue en marcha.",
+            ],
+            improved: [
+                "**Evi ocupa menos de Discord.** Evi carga solo tu idioma, Novedades se carga cuando lo abres, las ventanas separadas y el overlay de juego ya no ejecutan todo Evi, y el propio código de Evi ocupa la mitad de memoria.",
+                "**Actualizaciones más pequeñas.** Una actualización de Evi descarga más o menos una cuarta parte de lo que descargaba antes.",
+                "**Los plugins retienen menos.** Message Logger guarda copias pequeñas de las imágenes que conserva, Last Seen escribe en el disco con mucha menos frecuencia, Look Inside olvida los listados de zip antiguos y Pretty Notifications cierra su ventana oculta cuando no la necesita.",
+                "**Se acabaron los coleccionables y los Sparks.** Las placas de nombre, decoraciones, efectos de perfil y Sparks de Evi se han retirado.",
+            ],
+            fixed: [
+                "**La página de Plugins ya no se rompe** al cerrar los ajustes de un plugin después de buscar uno.",
+                "**«Vincular tu cuenta» y «Vincula tu cuenta para seguir» vuelven a funcionar.** No hacían nada al pulsarlos.",
+                "**Clear URLs respeta tu formato.** Un enlace limpiado al final de un spoiler, de un enlace enmascarado o de una frase perdía su || de cierre, su paréntesis o su punto final.",
+                "**Evi Setup deja Discord como estaba si algo sale mal.** Una instalación o desinstalación que fallaba a medias podía dejar Discord sin sus archivos, o cerrado.",
+                "**Los temas de la comunidad no pueden cargar nada de otros sitios,** ni siquiera con enlaces escritos para colarse por la comprobación.",
+                "**Y más de 70 arreglos más pequeños** en Evi, Evi Setup y los plugins.",
+            ],
+        },
         "2.5.2": {
             fixed: [
                 "**Evi se queda en Discord después de sus actualizaciones.** Discord ahora instala sus actualizaciones al iniciarse y se reinicia directamente en ellas, y Evi podía perderse la nueva versión y desaparecer hasta que volvieras a ejecutar Evi Setup. Ahora Evi se pasa a la nueva versión de Discord en cuanto se escribe.",
@@ -717,6 +757,26 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     fr: {
+        "3.0.0": {
+            added: [
+                "**Moins de mémoire.** Un nouvel interrupteur dans l'onglet Performances : Discord garde moins de mémoire de réserve pour son code et, sous Windows, tant que sa fenêtre est cachée et que tu n'es pas en appel, il peut rendre de la mémoire à tes autres applis. Désactivé tant que tu ne l'actives pas.",
+                "**La mémoire par fenêtre.** L'onglet Performances montre maintenant ce qu'utilisent séparément la fenêtre de Discord, ses Activités et autres fenêtres, et ses graphismes, pour repérer une Activité qui tourne encore.",
+            ],
+            improved: [
+                "**Evi pèse moins sur Discord.** Evi ne charge que ta langue, Nouveautés se charge quand tu l'ouvres, les fenêtres détachées et l'overlay en jeu n'exécutent plus tout Evi, et le code d'Evi lui-même tient dans deux fois moins de mémoire.",
+                "**Des mises à jour plus légères.** Une mise à jour d'Evi télécharge environ un quart de ce qu'elle téléchargeait avant.",
+                "**Les plugins gardent moins de choses.** Message Logger garde de petites copies des images qu'il enregistre, Last Seen écrit beaucoup moins souvent sur le disque, Look Inside oublie les anciens contenus de zip, et Pretty Notifications ferme sa fenêtre cachée quand elle ne sert pas.",
+                "**Fini les objets de collection et les Sparks.** Les plaques de nom, décorations, effets de profil et Sparks d'Evi ont été retirés.",
+            ],
+            fixed: [
+                "**La page Plugins ne se casse plus** quand tu fermes les paramètres d'un plugin après en avoir cherché un.",
+                "**« Associer ton compte » et « Associe ton compte pour suivre » fonctionnent de nouveau.** Cliquer dessus ne faisait rien.",
+                "**Clear URLs garde ta mise en forme.** Un lien nettoyé à la fin d'un spoiler, d'un lien masqué ou d'une phrase perdait son || final, sa parenthèse fermante ou son point.",
+                "**Evi Setup remet Discord en place si quelque chose tourne mal.** Une installation ou une désinstallation qui échouait en cours de route pouvait laisser Discord sans ses fichiers, ou fermé.",
+                "**Les thèmes de la communauté ne peuvent rien charger depuis d'autres sites,** même via des liens écrits pour passer entre les mailles de la vérification.",
+                "**Et plus de 70 corrections plus petites** dans Evi, Evi Setup et les plugins.",
+            ],
+        },
         "2.5.2": {
             fixed: [
                 "**Evi reste dans Discord après ses mises à jour.** Discord installe maintenant ses mises à jour au démarrage et redémarre directement dessus, et Evi pouvait rater la nouvelle version et disparaître jusqu'à ce que tu relances Evi Setup. Evi passe maintenant dans la nouvelle version de Discord dès qu'elle est écrite.",
@@ -1070,6 +1130,26 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ja: {
+        "3.0.0": {
+            added: [
+                "**メモリを節約。** パフォーマンスタブに新しいスイッチが加わりました。Discord がコード用に確保しておく予備のメモリを減らし、Windows では Discord のウィンドウが隠れていて通話中でないとき、ほかのアプリにメモリを返せます。オンにするまではオフです。",
+                "**ウィンドウごとのメモリ。** パフォーマンスタブに、Discord のウィンドウ、アクティビティとその他のウィンドウ、グラフィックスがそれぞれ使っている量が表示されるようになり、まだ動いているアクティビティに気づけます。",
+            ],
+            improved: [
+                "**Evi が Discord に与える負担が減りました。** Evi はあなたの言語だけを読み込み、新着情報は開いたときに読み込みます。ポップアウトしたウィンドウやゲーム内オーバーレイでは Evi 全体を動かさなくなり、Evi 自身のコードが使うメモリは半分になりました。",
+                "**アップデートが小さく。** Evi のアップデートのダウンロード量が、以前の約 4 分の 1 になりました。",
+                "**プラグインが抱えるものを減らしました。** Message Logger は保存する画像を小さなコピーで持ち、Last Seen はディスクへの書き込みがずっと少なくなり、Look Inside は古い zip の一覧を忘れ、Pretty Notifications は不要なときに隠れたウィンドウを閉じます。",
+                "**コレクティブルと Sparks は終了しました。** Evi のネームプレート、デコレーション、プロフィールエフェクト、Sparks の提供を終えました。",
+            ],
+            fixed: [
+                "**プラグインページが壊れなくなりました。** プラグインを検索したあとにその設定を閉じると壊れていました。",
+                "**「アカウントを連携」と「フォローするにはアカウントを連携してください」が再び動作します。** クリックしても何も起きませんでした。",
+                "**Clear URLs が書式を保つように。** スポイラー、マスクリンク、文の末尾にあるリンクをきれいにすると、閉じの ||、かっこ、ピリオドが消えていました。",
+                "**問題が起きても Evi Setup が Discord を元に戻します。** インストールや削除が途中で失敗すると、Discord のファイルがなくなったり、Discord が閉じたままになったりすることがありました。",
+                "**コミュニティテーマは他のサイトから何も読み込めません。** チェックをすり抜けるように書かれたリンクを使っても同じです。",
+                "**そのほか 70 件以上の細かな修正。** Evi、Evi Setup、プラグイン全体にわたります。",
+            ],
+        },
         "2.5.2": {
             fixed: [
                 "**Discord がアップデートしても Evi が残ります。** Discord は起動時にアップデートをインストールしてすぐ再起動するようになり、Evi が新しいバージョンに入りそびれて、Evi Setup をもう一度実行するまで消えることがありました。Evi は新しい Discord のバージョンが書き込まれた時点ですぐに移るようになりました。",
@@ -1423,6 +1503,26 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     pl: {
+        "3.0.0": {
+            added: [
+                "**Mniej pamięci.** Nowy przełącznik w karcie Wydajność: Discord trzyma mniej zapasowej pamięci na swój kod, a w Windows, gdy jego okno jest ukryte i nie jesteś w rozmowie, może oddawać pamięć twoim innym aplikacjom. Wyłączony, dopóki go nie włączysz.",
+                "**Pamięć według okien.** Karta Wydajność pokazuje teraz osobno, ile używa okno Discorda, jego Aktywności i inne okna oraz grafika, więc widać Aktywność, która wciąż działa.",
+            ],
+            improved: [
+                "**Evi zajmuje mniej w Discordzie.** Evi ładuje tylko twój język, Nowości ładują się dopiero po otwarciu, wydzielone okna i nakładka w grze nie uruchamiają już całego Evi, a własny kod Evi zajmuje o połowę mniej pamięci.",
+                "**Mniejsze aktualizacje.** Aktualizacja Evi pobiera mniej więcej jedną czwartą tego, co wcześniej.",
+                "**Pluginy trzymają mniej.** Message Logger przechowuje małe kopie zapisywanych obrazów, Last Seen zapisuje na dysk dużo rzadziej, Look Inside zapomina stare listy zawartości zipów, a Pretty Notifications zamyka swoje ukryte okno, gdy nie jest potrzebne.",
+                "**Koniec z przedmiotami kolekcjonerskimi i Sparks.** Plakietki z nazwą, dekoracje, efekty profilu i Sparks od Evi zostały wycofane.",
+            ],
+            fixed: [
+                "**Strona Pluginów już się nie psuje,** gdy zamykasz ustawienia pluginu po wyszukaniu jednego z nich.",
+                "**„Połącz konto” i „Połącz konto, żeby obserwować” znów działają.** Kliknięcie ich nic nie robiło.",
+                "**Clear URLs zachowuje twoje formatowanie.** Oczyszczony link na końcu spoilera, zamaskowanego linku lub zdania tracił zamykające ||, nawias lub kropkę.",
+                "**Evi Setup przywraca Discorda, gdy coś pójdzie nie tak.** Instalacja lub usuwanie, które nie powiodło się w połowie, mogło zostawić Discorda bez jego plików albo zamkniętego.",
+                "**Motywy społeczności nie mogą niczego ładować z innych stron,** nawet przez linki napisane tak, by prześlizgnąć się przez kontrolę.",
+                "**I ponad 70 mniejszych poprawek** w Evi, Evi Setup i pluginach.",
+            ],
+        },
         "2.5.2": {
             fixed: [
                 "**Evi zostaje w Discordzie po jego aktualizacjach.** Discord instaluje teraz aktualizacje przy starcie i od razu się w nie restartuje, przez co Evi mogło przegapić nową wersję i zniknąć, dopóki nie uruchomiłeś ponownie Evi Setup. Evi przenosi się teraz do nowej wersji Discorda, gdy tylko zostanie zapisana.",
@@ -1776,6 +1876,26 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     "pt-BR": {
+        "3.0.0": {
+            added: [
+                "**Menos memória.** Um novo botão na aba Desempenho: o Discord guarda menos memória de reserva para o código dele e, no Windows, enquanto a janela do Discord está oculta e você não está em uma chamada, ele pode devolver memória para seus outros apps. Desativado até você ativar.",
+                "**Memória por janela.** A aba Desempenho agora mostra quanto usam, cada um separado, a janela do Discord, as Atividades e outras janelas dele e os gráficos, então uma Atividade que ainda está rodando aparece.",
+            ],
+            improved: [
+                "**O Evi pesa menos no Discord.** O Evi carrega só o seu idioma, Novidades carrega quando você abre, janelas destacadas e o overlay de jogo não rodam mais o Evi inteiro, e o código do próprio Evi ocupa metade da memória.",
+                "**Atualizações menores.** Uma atualização do Evi baixa cerca de um quarto do que baixava antes.",
+                "**Os plugins seguram menos coisa.** O Message Logger guarda cópias pequenas das imagens que salva, o Last Seen grava no disco com muito menos frequência, o Look Inside esquece listagens antigas de zip e o Pretty Notifications fecha a janela oculta dele quando ela não é necessária.",
+                "**Os colecionáveis e os Sparks se foram.** As placas de nome, decorações, efeitos de perfil e Sparks do Evi foram aposentados.",
+            ],
+            fixed: [
+                "**A página de Plugins não quebra mais** quando você fecha as configurações de um plugin depois de pesquisar por um deles.",
+                "**“Vincular sua conta” e “Vincule sua conta para seguir” voltaram a funcionar.** Não faziam nada quando você clicava.",
+                "**O Clear URLs mantém sua formatação.** Um link limpo no fim de um spoiler, de um link mascarado ou de uma frase perdia o || de fechamento, o parêntese ou o ponto final.",
+                "**O Evi Setup devolve o Discord ao normal se algo der errado.** Uma instalação ou remoção que falhava no meio do caminho podia deixar o Discord sem os arquivos dele, ou fechado.",
+                "**Temas da comunidade não conseguem carregar nada de outros sites,** nem por links escritos para escapar da verificação.",
+                "**E mais de 70 correções menores** no Evi, no Evi Setup e nos plugins.",
+            ],
+        },
         "2.5.2": {
             fixed: [
                 "**O Evi continua no Discord depois das atualizações dele.** O Discord agora instala as atualizações ao iniciar e reinicia direto nelas, e o Evi podia perder a nova versão e sumir até você rodar o Evi Setup de novo. Agora o Evi passa para a nova versão do Discord assim que ela é gravada.",
@@ -2129,6 +2249,26 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ru: {
+        "3.0.0": {
+            added: [
+                "**Меньше памяти.** Новый переключатель на вкладке «Производительность»: Discord держит меньше запасной памяти для своего кода, а в Windows, пока окно Discord скрыто и ты не в звонке, может отдавать память другим твоим приложениям. Выключен, пока ты его не включишь.",
+                "**Память по окнам.** Вкладка «Производительность» теперь показывает отдельно, сколько занимают окно Discord, его активности и другие окна и его графика, так что видно активность, которая всё ещё работает.",
+            ],
+            improved: [
+                "**Evi меньше нагружает Discord.** Evi загружает только твой язык, «Что нового» загружается, когда ты его открываешь, отдельные окна и внутриигровой оверлей больше не запускают весь Evi, а собственный код Evi занимает вдвое меньше памяти.",
+                "**Обновления стали меньше.** Обновление Evi скачивает примерно четверть того, что раньше.",
+                "**Плагины держат меньше.** Message Logger хранит уменьшенные копии сохранённых изображений, Last Seen гораздо реже пишет на диск, Look Inside забывает старые списки содержимого zip, а Pretty Notifications закрывает своё скрытое окно, когда оно не нужно.",
+                "**Коллекционные предметы и Sparks убраны.** Evi больше не предлагает таблички с именем, украшения, эффекты профиля и Sparks.",
+            ],
+            fixed: [
+                "**Страница плагинов больше не ломается,** когда ты закрываешь настройки плагина после поиска.",
+                "**«Привязать аккаунт» и «Привяжите аккаунт, чтобы подписаться» снова работают.** При нажатии они ничего не делали.",
+                "**Clear URLs сохраняет форматирование.** Очищенная ссылка в конце спойлера, маскированной ссылки или предложения теряла закрывающие ||, скобку или точку.",
+                "**Evi Setup возвращает Discord на место, если что-то пошло не так.** Установка или удаление, прервавшиеся на полпути, могли оставить Discord без его файлов или закрытым.",
+                "**Темы сообщества не могут ничего загружать с других сайтов,** даже через ссылки, написанные так, чтобы проскользнуть мимо проверки.",
+                "**И ещё более 70 мелких исправлений** в Evi, Evi Setup и плагинах.",
+            ],
+        },
         "2.5.2": {
             fixed: [
                 "**Evi остаётся в Discord после его обновлений.** Discord теперь ставит обновления при запуске и сразу перезапускается в них, и Evi мог пропустить новую версию и пропасть, пока ты снова не запустишь Evi Setup. Теперь Evi переходит в новую версию Discord, как только она записана.",
@@ -2482,6 +2622,26 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     tr: {
+        "3.0.0": {
+            added: [
+                "**Daha az bellek.** Performans sekmesinde yeni bir anahtar: Discord kodu için daha az yedek bellek tutar ve Windows'ta, Discord'un penceresi gizliyken ve bir aramada değilken diğer uygulamalarına bellek geri verebilir. Sen açana kadar kapalı.",
+                "**Pencereye göre bellek.** Performans sekmesi artık Discord'un penceresinin, Etkinliklerinin ve diğer pencerelerinin ve grafiklerinin ayrı ayrı ne kadar kullandığını gösteriyor; böylece hâlâ çalışan bir Etkinlik gözüne çarpar.",
+            ],
+            improved: [
+                "**Evi, Discord'da daha az yer kaplıyor.** Evi yalnızca senin dilini yüklüyor, Yenilikler sen açınca yükleniyor, ayrılmış pencereler ve oyun içi katman artık Evi'nin tamamını çalıştırmıyor ve Evi'nin kendi kodu artık yarısı kadar bellek kaplıyor.",
+                "**Daha küçük güncellemeler.** Bir Evi güncellemesi, eskiden indirdiğinin yaklaşık dörtte birini indiriyor.",
+                "**Eklentiler daha az şey tutuyor.** Message Logger kaydettiği resimlerin küçük kopyalarını saklıyor, Last Seen diske çok daha seyrek yazıyor, Look Inside eski zip listelerini unutuyor ve Pretty Notifications gizli penceresini gerekmediğinde kapatıyor.",
+                "**Koleksiyon öğeleri ve Sparks artık yok.** Evi'nin isim plakaları, süslemeleri, profil efektleri ve Sparks'ı kullanımdan kaldırıldı.",
+            ],
+            fixed: [
+                "**Eklentiler sayfası artık bozulmuyor.** Bir eklentiyi arayıp ayarlarını kapattığında bozuluyordu.",
+                "**“Hesabını bağla” ve “Takip etmek için hesabını bağla” yeniden çalışıyor.** Tıkladığında hiçbir şey yapmıyorlardı.",
+                "**Clear URLs biçimlendirmeni koruyor.** Bir spoiler'ın, maskeli bir bağlantının veya bir cümlenin sonundaki temizlenmiş bir bağlantı, kapanıştaki || işaretini, parantezi veya noktayı kaybediyordu.",
+                "**Bir şeyler ters giderse Evi Setup, Discord'u eski hâline getiriyor.** Yarıda başarısız olan bir kurulum veya kaldırma, Discord'u dosyaları olmadan ya da kapalı bırakabiliyordu.",
+                "**Topluluk temaları diğer sitelerden hiçbir şey yükleyemiyor,** denetimden kaçmak için yazılmış bağlantılarla bile.",
+                "**Ve 70'ten fazla küçük düzeltme:** Evi'de, Evi Setup'ta ve eklentilerde.",
+            ],
+        },
         "2.5.2": {
             fixed: [
                 "**Evi, Discord güncellendikten sonra Discord'da kalıyor.** Discord artık güncellemelerini açılırken kuruyor ve hemen yeni sürümle yeniden başlıyor; Evi bu yeni sürümü kaçırabiliyor ve Evi Setup'ı tekrar çalıştırana kadar kayboluyordu. Evi artık yeni Discord sürümüne yazılır yazılmaz geçiyor.",

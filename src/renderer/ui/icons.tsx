@@ -98,15 +98,6 @@ const defs = {
     },
     mic: { discord: "MicrophoneIcon", paths: ["M12 2a4 4 0 0 0-4 4v4a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4Z", "M6 10a1 1 0 1 0-2 0 8 8 0 0 0 7 7.94V21H8a1 1 0 1 0 0 2h8a1 1 0 1 0 0-2h-3v-3.06A8 8 0 0 0 20 10a1 1 0 1 0-2 0 6 6 0 0 1-12 0Z"] },
     music: { discord: "MusicIcon", paths: ["M20 2.5a1 1 0 0 0-1.2-.98l-10 2A1 1 0 0 0 8 4.5v10.04A3.5 3.5 0 1 0 10 17.5V8.32l8-1.6v5.82A3.5 3.5 0 1 0 20 15.5v-13Z"] },
-    // An avatar in a decoration's ring
-    collectibles: {
-        discord: "(Evi's own)",
-        evenOdd: true,
-        paths: [
-            "M12 1a11 11 0 1 0 0 22 11 11 0 0 0 0-22Zm0 2.5a8.5 8.5 0 1 1 0 17 8.5 8.5 0 0 1 0-17Z",
-            "M12 6.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11Z",
-        ],
-    },
     tick: { discord: "CheckmarkLargeIcon", paths: ["M21.7 5.3a1 1 0 0 1 0 1.4l-12 12a1 1 0 0 1-1.4 0l-6-6a1 1 0 1 1 1.4-1.4L9 16.58l11.3-11.3a1 1 0 0 1 1.4 0Z"] },
 } satisfies Record<string, IconDef>;
 

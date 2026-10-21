@@ -60,7 +60,7 @@ export interface ApiResponse {
 }
 
 /** A request to the API (`path` starts with /), answered as JSON. Throws on network errors and 4xx/5xx. */
-export async function apiRequest(method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE", path: string, options: {
+export async function apiRequest(method: "GET" | "POST" | "PUT" | "DELETE", path: string, options: {
     headers?: Record<string, string>;
     body?: string | Uint8Array;
     max?: number;
@@ -86,7 +86,6 @@ export async function apiRequest(method: "GET" | "POST" | "PUT" | "PATCH" | "DEL
     } catch {
         throw new Error(`The API answered ${res.status} without JSON`);
     }
-    // The status and the answer go along, for callers that tell "not linked" (401) or why it refused
-    if (!res.ok) throw Object.assign(new Error(typeof json?.error === "string" ? json.error.slice(0, 200) : `The API answered ${res.status}`), { status: res.status, json });
+    if (!res.ok) throw new Error(typeof json?.error === "string" ? json.error.slice(0, 200) : `The API answered ${res.status}`);
     return { status: res.status, etag: res.headers.get("etag"), json };
 }

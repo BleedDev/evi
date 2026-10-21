@@ -2,7 +2,6 @@ import { describe, expect, test } from "bun:test";
 
 import type { Replacement } from "../src/renderer/patching/source";
 import { canonicalizeMatch, matchesFind } from "../src/renderer/patching/source";
-import { analyticsPatch } from "../src/renderer/collectibles/patches";
 import { isTracking } from "../plugins/no-track/native";
 import { PATCHES } from "../plugins/no-track/patches";
 
@@ -41,18 +40,16 @@ describe("analytics", () => {
         for (const r of replacements(PATCHES.analytics)) apply(r, module);
     });
 
-    test("still applies after Evi's collectibles patched the module first, as they do at runtime", async () => {
+    test("each replacement matches Discord's own functions once, and the batch match stays inside its function", () => {
         let code = module;
-        for (const r of replacements(analyticsPatch)) code = apply(r, code);
         for (const r of replacements(PATCHES.analytics)) code = apply(r, code);
+        expect(code).toContain("return function(e,r){return S?.dropped?.(),Promise.resolve();");
+        expect(code).toContain("function g(e,t){return Promise.resolve();let n=Date.now()");
 
-        // The batch still never posts, and returns before the collectibles' scrub even runs
-        const submitCode = apply(submit, apply(replacements(analyticsPatch)[2], SOURCES.submit));
-        const window = { Evi: { collectibles: { scrubAll: () => { throw new Error("scrubbed"); } } } };
-        let posted = 0;
-        const g = new Function("m", "_", "window", `${submitCode} return g;`)({ Bo: { post: () => (posted++, Promise.resolve()) } }, null, window);
-        await expect(g([{ type: "x", properties: {} }])).resolves.toBeUndefined();
-        expect(posted).toBe(0);
+        // A few statements before `let` still match, but never across a brace into another function
+        apply(submit, SOURCES.submit.replace("{let n=", "{e=e.slice();let n="));
+        const across = SOURCES.submit.replace("function g(e,t){", "function g(e,t){}function h(e){");
+        expect(across.match(new RegExp((canonicalizeMatch(submit.match) as RegExp).source, "g"))).toBeNull();
     });
 
     test("track resolves straight away: no breadcrumb, no dispatch, counted", async () => {

@@ -1,6 +1,4 @@
 import type { AuthorProfile } from "./authors";
-import type { CollectibleKind, CollectiblesDocument, Equipped, Wallet } from "./collectibles";
-import type { Granted, Refusal } from "./sparks";
 import type { CrashRecord } from "./crashDetective";
 import type { ImportMode, ImportPreview } from "./backup";
 import type { PluginHealth } from "./health";
@@ -97,19 +95,6 @@ export const IPC = {
     REQUIRED_CHANGED: "evi:required-changed",
     /** main -> renderer: the badge list changed (evi.rest said so over its change stream) */
     BADGES_CHANGED: "evi:badges-changed",
-    /** Evi collectibles (shared/collectibles.ts): the bundles and who wears what; one of their files, as bytes */
-    COLLECTIBLES_GET: "evi:collectibles-get",
-    COLLECTIBLES_FILE: "evi:collectibles-file",
-    /** Wear or take off your own (this install must be linked to that account) */
-    COLLECTIBLES_EQUIP: "evi:collectibles-equip",
-    /** main -> renderer: the bundles or who wears what changed */
-    COLLECTIBLES_CHANGED: "evi:collectibles-changed",
-    /** Your Sparks and what you own (shared/sparks.ts); buying with Sparks; redeeming a code */
-    COLLECTIBLES_WALLET: "evi:collectibles-wallet",
-    COLLECTIBLES_BUY: "evi:collectibles-buy",
-    COLLECTIBLES_REDEEM: "evi:collectibles-redeem",
-    /** main -> renderer: your wallet changed (refetched after evi.rest's `collectibles` event) */
-    COLLECTIBLES_WALLET_CHANGED: "evi:collectibles-wallet-changed",
     /** who this install is linked to on evi.rest; starting a link (opens the site to confirm it) */
     ACCOUNT_STATUS: "evi:account-status",
     ACCOUNT_LINK: "evi:account-link",
@@ -334,19 +319,7 @@ export interface EviSettings {
     idleRestartGb?: number;
     /** Discord's own Game Mode, which Discord keeps behind an experiment (renderer/gameMode.ts). Missing: off */
     gameMode?: boolean;
-    /** `false`: Evi collectibles show only on you, not on everyone else who wears them. Missing: on */
-    collectiblesOnOthers?: boolean;
 }
-
-export type CollectiblesResult = { ok: true; doc: CollectiblesDocument; } | { ok: false; error: string; };
-/** A collectible's file: the page makes a blob: URL of it (Discord's page can't load evi.rest's own) */
-export type CollectibleFileResult = { ok: true; bytes: Uint8Array; mime: string; } | { ok: false; error: string; };
-/** What you wear after the change; `unlinked` when this Evi needs linking to your account first */
-export type CollectiblesEquipResult = { ok: true; equipped: Equipped; } | Refusal;
-/** Your Sparks and what you own, or why not (shared/sparks.ts) */
-export type WalletResult = { ok: true; wallet: Wallet; } | Refusal;
-export type RedeemResult = { ok: true; wallet: Wallet; granted: Granted; } | Refusal;
-export type CollectiblesChanges = Partial<Record<CollectibleKind, string | null>>;
 
 /** An answer from evi.rest's community side; `unlinked` when it needs this Evi linked to an account */
 export type CommunityResult<T> = { ok: true; value: T; } | { ok: false; error: string; unlinked?: boolean; };

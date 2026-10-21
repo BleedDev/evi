@@ -31,8 +31,6 @@ const SYM_WRAPPED = Symbol("evi.rootWrapped");
 const iconPaths: Record<string, string> = {
     plugins: "M10 3a2 2 0 0 1 4 0v2h3a2 2 0 0 1 2 2v3h-2a2 2 0 0 0 0 4h2v3a2 2 0 0 1-2 2h-3v-2a2 2 0 0 0-4 0v2H7a2 2 0 0 1-2-2v-3h2a2 2 0 0 0 0-4H5V7a2 2 0 0 1 2-2h3z",
     themes: "M7 14a3 3 0 0 0-3 3c0 1.3-1.2 2-2 2 .9 1.2 2.5 2 4 2a4 4 0 0 0 4-4 3 3 0 0 0-3-3zm13.7-9.4-1.3-1.3a1 1 0 0 0-1.4 0L9 12.3l2.8 2.7 8.9-8.9a1 1 0 0 0 0-1.4z",
-    // An avatar in a decoration's ring
-    collectibles: "M12 1a11 11 0 1 0 0 22 11 11 0 0 0 0-22Zm0 2.5a8.5 8.5 0 1 1 0 17 8.5 8.5 0 0 1 0-17ZM12 6.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11Z",
     // Sliders
     general: "M4 5a1 1 0 0 0 0 2h7.17a3 3 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-3.17a3 3 0 0 0-5.66 0H4Zm0 12a1 1 0 1 0 0 2h3.17a3 3 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-7.17a3 3 0 0 0-5.66 0H4Zm-1-5a1 1 0 0 1 1-1h11.17a3 3 0 0 1 5.66 0H21a1 1 0 1 1 0 2h-.17a3 3 0 0 1-5.66 0H4a1 1 0 0 1-1-1Z",
     // Three bars

@@ -86,9 +86,12 @@ function PluginSettings({ state, highlight = [] }: { state: PluginState; highlig
         ((d.plugins[manifest.id] ??= {}).settings ??= {})[key] = value;
     });
 
-    // The first setting the search found, brought into view as the dialog opens
+    // The first setting the search found, brought into view as the dialog opens. A block body on
+    // purpose: Chrome's scrollIntoView now returns a promise, and React would call it as the cleanup
     const firstMatch = React.useRef<HTMLDivElement>(null);
-    React.useEffect(() => firstMatch.current?.scrollIntoView({ block: "nearest" }), []);
+    React.useEffect(() => {
+        firstMatch.current?.scrollIntoView({ block: "nearest" });
+    }, []);
 
     return (
         <div className="dl-row-settings">

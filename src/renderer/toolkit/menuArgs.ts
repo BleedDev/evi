@@ -186,6 +186,12 @@ export function injectMenuArgs(match: string, offset: number, code: string) {
     if (code !== lastCode) {
         lastCode = code;
         lastSites = findMenuArgSites(code);
+        // One replace calls this for every site in a row, synchronously. After that the module's
+        // source (up to a few MB) isn't kept for the session.
+        queueMicrotask(() => {
+            lastCode = undefined;
+            lastSites = undefined;
+        });
     }
     return lastSites!.has(offset) ? `${MENU_ARGS_KEY}:arguments[0],${match}` : match;
 }

@@ -51,4 +51,14 @@ describe("menu args patch", () => {
             if(r.test("{}")){}return W({label:s+u,navId:"guild-context"})}}`);
         expect(exports.C({ guild: 1 }).eviMenuArgs).toEqual({ guild: 1 });
     });
+
+    test("the same module rewritten again later, after the last one's analysis was let go, comes out the same", async () => {
+        const source = `function(e,t){t.C=function(e){return {navId:"user-context",a:{navId:"x"}}}}`;
+        const first = rewrite(source);
+        await Promise.resolve();
+        rewrite(`function(e,t){t.D=function(e){return {navId:"other"}}}`);
+        await Promise.resolve();
+        expect(rewrite(source)).toBe(first);
+        expect(first.match(/eviMenuArgs/g)?.length).toBe(2);
+    });
 });

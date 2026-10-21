@@ -112,10 +112,19 @@ describe("read all: batching", () => {
         expect(() => chunk([1], 0)).toThrow(RangeError);
     });
 
+    // A stand-in for the plugin's t: another test file replaces @evi/api's defineStrings for the whole run
     test("summary text", () => {
-        expect(summary(0, 0)).toBe("Nothing to mark: everything is already read");
-        expect(summary(1, 1)).toBe("Marked 1 channel in 1 server as read");
-        expect(summary(12, 3)).toBe("Marked 12 channels in 3 servers as read");
-        expect(summary(2, 0)).toBe("Marked 2 channels as read");
+        const en: Record<string, string> = {
+            "summary.none": "Nothing to mark",
+            "summary.channels": "{count} ch",
+            "summary.servers": "{count} sv",
+            "summary.done": "Marked {channels}",
+            "summary.doneInServers": "Marked {channels} in {servers}",
+        };
+        const t = (key: string, vars: Record<string, string | number> = {}) => en[key].replace(/\{(\w+)\}/g, (_, k) => String(vars[k]));
+        expect(summary(0, 0, t)).toBe("Nothing to mark");
+        expect(summary(1, 1, t)).toBe("Marked 1 ch in 1 sv");
+        expect(summary(12, 3, t)).toBe("Marked 12 ch in 3 sv");
+        expect(summary(2, 0, t)).toBe("Marked 2 ch");
     });
 });

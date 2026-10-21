@@ -1,7 +1,7 @@
 import { Components, definePlugin, Dispatcher, findStore, Menu, React } from "@evi/api";
 import type { PluginContext } from "@evi/api";
 
-import { chunk, collectUnread, collectUnreadSteps, countGuilds, toAck } from "./collect";
+import { chunk, collectUnread, collectUnreadSteps, countGuilds, summary, toAck } from "./collect";
 import type { ReadStores, UnreadChannel } from "./collect";
 import { t } from "./strings";
 
@@ -63,13 +63,6 @@ function stores(): ReadStores | undefined {
     };
 }
 
-/** "Marked 12 channels in 3 servers as read", in Discord's language */
-function summarize(count: number, guilds: number) {
-    if (count === 0) return t("summary.none");
-    const channels = t("summary.channels", { count });
-    return guilds > 0 ? t("summary.doneInServers", { channels, servers: t("summary.servers", { count: guilds }) }) : t("summary.done", { channels });
-}
-
 /** Marks everything read and returns what to tell the user */
 async function readAll(): Promise<{ message: string; ok: boolean; }> {
     const s = stores();
@@ -79,7 +72,7 @@ async function readAll(): Promise<{ message: string; ok: boolean; }> {
     for (const batch of chunk(unread.map(toAck))) {
         await Dispatcher.dispatch({ type: "BULK_ACK", context: "APP", channels: batch });
     }
-    return { message: summarize(unread.length, countGuilds(unread)), ok: true };
+    return { message: summary(unread.length, countGuilds(unread), t), ok: true };
 }
 
 let busy = false;

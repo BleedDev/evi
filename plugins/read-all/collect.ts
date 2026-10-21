@@ -130,9 +130,12 @@ export const toAck = ({ channelId, messageId, readStateType }: AckEntry): AckEnt
 /** How many servers the entries span */
 export const countGuilds = (entries: readonly UnreadChannel[]) => new Set(entries.map(e => e.guildId).filter(id => id != null)).size;
 
-/** "Marked 12 channels in 3 servers as read" */
-export function summary(count: number, guilds: number) {
-    if (count === 0) return "Nothing to mark: everything is already read";
-    const channels = `${count} channel${count === 1 ? "" : "s"}`;
-    return guilds > 0 ? `Marked ${channels} in ${guilds} server${guilds === 1 ? "" : "s"} as read` : `Marked ${channels} as read`;
+/** The plugin's `t` (strings.ts), passed in so this stays free of Discord */
+export type SummaryText = (key: "summary.none" | "summary.channels" | "summary.servers" | "summary.done" | "summary.doneInServers", vars?: Record<string, string | number>) => string;
+
+/** "Marked 12 channels in 3 servers as read", in Discord's language */
+export function summary(count: number, guilds: number, t: SummaryText) {
+    if (count === 0) return t("summary.none");
+    const channels = t("summary.channels", { count });
+    return guilds > 0 ? t("summary.doneInServers", { channels, servers: t("summary.servers", { count: guilds }) }) : t("summary.done", { channels });
 }

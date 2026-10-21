@@ -3,7 +3,7 @@ import type { Filter, FluxAction, HookContext, PluginContext } from "@evi/api";
 
 import {
     AttachmentLike, attachmentKey, attachmentsToSave, LoggedMessage, MAX_SAVED_BYTES, MediaCache, mediaKind, MessageLog, MessageRef, PreviousVersion,
-    removedAttachments, SavedMedia, shouldLog,
+    PREFETCH_FILE_BYTES, removedAttachments, SavedMedia, savedImageUrl, shouldLog, shouldPrefetch,
 } from "./log";
 import { t } from "./strings";
 
@@ -18,8 +18,9 @@ import { t } from "./strings";
  *   The red tint is CSS on the list item that contains our tag.
  * - Deleting a message deletes its attachments from Discord's CDN too, so the kept message would show
  *   broken images. Attachments in the channel you're looking at are downloaded as they load (into
- *   blob: URLs, in memory, capped), and a deleted message keeps its copies; Discord's broken ones are
- *   hidden and ours are shown. An edit that removes an attachment keeps it with the old version.
+ *   blob: URLs, in memory, capped; pictures as a smaller copy, big videos and files only once
+ *   deleted), and a deleted message keeps its copies; Discord's broken ones are hidden and ours are
+ *   shown. An edit that removes an attachment keeps it with the old version.
  * - On stop, kept messages are really deleted from MessageStore (a private action only it handles),
  *   the log is cleared, so every tag and history unmounts, saved copies are let go, and the stylesheet goes.
  * - Right-clicking a channel, thread, DM or server with anything logged offers to clear just that,
@@ -29,8 +30,8 @@ import { t } from "./strings";
 const PURGE_ACTION = "EVI_MESSAGE_LOGGER_PURGE";
 /** How long a delete you started waits for Discord's MESSAGE_DELETE */
 const SELF_DELETE_WINDOW = 60_000;
-/** Saved copies of attachments not (yet) deleted, all together */
-const CACHE_BYTES = 150 * 1024 * 1024;
+/** Saved copies of attachments not (yet) deleted, all together: pictures are smaller copies, other files 5 MB at most */
+const CACHE_BYTES = 25 * 1024 * 1024;
 /** Messages a loaded page of history has its attachments saved from, newest first */
 const SAVE_FROM_LOADED = 50;
 
@@ -338,7 +339,11 @@ function mediaSaver(ctx: Ctx, cache: MediaCache<SavedMedia>) {
     /** Downloads one attachment. Discord's page may keep it cached, which is what's left once it's deleted. */
     async function download(a: AttachmentLike): Promise<SavedMedia | undefined> {
         const name = a.filename ?? "attachment";
-        for (const url of [a.url, a.proxy_url]) {
+        // A picture as a smaller copy first (it's shown at 400x300 at most), its full size only if that fails
+        const urls = mediaKind(a) === "image"
+            ? [savedImageUrl(a), a.proxy_url, (a.size ?? 0) <= PREFETCH_FILE_BYTES ? a.url : undefined]
+            : [a.url, a.proxy_url];
+        for (const url of urls) {
             if (!url) continue;
             try {
                 const res = await fetch(url, { cache: "force-cache" });
@@ -372,7 +377,7 @@ function mediaSaver(ctx: Ctx, cache: MediaCache<SavedMedia>) {
         /** Saves a message's attachments ahead of time, into the cache */
         prefetch(attachments: readonly AttachmentLike[] | undefined) {
             if (!ctx.settings.get("saveMedia")) return;
-            for (const a of attachmentsToSave(attachments)) {
+            for (const a of attachmentsToSave(attachments).filter(shouldPrefetch)) {
                 const key = attachmentKey(a);
                 if (cache.has(key) || pending.has(key)) continue;
                 void fetchOnce(a).then(m => m && cache.set(key, m));

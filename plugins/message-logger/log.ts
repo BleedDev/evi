@@ -56,6 +56,33 @@ export function mediaKind(a: AttachmentLike): SavedMedia["kind"] {
     return "file";
 }
 
+/** Saved ahead of time per attachment, pictures aside (they're saved as a smaller copy): a big clip only if its message is deleted */
+export const PREFETCH_FILE_BYTES = 5 * 1024 * 1024;
+
+/** Pictures in a format that can move: resized without a format, so Discord's proxy keeps the animation */
+const ANIMATABLE_TYPE = /^image\/(gif|webp|avif)$/;
+const ANIMATABLE_NAME = /\.(gif|webp|avif)$/;
+
+/**
+ * A smaller copy of a picture from Discord's media proxy, fitted in maxW x maxH (never upscaled): a
+ * saved copy is shown at 400x300 at most. Undefined without a proxy URL or the picture's size.
+ */
+export function savedImageUrl(a: AttachmentLike, maxW = 800, maxH = 600): string | undefined {
+    if (!a.proxy_url || !a.width || !a.height) return;
+    try {
+        const scale = Math.min(1, maxW / a.width, maxH / a.height);
+        const u = new URL(a.proxy_url);
+        u.searchParams.set("width", String(Math.max(1, Math.round(a.width * scale))));
+        u.searchParams.set("height", String(Math.max(1, Math.round(a.height * scale))));
+        const name = (a.filename ?? u.pathname).toLowerCase();
+        if (!ANIMATABLE_TYPE.test(a.content_type ?? "") && !ANIMATABLE_NAME.test(name)) u.searchParams.set("format", "webp");
+        return u.href;
+    } catch { }
+}
+
+/** Saved as it loads: every picture (as a smaller copy), anything else only when it's small */
+export const shouldPrefetch = (a: AttachmentLike) => mediaKind(a) === "image" || (a.size ?? Infinity) <= PREFETCH_FILE_BYTES;
+
 /** The attachments worth saving: downloadable, and not too big */
 export function attachmentsToSave(attachments: readonly AttachmentLike[] | undefined, maxBytes = MAX_SAVED_BYTES): AttachmentLike[] {
     return (attachments ?? []).filter(a => !!(a.url || a.proxy_url) && (a.size ?? 0) <= maxBytes);

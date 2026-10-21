@@ -3,7 +3,9 @@ import { readFileSync } from "fs";
 import { join } from "path";
 
 import { filters } from "../src/renderer/webpack/find";
-import { attachmentsToSave, MAX_SAVED_BYTES, MediaCache, mediaKind, MessageLog, removedAttachments, shouldLog } from "../plugins/message-logger/log";
+import {
+    attachmentsToSave, MAX_SAVED_BYTES, MediaCache, mediaKind, MessageLog, removedAttachments, savedImageUrl, shouldLog, shouldPrefetch,
+} from "../plugins/message-logger/log";
 
 const v = (content: string, timestamp = 1) => ({ content, timestamp });
 
@@ -187,6 +189,30 @@ describe("message logger media", () => {
         expect(log.addEditMedia("c", "1", 7, [saved("p")])).toBe(true);
         expect(log.addEditMedia("c", "1", 8, [saved("q")])).toBe(false);
         expect(log.mediaOf("c", "1").map(m => m.key)).toEqual(["p"]);
+    });
+
+    test("a picture is saved as a smaller copy from the media proxy, still moving if it can", () => {
+        const proxy = "https://media.discordapp.net/attachments/1/2/photo.jpg?ex=6720&is=671e&hm=abc&";
+        const photo = { filename: "photo.jpg", content_type: "image/jpeg", proxy_url: proxy };
+        const big = new URL(savedImageUrl({ ...photo, width: 4000, height: 3000 })!);
+        expect([big.searchParams.get("width"), big.searchParams.get("height"), big.searchParams.get("format")]).toEqual(["800", "600", "webp"]);
+        expect([big.searchParams.get("ex"), big.searchParams.get("is"), big.searchParams.get("hm")]).toEqual(["6720", "671e", "abc"]);
+        const tall = new URL(savedImageUrl({ ...photo, width: 1000, height: 6000 })!);
+        expect([tall.searchParams.get("width"), tall.searchParams.get("height")]).toEqual(["100", "600"]);
+        const small = new URL(savedImageUrl({ ...photo, width: 300, height: 200 })!);
+        expect([small.searchParams.get("width"), small.searchParams.get("height")]).toEqual(["300", "200"]);
+        expect(new URL(savedImageUrl({ ...photo, filename: "cat.gif", content_type: "image/gif", width: 400, height: 400 })!).searchParams.has("format")).toBe(false);
+        expect(new URL(savedImageUrl({ filename: "sticker.WEBP", proxy_url: proxy, width: 400, height: 400 })!).searchParams.has("format")).toBe(false);
+        expect(savedImageUrl({ ...photo, width: 400 })).toBeUndefined();
+        expect(savedImageUrl({ filename: "photo.jpg", width: 400, height: 400 })).toBeUndefined();
+        expect(savedImageUrl({ ...photo, proxy_url: "not a url", width: 400, height: 400 })).toBeUndefined();
+    });
+
+    test("saved as they load: every picture, other files only when small", () => {
+        expect(shouldPrefetch({ filename: "clip.mp4", size: 20 * 1024 * 1024 })).toBe(false);
+        expect(shouldPrefetch({ filename: "song.mp3", size: 3 * 1024 * 1024 })).toBe(true);
+        expect(shouldPrefetch({ filename: "huge.png", size: 30 * 1024 * 1024 })).toBe(true);
+        expect(shouldPrefetch({ filename: "notes.txt" })).toBe(false);
     });
 });
 

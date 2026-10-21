@@ -1,6 +1,6 @@
-import { describe, expect, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 
-import { compoundsOf, isAnchored, isSmallBlur, isStateOf, isUnanchoredHas, raiseTint, splitSelectorList, TINT_ALPHA, unblur } from "../src/renderer/cssFixes";
+import { clean as cleanSheet, compoundsOf, isAnchored, isSmallBlur, isStateOf, isUnanchoredHas, raiseTint, splitSelectorList, TINT_ALPHA, unblur } from "../src/renderer/cssFixes";
 
 // Every :has() selector in Discord's web stylesheets (crawled 2026-10-03)
 import discordHas from "./fixtures/discord-has-selectors.json";
@@ -123,5 +123,108 @@ describe("backdrop blur over video", () => {
         expect(isStateOf(".a .b:hover", ".a")).toBe(false);
         expect(isStateOf(".ab:hover", ".a")).toBe(false);
         expect(isStateOf(".a", ".a")).toBe(false);
+    });
+});
+
+describe("cleaning a stylesheet", () => {
+    /** Just enough CSSOM for clean(): style rules, @media, @scope and deleting */
+    class FakeRule {
+        parentRule: FakeGroup | null = null;
+        parentStyleSheet: FakeSheet | null = null;
+    }
+    class FakeStyleRule extends FakeRule {
+        reads = 0;
+        private _selector: string;
+        private _style: ReturnType<typeof declarations>;
+        constructor(selector: string, style: Record<string, string> = {}) {
+            super();
+            this._selector = selector;
+            this._style = declarations(style);
+        }
+        get selectorText() { this.reads++; return this._selector; }
+        set selectorText(value: string) { this._selector = value; }
+        get style() { return this._style; }
+    }
+    class FakeScopeRule extends FakeRule {
+        constructor(public start: string) { super(); }
+    }
+    const adopt = (rules: FakeRule[], sheet: FakeSheet, parent: FakeGroup | null) => {
+        for (const rule of rules) {
+            rule.parentStyleSheet = sheet;
+            rule.parentRule = parent;
+            if (rule instanceof FakeGroup) adopt(rule.cssRules, sheet, rule);
+        }
+    };
+    const drop = (list: FakeRule[], index: number) => {
+        const [rule] = list.splice(index, 1);
+        rule.parentStyleSheet = null;
+        rule.parentRule = null;
+    };
+    class FakeGroup extends FakeRule {
+        constructor(public cssRules: FakeRule[]) { super(); }
+        deleteRule(index: number) { drop(this.cssRules, index); }
+    }
+    class FakeSheet {
+        href = "https://discord.com/assets/web.css";
+        constructor(public cssRules: FakeRule[]) { adopt(cssRules, this, null); }
+        deleteRule(index: number) { drop(this.cssRules, index); }
+    }
+
+    const g = globalThis as any;
+    const saved = { CSSStyleRule: g.CSSStyleRule, CSSScopeRule: g.CSSScopeRule, CSS: g.CSS, requestIdleCallback: g.requestIdleCallback };
+    let idle: (() => void)[] = [];
+    beforeEach(() => {
+        g.CSSStyleRule = FakeStyleRule;
+        g.CSSScopeRule = FakeScopeRule;
+        g.CSS = { supports: (_: string, v: string) => v.startsWith("rgb(from") || supportsColor(v) };
+        idle = [];
+        g.requestIdleCallback = (cb: () => void) => void idle.push(cb);
+    });
+    afterEach(() => Object.assign(g, saved));
+
+    const clean = (sheet: FakeSheet, deferBlur = false) => cleanSheet(sheet as unknown as CSSStyleSheet, deferBlur);
+    const selectors = (rules: FakeRule[]): string[] => rules.flatMap(r => r instanceof FakeGroup ? selectors(r.cssRules) : r instanceof FakeStyleRule ? [r.selectorText] : ["@scope"]);
+
+    test(":has() and the staff highlighter go before the sheet is released, nested ones too; each selector is read once", () => {
+        const kept = new FakeStyleRule(".a:has(.b)");
+        const sheet = new FakeSheet([
+            kept,
+            new FakeStyleRule(":has(.x)"),
+            new FakeGroup([new FakeStyleRule(".c"), new FakeStyleRule(".d :has(> img), .e")]),
+            new FakeScopeRule(".highlight-mana-text"),
+            new FakeScopeRule(".other"),
+        ]);
+        clean(sheet, true);
+        expect(selectors(sheet.cssRules)).toEqual([".a:has(.b)", ".c", ".e", "@scope"]);
+        expect((sheet.cssRules[1] as FakeGroup).cssRules.length).toBe(2);
+        // Once by clean, once by this test
+        expect(kept.reads).toBe(2);
+    });
+
+    test("deferred, the blur fix waits for idle time, and skips rules taken out since", () => {
+        const tile = new FakeStyleRule(".tile", { "backdrop-filter": "blur(4px)", "background-color": "rgba(0, 0, 0, .5)" });
+        const gone = new FakeStyleRule(".gone", { "backdrop-filter": "blur(2px)", "background-color": "rgba(0, 0, 0, .5)" });
+        const sheet = new FakeSheet([tile, gone]);
+        clean(sheet, true);
+        expect(tile.style.getPropertyValue("backdrop-filter")).toBe("blur(4px)");
+        expect(idle.length).toBe(1);
+
+        sheet.deleteRule(1);
+        idle[0]();
+        expect(tile.style.getPropertyValue("backdrop-filter")).toBe("");
+        expect(tile.style.getPropertyValue("background-color")).toBe(`rgb(from rgba(0, 0, 0, .5) r g b / max(alpha, ${TINT_ALPHA}))`);
+        expect(gone.style.getPropertyValue("backdrop-filter")).toBe("blur(2px)");
+    });
+
+    test("not deferred, it's done before clean returns; a state of a rule :has() rewrote matches by its new selector", () => {
+        const base = new FakeStyleRule(".plate, :has(.x)", { "backdrop-filter": "blur(4px)", "background": "rgba(1, 2, 3, .4)" });
+        const hover = new FakeStyleRule(".plate:hover", { "background": "rgba(1, 2, 3, .6)" });
+        const other = new FakeStyleRule(".other:hover", { "background": "rgba(1, 2, 3, .6)" });
+        clean(new FakeSheet([base, hover, other]));
+        expect(idle.length).toBe(0);
+        expect(base.selectorText).toBe(".plate");
+        expect(base.style.getPropertyValue("backdrop-filter")).toBe("");
+        expect(hover.style.getPropertyValue("background")).toBe(`rgb(from rgba(1, 2, 3, .6) r g b / max(alpha, ${TINT_ALPHA}))`);
+        expect(other.style.getPropertyValue("background")).toBe("rgba(1, 2, 3, .6)");
     });
 });

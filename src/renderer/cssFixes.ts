@@ -16,13 +16,6 @@ import { Logger } from "./logger";
 
 const logger = new Logger("CssFixes");
 
-interface Fix {
-    /** Shown in the log */
-    name: string;
-    /** "delete" takes this rule out; true when it changed it in place */
-    apply(rule: CSSRule): "delete" | boolean;
-}
-
 /** Splits where `at` is true, outside (), [] and strings */
 function splitTopLevel(text: string, at: (c: string) => boolean): string[] {
     const parts: string[] = [];
@@ -173,51 +166,56 @@ const supportsColor = (v: string) => CSS.supports("color", v);
 let relativeColors: boolean | undefined;
 const hasRelativeColors = () => relativeColors ??= CSS.supports("color", "rgb(from red r g b / max(alpha, .5))");
 
-const BLUR_FIX = "backdrop blur over video";
-const HAS_FIX = "unanchored :has()";
+/**
+ * Discord's internal "highlight text variants" tool, for staff. It only ever draws inside
+ * `.highlight-mana-text`, but its `:not(:has(*))` rules have any element as their subject.
+ * Measured in a 7-person call: main thread busy 1558 -> 451ms per 3s, longest task 99 -> 15ms.
+ */
+const isStaffHighlighter = (rule: CSSRule) => typeof CSSScopeRule !== "undefined" && rule instanceof CSSScopeRule && rule.start?.trim() === ".highlight-mana-text";
 
-const FIXES: Fix[] = [
-    {
-        // Discord's internal "highlight text variants" tool, for staff. It only ever draws inside
-        // `.highlight-mana-text`, but its `:not(:has(*))` rules have any element as their subject.
-        // Measured in a 7-person call: main thread busy 1558 -> 451ms per 3s, longest task 99 -> 15ms.
-        name: "staff text highlighter",
-        apply: rule => typeof CSSScopeRule !== "undefined" && rule instanceof CSSScopeRule && rule.start?.trim() === ".highlight-mana-text" ? "delete" : false,
-    },
-    {
-        // The same mistake anywhere else, caught before it ships. Only the selectors that make it go.
-        name: HAS_FIX,
-        apply(rule) {
-            if (!(rule instanceof CSSStyleRule) || !/:has\(/i.test(rule.selectorText)) return false;
-            const selectors = splitSelectorList(rule.selectorText);
-            const kept = selectors.filter(s => !isUnanchoredHas(s));
-            if (kept.length === selectors.length) return false;
-            logger.debug("Dropped a :has() selector that would test every element:", selectors.filter(s => !kept.includes(s)).join(", "));
-            if (!kept.length) return "delete";
-            rule.selectorText = kept.join(", ");
-            return true;
-        },
-    },
-    {
-        name: BLUR_FIX,
-        apply: rule => rule instanceof CSSStyleRule && hasRelativeColors() && unblur(rule.style, supportsColor),
-    },
-];
+/**
+ * The same :has() mistake anywhere else, caught before it ships: only the selectors that make it go.
+ * "delete" when none is left, the selector it now has when some went, undefined when it stays as is.
+ */
+function fixHas(rule: CSSStyleRule, selector: string): "delete" | string | undefined {
+    const selectors = splitSelectorList(selector);
+    const kept = selectors.filter(s => !isUnanchoredHas(s));
+    if (kept.length === selectors.length) return;
+    logger.debug("Dropped a :has() selector that would test every element:", selectors.filter(s => !kept.includes(s)).join(", "));
+    if (!kept.length) return "delete";
+    return rule.selectorText = kept.join(", ");
+}
 
-/** Every rule in a list, and inside @media, @supports and @layer. Not inside @scope, removed whole. */
-function* allRules(rules: CSSRuleList): Generator<CSSRule> {
-    for (const rule of Array.from(rules)) {
-        yield rule;
-        const scope = typeof CSSScopeRule !== "undefined" && rule instanceof CSSScopeRule;
-        if (!scope && !(rule instanceof CSSStyleRule) && "cssRules" in rule) yield* allRules((rule as CSSGroupingRule).cssRules);
+/**
+ * Small backdrop blurs over video, swapped for a near-opaque tint; then their hover and other
+ * states set the tint again, without the blur under it now. Reads each rule's style once.
+ */
+function unblurRules(rules: [CSSStyleRule, string][]) {
+    const unblurred: string[] = [];
+    const plain: [CSSStyleDeclaration, string][] = [];
+    for (const [rule, selector] of rules) {
+        // Taken out of its sheet since
+        if (!rule.parentStyleSheet) continue;
+        const { style } = rule;
+        if (unblur(style, supportsColor)) unblurred.push(...splitSelectorList(selector));
+        else if (!style.getPropertyValue("backdrop-filter")) plain.push([style, selector]);
+    }
+    if (!unblurred.length) return;
+    for (const [style, selector] of plain) {
+        if (splitSelectorList(selector).every(s => unblurred.some(base => isStateOf(s, base)))) raiseTint(style, supportsColor);
     }
 }
 
 const HELD = "data-evi-held";
 const cleaned = new WeakSet<CSSStyleSheet>();
 
-/** @internal Exported for tests */
-export function clean(sheet: CSSStyleSheet) {
+/**
+ * Takes the :has() rules out, in one pass that reads each rule's selector once; the blur fix, which
+ * doesn't have to land before the sheet is first used, goes after. With `deferBlur`, in idle time
+ * rather than before the sheet is released.
+ * @internal Exported for tests
+ */
+export function clean(sheet: CSSStyleSheet, deferBlur = false) {
     if (cleaned.has(sheet)) return;
     cleaned.add(sheet);
     let rules: CSSRuleList;
@@ -228,26 +226,38 @@ export function clean(sheet: CSSStyleSheet) {
         return;
     }
     const name = (sheet.href ?? "").split("/").pop();
-    const unblurred: string[] = [];
+    const t0 = performance.now();
     const doomed: CSSRule[] = [];
-    for (const rule of allRules(rules)) {
-        for (const fix of FIXES) {
-            const result = fix.apply(rule);
-            if (result === "delete") {
-                doomed.push(rule);
-                if (fix.name !== HAS_FIX) logger.info(`Removed Discord's ${fix.name} (${name})`);
-                break;
+    /** Style rules that stay, with the selector they end up with */
+    const styled: [CSSStyleRule, string][] = [];
+    let count = 0;
+    // Every rule, and inside @media, @supports and @layer. Not inside @scope, removed whole.
+    const visit = (list: CSSRuleList) => {
+        for (let i = 0; i < list.length; i++) {
+            const rule = list[i];
+            count++;
+            if (rule instanceof CSSStyleRule) {
+                let selector = rule.selectorText;
+                if (/:has\(/i.test(selector)) {
+                    const fixed = fixHas(rule, selector);
+                    if (fixed === "delete") {
+                        doomed.push(rule);
+                        continue;
+                    }
+                    if (fixed !== undefined) selector = fixed;
+                }
+                styled.push([rule, selector]);
+            } else if (typeof CSSScopeRule !== "undefined" && rule instanceof CSSScopeRule) {
+                if (isStaffHighlighter(rule)) {
+                    doomed.push(rule);
+                    logger.info(`Removed Discord's staff text highlighter (${name})`);
+                }
+            } else if ("cssRules" in rule) {
+                visit((rule as CSSGroupingRule).cssRules);
             }
-            if (result && fix.name === BLUR_FIX) unblurred.push(...splitSelectorList((rule as CSSStyleRule).selectorText));
         }
-    }
-    // Their hover and other states set the tint again, without the blur under it now
-    if (unblurred.length) {
-        for (const rule of allRules(rules)) {
-            if (!(rule instanceof CSSStyleRule) || rule.style.getPropertyValue("backdrop-filter")) continue;
-            if (splitSelectorList(rule.selectorText).every(s => unblurred.some(base => isStateOf(s, base)))) raiseTint(rule.style, supportsColor);
-        }
-    }
+    };
+    visit(rules);
     for (const rule of doomed) {
         const parent = rule.parentRule as CSSGroupingRule | null;
         const list = parent ? parent.cssRules : rules;
@@ -256,6 +266,17 @@ export function clean(sheet: CSSStyleSheet) {
         if (parent) parent.deleteRule(index);
         else sheet.deleteRule(index);
     }
+    const blocked = performance.now() - t0;
+
+    if (!hasRelativeColors()) return void logger.debug(`${name}: ${count} rules, ${blocked.toFixed(1)}ms`);
+    const blurPass = () => {
+        const t1 = performance.now();
+        unblurRules(styled);
+        logger.debug(`${name}: ${count} rules, ${blocked.toFixed(1)}ms${deferBlur ? " before release" : ""}, blur fix ${(performance.now() - t1).toFixed(1)}ms`);
+    };
+    if (!deferBlur) blurPass();
+    else if (typeof requestIdleCallback === "function") requestIdleCallback(blurPass, { timeout: 1000 });
+    else setTimeout(blurPass, 0);
 }
 
 function isStylesheet(node: Node): node is HTMLLinkElement {
@@ -270,12 +291,16 @@ function hold(link: HTMLLinkElement) {
         clean(link.sheet);
         return;
     }
+    // Discord's main stylesheets, in the page's own HTML: their blur fix waits for idle time, at most
+    // a second, long before Discord can be in a call. Anything added later (lazily loaded CSS, a
+    // popout's copies, a call's own styles) gets it before it's released, as always.
+    const deferBlur = document.readyState === "loading";
     link.setAttribute(HELD, link.media);
     link.media = "not all";
     const release = () => {
         link.removeEventListener("load", release);
         link.removeEventListener("error", release);
-        if (link.sheet) clean(link.sheet);
+        if (link.sheet) clean(link.sheet, deferBlur);
         const media = link.getAttribute(HELD)!;
         link.removeAttribute(HELD);
         if (media) link.media = media;

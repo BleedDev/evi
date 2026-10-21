@@ -2,7 +2,7 @@
     "id": "click-actions",
     "name": "Click Actions",
     "description": "Double-click your own message to edit it, double-click someone else's to reply, and Shift+click to delete.",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "authors": [
         "Evi"
     ],
@@ -14,6 +14,12 @@
         "readMessages": true
     },
     "changelog": [
+        {
+            "version": "1.0.3",
+            "notes": [
+                "Shift+clicking the words of your message selects text again instead of deleting it. Shift+click the space around the text to delete."
+            ]
+        },
         {
             "version": "1.0.2",
             "notes": [
@@ -39,6 +45,9 @@
             "name": "Klick-Aktionen",
             "description": "Doppelklicke auf deine Nachricht zum Bearbeiten, auf die einer anderen Person zum Antworten, und Umschalt+Klick zum Löschen.",
             "changelog": {
+                "1.0.3": [
+                    "Umschalt+Klick auf die Wörter deiner Nachricht markiert wieder Text, statt sie zu löschen. Zum Löschen per Umschalt+Klick in den Bereich neben dem Text klicken."
+                ],
                 "1.0.2": [
                     "Ein Doppelklick auf die Wörter einer Nachricht markiert sie wieder zum Kopieren. Doppelklicke auf den freien Platz neben dem Text, um zu antworten oder zu bearbeiten."
                 ],
@@ -54,6 +63,9 @@
             "name": "Acciones de clic",
             "description": "Doble clic en tu mensaje para editarlo, en el de otra persona para responder, y Mayús+clic para eliminar.",
             "changelog": {
+                "1.0.3": [
+                    "Mayús+clic sobre las palabras de tu mensaje vuelve a seleccionar texto en lugar de eliminarlo. Para eliminar, haz Mayús+clic en el espacio alrededor del texto."
+                ],
                 "1.0.2": [
                     "Hacer doble clic en las palabras de un mensaje vuelve a seleccionarlas para copiarlas. Haz doble clic en el espacio vacío junto al texto para responder o editar."
                 ],
@@ -69,6 +81,9 @@
             "name": "Actions au clic",
             "description": "Double-clique sur ton message pour le modifier, sur celui de quelqu'un d'autre pour répondre, et Maj+clic pour supprimer.",
             "changelog": {
+                "1.0.3": [
+                    "Maj+clic sur les mots de ton message sélectionne de nouveau du texte au lieu de le supprimer. Pour supprimer, fais Maj+clic dans l'espace autour du texte."
+                ],
                 "1.0.2": [
                     "Double-cliquer sur les mots d'un message les sélectionne à nouveau pour les copier. Double-clique dans l'espace vide à côté du texte pour répondre ou modifier."
                 ],
@@ -84,6 +99,9 @@
             "name": "クリック操作",
             "description": "自分のメッセージをダブルクリックで編集、他の人のメッセージをダブルクリックで返信、Shift+クリックで削除します。",
             "changelog": {
+                "1.0.3": [
+                    "メッセージの文字の上でShift+クリックしても削除されず、文字を選択できるようになりました。削除するには文字の周りの余白をShift+クリックしてください。"
+                ],
                 "1.0.2": [
                     "メッセージの文字をダブルクリックすると、再びコピー用に選択されます。返信や編集は、テキストの横の空いている部分をダブルクリックしてください。"
                 ],
@@ -99,6 +117,9 @@
             "name": "Akcje kliknięć",
             "description": "Dwuklik na swoją wiadomość, aby ją edytować, na cudzą, aby odpowiedzieć, i Shift+klik, aby usunąć.",
             "changelog": {
+                "1.0.3": [
+                    "Shift+klik na słowach twojej wiadomości znów zaznacza tekst zamiast ją usuwać. Aby usunąć, kliknij z Shiftem w miejsce obok tekstu."
+                ],
                 "1.0.2": [
                     "Dwuklik na słowa w wiadomości znów je zaznacza do skopiowania. Aby odpowiedzieć lub edytować, kliknij dwukrotnie puste miejsce obok tekstu."
                 ],
@@ -114,6 +135,9 @@
             "name": "Ações de clique",
             "description": "Clique duplo na sua mensagem para editar, na de outra pessoa para responder, e Shift+clique para apagar.",
             "changelog": {
+                "1.0.3": [
+                    "Shift+clique nas palavras da sua mensagem volta a selecionar texto em vez de apagá-la. Para apagar, dê Shift+clique no espaço ao redor do texto."
+                ],
                 "1.0.2": [
                     "Clicar duas vezes nas palavras de uma mensagem volta a selecioná-las para copiar. Clique duas vezes no espaço vazio ao lado do texto para responder ou editar."
                 ],
@@ -129,6 +153,9 @@
             "name": "Действия по клику",
             "description": "Двойной клик по своему сообщению — изменить, по чужому — ответить, Shift+клик — удалить.",
             "changelog": {
+                "1.0.3": [
+                    "Shift+клик по словам вашего сообщения снова выделяет текст, а не удаляет сообщение. Чтобы удалить, нажмите Shift+клик на пустом месте рядом с текстом."
+                ],
                 "1.0.2": [
                     "Двойной клик по словам в сообщении снова выделяет их для копирования. Чтобы ответить или изменить, дважды кликните по пустому месту рядом с текстом."
                 ],
@@ -144,6 +171,9 @@
             "name": "Tıklama Eylemleri",
             "description": "Mesajını düzenlemek için çift tıkla, başkasınınkini yanıtlamak için çift tıkla, silmek için Shift+tıkla.",
             "changelog": {
+                "1.0.3": [
+                    "Mesajının kelimelerine Shift+tıklamak artık silmek yerine yeniden metin seçiyor. Silmek için metnin çevresindeki boşluğa Shift+tıkla."
+                ],
                 "1.0.2": [
                     "Bir mesajdaki kelimelere çift tıklamak onları yeniden kopyalamak için seçiyor. Yanıtlamak ya da düzenlemek için metnin yanındaki boş alana çift tıkla."
                 ],

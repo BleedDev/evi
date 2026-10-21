@@ -5,8 +5,8 @@ import { t } from "./strings";
 
 /**
  * Double-click your message to edit it, someone else's to reply, Shift+click to delete. A
- * double-click on the words themselves is left alone, so they can still be selected to copy. One
- * listener on the page, no patches: it finds the message row under the click
+ * double-click or Shift+click on the words themselves is left alone, so they can still be selected
+ * to copy. One listener on the page, no patches: it finds the message row under the click
  * (<li id="chat-messages-<channel>-<message>">), checks what Discord itself would allow with
  * Discord's own rules (rules.ts), and then does it with Discord's own actions:
  *   edit    startEditMessageRecord(channelId, message), what the Edit button calls
@@ -153,8 +153,9 @@ export default definePlugin({
             if (!row || !ids || e.target.closest(IGNORE)) return;
             // The row being edited: clicks belong to the editor
             if (row.querySelector("[contenteditable=true]")) return;
-            // Double-clicking a word selects it to copy: only the space around the text replies or edits
-            if (kind === "dblclick" && onText(e.clientX, e.clientY)) return;
+            // Double-clicking a word selects it to copy, and Shift+clicking one extends a selection from
+            // the caret a click left there: only the space around the text replies, edits or deletes
+            if (onText(e.clientX, e.clientY)) return;
 
             const message = getStore("MessageStore")?.getMessage?.(ids.channelId, ids.messageId);
             const channel = getStore("ChannelStore")?.getChannel?.(ids.channelId);

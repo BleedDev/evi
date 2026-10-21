@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
+import { createResults, LISTINGS_KEPT } from "../plugins/look-inside/results";
 import { decodeName, type Entry, isArchive, kindOf, level, listZip, review, TAIL_BYTES, toTree } from "../plugins/look-inside/zip";
 
 interface File { name: string | Uint8Array; data?: number; size?: number; dir?: boolean; encrypted?: boolean; utf8Flag?: boolean; }
@@ -214,4 +215,55 @@ test("the tree: folders first, folders made from paths, sizes added up, lone fol
         "a.txt",
         "b.txt",
     ]);
+});
+
+describe("results kept per attachment", () => {
+    const zip = makeZip([{ name: "run.exe", data: 3 }, { name: "a.txt", data: 4 }]);
+    function setup() {
+        const reads = new Map<string, number>();
+        let fail = false;
+        const results = createResults(url => async (start, end) => {
+            if (fail) throw new Error("offline");
+            reads.set(url, (reads.get(url) ?? 0) + 1);
+            return zip.subarray(start, end);
+        });
+        return { ...results, reads, failNext: (on: boolean) => void (fail = on) };
+    }
+    const url = (i: number) => `https://cdn.example/${i}.zip?ex=${i}`;
+
+    test("one read per attachment, shared by calls at the same time and across signed links", async () => {
+        const r = setup();
+        const [a, b] = await Promise.all([r.inspect(url(1), zip.length), r.inspect("https://cdn.example/1.zip?ex=new", zip.length)]);
+        expect(a).toBe(b);
+        expect(r.reads.get(url(1))).toBe(1);
+    });
+
+    test("past the last few, a list is let go and its warnings kept; opening it reads it once more", async () => {
+        const r = setup();
+        for (let i = 0; i <= LISTINGS_KEPT; i++) await r.inspect(url(i), zip.length);
+        const old = r.settled(url(0))!;
+        expect(old).toEqual({ listing: { kind: "dropped" }, review: expect.objectContaining({ files: 2 }) });
+        expect((old as any).review.found.program).toEqual(["run.exe"]);
+        expect((r.settled(url(1)) as any).listing.kind).toBe("list");
+        // Not open: the warnings are enough, nothing is read
+        expect(await r.inspect(url(0), zip.length)).toBe(old);
+        const before = r.reads.get(url(0))!;
+        const [a, b] = await Promise.all([r.inspect(url(0), zip.length, true), r.inspect(url(0), zip.length, true)]);
+        expect(a).toBe(b);
+        expect((a as any).listing.kind).toBe("list");
+        expect(r.reads.get(url(0))! - before).toBe(1);
+        // Opening it made it recent again: the next oldest was let go instead
+        expect((r.settled(url(1)) as any).listing.kind).toBe("dropped");
+    });
+
+    test("a failed read again keeps the warnings and tries again next time", async () => {
+        const r = setup();
+        for (let i = 0; i <= LISTINGS_KEPT; i++) await r.inspect(url(i), zip.length);
+        r.failNext(true);
+        const failed = await r.inspect(url(0), zip.length, true);
+        expect("error" in failed && failed.review?.found.program).toEqual(["run.exe"]);
+        expect((r.settled(url(0)) as any).listing.kind).toBe("dropped");
+        r.failNext(false);
+        expect(((await r.inspect(url(0), zip.length, true)) as any).listing.kind).toBe("list");
+    });
 });

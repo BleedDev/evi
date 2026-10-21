@@ -14,8 +14,9 @@
 import { Components, definePlugin, filters, React } from "@evi/api";
 import type { PluginContext } from "@evi/api";
 
+import { createResults, isDropped, type Result } from "./results";
 import { t } from "./strings";
-import { type Kind, level, type Listing, listZip, type Review, review, type TreeNode, toTree, isArchive } from "./zip";
+import { type Kind, level, type Review, type TreeNode, toTree, isArchive } from "./zip";
 
 const settings = {
     auto: {
@@ -37,51 +38,18 @@ async function readRange(url: string, start: number, end: number) {
     return new Uint8Array(await ctx.native.call<Uint8Array>("range", url, start, end));
 }
 
-type Result = { listing: Listing; review?: Review; } | { error: true; };
+/** Results per attachment, kept for the session; only the last few keep their full file list (results.ts) */
+const { inspect, settled } = createResults(url => (start, end) => readRange(url, start, end), err => ctx?.logger.warn("Couldn't read a zip", err));
 
-/**
- * Results per attachment, kept for the session (a few hundred at most). Keyed without the query: Discord
- * signs attachment links with an expiry and hands out new ones for the same file.
- */
-const results = new Map<string, Promise<Result>>();
-const settled = new Map<string, Result>();
-const MAX_RESULTS = 300;
-const keyOf = (url: string) => url.split("?")[0];
-
-function inspect(url: string, size: number): Promise<Result> {
-    const key = keyOf(url);
-    let pending = results.get(key);
-    if (!pending) {
-        pending = listZip((start, end) => readRange(url, start, end), size)
-            .then((listing): Result => ({ listing, review: listing.kind === "list" ? review(listing.entries) : undefined }))
-            .catch(err => {
-                ctx?.logger.warn("Couldn't read a zip", err);
-                // A failure isn't kept: the next look tries again
-                results.delete(key);
-                return { error: true } as const;
-            })
-            .then(result => {
-                if (!("error" in result)) settled.set(key, result);
-                return result;
-            });
-        if (results.size >= MAX_RESULTS) {
-            const oldest = results.keys().next().value!;
-            results.delete(oldest);
-            settled.delete(oldest);
-        }
-        results.set(key, pending);
-    }
-    return pending;
-}
-
-function useResult(url: string, size: number, wanted: boolean) {
-    const [result, setResult] = React.useState<Result | undefined>(() => settled.get(keyOf(url)));
+/** `full`: the file list itself is wanted (the card is open), so one that was let go is read again */
+function useResult(url: string, size: number, wanted: boolean, full: boolean) {
+    const [result, setResult] = React.useState<Result | undefined>(() => settled(url));
     React.useEffect(() => {
-        if (!wanted || result) return;
+        if (!wanted || (result && !(full && isDropped(result)))) return;
         let live = true;
-        void inspect(url, size).then(r => live && setResult(r));
+        void inspect(url, size, full).then(r => live && setResult(r));
         return () => void (live = false);
-    }, [url, size, wanted, result]);
+    }, [url, size, wanted, full, result]);
     return result;
 }
 
@@ -216,7 +184,7 @@ function Pane({ result }: { result: Result | undefined; }) {
     const listing = result && "listing" in result ? result.listing : undefined;
     const entries = listing?.kind === "list" ? listing.entries : undefined;
     const tree = React.useMemo(() => entries ? toTree(entries) : [], [entries]);
-    if (!result) return <div className="dl-li-pane"><div className="dl-li-note">{t("loading")}</div></div>;
+    if (!result || listing?.kind === "dropped") return <div className="dl-li-pane"><div className="dl-li-note">{t("loading")}</div></div>;
     if (!listing || "error" in result) return <div className="dl-li-pane"><div className="dl-li-note dl-li-error">{t("error")}</div></div>;
     if (listing.kind === "notZip") return <div className="dl-li-pane"><div className="dl-li-note">{t("notZip")}</div></div>;
     if (listing.kind === "tooBig") return <div className="dl-li-pane"><div className="dl-li-note">{t("tooBig", { count: listing.count })}</div></div>;
@@ -240,7 +208,7 @@ function ZipCard({ card, url, size }: { card: React.ReactElement<any>; url: stri
         if (!auto || seen || !ref.current) return;
         return onVisible(ref.current, () => setSeen(true));
     }, [auto, seen]);
-    const result = useResult(url, size, open || (auto && seen));
+    const result = useResult(url, size, open || (auto && seen), open);
     const r = result && "review" in result ? result.review : undefined;
 
     const label = t(open ? "button.hide" : "button.show");

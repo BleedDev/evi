@@ -42,8 +42,6 @@ export interface WebpackRequire {
 }
 
 const CHUNK_GLOBAL = "webpackChunkdiscord_app";
-const SYM_WRAPPED = Symbol("evi.wrappedFactory");
-const SYM_ORIGINAL = Symbol("evi.originalFactory");
 
 const logger = new Logger("Webpack", "#8ab4f8");
 
@@ -88,13 +86,30 @@ type ModuleListener = (exports: any, id: string, source: () => string) => void;
 /** Called after every module finishes executing */
 export const moduleListeners = new Set<ModuleListener>();
 
+/** Our wrappers, each with the factory it wraps */
+const originals = new WeakMap<Function, ModuleFactory>();
+
+/**
+ * What every wrapper inherits, instead of properties of its own on each of ~15,000: finders search
+ * factory source, and String(wrapper) gives them Discord's original code.
+ */
+const WRAPPER_PROTO = Object.create(Function.prototype, {
+    toString: {
+        value(this: Function) {
+            return Function.prototype.toString.call(originals.get(this) ?? this);
+        },
+        writable: true,
+        configurable: true,
+    },
+});
+
 /** The untouched factory, whether or not we wrapped it. */
 export function getOriginalFactory(factory: ModuleFactory | undefined): ModuleFactory | undefined {
-    return (factory as any)?.[SYM_ORIGINAL] ?? factory;
+    return (factory && originals.get(factory)) ?? factory;
 }
 
 function wrapFactory(id: string, original: ModuleFactory): ModuleFactory {
-    if (typeof original !== "function" || (original as any)[SYM_WRAPPED]) return original;
+    if (typeof original !== "function" || originals.has(original)) return original;
 
     const wrapped = function (this: unknown, module: Module, exports: any, require: WebpackRequire) {
         // A module runs once. Put the original back so nothing keeps the patched closure alive
@@ -127,12 +142,8 @@ function wrapFactory(id: string, original: ModuleFactory): ModuleFactory {
         stats.listenerMs += performance.now() - t1;
     } as ModuleFactory;
 
-    Object.defineProperties(wrapped, {
-        [SYM_WRAPPED]: { value: true },
-        [SYM_ORIGINAL]: { value: original },
-        // Finders search factory source, they should always see Discord's original code
-        toString: { value: () => Function.prototype.toString.call(original) },
-    });
+    originals.set(wrapped, original);
+    Object.setPrototypeOf(wrapped, WRAPPER_PROTO);
     return wrapped;
 }
 

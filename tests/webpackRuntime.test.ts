@@ -170,3 +170,33 @@ describe("main runtime", () => {
         expect(seen.sort()).toEqual([...early, ...late, ...Object.keys(app.req.m).filter(id => !early.includes(id) && !late.includes(id))].sort());
     });
 });
+
+describe("wrapped factories", () => {
+    test("give finders the original, its source, and run it once", async () => {
+        const runtime = await freshPage();
+        const original = function (module: any) { module.exports = { answer: 42 }; };
+        const helper = loadRuntime("helper", { cache: false });
+        const app = loadRuntime("web", { cache: true });
+        const [id] = pushChunk({ m: original });
+        // Registered with both runtimes, each with the same wrapper
+        const wrapped = app.req.m[id];
+        expect(wrapped).not.toBe(original);
+        expect(helper.req.m[id]).toBe(wrapped);
+        expect(runtime.getOriginalFactory(wrapped)).toBe(original);
+        expect(runtime.getOriginalFactory(original)).toBe(original);
+        expect(runtime.getOriginalFactory(undefined)).toBeUndefined();
+        expect(String(wrapped)).toBe(String(original));
+        expect(wrapped).toBeInstanceOf(Function);
+        expect(Object.getOwnPropertySymbols(wrapped)).toEqual([]);
+
+        // A chunk pushed again (another runtime's copy) isn't wrapped twice
+        const again: Record<string, any> = { [id]: wrapped };
+        g.window.webpackChunkdiscord_app.push([[`chunk${nextId++}`], again]);
+        expect(again[id]).toBe(wrapped);
+
+        app.run([id]);
+        expect(app.req.c[id].exports).toEqual({ answer: 42 });
+        // Ran: the runtime that ran it has the original back
+        expect(app.req.m[id]).toBe(original);
+    });
+});

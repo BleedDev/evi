@@ -24,22 +24,16 @@ export interface FoundExport<T = any> {
     value: T;
 }
 
-const sourceCache = new WeakMap<Function, string>();
-
 export function functionSource(fn: Function) {
     // A hooked function is our wrapper: finders must see the code of what it wraps, otherwise
     // hooking an export makes it unfindable by code for every other plugin
     fn = getUnhooked(fn);
-    let src = sourceCache.get(fn);
-    if (src === undefined) {
-        try {
-            src = Function.prototype.toString.call(fn);
-        } catch {
-            src = "";
-        }
-        sourceCache.set(fn, src);
+    // Not cached: V8 hands out a slice of the script's source, about as cheap as a lookup, and nothing is kept
+    try {
+        return Function.prototype.toString.call(fn);
+    } catch {
+        return "";
     }
-    return src;
 }
 
 export function matchesAll(source: string, code: CodeMatcher[]) {

@@ -147,9 +147,6 @@ function replaceModule(id: string, removed: SourcePatch[]): LiveOutcome {
     return { id, ok: true };
 }
 
-/** Factory sources, read once: every toggle of a patching plugin searches all loaded modules */
-const sources = new WeakMap<Function, string>();
-
 /** Loaded modules that any of these patches target */
 export function loadedModulesMatching(patches: SourcePatch[]): string[] {
     if (!wreq || !patches.length) return [];
@@ -157,8 +154,8 @@ export function loadedModulesMatching(patches: SourcePatch[]): string[] {
     for (const id in wreq.c) {
         const factory = getOriginalFactory(wreq.m[id]);
         if (!factory) continue;
-        let source = sources.get(factory);
-        if (source === undefined) sources.set(factory, source = Function.prototype.toString.call(factory));
+        // Not cached: a slice of the script's source, about as cheap as a lookup, and nothing is kept
+        const source = Function.prototype.toString.call(factory);
         if (patches.some(p => matchesFind(source, p.find))) ids.push(id);
     }
     return ids;

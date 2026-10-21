@@ -2,7 +2,7 @@ import { definePlugin, filters, find, findMenuGroup, getStore, Menu, React, useL
 import type { Filter, PluginContext } from "@evi/api";
 import type { ComponentType, ReactElement, ReactNode } from "react";
 
-import { canPopOut, channelOfKey, chatTitle, copiedByEvi, DM, windowKey } from "./chat";
+import { canPopOut, channelOfKey, chatTitle, DM, mainWindowOnly, windowKey } from "./chat";
 import type { ChatChannel } from "./chat";
 import { t } from "./strings";
 
@@ -13,8 +13,8 @@ import { t } from "./strings";
  * What's rendered is what the call popout renders: Discord's PopoutWindow (title bar, theme, layers)
  * around ChannelChat, the message list and chat bar, with the chat input type of a call's chat.
  *
- * Discord only copies <link> stylesheets into its windows, and plugin CSS is <style> elements, so each
- * window mirrors those from the main window while it's open. Evi copies its themes and Quick CSS in itself.
+ * Discord only copies <link> stylesheets into its windows, and Evi's themes, Quick CSS and plugin
+ * CSS are <style> elements, so each window mirrors those from the main window while it's open.
  *
  * The header button comes from export hooks: HeaderBarContainer (the main chat header, which gets
  * the channel id) and CallChatSidebar (a call's chat, the X in its header). Checked October 2026.
@@ -132,8 +132,8 @@ function popOutSelected() {
 }
 
 /**
- * Keeps copies of the main window's other <style> elements (plugins', Evi's UI, Discord's own) at the
- * end of the popout's <head>, in the same order, updated as they change.
+ * Keeps copies of the main window's <style> elements (all but the wallpaper's) at the end of the
+ * popout's <head>, in the same order, updated as themes, Quick CSS and plugins change them.
  */
 function mirrorStyles(win: Window) {
     const copies = new Map<HTMLStyleElement, HTMLStyleElement>();
@@ -142,7 +142,7 @@ function mirrorStyles(win: Window) {
     const sync = () => {
         const head = win.document?.head;
         if (!head) return;
-        const next = Array.from(document.head.querySelectorAll("style")).filter(style => !copiedByEvi(style.id)).map(style => {
+        const next = Array.from(document.head.querySelectorAll("style")).filter(style => !mainWindowOnly(style.id)).map(style => {
             let copy = copies.get(style);
             if (!copy) copies.set(style, copy = win.document.createElement("style"));
             if (copy.textContent !== style.textContent) copy.textContent = style.textContent;

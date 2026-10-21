@@ -1,6 +1,6 @@
 /**
  * What a chat window is about, without Discord or the DOM: which channels have a chat to pop out,
- * the window key Discord's popout manager gets, the title it shows, and which styles it leaves to Evi.
+ * the window key Discord's popout manager gets, the title it shows, and which styles it leaves out.
  */
 
 /** Channel types whose page is Discord's chat: text, DMs, voice and stage text chat, announcements, threads */
@@ -66,8 +66,9 @@ export function chatTitle(channel: ChatChannel, getUser: (id: string) => ChatUse
 }
 
 /**
- * The main window's styles a chat window doesn't copy: the ones Evi itself copies into every popout
- * (its themes, Quick CSS, dialog motion and typing dots, src/renderer/popoutStyles.ts), so they aren't
- * there twice; and the wallpaper's, which only goes with the wallpaper behind Discord's main window.
+ * The main window's styles a chat window doesn't copy: the wallpaper's, which only goes with the
+ * wallpaper behind Discord's main window. Themes and Quick CSS are copied though Evi also copies them
+ * into every popout (src/renderer/popoutStyles.ts): Evi's copies go in before Discord's stylesheets,
+ * these after them, as in the main window, so a theme rule as specific as Discord's still wins.
  */
-export const copiedByEvi = (id: string) => /^evi-(theme-.+|neutral-discord-tint|quickcss|layer-motion|typing-dots|wallpaper-style)$/.test(id);
+export const mainWindowOnly = (id: string) => id === "evi-wallpaper-style";

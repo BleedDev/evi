@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 
 import { isOverlayWindow, isPopoutUrl } from "../src/shared/appHosts";
 import { isMirroredStyle, mirrorStyles, startPopout } from "../src/renderer/popoutStyles";
-import { copiedByEvi } from "../plugins/pop-out-chat/chat";
+import { mainWindowOnly } from "../plugins/pop-out-chat/chat";
 
 /** Just enough of a document for mirrorStyles: <style>s in a <head>, and DOMContentLoaded */
 class FakeStyle {
@@ -90,13 +90,9 @@ describe("which styles a popout gets", () => {
         for (const id of ["evi-plugin-fast-lists", "evi-wallpaper-style", "evi-ui", "evi-panel", "evi-toast-fallback", "evi-theme-", "quickcss", ""]) expect(isMirroredStyle(id)).toBe(false);
     });
 
-    test("Pop Out Chat leaves exactly those to Evi, and the wallpaper", () => {
-        for (const id of ["evi-theme-dark.css", "evi-quickcss", "evi-neutral-discord-tint", "evi-layer-motion", "evi-typing-dots"]) {
-            expect(isMirroredStyle(id)).toBe(true);
-            expect(copiedByEvi(id)).toBe(true);
-        }
-        expect(copiedByEvi("evi-wallpaper-style")).toBe(true);
-        for (const id of ["evi-plugin-fast-lists", "evi-ui", "evi-panel", ""]) expect(copiedByEvi(id)).toBe(false);
+    test("Pop Out Chat still copies those (after Discord's stylesheets), and only leaves out the wallpaper", () => {
+        expect(mainWindowOnly("evi-wallpaper-style")).toBe(true);
+        for (const id of ["evi-theme-dark.css", "evi-quickcss", "evi-neutral-discord-tint", "evi-layer-motion", "evi-typing-dots", "evi-plugin-fast-lists", "evi-ui", "evi-panel", ""]) expect(mainWindowOnly(id)).toBe(false);
     });
 });
 

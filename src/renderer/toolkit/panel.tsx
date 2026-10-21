@@ -152,7 +152,8 @@ function Button({ label, icon, checked, alert, plated, onClick }: {
 
 function Single({ entry, plated }: { entry: Entry; plated: boolean; }) {
     useLocale();
-    useStates([entry]);
+    // The same list each render: a new one would unsubscribe and subscribe again on every panel update
+    useStates(React.useMemo(() => [entry], [entry]));
     const checked = entry.isChecked();
     return <Button label={entry.tooltip(checked)} icon={entry.icon(checked)} checked={checked} alert={entry.alert(checked)} plated={plated} onClick={() => entry.toggle()} />;
 }

@@ -23,7 +23,7 @@ export const PATCHES = {
      * sends a batch (also the hourly client telemetry): never posts, so nothing is retried.
      *
      * The batch match allows a few statements before `let`, but no braces, which keeps it inside
-     * that one function: another patch may have put a call there first (Evi 2.5's collectibles did).
+     * that one function: another plugin's or Evi's own patch may put a statement there first.
      */
     analytics: {
         find: '"AnalyticsTrackingStore"',

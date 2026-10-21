@@ -16,7 +16,8 @@ function BlockedCounter({ ctx }: { ctx: PluginContext; }) {
         let alive = true;
         const refresh = () => {
             setStopped(dropped);
-            ctx.native.call<number>("getBlockedCount").then(n => alive && setCount(n));
+            // Main refuses while the native half isn't running: no count until it is
+            ctx.native.call<number>("getBlockedCount").then(n => alive && setCount(n), () => alive && setCount(null));
         };
         refresh();
         const timer = setInterval(refresh, 2000);

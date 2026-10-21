@@ -2,7 +2,7 @@
     "id": "no-track",
     "name": "No Track",
     "description": "Turns off Discord's analytics, metrics and error reporting inside Discord, and blocks anything that still tries to send before it leaves your machine.",
-    "version": "1.2.1",
+    "version": "1.2.2",
     "authors": [
         "Evi"
     ],
@@ -11,6 +11,12 @@
     ],
     "permissions": {},
     "changelog": [
+        {
+            "version": "1.2.2",
+            "notes": [
+                "Its settings no longer log an error every 2 seconds while the blocked count can't be read."
+            ]
+        },
         {
             "version": "1.2.1",
             "notes": [
@@ -49,6 +55,9 @@
             "name": "No Track",
             "description": "Schaltet die Analysen, Metriken und Fehlerberichte von Discord in Discord selbst ab und blockiert alles, was trotzdem senden will, bevor es deinen Rechner verlässt.",
             "changelog": {
+                "1.2.2": [
+                    "Die Einstellungen protokollieren keinen Fehler mehr alle 2 Sekunden, solange die Zahl der blockierten Anfragen nicht gelesen werden kann."
+                ],
                 "1.2.1": [
                     "Funktioniert mit Evi 2.5 wieder vollständig: Discords Analyse-Pakete werden wieder in Discord selbst gestoppt, nicht erst beim Hinausgehen blockiert."
                 ],
@@ -71,6 +80,9 @@
             "name": "No Track",
             "description": "Desactiva las analíticas, métricas e informes de errores de Discord dentro del propio Discord, y bloquea lo que aún intente enviarse antes de que salga de tu equipo.",
             "changelog": {
+                "1.2.2": [
+                    "Sus ajustes ya no registran un error cada 2 segundos mientras no se puede leer el recuento de bloqueos."
+                ],
                 "1.2.1": [
                     "Vuelve a funcionar por completo con Evi 2.5: los lotes de analíticas de Discord se detienen de nuevo dentro de Discord, no solo se bloquean al salir."
                 ],
@@ -93,6 +105,9 @@
             "name": "No Track",
             "description": "Désactive les analyses, métriques et rapports d'erreurs de Discord dans Discord même, et bloque ce qui tente encore d'être envoyé avant que ça ne quitte votre machine.",
             "changelog": {
+                "1.2.2": [
+                    "Ses paramètres n'enregistrent plus une erreur toutes les 2 secondes tant que le nombre de requêtes bloquées ne peut pas être lu."
+                ],
                 "1.2.1": [
                     "Fonctionne de nouveau entièrement avec Evi 2.5 : les lots d'analyses de Discord sont à nouveau arrêtés dans Discord, et plus seulement bloqués à la sortie."
                 ],
@@ -115,6 +130,9 @@
             "name": "No Track",
             "description": "Discordの分析・メトリクス・エラーレポートをDiscord内でオフにし、それでも送信しようとするものはお使いのPCから出る前にブロックします。",
             "changelog": {
+                "1.2.2": [
+                    "ブロック数を読み取れない間、設定画面が2秒ごとにエラーを記録しなくなりました。"
+                ],
                 "1.2.1": [
                     "Evi 2.5で再び完全に動作します。Discordの分析データの一括送信を、送信時にブロックするだけでなく、再びDiscord内で止めるようになりました。"
                 ],
@@ -137,6 +155,9 @@
             "name": "No Track",
             "description": "Wyłącza analitykę, metryki i raporty błędów Discorda w samym Discordzie, a to, co mimo to próbuje wysłać, blokuje, zanim opuści Twój komputer.",
             "changelog": {
+                "1.2.2": [
+                    "Ustawienia nie zapisują już błędu co 2 sekundy, gdy nie da się odczytać liczby zablokowanych żądań."
+                ],
                 "1.2.1": [
                     "Znów działa w pełni z Evi 2.5: paczki analityki Discorda są znowu zatrzymywane w samym Discordzie, a nie tylko blokowane przy wysyłce."
                 ],
@@ -159,6 +180,9 @@
             "name": "No Track",
             "description": "Desliga as análises, métricas e relatórios de erro do Discord dentro do próprio Discord, e bloqueia o que ainda tentar enviar antes que saia do seu computador.",
             "changelog": {
+                "1.2.2": [
+                    "As configurações não registram mais um erro a cada 2 segundos enquanto a contagem de bloqueios não pode ser lida."
+                ],
                 "1.2.1": [
                     "Volta a funcionar por completo com o Evi 2.5: os lotes de análise do Discord são parados de novo dentro do Discord, e não só bloqueados na saída."
                 ],
@@ -181,6 +205,9 @@
             "name": "No Track",
             "description": "Отключает аналитику, метрики и отчёты об ошибках Discord внутри самого Discord, а всё, что всё равно пытается отправиться, блокирует до того, как оно покинет ваш компьютер.",
             "changelog": {
+                "1.2.2": [
+                    "Настройки больше не записывают ошибку каждые 2 секунды, пока не удаётся прочитать число заблокированных запросов."
+                ],
                 "1.2.1": [
                     "Снова полностью работает с Evi 2.5: пакеты аналитики Discord снова останавливаются внутри Discord, а не только блокируются при отправке."
                 ],
@@ -203,6 +230,9 @@
             "name": "No Track",
             "description": "Discord'un analiz, ölçüm ve hata raporlamasını Discord'un içinde kapatır; yine de gönderilmeye çalışılanı bilgisayarından çıkmadan engeller.",
             "changelog": {
+                "1.2.2": [
+                    "Engellenen istek sayısı okunamadığı sürece ayarlar artık her 2 saniyede bir hata kaydetmiyor."
+                ],
                 "1.2.1": [
                     "Evi 2.5 ile yeniden tam çalışıyor: Discord'un analiz paketleri, yalnızca çıkışta engellenmek yerine yeniden Discord'un içinde durduruluyor."
                 ],

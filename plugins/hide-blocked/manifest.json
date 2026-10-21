@@ -2,7 +2,7 @@
     "id": "hide-blocked",
     "name": "Hide Blocked Completely",
     "description": "Blocked users disappear on your end. No messages or \"blocked messages\" rows, and optionally no replies to them, reactions, DMs, member list rows, voice channel rows or call tiles, and you don't hear their voice, stream or soundboard. Ignored users too. /hideblocked toggles it.",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "authors": [
         "Evi",
         "Lodestone"
@@ -16,6 +16,12 @@
         "readMessages": true
     },
     "changelog": [
+        {
+            "version": "2.0.2",
+            "notes": [
+                "Works with Discord's latest update again: turning it on or off, or changing a setting, updates the open chat right away."
+            ]
+        },
         {
             "version": "2.0.1",
             "notes": [
@@ -59,6 +65,9 @@
             "name": "Blockierte komplett ausblenden",
             "description": "Blockierte Nutzer verschwinden bei dir. Keine Nachrichten und keine Zeilen „blockierte Nachrichten“, auf Wunsch auch keine Antworten an sie, Reaktionen, DMs, Mitgliederlisten-Zeilen, Sprachkanal-Zeilen oder Anrufkacheln, und du hörst weder ihre Stimme noch ihren Stream oder ihr Soundboard. Ignorierte Nutzer auch. /hideblocked schaltet es um.",
             "changelog": {
+                "2.0.2": [
+                    "Funktioniert wieder mit Discords neuestem Update: Ein- und Ausschalten oder eine geänderte Einstellung aktualisiert den offenen Chat sofort."
+                ],
                 "2.0.1": [
                     "Weniger Arbeit für die DM-Liste: Sie prüft nicht mehr jede DM erneut, wenn Discord die Liste neu zeichnet."
                 ],
@@ -83,6 +92,9 @@
             "name": "Ocultar bloqueados por completo",
             "description": "Los usuarios bloqueados desaparecen para ti. Sin mensajes ni filas de «mensajes bloqueados» y, si quieres, sin respuestas a ellos, reacciones, MD, filas en la lista de miembros, en canales de voz ni recuadros de llamada, y no oyes su voz, transmisión ni caja de sonidos. También los ignorados. /hideblocked lo activa o desactiva.",
             "changelog": {
+                "2.0.2": [
+                    "Vuelve a funcionar con la última actualización de Discord: activarlo o desactivarlo, o cambiar un ajuste, actualiza el chat abierto al instante."
+                ],
                 "2.0.1": [
                     "Menos trabajo para la lista de MD: ya no vuelve a revisar cada MD cada vez que Discord redibuja la lista."
                 ],
@@ -107,6 +119,9 @@
             "name": "Masquer totalement les bloqués",
             "description": "Les utilisateurs bloqués disparaissent de ton côté. Plus de messages ni de lignes « messages bloqués » et, au choix, plus de réponses à eux, de réactions, de MP, de lignes dans la liste des membres ou les salons vocaux ni de tuiles d'appel, et tu n'entends ni leur voix, ni leur stream, ni leur soundboard. Les utilisateurs ignorés aussi. /hideblocked l'active ou le désactive.",
             "changelog": {
+                "2.0.2": [
+                    "Fonctionne à nouveau avec la dernière mise à jour de Discord : l'activer ou le désactiver, ou changer un paramètre, met à jour le chat ouvert tout de suite."
+                ],
                 "2.0.1": [
                     "Moins de travail pour la liste des MP : elle ne revérifie plus chaque MP à chaque fois que Discord redessine la liste."
                 ],
@@ -131,6 +146,9 @@
             "name": "ブロックを完全に非表示",
             "description": "ブロックしたユーザーがあなたの画面から消えます。メッセージや「ブロックしたメッセージ」の行がなくなり、設定次第で返信、リアクション、DM、メンバーリストやボイスチャンネルの行、通話タイルも消え、声や配信、サウンドボードも聞こえません。無視したユーザーにも対応。/hideblockedで切り替えられます。",
             "changelog": {
+                "2.0.2": [
+                    "Discordの最新アップデートで再び動作します。オン・オフの切り替えや設定の変更が、開いているチャットにすぐ反映されます。"
+                ],
                 "2.0.1": [
                     "DMリストの負荷を軽減：Discordがリストを再描画するたびにすべてのDMを確認し直すことはなくなりました。"
                 ],
@@ -155,6 +173,9 @@
             "name": "Całkowicie ukryj zablokowanych",
             "description": "Zablokowani użytkownicy znikają u ciebie. Bez wiadomości i wierszy „zablokowane wiadomości”, a na życzenie bez odpowiedzi do nich, reakcji, DM, wierszy na liście członków i w kanałach głosowych czy kafelków rozmowy, i nie słyszysz ich głosu, transmisji ani soundboardu. Także ignorowani. /hideblocked to przełącza.",
             "changelog": {
+                "2.0.2": [
+                    "Znów działa z najnowszą aktualizacją Discorda: włączenie, wyłączenie lub zmiana ustawienia od razu odświeża otwarty czat."
+                ],
                 "2.0.1": [
                     "Mniej pracy dla listy wiadomości prywatnych: nie sprawdza już każdej rozmowy od nowa przy każdym odświeżeniu listy przez Discorda."
                 ],
@@ -179,6 +200,9 @@
             "name": "Ocultar bloqueados por completo",
             "description": "Usuários bloqueados somem para você. Sem mensagens nem linhas de \"mensagens bloqueadas\" e, se quiser, sem respostas a eles, reações, DMs, linhas na lista de membros, em canais de voz ou blocos de chamada, e você não ouve a voz, a transmissão nem o soundboard deles. Usuários ignorados também. /hideblocked liga e desliga.",
             "changelog": {
+                "2.0.2": [
+                    "Volta a funcionar com a última atualização do Discord: ligar, desligar ou mudar uma configuração atualiza o chat aberto na hora."
+                ],
                 "2.0.1": [
                     "Menos trabalho para a lista de DMs: ela não verifica mais cada DM de novo toda vez que o Discord redesenha a lista."
                 ],
@@ -203,6 +227,9 @@
             "name": "Полностью скрывать заблокированных",
             "description": "Заблокированные пользователи исчезают у вас. Никаких сообщений и строк «заблокированные сообщения», а по желанию и ответов им, реакций, ЛС, строк в списке участников и голосовых каналах, плиток звонка, и вы не слышите их голос, трансляцию и звуковую панель. Игнорируемые тоже. /hideblocked переключает.",
             "changelog": {
+                "2.0.2": [
+                    "Снова работает с последним обновлением Discord: включение, выключение или изменение настройки сразу обновляет открытый чат."
+                ],
                 "2.0.1": [
                     "Меньше работы для списка ЛС: он больше не проверяет каждую переписку заново при каждой перерисовке списка в Discord."
                 ],
@@ -227,6 +254,9 @@
             "name": "Engellenenleri Tamamen Gizle",
             "description": "Engellediğin kullanıcılar senin tarafında yok olur. Mesajları ve \"engellenen mesajlar\" satırları kalmaz; istersen onlara yanıtlar, tepkiler, DM'ler, üye listesi ve ses kanalı satırları, arama kutuları da gizlenir ve seslerini, yayınlarını ya da ses panellerini duymazsın. Yok saydıkların da. /hideblocked açıp kapatır.",
             "changelog": {
+                "2.0.2": [
+                    "Discord'un son güncellemesiyle yeniden çalışıyor: açıp kapatmak ya da bir ayarı değiştirmek açık sohbeti hemen günceller."
+                ],
                 "2.0.1": [
                     "DM listesi için daha az iş: Discord listeyi her yeniden çizdiğinde tüm DM’leri yeniden kontrol etmiyor."
                 ],

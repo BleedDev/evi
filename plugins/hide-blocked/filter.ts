@@ -174,7 +174,8 @@ export const PATCHES = {
      * function (captured from its own call further down) decides what counts as blocked.
      *
      * The memo that builds the stream also gets our version as a dependency (read through a hook,
-     * always called), so toggling or changing settings rebuilds the open channel right away.
+     * always called), so toggling or changing settings rebuilds the open channel right away. The
+     * dependency array is matched at any length: Discord adds and drops entries from it.
      */
     stream: {
         find: "\"416cc9_1\"",
@@ -184,7 +185,7 @@ export const PATCHES = {
                 with: "$1if($self?.hide?.($2,$5($4,$2,!1)))return;$3",
             },
             {
-                match: /(\[\i,\i,\i,\i,\i,\i,\i,\i,\i,\i,\i)(\]\);return\{messages:\i,channelStream:\i,)/,
+                match: /(\[(?:\i,)*\i)(\]\);return\{messages:\i,channelStream:\i,)/,
                 with: "$1,$self?.useVersion?.()$2",
             },
         ],

@@ -112,8 +112,21 @@ export async function addThemeFromUrl(input: string): Promise<AddThemeResult> {
     const problem = whyNotCss(css, download.contentType, mt);
     if (problem) return { ok: false, error: problem };
 
-    const file = pickFile(themeFileName(url, parseThemeMeta(css, "")), css);
-    writeFileSync(join(THEMES_DIR, file), css);
+    const meta = parseThemeMeta(css, "");
+    let name: string;
+    try {
+        name = themeFileName(url, meta);
+    } catch {
+        // A malformed %-escape in the file name (dark%E0.css): named as if the link had none
+        name = themeFileName(new URL(url.origin), meta);
+    }
+    let file: string;
+    try {
+        file = pickFile(name, css);
+        writeFileSync(join(THEMES_DIR, file), css);
+    } catch (err) {
+        return { ok: false, error: errorOf(err) };
+    }
     // Don't wait for the watcher, the renderer should have it by the time this resolves
     reloadTheme(file);
     console.log(`[Evi] Added theme ${file} from ${url.href}`);

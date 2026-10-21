@@ -359,6 +359,24 @@ describe("hide blocked: everything else (from Erase Blocked Users)", () => {
         expect(inbox.messages).toEqual([{ author: { id: "a" } }]);
     });
 
+    test("only the removes of their dropped reactions are dropped, so others' counts stay right", () => {
+        const dropped = new Set<string>();
+        const thumbs = { channelId: "c", messageId: "m", emoji: { id: null, name: "👍" } };
+        expect(filterAction({ type: "MESSAGE_REACTION_ADD", userId: "b", ...thumbs }, hidden, on, undefined, dropped)).toBeNull();
+        // Their remove of the dropped add would take a's 👍 off the count
+        expect(filterAction({ type: "MESSAGE_REACTION_REMOVE", userId: "b", ...thumbs }, hidden, on, undefined, dropped)).toBeNull();
+        expect(dropped.size).toBe(0);
+        // A reaction of theirs that came with the message was counted: removing it goes through
+        const loaded = { type: "MESSAGE_REACTION_REMOVE", userId: "b", ...thumbs };
+        expect(filterAction(loaded, hidden, on, undefined, dropped)).toBe(loaded);
+        // A super reaction is its own reaction
+        filterAction({ type: "MESSAGE_REACTION_ADD", userId: "b", ...thumbs, burst: true, reactionType: 1 }, hidden, on, undefined, dropped);
+        const normal = { type: "MESSAGE_REACTION_REMOVE", userId: "b", ...thumbs, reactionType: 0 };
+        expect(filterAction(normal, hidden, on, undefined, dropped)).toBe(normal);
+        const other = { type: "MESSAGE_REACTION_REMOVE", userId: "a", ...thumbs };
+        expect(filterAction(other, hidden, on, undefined, dropped)).toBe(other);
+    });
+
     test("voice: their states, speaking and soundboard go, and each dropped state is remembered", () => {
         const seen: unknown[] = [];
         const out = filterAction({ type: "VOICE_STATE_UPDATES", guildId: "g", voiceStates: [{ userId: "a", channelId: "c" }, { userId: "b", channelId: "c" }] }, hidden, on, s => seen.push(s));

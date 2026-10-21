@@ -232,6 +232,7 @@ export default definePlugin({
         saveMuted = ids => store.set("mutedByUs", ids);
         options = { ...ctx.settings.all };
 
+        const droppedReactions = new Set<string>();
         ctx.hook.instead(Dispatcher, "dispatch", call => {
             const action = call.args[0] as any;
             if (!options?.active || action == null || action[OWN]) return call.callOriginal(...call.args);
@@ -241,7 +242,7 @@ export default definePlugin({
                     if (s.userId == null) return;
                     if (s.channelId == null) hiddenVoice.delete(s.userId);
                     else hiddenVoice.set(s.userId, { ...s, guildId });
-                });
+                }, droppedReactions);
             } catch (e) {
                 ctx.logger.error("Filter failed for", action.type, e);
             }

@@ -221,16 +221,30 @@ export interface ExtraOptions extends HideOptions {
 
 interface VoiceStateLike { userId?: string; channelId?: string | null; guildId?: string | null; }
 
+/** One person's one reaction on a message: the emoji, and whether it's a super reaction */
+const reactionKey = (a: any) => `${a.messageId}:${a.emoji?.id ?? a.emoji?.name}:${a.reactionType ?? (a.burst ? 1 : 0)}:${a.userId}`;
+const MAX_DROPPED_REACTIONS = 2000;
+
 /**
  * Discord's events, before any store sees them: returns the event unchanged, a copy without what's
  * hidden, or null to drop it. `hidden` says whether a user is someone we hide; `onHiddenVoice` hears
- * each voice state dropped, so it can be put back when they're shown again.
+ * each voice state dropped, so it can be put back when they're shown again. `droppedReactions`
+ * remembers the reactions dropped, so only their removes are dropped too.
  */
-export function filterAction(action: any, hidden: (userId: string | undefined) => boolean, options: ExtraOptions, onHiddenVoice?: (state: VoiceStateLike, guildId: string | null) => void): any {
+export function filterAction(action: any, hidden: (userId: string | undefined) => boolean, options: ExtraOptions, onHiddenVoice?: (state: VoiceStateLike, guildId: string | null) => void, droppedReactions?: Set<string>): any {
     if (!options.active || action == null || typeof action !== "object") return action;
     switch (action.type) {
         case "MESSAGE_REACTION_ADD":
-            return hidden(action.userId) ? null : action;
+            if (!hidden(action.userId)) return action;
+            if (droppedReactions) {
+                if (droppedReactions.size >= MAX_DROPPED_REACTIONS) droppedReactions.delete(droppedReactions.values().next().value!);
+                droppedReactions.add(reactionKey(action));
+            }
+            return null;
+        // Discord takes one off the count on any remove: one whose add was dropped would take someone
+        // else's. Their reactions that came with the message are counted, so removing those goes through.
+        case "MESSAGE_REACTION_REMOVE":
+            return droppedReactions?.delete(reactionKey(action)) ? null : action;
         // The inbox's Mentions tab, loaded from Discord's servers
         case "LOAD_RECENT_MENTIONS_SUCCESS": {
             if (!Array.isArray(action.messages)) return action;

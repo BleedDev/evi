@@ -15,6 +15,34 @@ export interface IdleReport {
 export interface MemoryUsage {
     renderer?: number;
     gpu?: number;
+    /** Discord's other renderers: Activities, popouts, other windows, DevTools */
+    others?: number;
+    /** Every process, as private bytes where Electron has them (Windows), like Task Manager */
+    total?: number;
+}
+
+/** The part of Electron's ProcessMetric used here, in KB */
+export interface ProcessMemory {
+    pid: number;
+    type: string;
+    memory: { workingSetSize: number; privateBytes?: number; };
+}
+
+/** Discord's memory by part, from app.getAppMetrics(); `pid` is its page's renderer */
+export function memoryUsage(metrics: readonly ProcessMemory[], pid: number): MemoryUsage {
+    const kb = (m?: ProcessMemory) => m ? m.memory.workingSetSize * 1024 : undefined;
+    let others = 0;
+    let total = 0;
+    for (const m of metrics) {
+        if (m.type === "Tab" && m.pid !== pid) others += m.memory.workingSetSize * 1024;
+        total += (m.memory.privateBytes ?? m.memory.workingSetSize) * 1024;
+    }
+    return {
+        renderer: kb(metrics.find(m => m.pid === pid)),
+        gpu: kb(metrics.find(m => m.type === "GPU")),
+        others: metrics.length ? others : undefined,
+        total: metrics.length ? total : undefined,
+    };
 }
 
 export const TRIM_HIDDEN_MS = 10 * 60_000;

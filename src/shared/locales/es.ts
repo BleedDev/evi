@@ -1527,6 +1527,8 @@ export const es = {
     "perf.memory.col.memory": "Memoria",
     "perf.memory.window": "Ventana de Discord",
     "perf.memory.gpu": "Gráficos (GPU)",
+    "perf.memory.others": "Actividades y otras ventanas de Discord",
+    "perf.memory.total": "Todo Discord",
     "perf.memory.unknown": "Desconocido",
     "perf.restart.setting": "Reiniciar Discord cuando use demasiada memoria mientras no estás",
     "perf.restart.settingHint": "Solo cuando llevas 30 minutos fuera y Discord lleva una hora abierto, nunca durante una llamada o transmisión, y como mucho una vez al día. Se vuelve a abrir en el mismo canal, sin quitarte el foco.",

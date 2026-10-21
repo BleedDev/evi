@@ -1530,6 +1530,8 @@ export const en = {
     "perf.memory.col.memory": "Memory",
     "perf.memory.window": "Discord’s window",
     "perf.memory.gpu": "Graphics (GPU)",
+    "perf.memory.others": "Activities and other Discord windows",
+    "perf.memory.total": "All of Discord",
     "perf.memory.unknown": "Unknown",
     "perf.restart.setting": "Restart Discord when it uses too much memory while you’re away",
     "perf.restart.settingHint": "Only after you’ve been away for 30 minutes and Discord has been open for an hour, never during a call or stream, and at most once a day. It opens again on the same channel, without taking focus.",

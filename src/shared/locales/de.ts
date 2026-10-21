@@ -1527,6 +1527,8 @@ export const de = {
     "perf.memory.col.memory": "Speicher",
     "perf.memory.window": "Discord-Fenster",
     "perf.memory.gpu": "Grafik (GPU)",
+    "perf.memory.others": "Aktivitäten und andere Discord-Fenster",
+    "perf.memory.total": "Discord insgesamt",
     "perf.memory.unknown": "Unbekannt",
     "perf.restart.setting": "Discord neu starten, wenn es zu viel Speicher braucht, während du weg bist",
     "perf.restart.settingHint": "Erst wenn du 30 Minuten weg warst und Discord seit einer Stunde offen ist, nie während eines Anrufs oder Streams und höchstens einmal am Tag. Es öffnet sich wieder im selben Kanal, ohne sich in den Vordergrund zu drängen.",

@@ -1527,6 +1527,8 @@ export const ptBR = {
     "perf.memory.col.memory": "Memória",
     "perf.memory.window": "Janela do Discord",
     "perf.memory.gpu": "Gráficos (GPU)",
+    "perf.memory.others": "Atividades e outras janelas do Discord",
+    "perf.memory.total": "Discord inteiro",
     "perf.memory.unknown": "Desconhecido",
     "perf.restart.setting": "Reiniciar o Discord quando ele usar memória demais enquanto você está ausente",
     "perf.restart.settingHint": "Só depois de 30 minutos ausente e com o Discord aberto há uma hora, nunca durante uma chamada ou transmissão, e no máximo uma vez por dia. Ele abre de novo no mesmo canal, sem roubar o foco.",

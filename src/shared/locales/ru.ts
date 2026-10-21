@@ -1614,6 +1614,8 @@ export const ru = {
     "perf.memory.col.memory": "Память",
     "perf.memory.window": "Окно Discord",
     "perf.memory.gpu": "Графика (GPU)",
+    "perf.memory.others": "Активности и другие окна Discord",
+    "perf.memory.total": "Весь Discord",
     "perf.memory.unknown": "Неизвестно",
     "perf.restart.setting": "Перезапускать Discord, когда он использует слишком много памяти, пока вас нет",
     "perf.restart.settingHint": "Только если вас нет 30 минут, а Discord открыт уже час, никогда во время звонка или трансляции и не чаще раза в день. Он откроется на том же канале и не перехватит фокус.",

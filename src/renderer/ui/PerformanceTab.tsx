@@ -240,6 +240,8 @@ function Memory() {
             <Table label={t("perf.memory.table")} columns={[t("perf.memory.col.part"), t("perf.memory.col.memory")]}>
                 <MemoryRow name={t("perf.memory.window")} value={usage?.renderer} loaded={!!usage} />
                 <MemoryRow name={t("perf.memory.gpu")} value={usage?.gpu} loaded={!!usage} />
+                <MemoryRow name={t("perf.memory.others")} value={usage?.others} loaded={!!usage} />
+                <MemoryRow name={t("perf.memory.total")} value={usage?.total} loaded={!!usage} />
             </Table>
             <SwitchRow
                 id="dl-perf-idle-restart"

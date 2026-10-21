@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import { LIST_SWITCHES, LOWER_MEMORY_JS_FLAGS, mergeJsFlags, mergeSwitchList } from "../src/shared/chromiumSwitches";
-import { DEFAULT_RESTART_GB, isBusy, isChannelPath, relaunchArgs, RESTART_AWAY_MS, RESTART_EVERY_MS, RESTART_MIN_UPTIME_MS, RestartCheck, restartLimitGb, shouldRestart, shouldTrim, TRIM_HIDDEN_MS } from "../src/shared/idle";
+import { DEFAULT_RESTART_GB, isBusy, isChannelPath, memoryUsage, relaunchArgs, RESTART_AWAY_MS, RESTART_EVERY_MS, RESTART_MIN_UPTIME_MS, RestartCheck, restartLimitGb, shouldRestart, shouldTrim, TRIM_HIDDEN_MS } from "../src/shared/idle";
 
 const GB = 1024 ** 3;
 const NOW = 1_800_000_000_000;
@@ -139,5 +139,31 @@ describe("busy", () => {
         expect(isBusy({ ...stores(), selectedChannel: { getVoiceChannelId: () => { throw new Error("x"); } } })).toBe(null);
         // The streaming store is optional: streams need voice anyway
         expect(isBusy({ ...stores(), streaming: undefined })).toBe(false);
+    });
+});
+
+describe("memory by part", () => {
+    const MB = 1024 ** 2;
+    const proc = (pid: number, type: string, workingSetSize: number, privateBytes?: number) => ({ pid, type, memory: { workingSetSize, privateBytes } });
+
+    test("the page, the GPU, other renderers and everything", () => {
+        const usage = memoryUsage([
+            proc(1, "Browser", 70 * 1024, 60 * 1024),
+            proc(2, "Tab", 900 * 1024, 800 * 1024),
+            proc(3, "GPU", 150 * 1024, 140 * 1024),
+            proc(4, "Tab", 400 * 1024, 380 * 1024),
+            proc(5, "Tab", 30 * 1024),
+            proc(6, "Utility", 20 * 1024, 10 * 1024),
+        ], 2);
+        expect(usage.renderer).toBe(900 * MB);
+        expect(usage.gpu).toBe(150 * MB);
+        expect(usage.others).toBe(430 * MB);
+        // Private bytes where there are some, the working set otherwise
+        expect(usage.total).toBe((60 + 800 + 140 + 380 + 30 + 10) * MB);
+    });
+
+    test("nothing else open, or nothing known", () => {
+        expect(memoryUsage([proc(2, "Tab", 1024)], 2).others).toBe(0);
+        expect(memoryUsage([], 2)).toEqual({ renderer: undefined, gpu: undefined, others: undefined, total: undefined });
     });
 });

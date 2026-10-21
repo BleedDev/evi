@@ -1,4 +1,4 @@
-import { IdleReport, isChannelPath, MemoryUsage, relaunchArgs, RESTORE_WITHIN_MS, shouldRestart, shouldTrim } from "@shared/idle";
+import { IdleReport, isChannelPath, MemoryUsage, memoryUsage, relaunchArgs, RESTORE_WITHIN_MS, shouldRestart, shouldTrim } from "@shared/idle";
 import { IPC } from "@shared/ipc";
 import { app, BrowserWindow, ipcMain, powerMonitor, WebContents } from "electron";
 import { readFileSync, writeFileSync } from "fs";
@@ -70,10 +70,7 @@ function watchWindow(w: BrowserWindow) {
 }
 
 function memoryOf(wc: WebContents): MemoryUsage {
-    const metrics = app.getAppMetrics();
-    const pid = wc.getOSProcessId();
-    const kb = (m?: Electron.ProcessMetric) => m ? m.memory.workingSetSize * 1024 : undefined;
-    return { renderer: kb(metrics.find(m => m.pid === pid)), gpu: kb(metrics.find(m => m.type === "GPU")) };
+    return memoryUsage(app.getAppMetrics(), wc.getOSProcessId());
 }
 
 function check() {

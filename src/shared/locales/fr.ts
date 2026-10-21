@@ -1527,6 +1527,8 @@ export const fr = {
     "perf.memory.col.memory": "Mémoire",
     "perf.memory.window": "Fenêtre de Discord",
     "perf.memory.gpu": "Graphismes (GPU)",
+    "perf.memory.others": "Activités et autres fenêtres de Discord",
+    "perf.memory.total": "Tout Discord",
     "perf.memory.unknown": "Inconnu",
     "perf.restart.setting": "Redémarrer Discord quand il utilise trop de mémoire pendant ton absence",
     "perf.restart.settingHint": "Seulement après 30 minutes d’absence et une heure d’ouverture de Discord, jamais pendant un appel ou un stream, et au plus une fois par jour. Il se rouvre sur le même salon, sans te voler le focus.",

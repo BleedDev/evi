@@ -1524,6 +1524,8 @@ export const ja = {
     "perf.memory.col.memory": "メモリ",
     "perf.memory.window": "Discord のウィンドウ",
     "perf.memory.gpu": "グラフィックス (GPU)",
+    "perf.memory.others": "アクティビティとその他の Discord ウィンドウ",
+    "perf.memory.total": "Discord 全体",
     "perf.memory.unknown": "不明",
     "perf.restart.setting": "離席中に Discord がメモリを使いすぎたら再起動する",
     "perf.restart.settingHint": "30 分離席していて Discord を開いてから 1 時間たったときだけ、通話中や配信中は行わず、1 日 1 回までです。同じチャンネルで、フォーカスを奪わずに開き直します。",

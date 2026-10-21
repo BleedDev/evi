@@ -1527,6 +1527,8 @@ export const tr = {
     "perf.memory.col.memory": "Bellek",
     "perf.memory.window": "Discord penceresi",
     "perf.memory.gpu": "Grafik (GPU)",
+    "perf.memory.others": "Etkinlikler ve diğer Discord pencereleri",
+    "perf.memory.total": "Discord’un tamamı",
     "perf.memory.unknown": "Bilinmiyor",
     "perf.restart.setting": "Sen yokken Discord çok fazla bellek kullanırsa yeniden başlat",
     "perf.restart.settingHint": "Yalnızca 30 dakikadır uzaktaysan ve Discord bir saattir açıksa, asla bir arama ya da yayın sırasında değil ve günde en fazla bir kez. Aynı kanalda, odağı çalmadan yeniden açılır.",

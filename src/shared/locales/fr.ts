@@ -1535,7 +1535,7 @@ export const fr = {
     "perf.restart.limit": "Trop de mémoire",
     "perf.restart.limitHint": "Quand la fenêtre de Discord utilise plus que ça.",
     "perf.lowerMemory.setting": "Moins de mémoire",
-    "perf.lowerMemory.settingHint": "Discord garde moins de mémoire libre pour son code, donc le défilement et le changement de salon peuvent être un peu moins fluides.",
+    "perf.lowerMemory.settingHint": "Discord garde moins de mémoire libre pour son code, donc le défilement et le changement de salon peuvent être un peu moins fluides. Sous Windows, tant que la fenêtre de Discord est cachée et que tu n’es pas en appel, Discord peut aussi libérer de la mémoire et laisser la priorité aux autres applis.",
     "perf.lowerMemory.restartNotice": "Redémarre Discord pour appliquer Moins de mémoire.",
     "perf.lowerMemory.restart": "Redémarrer Discord",
     "perf.gameMode.title": "Mode jeu",

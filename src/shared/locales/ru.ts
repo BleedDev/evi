@@ -1622,7 +1622,7 @@ export const ru = {
     "perf.restart.limit": "Слишком много памяти",
     "perf.restart.limitHint": "Когда окно Discord использует больше этого.",
     "perf.lowerMemory.setting": "Меньше памяти",
-    "perf.lowerMemory.settingHint": "Discord держит меньше свободной памяти для своего кода, поэтому прокрутка и переключение каналов могут стать чуть менее плавными.",
+    "perf.lowerMemory.settingHint": "Discord держит меньше свободной памяти для своего кода, поэтому прокрутка и переключение каналов могут стать чуть менее плавными. В Windows, пока окно Discord скрыто и вы не в звонке, Discord также может освобождать память и уступать место другим приложениям.",
     "perf.lowerMemory.restartNotice": "Перезапустите Discord, чтобы применить «Меньше памяти».",
     "perf.lowerMemory.restart": "Перезапустить Discord",
     "perf.gameMode.title": "Игровой режим",

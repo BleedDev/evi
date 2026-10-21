@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import { LIST_SWITCHES, LOWER_MEMORY_JS_FLAGS, mergeJsFlags, mergeSwitchList } from "../src/shared/chromiumSwitches";
-import { DEFAULT_RESTART_GB, isBusy, isChannelPath, memoryUsage, relaunchArgs, RESTART_AWAY_MS, RESTART_EVERY_MS, RESTART_MIN_UPTIME_MS, RestartCheck, restartLimitGb, shouldRestart, shouldTrim, TRIM_HIDDEN_MS } from "../src/shared/idle";
+import { BACKGROUND_HIDDEN_MS, BackgroundCheck, DEFAULT_RESTART_GB, isBusy, isChannelPath, memoryUsage, relaunchArgs, RESTART_AWAY_MS, RESTART_EVERY_MS, RESTART_MIN_UPTIME_MS, RestartCheck, restartLimitGb, shouldBackground, shouldRestart, shouldTrim, TRIM_HIDDEN_MS } from "../src/shared/idle";
 
 const GB = 1024 ** 3;
 const NOW = 1_800_000_000_000;
@@ -48,6 +48,30 @@ describe("trim", () => {
     test("never in a call, or when the page couldn't tell", () => {
         expect(shouldTrim({ ...base, busy: true })).toBe(false);
         expect(shouldTrim({ ...base, busy: null })).toBe(false);
+    });
+});
+
+describe("background while hidden", () => {
+    const base: BackgroundCheck = { enabled: true, now: NOW, hiddenSince: NOW - BACKGROUND_HIDDEN_MS, busy: false, audible: false, throttling: true };
+
+    test("once the window was hidden long enough, with nothing going on", () => {
+        expect(shouldBackground(base)).toBe(true);
+        expect(shouldBackground({ ...base, hiddenSince: NOW - BACKGROUND_HIDDEN_MS + 1 })).toBe(false);
+        expect(shouldBackground({ ...base, hiddenSince: undefined })).toBe(false);
+    });
+
+    test("off unless Lower memory is on", () => {
+        expect(shouldBackground({ ...base, enabled: false })).toBe(false);
+    });
+
+    test("never in a call, stream or ring, or when the page couldn't tell", () => {
+        expect(shouldBackground({ ...base, busy: true })).toBe(false);
+        expect(shouldBackground({ ...base, busy: null })).toBe(false);
+    });
+
+    test("never while the page plays sound or the in-game overlay is up", () => {
+        expect(shouldBackground({ ...base, audible: true })).toBe(false);
+        expect(shouldBackground({ ...base, throttling: false })).toBe(false);
     });
 });
 

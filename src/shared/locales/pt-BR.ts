@@ -1535,7 +1535,7 @@ export const ptBR = {
     "perf.restart.limit": "Memória demais",
     "perf.restart.limitHint": "Quando a janela do Discord usa mais que isso.",
     "perf.lowerMemory.setting": "Menos memória",
-    "perf.lowerMemory.settingHint": "O Discord reserva menos memória livre para o código dele, então rolar e trocar de canal pode ficar um pouco menos suave.",
+    "perf.lowerMemory.settingHint": "O Discord reserva menos memória livre para o código dele, então rolar e trocar de canal pode ficar um pouco menos suave. No Windows, enquanto a janela do Discord está oculta e você não está em uma chamada, o Discord também pode liberar memória e dar prioridade a outros apps.",
     "perf.lowerMemory.restartNotice": "Reinicie o Discord para aplicar Menos memória.",
     "perf.lowerMemory.restart": "Reiniciar o Discord",
     "perf.gameMode.title": "Modo de jogo",

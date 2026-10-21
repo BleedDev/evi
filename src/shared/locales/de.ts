@@ -1535,7 +1535,7 @@ export const de = {
     "perf.restart.limit": "Zu viel Speicher",
     "perf.restart.limitHint": "Wenn Discords Fenster mehr als das nutzt.",
     "perf.lowerMemory.setting": "Weniger Arbeitsspeicher",
-    "perf.lowerMemory.settingHint": "Discord hält weniger freien Speicher für seinen Code bereit, dadurch können Scrollen und Kanalwechsel etwas weniger flüssig sein.",
+    "perf.lowerMemory.settingHint": "Discord hält weniger freien Speicher für seinen Code bereit, dadurch können Scrollen und Kanalwechsel etwas weniger flüssig sein. Unter Windows kann Discord außerdem Speicher freigeben und anderen Apps den Vortritt lassen, solange sein Fenster ausgeblendet ist und du in keinem Anruf bist.",
     "perf.lowerMemory.restartNotice": "Starte Discord neu, damit „Weniger Arbeitsspeicher“ wirkt.",
     "perf.lowerMemory.restart": "Discord neu starten",
     "perf.gameMode.title": "Spielmodus",

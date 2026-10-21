@@ -1532,7 +1532,7 @@ export const ja = {
     "perf.restart.limit": "使いすぎの目安",
     "perf.restart.limitHint": "Discord のウィンドウがこれより多く使ったとき。",
     "perf.lowerMemory.setting": "メモリを節約",
-    "perf.lowerMemory.settingHint": "Discord がコード用に確保する空きメモリを減らします。そのぶん、スクロールやチャンネルの切り替えが少し滑らかでなくなることがあります。",
+    "perf.lowerMemory.settingHint": "Discord がコード用に確保する空きメモリを減らします。そのぶん、スクロールやチャンネルの切り替えが少し滑らかでなくなることがあります。Windows では、Discord のウィンドウが隠れていて通話中でないあいだ、Discord がメモリを解放し、ほかのアプリを優先させることもあります。",
     "perf.lowerMemory.restartNotice": "「メモリを節約」を適用するには Discord を再起動してください。",
     "perf.lowerMemory.restart": "Discord を再起動",
     "perf.gameMode.title": "ゲームモード",

@@ -14,7 +14,7 @@ import { guardIpc } from "./ipcGuard";
 import { readCatalog, setLocale } from "./locale";
 import { DATA_DIR, PLUGINS_DIR, QUICK_CSS_FILE, THEMES_DIR } from "./paths";
 import { persistAcrossUpdates } from "./persist";
-import { initIdle, relaunch } from "./idle";
+import { initIdle, relaunch, updateBackgrounding } from "./idle";
 import { applyChromiumSwitches, askToEnable, enablesNeedingConsent, getBootPlugins, initPlugins } from "./plugins";
 import { currentHotfixes, currentPulls, initReports } from "./reports";
 import { SafeMode } from "./safeMode";
@@ -125,6 +125,7 @@ function registerIpc() {
 function saveAndRecord(next: EviSettings) {
     for (const change of diffSettings(settings, next)) SafeMode.recordChange(change);
     saveSettings(next);
+    updateBackgrounding();
 }
 
 /** What the page last asked for: a yes that comes later only applies if it still wants the plugin on */

@@ -1535,7 +1535,7 @@ export const tr = {
     "perf.restart.limit": "Çok fazla bellek",
     "perf.restart.limitHint": "Discord’un penceresi bundan fazlasını kullandığında.",
     "perf.lowerMemory.setting": "Daha az bellek",
-    "perf.lowerMemory.settingHint": "Discord kodu için daha az boş bellek ayırır, bu yüzden kaydırma ve kanal değiştirme biraz daha az akıcı olabilir.",
+    "perf.lowerMemory.settingHint": "Discord kodu için daha az boş bellek ayırır, bu yüzden kaydırma ve kanal değiştirme biraz daha az akıcı olabilir. Windows’ta, Discord’un penceresi gizliyken ve bir aramada değilken Discord ayrıca bellek boşaltıp diğer uygulamalara öncelik verebilir.",
     "perf.lowerMemory.restartNotice": "Daha az bellek ayarının uygulanması için Discord’u yeniden başlat.",
     "perf.lowerMemory.restart": "Discord’u yeniden başlat",
     "perf.gameMode.title": "Oyun Modu",

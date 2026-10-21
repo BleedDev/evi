@@ -1,7 +1,8 @@
 /**
  * What Evi does while Discord sits unused (main/idle.ts): empties its page's caches once after its
  * window has been hidden a while, and, if you turned it on, restarts it when its page has grown past
- * a limit while you were away. Never during a call: a restart would drop it.
+ * a limit while you were away. Never during a call: a restart would drop it. With Lower memory on,
+ * lets Chromium put the hidden page in the background, never during a call either.
  */
 
 /** What the page tells main. busy: in a call or stream, or a call rings; null: Evi couldn't tell */
@@ -83,6 +84,31 @@ export function shouldRestart(c: RestartCheck) {
     // A clock set back counts as recent too
     if (c.lastRestart !== undefined && c.now - c.lastRestart < RESTART_EVERY_MS) return false;
     return c.rendererBytes >= restartLimitGb(c.limitGb) * 1024 ** 3;
+}
+
+/** Lower memory: how long Discord's window stays hidden before its page may go to the background */
+export const BACKGROUND_HIDDEN_MS = 5 * 60_000;
+
+export interface BackgroundCheck {
+    /** Lower memory is on, outside safe mode */
+    enabled: boolean;
+    now: number;
+    /** Since the window was hidden, or since the page last had to come back to the foreground while it was */
+    hiddenSince?: number;
+    busy: boolean | null;
+    /** The page plays sound: a ring, a video, music */
+    audible: boolean;
+    /** Discord's own background throttling for the page, which it turns off while the in-game overlay is up */
+    throttling: boolean;
+}
+
+/**
+ * Whether Chromium may treat Discord's hidden page as in the background, where it frees memory and
+ * gets less CPU. Only when the page said it's not in a call, stream or ringing call.
+ */
+export function shouldBackground(c: BackgroundCheck) {
+    return c.enabled && c.busy === false && !c.audible && c.throttling
+        && c.hiddenSince !== undefined && c.now - c.hiddenSince >= BACKGROUND_HIDDEN_MS;
 }
 
 /** A channel, or a DM: the only places worth reopening */

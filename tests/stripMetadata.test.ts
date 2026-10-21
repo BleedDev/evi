@@ -107,6 +107,16 @@ describe("JPEG", () => {
         expect(data).toEqual(bytes([0xff, 0xd8], APP0, DQT, scan, rest));
     });
 
+    test("a bogus marker or a lone FF after the first scan keeps the rest and still strips", () => {
+        const scan = bytes([0xff, 0xda, 0, 8, 1, 1, 0, 0, 0x3f, 0], [1, 2, 3]);
+        for (const rest of [bytes([0xff, 0xc4, 0, 4, 9, 9, 0x55, 0x66], [0xff, 0xd9]), bytes([0xff])]) {
+            const { data, changed } = stripMetadata(bytes([0xff, 0xd8], APP0, seg(0xe1, exif(1)), DQT, scan, rest));
+            expect(changed).toBe(true);
+            expect(data).toEqual(bytes([0xff, 0xd8], APP0, DQT, scan, rest));
+            expect(contains(data, "GPS")).toBe(false);
+        }
+    });
+
     test("a truncated JPEG is left untouched", () => {
         const input = bytes([0xff, 0xd8], [0xff, 0xe1, 0x10, 0x00], "Exif");
         expect(stripMetadata(input)).toEqual({ data: input, changed: false, kind: "jpeg" });

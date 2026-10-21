@@ -114,11 +114,15 @@ function stripJpeg(b: Uint8Array): Uint8Array | null {
     let i = 2;
 
     while (i < b.length) {
-        if (b[i] !== 0xff) return null;
         let markerAt = i;
         while (b[markerAt + 1] === 0xff) markerAt++; // fill bytes
-        const marker = b[markerAt + 1];
-        if (marker === undefined) return null;
+        const marker = b[i] === 0xff ? b[markerAt + 1] : undefined; // none when b[i] is not a marker or the file ends
+        if (marker === undefined) {
+            if (!scanned) return null;
+            // Already past image data that decodes: the rest stays as it is
+            parts.push(b.subarray(i));
+            break;
+        }
 
         // End of image: whatever follows isn't this image
         if (marker === 0xd9) {
@@ -137,8 +141,7 @@ function stripJpeg(b: Uint8Array): Uint8Array | null {
         const end = markerAt + 2 + len;
         if (len < 2 || end > b.length) {
             if (!scanned) return null;
-            // Already past image data that decodes: the rest stays as it is
-            parts.push(b.subarray(markerAt));
+            parts.push(b.subarray(i));
             break;
         }
         const payload = b.subarray(markerAt + 4, end);

@@ -179,7 +179,8 @@ function patchesSignature(patches: SourcePatch[] | undefined) {
  */
 function setPatches(state: PluginState, next: SourcePatch[] | undefined) {
     const { id } = state.manifest;
-    const previouslyPatched = state.patchesRegistered ? getPatchRecords(id).flatMap(r => r.modules) : [];
+    const previous = state.patchesRegistered ? getPatchRecords(id) : [];
+    const previouslyPatched = previous.flatMap(r => r.modules);
 
     if (state.patchesRegistered) unregisterPatches(id);
     state.patchesRegistered = !!next?.length;
@@ -190,7 +191,8 @@ function setPatches(state: PluginState, next: SourcePatch[] | undefined) {
     const affected = new Set([...previouslyPatched.filter(m => wreq!.c[m]), ...loadedModulesMatching(next ?? [])]);
     if (!affected.size) return;
 
-    const failures = replaceLive(affected).filter(o => !o.ok);
+    // The old patches' live: false (or true) still counts for the modules they patched
+    const failures = replaceLive(affected, previous.map(r => r.patch)).filter(o => !o.ok);
     if (failures.length) {
         state.needsReload = true;
         state.reloadReason = [...new Set(failures.map(f => f.reason))].join(", ");

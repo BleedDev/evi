@@ -109,7 +109,7 @@ function transplant(target: any, fresh: any) {
     rebaseHooks(target, oldValues);
 }
 
-function replaceModule(id: string): LiveOutcome {
+function replaceModule(id: string, removed: SourcePatch[]): LiveOutcome {
     const req = wreq!;
     const module = req.c[id];
     if (!module) return { id, ok: true };
@@ -118,7 +118,7 @@ function replaceModule(id: string): LiveOutcome {
     if (!original) return { id, ok: false, reason: "its factory is gone" };
     const source = Function.prototype.toString.call(original);
 
-    const reason = unsafeReason(module, patchesFor(source));
+    const reason = unsafeReason(module, [...patchesFor(source), ...removed.filter(p => matchesFind(source, p.find))]);
     if (reason) return { id, ok: false, reason };
 
     const { factory } = applySourcePatches(id, original, () => source, true);
@@ -165,9 +165,11 @@ export function loadedModulesMatching(patches: SourcePatch[]): string[] {
 /**
  * Re-runs these already-loaded modules with the currently registered patches.
  * Returns one outcome per module; anything not ok needs a Discord reload.
+ *
+ * @param removed  patches just unregistered: their `live` still decides for the modules they patched
  */
-export function replaceLive(ids: Iterable<string>): LiveOutcome[] {
-    const outcomes = [...new Set(ids)].map(replaceModule);
+export function replaceLive(ids: Iterable<string>, removed: SourcePatch[] = []): LiveOutcome[] {
+    const outcomes = [...new Set(ids)].map(id => replaceModule(id, removed));
     const replaced = outcomes.filter(o => o.ok).length;
     if (replaced) {
         logger.info(`Live-replaced ${replaced} module(s)`);

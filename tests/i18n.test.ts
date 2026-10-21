@@ -119,6 +119,21 @@ describe("Evi's catalogs", () => {
     }
 });
 
+describe("dates (kept formatters)", () => {
+    test("timeAgo and localeDate read as before, and a formatter is made once", async () => {
+        const { dateFormat, I18n, localeDate, timeAgo } = await import("../src/renderer/i18n");
+        const now = Date.UTC(2026, 9, 21, 12);
+        const relative = new Intl.RelativeTimeFormat(I18n.discordLocale, { numeric: "auto" });
+        expect(timeAgo(now - 5 * 60_000, now)).toBe(relative.format(-5, "minute"));
+        expect(timeAgo(now - 86_400_000, now)).toBe(relative.format(-1, "day"));
+        for (const options of [{ dateStyle: "medium" }, { dateStyle: "medium", timeStyle: "short" }, { year: "numeric", month: "short", day: "numeric" }] as const) {
+            expect(localeDate(new Date(now), options)).toBe(new Date(now).toLocaleString(I18n.discordLocale, options));
+            expect(dateFormat({ ...options })).toBe(dateFormat(options));
+        }
+        expect(localeDate(new Date("not a date"), { dateStyle: "medium" })).toBe(new Date(NaN).toLocaleDateString(I18n.discordLocale, { dateStyle: "medium" }));
+    });
+});
+
 describe("defineStrings (plugins)", () => {
     test("uses English outside Discord, with placeholders and plurals", async () => {
         const { defineStrings } = await import("../src/renderer/i18n");

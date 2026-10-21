@@ -14,7 +14,7 @@ import { sharePluginUrl } from "@shared/share";
 import { Searchable, searchItems } from "@shared/storeSearch";
 import { ListingInfo, ListingSort, RegistryEntry, sortListings, ThemeEntry } from "@shared/store";
 
-import { I18n, t, timeAgo as ago, tNodes } from "../i18n";
+import { I18n, localeDate, t, timeAgo as ago, tNodes } from "../i18n";
 import { PluginManager } from "../plugins/manager";
 import { Settings } from "../settings";
 import { Store, StoreKind, StoreOp, UpdateAllResult } from "../store";
@@ -131,7 +131,7 @@ export function useStoreState() {
     return state;
 }
 
-const formatDate = (date: string) => new Date(`${date}T00:00:00`).toLocaleDateString(I18n.discordLocale, { dateStyle: "medium" });
+const formatDate = (date: string) => localeDate(new Date(`${date}T00:00:00`), { dateStyle: "medium" });
 
 function OpStatus({ op }: { op: StoreOp | undefined; }) {
     if (!op) return null;

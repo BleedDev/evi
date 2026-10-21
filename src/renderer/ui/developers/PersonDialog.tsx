@@ -7,7 +7,7 @@ import type { AdminBadge, Person, PersonDetail } from "@shared/devAdmin";
 import { parsePersonDetail } from "@shared/devAdmin";
 import { authorPageUrl } from "@shared/authors";
 
-import { I18n, t, timeAgo } from "../../i18n";
+import { localeDate, t, timeAgo } from "../../i18n";
 import { React } from "../../webpack/common";
 import { Badge, Button, Dialog, discordAvatarUrl, Dropdown, EmptyState, IconButton, Notice, Section, Text, TextField, Tooltip } from "../components";
 import { Confirm, LoadError } from "./common";
@@ -19,7 +19,7 @@ type Catalogue = { list: AdminBadge[]; map: Map<string, AdminBadge>; };
 const DURATIONS = [["1", 1], ["7", 7], ["30", 30], ["forever", null]] as const;
 type Duration = typeof DURATIONS[number][0];
 
-const day = (ms: number) => new Date(ms).toLocaleDateString(I18n.discordLocale, { year: "numeric", month: "short", day: "numeric" });
+const day = (ms: number) => localeDate(new Date(ms), { year: "numeric", month: "short", day: "numeric" });
 
 function copyText(text: string) {
     return navigator.clipboard?.writeText(text).then(() => true, () => false) ?? Promise.resolve(false);

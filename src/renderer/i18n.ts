@@ -117,9 +117,31 @@ export function tNodes(key: EviKey, nodes: Record<string, ReactNode>, vars?: Var
     return t(key, vars).split(/\{(\w+)\}/g).map((part, i) => i % 2 ? React.createElement(React.Fragment, { key: i }, nodes[part] ?? `{${part}}`) : part);
 }
 
+/** Making an Intl formatter costs about 60 µs and lists format a date per row, so they're kept */
+const formatters = new Map<string, Intl.DateTimeFormat | Intl.RelativeTimeFormat>();
+
+function formatter<T extends Intl.DateTimeFormat | Intl.RelativeTimeFormat>(key: string, make: () => T): T {
+    let made = formatters.get(key) as T | undefined;
+    if (!made) formatters.set(key, made = make());
+    return made;
+}
+
+/** A date formatter in Discord's language, the same as toLocaleDateString(locale, options) */
+export function dateFormat(options: Intl.DateTimeFormatOptions) {
+    const locale = I18n.discordLocale;
+    return formatter(`date|${locale}|${JSON.stringify(options)}`, () => new Intl.DateTimeFormat(locale, options));
+}
+
+/** date.toLocaleString(Discord's language, options) with a kept formatter; options must name what to show */
+export function localeDate(date: Date, options: Intl.DateTimeFormatOptions) {
+    // toLocaleString says "Invalid Date" where format() throws
+    return Number.isNaN(date.getTime()) ? String(date) : dateFormat(options).format(date);
+}
+
 /** "5 minutes ago", "yesterday", in Discord's language */
 export function timeAgo(at: number, now = Date.now()) {
-    const relative = new Intl.RelativeTimeFormat(I18n.discordLocale, { numeric: "auto" });
+    const locale = I18n.discordLocale;
+    const relative = formatter(`relative|${locale}`, () => new Intl.RelativeTimeFormat(locale, { numeric: "auto" }));
     const seconds = Math.round((at - now) / 1000);
     const units = [["day", 86400], ["hour", 3600], ["minute", 60]] as const;
     for (const [unit, size] of units) {

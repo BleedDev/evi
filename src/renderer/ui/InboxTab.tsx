@@ -5,7 +5,7 @@
 import type { EviNotification, NotificationKind } from "@shared/notifications";
 
 import { Inbox } from "../inbox";
-import { I18n, t, timeAgo as ago } from "../i18n";
+import { localeDate, t, timeAgo as ago } from "../i18n";
 import { Settings } from "../settings";
 import { React } from "../webpack/common";
 import { Button, EmptyState, Icon, IconName, IconButton, Notice, Status, SwitchRow, Text, useStore } from "./components";
@@ -29,7 +29,7 @@ function dayLabel(at: number) {
     const day = new Date(at).toDateString();
     if (day === new Date().toDateString()) return t("inbox.today");
     if (day === new Date(Date.now() - 86_400_000).toDateString()) return t("inbox.yesterday");
-    return new Date(at).toLocaleDateString(I18n.discordLocale, { dateStyle: "medium" });
+    return localeDate(new Date(at), { dateStyle: "medium" });
 }
 
 function open(n: EviNotification) {

@@ -15,6 +15,7 @@ import type { Page, Request } from "playwright-core";
 import { routeChunks } from "./lazy-route.ts";
 import { disablePasskeys } from "./no-passkeys.ts";
 
+import type { ReleaseData, WhatsNewNotes } from "../src/shared/changelogNotes";
 import type { BootData, PluginPayload, ThemePayload } from "../src/shared/ipc";
 
 const ROOT = resolve(import.meta.dirname, "..");
@@ -108,6 +109,20 @@ const boot: BootData = {
 };
 
 const renderer = readFileSync(join(DIST, "core", "renderer.js"), "utf8");
+
+// What main answers What's new (main/whatsNew.ts) after 0.0.1: every release as one, newest first, in English
+const releaseData = JSON.parse(readFileSync(join(DIST, "core", "releases.json"), "utf8")) as ReleaseData;
+const whatsNewCover = releaseData.releases.find(r => r.cover)?.cover;
+const whatsNewNotes: WhatsNewNotes = {
+    release: {
+        version: releaseData.releases[0].version,
+        date: releaseData.releases[0].date,
+        cover: whatsNewCover,
+        sections: Object.fromEntries((["added", "improved", "fixed", "progress"] as const)
+            .map(kind => [kind, releaseData.releases.flatMap(r => r.sections[kind] ?? [])]).filter(([, lines]) => lines.length)),
+    },
+    coverSvg: whatsNewCover && releaseData.covers[whatsNewCover],
+};
 
 /** Runs in the page before Discord: stands in for the preload bridge */
 function fakeNative(bootData: BootData) {
@@ -523,6 +538,9 @@ async function openDiscord(target: Page) {
 // Before anything else: discord.com would otherwise pop a Windows passkey dialog on the desktop
 await page.addInitScript(disablePasskeys);
 await page.addInitScript(fakeNative, boot);
+await page.addInitScript(notes => {
+    if (window === window.top) (window as any).__test.native.whatsNew = async () => notes;
+}, whatsNewNotes);
 await page.addInitScript(renderer);
 await openDiscord(page);
 

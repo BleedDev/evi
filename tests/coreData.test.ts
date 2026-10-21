@@ -3,6 +3,8 @@ import { mkdtempSync, readFileSync, rmSync } from "fs";
 import { tmpdir } from "os";
 import { join, resolve } from "path";
 
+import { COVERS } from "../src/renderer/ui/covers";
+import { latestRelease, localizedRelease, mergeReleases, RELEASES, releasesSince } from "../src/shared/changelog";
 import { CATALOGS } from "../src/shared/locales";
 import { en } from "../src/shared/locales/en";
 import { LOCALES } from "../src/shared/locales/tags";
@@ -47,5 +49,39 @@ describe("Evi's languages, one file each", () => {
             const { setLocale } = await import("../src/main/locale");
             setLocale("en");
         }
+    });
+});
+
+describe("What's new from releases.json", () => {
+    const read = async (seen: unknown, locale: unknown, current: string, coreDir = dir) => {
+        const previous = globalThis.__eviCoreDir;
+        globalThis.__eviCoreDir = coreDir;
+        try {
+            const { readWhatsNew } = await import("../src/main/whatsNew");
+            return readWhatsNew(seen, locale, current);
+        } finally {
+            globalThis.__eviCoreDir = previous;
+        }
+    };
+
+    test("after an update: the releases since the one last seen, as one, in the page's language", async () => {
+        const current = RELEASES[0].version, seen = RELEASES[3].version;
+        const want = mergeReleases(releasesSince(seen, current).map(r => localizedRelease(r, "de-DE")));
+        const notes = await read(seen, "de-DE", current);
+        expect(notes?.release).toEqual(want);
+        expect(notes?.coverSvg).toBe(want.cover ? COVERS[want.cover] : undefined);
+    });
+
+    test("the panel's link: the newest release, with its cover when Evi has one", async () => {
+        const notes = await read(null, "ja", "1.0.0");
+        expect(notes?.release).toEqual(mergeReleases([localizedRelease(latestRelease("1.0.0")!, "ja")]));
+        expect(notes?.coverSvg).toBe(COVERS["1.0.0"]);
+    });
+
+    test("nothing to show, a bad request or no file: null", async () => {
+        expect(await read(RELEASES[0].version, "en", RELEASES[0].version)).toBeNull();
+        expect(await read(5, "en", RELEASES[0].version)).toBeNull();
+        expect(await read(null, undefined, RELEASES[0].version)).toBeNull();
+        expect(await read(null, "en", RELEASES[0].version, join(dir, "missing"))).toBeNull();
     });
 });

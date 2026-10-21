@@ -94,7 +94,7 @@ async function bundle(label: string, config: Parameters<typeof Bun.build>[0], co
     return true;
 }
 
-/** Evi's languages but English, files main reads when one is in use (scripts/coreData.ts) */
+/** Evi's languages but English and What's new's notes, files main reads when they're needed (scripts/coreData.ts) */
 async function writeCoreData() {
     mkdirSync(CORE_OUT, { recursive: true });
     const code = await Bun.spawn([process.execPath, join(ROOT, "scripts/coreData.ts"), CORE_OUT], { stdio: ["inherit", "inherit", "inherit"] }).exited;

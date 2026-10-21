@@ -1,30 +1,14 @@
 import { CHANGELOG_LOCALES } from "./changelogLocales";
-import { matchLocale } from "./i18n";
-import { compareVersions } from "./store";
+import * as notes from "./changelogNotes";
+import { Release, SECTION_KINDS, SectionKind } from "./changelogNotes";
 
-/** The sections of Discord's own changelog, in its order, each with its own heading color */
-export const SECTION_KINDS = ["added", "improved", "fixed", "progress"] as const;
-export type SectionKind = typeof SECTION_KINDS[number];
-
-/** Where Evi's releases are published, linked from the modal's footer */
-export const RELEASES_URL = "https://github.com/BleedDev/evi/releases";
-
-export interface Release {
-    version: string;
-    /** YYYY-MM-DD */
-    date: string;
-    /**
-     * The release's picture, where Discord's changelog has its video: a blog cover, by the name of
-     * its file in src/renderer/ui/covers. Usually the cover of the post announcing the release.
-     */
-    cover?: string;
-    /** One line per change. Like Discord's, a line can open with a **bold lead-in.** */
-    sections: Partial<Record<SectionKind, string[]>>;
-}
+export { mergeReleases, RELEASES_URL, SECTION_KINDS } from "./changelogNotes";
+export type { Release, SectionKind } from "./changelogNotes";
 
 /**
  * Evi's own release notes, newest first. The "What's new" modal shows the releases between the last
  * version you saw and this one, once, after Evi updates itself. Add an entry here with each release.
+ * Neither the renderer nor main imports this: they get it from releases.json (changelogNotes.ts).
  */
 export const RELEASES: Release[] = [
     {
@@ -524,43 +508,11 @@ export const RELEASES: Release[] = [
     },
 ];
 
-/**
- * The release as `locale` reads it: each section in that language where there's a translation,
- * in English where there isn't. Locales match like Evi's menus (`pt-BR`, `de-AT` -> `de`).
- */
-export function localizedRelease(release: Release, locale: string | null | undefined, locales = CHANGELOG_LOCALES): Release {
-    const lang = matchLocale(locale, Object.keys(locales));
-    const notes = lang ? locales[lang]?.[release.version] : undefined;
-    if (!notes) return release;
-    const sections: Release["sections"] = { ...release.sections };
-    for (const kind of SECTION_KINDS) if (notes[kind]?.length) sections[kind] = notes[kind];
-    return { ...release, sections };
-}
-
-/** Releases newer than `seen`, up to and including `current`. Nothing on a first run (no `seen`). */
-export function releasesSince(seen: string | undefined, current: string, releases = RELEASES) {
-    if (!seen) return [];
-    return releases.filter(r => compareVersions(r.version, seen) > 0 && compareVersions(r.version, current) <= 0);
-}
-
-/** The newest release up to `current`, what the panel's "What's new" link shows */
-export function latestRelease(current: string, releases = RELEASES) {
-    return releases.find(r => compareVersions(r.version, current) <= 0);
-}
-
-/**
- * Several releases as one changelog, like Discord shows one per update: newest first within each
- * section, dated and pictured by the newest. For when you skipped a version or two.
- */
-export function mergeReleases(releases: Release[]): Release {
-    const sections: Release["sections"] = {};
-    for (const kind of SECTION_KINDS) {
-        const lines = releases.flatMap(r => r.sections[kind] ?? []);
-        if (lines.length) sections[kind] = lines;
-    }
-    const cover = releases.find(r => r.cover)?.cover;
-    return { version: releases[0].version, date: releases[0].date, ...cover && { cover }, sections };
-}
+/** changelogNotes.ts's helpers, over Evi's own notes unless told otherwise */
+export const localizedRelease = (release: Release, locale: string | null | undefined, locales: notes.ReleaseLocales = CHANGELOG_LOCALES) =>
+    notes.localizedRelease(release, locale, locales);
+export const releasesSince = (seen: string | undefined, current: string, releases = RELEASES) => notes.releasesSince(seen, current, releases);
+export const latestRelease = (current: string, releases = RELEASES) => notes.latestRelease(current, releases);
 
 const NOTES_HEADINGS: Record<SectionKind, string> = { added: "New", improved: "Improved", fixed: "Fixed", progress: "In progress" };
 

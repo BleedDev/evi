@@ -4,17 +4,18 @@
  * a headline that fades like the site's, and each kind of change under a labelled pill. Shown once
  * after Evi updates itself, and on demand from the Evi panel. Plugin changelogs (PluginChangelog.tsx)
  * use the same shell. It renders in Evi's own layer: Discord's modal layer sits under Evi's panel.
+ * The notes, their translations and covers stay in main until it opens (Native.whatsNew).
  */
-import { latestRelease, localizedRelease, mergeReleases, Release, RELEASES_URL, releasesSince, SECTION_KINDS, SectionKind } from "@shared/changelog";
+import { RELEASES_URL, SECTION_KINDS, SectionKind, WhatsNewNotes } from "@shared/changelogNotes";
 import { versionCover } from "@shared/versionCover";
 import type { ReactNode } from "react";
 
 import { I18n, t, useLocale } from "../i18n";
+import { Native } from "../native";
 import { Settings } from "../settings";
 import { onCreateRootReady, React, ReactDOM } from "../webpack/common";
 import { whenAppReady } from "./appReady";
 import { cx, FocusLayer, Icon, useExit, useModal } from "./components";
-import { coverUrl } from "./covers";
 import { ensureStyles } from "./index";
 import { mountRoot } from "./discordContext";
 import { showTour2, tourDue } from "./Tour2";
@@ -107,9 +108,16 @@ function VersionHero({ version }: { version: string; }) {
     return <img className="dl-whats-new-cover" src={src} alt="" width={1200} height={675} />;
 }
 
-export function WhatsNewModal({ releases, onClose }: { releases: Release[]; onClose(): void; }) {
-    const notes = mergeReleases(releases.map(r => localizedRelease(r, I18n.discordLocale)));
-    const cover = coverUrl(notes.cover);
+/**
+ * The releases since `seen` (the newest one with null) in Discord's language, from main. Rejects
+ * under a main older than this page, which doesn't answer yet; undefined without the bridge (web tests).
+ */
+export const fetchWhatsNew = (seen: string | null): Promise<WhatsNewNotes | null | undefined> =>
+    Promise.resolve(Native.whatsNew?.(seen, I18n.discordLocale));
+
+export function WhatsNewModal({ content, onClose }: { content: WhatsNewNotes; onClose(): void; }) {
+    const notes = content.release;
+    const cover = React.useMemo(() => content.coverSvg && `data:image/svg+xml;charset=utf-8,${encodeURIComponent(content.coverSvg)}`, [content.coverSvg]);
     const date = new Intl.DateTimeFormat(I18n.discordLocale, { dateStyle: "long" }).format(new Date(`${notes.date}T00:00:00`));
 
     return (
@@ -147,9 +155,6 @@ export function WhatsNewModal({ releases, onClose }: { releases: Release[]; onCl
     );
 }
 
-/** The newest release notes up to this version, for the panel's "What's new" link */
-export const currentRelease = () => latestRelease(EVI_VERSION);
-
 // Whether the startup modal is up, so plugin changelogs (PluginChangelog.tsx) wait their turn
 let startupOpen = false;
 const afterStartup: (() => void)[] = [];
@@ -160,14 +165,18 @@ export function afterWhatsNew(fn: () => void) {
     else fn();
 }
 
-function Startup({ releases }: { releases: Release[]; }) {
+function startupDone() {
+    startupOpen = false;
+    for (const fn of afterStartup.splice(0)) fn();
+}
+
+function Startup({ content }: { content: WhatsNewNotes; }) {
     const [open, setOpen] = React.useState(true);
     const close = () => {
         setOpen(false);
-        startupOpen = false;
-        for (const fn of afterStartup.splice(0)) fn();
+        startupDone();
     };
-    return open ? <WhatsNewModal releases={releases} onClose={close} /> : null;
+    return open ? <WhatsNewModal content={content} onClose={close} /> : null;
 }
 
 /**
@@ -179,28 +188,32 @@ export function showWhatsNewIfUpdated() {
     // Evi 2.0's tour stands in for What's new, once, on an update or a first install alike
     const tour = tourDue();
     if (seen === EVI_VERSION && !tour) return;
-    const releases = releasesSince(seen, EVI_VERSION);
-    Settings.update(d => {
+    const markSeen = () => Settings.update(d => {
         d.lastSeenVersion = EVI_VERSION;
     });
+    if (tour || !seen) markSeen();
     if (tour) {
         startupOpen = true;
-        showTour2(() => {
-            startupOpen = false;
-            for (const fn of afterStartup.splice(0)) fn();
-        });
+        showTour2(startupDone);
         return;
     }
-    if (!releases.length) return;
+    if (!seen) return;
 
     startupOpen = true;
     ensureStyles();
     // Not over Discord's loading screen: once the app is showing
     onCreateRootReady(() => whenAppReady(() => {
-        const mount = () => {
-            mountRoot(<Startup releases={releases} />);
-        };
-        if (document.body) mount();
-        else document.addEventListener("DOMContentLoaded", mount, { once: true });
+        fetchWhatsNew(seen).then(content => {
+            markSeen();
+            if (!content) return startupDone();
+            const mount = () => {
+                mountRoot(<Startup content={content} />);
+            };
+            if (document.body) mount();
+            else document.addEventListener("DOMContentLoaded", mount, { once: true });
+        }, () => {
+            // A main older than this page (a core update waiting for a restart): shown after the restart
+            startupDone();
+        });
     }));
 }

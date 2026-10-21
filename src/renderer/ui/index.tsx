@@ -1,3 +1,4 @@
+import type { WhatsNewNotes } from "@shared/changelogNotes";
 import type { KeyboardEvent } from "react";
 
 import { t, useLocale } from "../i18n";
@@ -8,7 +9,7 @@ import { React } from "../webpack/common";
 import { Button, ErrorBoundary, Icon, openDialogs, Text, trapTab, useStore } from "./components";
 import { showTab } from "./nav";
 import { PageView, visiblePages } from "./pages";
-import { currentRelease, WhatsNewModal } from "./WhatsNew";
+import { fetchWhatsNew, WhatsNewModal } from "./WhatsNew";
 import { ensureStyles } from "./stylesheet";
 import { mountRoot } from "./discordContext";
 
@@ -49,8 +50,7 @@ function Panel() {
     useStore(Developer.subscribe, Developer.isDev);
     tabs = visiblePages();
     const [tab, setTabState] = React.useState(lastTab);
-    const [whatsNew, setWhatsNew] = React.useState(false);
-    const release = currentRelease();
+    const [whatsNew, setWhatsNew] = React.useState<WhatsNewNotes | null>(null);
     const panelRef = React.useRef<HTMLDivElement>(null);
     const bodyRef = React.useRef<HTMLDivElement>(null);
     const current = tabs.find(t => t.id === tab) ?? tabs[0];
@@ -113,7 +113,7 @@ function Panel() {
                     </div>
                     <div className="dl-sidebar-foot">
                         <Button icon="folder" onClick={() => Native.openPath("data")}>{t("panel.openDataFolder")}</Button>
-                        <button type="button" className="dl-link-button dl-version-link" onClick={() => setWhatsNew(true)}>
+                        <button type="button" className="dl-link-button dl-version-link" onClick={() => void fetchWhatsNew(null).then(notes => notes && setWhatsNew(notes), () => { })}>
                             <Text variant="text-xs/normal" color="text-muted" tabular>{t("panel.versionWhatsNew", { version: EVI_VERSION })}</Text>
                         </button>
                     </div>
@@ -132,7 +132,7 @@ function Panel() {
                         <ErrorBoundary resetKey={current.id}><PageView page={current} /></ErrorBoundary>
                     </div>
                 </div>
-                {whatsNew && release && <WhatsNewModal releases={[release]} onClose={() => setWhatsNew(false)} />}
+                {whatsNew && <WhatsNewModal content={whatsNew} onClose={() => setWhatsNew(null)} />}
             </div>
         </div>
     );

@@ -27,6 +27,7 @@ import { getThemePayloads, initThemes } from "./themes";
 import { initUpdater } from "./updater";
 import { broadcast } from "./util";
 import { initWallpaper } from "./wallpaper";
+import { readWhatsNew } from "./whatsNew";
 
 // Loaders installed before the rename to Evi still pass the old name
 globalThis.__eviCoreDir ??= globalThis.__delightCoreDir!;
@@ -82,6 +83,7 @@ function registerIpc() {
     ipcMain.on(IPC.LOCALE_CATALOG, (e, tag: unknown) => {
         e.returnValue = readCatalog(tag);
     });
+    ipcMain.handle(IPC.WHATS_NEW, (_, seen: unknown, locale: unknown) => readWhatsNew(seen, locale));
 
     ipcMain.handle(IPC.SETTINGS_SAVE, (e, next: EviSettings) => saveFromPage(next, e.sender));
     ipcMain.handle(IPC.CSS_SAVE, (_, css: string) => writeFileSync(QUICK_CSS_FILE, css));

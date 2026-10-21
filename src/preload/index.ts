@@ -4,6 +4,7 @@ import { isDiscordAppUrl } from "@shared/appHosts";
 import type { AuthorLink, AuthorStatsResult } from "@shared/authorStats";
 import type { ImportMode } from "@shared/backup";
 import type { BadgeAdminAction, BadgeAdminResult, BadgePrefs, BadgePrefsResult, BadgesResult, CreditsDocument } from "@shared/badges";
+import type { WhatsNewNotes } from "@shared/changelogNotes";
 import type { Breadcrumb, CrashRecord } from "@shared/crashDetective";
 import type { CrashReportInput } from "@shared/crashReports";
 import type { AdminMethod } from "@shared/devAdmin";
@@ -31,6 +32,8 @@ const EviNative = {
     setLocale: (locale: string) => void ipcRenderer.send(IPC.SET_LOCALE, locale),
     /** Only when BootData.locales says main answers it */
     localeCatalog: (tag: string): string | null => ipcRenderer.sendSync(IPC.LOCALE_CATALOG, tag),
+    /** The releases since `seen`, or with null the newest one; rejects under a main older than the page */
+    whatsNew: (seen: string | null, locale: string): Promise<WhatsNewNotes | null> => ipcRenderer.invoke(IPC.WHATS_NEW, seen, locale),
     saveSettings: (settings: EviSettings): Promise<SettingsSaveResult | void> => ipcRenderer.invoke(IPC.SETTINGS_SAVE, settings),
     saveQuickCss: (css: string) => ipcRenderer.invoke(IPC.CSS_SAVE, css),
     saveSettingsSync: (settings: EviSettings) => void ipcRenderer.sendSync(IPC.SETTINGS_SAVE_SYNC, settings),

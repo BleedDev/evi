@@ -18,6 +18,8 @@ export const IPC = {
     SET_LOCALE: "evi:set-locale",
     /** sync: one of Evi's languages but English, as JSON text, or null (see BootData.locales) */
     LOCALE_CATALOG: "evi:locale-catalog",
+    /** What's new's notes in the page's language, read when it opens (main/whatsNew.ts) */
+    WHATS_NEW: "evi:whats-new",
     /** answers with SettingsSaveResult, after asking about plugins it turns on that reach beyond the page */
     SETTINGS_SAVE: "evi:settings-save",
     /** sync: last-chance flush while the page unloads, async IPC may not make it */

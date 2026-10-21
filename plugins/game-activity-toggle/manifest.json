@@ -2,7 +2,7 @@
     "id": "game-activity-toggle",
     "name": "Game Activity Toggle",
     "description": "Show or hide the game you're playing with one click: a gamepad button next to mute and deafen, a keyboard shortcut, or /gameactivity.",
-    "version": "1.4.0",
+    "version": "1.4.1",
     "authors": [
         "Evi"
     ],
@@ -13,6 +13,12 @@
         "changeSettings": true
     },
     "changelog": [
+        {
+            "version": "1.4.1",
+            "notes": [
+                "A little smaller: two unused English labels left over from before it was translated are gone. Nothing else changes."
+            ]
+        },
         {
             "version": "1.4.0",
             "notes": [
@@ -57,6 +63,9 @@
             "name": "Spielaktivität umschalten",
             "description": "Zeige oder verberge das Spiel, das du spielst, mit einem Klick: ein Controller-Button neben Stummschalten und Ton aus, ein Tastenkürzel oder /gameactivity.",
             "changelog": {
+                "1.4.1": [
+                    "Etwas kleiner: Zwei ungenutzte englische Texte aus der Zeit vor der Übersetzung sind weg. Sonst ändert sich nichts."
+                ],
                 "1.4.0": [
                     "Teilt sich einen Platz in der Benutzerleiste mit den Schaltern anderer Plugins: Sind es mehrere, landen sie in einem Evi-Button mit Menü, damit dein Name und Discords Einstellungen Platz behalten."
                 ],
@@ -81,6 +90,9 @@
             "name": "Interruptor de actividad de juego",
             "description": "Muestra u oculta el juego al que juegas con un clic: un botón de mando junto a silenciar y ensordecer, un atajo de teclado o /gameactivity.",
             "changelog": {
+                "1.4.1": [
+                    "Un poco más ligero: se quitaron dos textos en inglés sin uso que quedaban de antes de la traducción. Nada más cambia."
+                ],
                 "1.4.0": [
                     "Comparte un solo sitio del panel de usuario con los interruptores de otros plugins: si hay varios, se juntan en un botón de Evi con menú, así tu nombre y el engranaje de ajustes de Discord conservan su espacio."
                 ],
@@ -105,6 +117,9 @@
             "name": "Bascule d'activité de jeu",
             "description": "Affiche ou masque le jeu auquel tu joues en un clic : un bouton manette à côté de muet et sourdine, un raccourci clavier ou /gameactivity.",
             "changelog": {
+                "1.4.1": [
+                    "Un peu plus léger : deux textes anglais inutilisés, restés d'avant la traduction, ont été retirés. Rien d'autre ne change."
+                ],
                 "1.4.0": [
                     "Partage une seule place du panneau utilisateur avec les interrupteurs des autres plugins : s’il y en a plusieurs, ils se regroupent dans un bouton Evi avec un menu, pour que ton nom et la roue des paramètres de Discord gardent leur place."
                 ],
@@ -129,6 +144,9 @@
             "name": "ゲームアクティビティ切り替え",
             "description": "プレイ中のゲームの表示と非表示をワンクリックで切り替えます。ミュートとスピーカーミュートの横のゲームパッドボタン、キーボードショートカット、または /gameactivity で操作できます。",
             "changelog": {
+                "1.4.1": [
+                    "少し軽くなりました。翻訳前から残っていた、使われていない英語の文言を2つ削除しました。それ以外の変更はありません。"
+                ],
                 "1.4.0": [
                     "ユーザーパネルの 1 か所を他のプラグインのスイッチと共有します。複数あるときはメニュー付きの Evi ボタン 1 つにまとまるので、名前と Discord の設定ボタンの場所が保たれます。"
                 ],
@@ -153,6 +171,9 @@
             "name": "Przełącznik aktywności w grze",
             "description": "Pokazuj lub ukrywaj grę, w którą grasz, jednym kliknięciem: przycisk pada obok wyciszenia mikrofonu i dźwięku, skrót klawiszowy albo /gameactivity.",
             "changelog": {
+                "1.4.1": [
+                    "Trochę mniejszy: usunięto dwa nieużywane angielskie teksty pozostałe sprzed tłumaczenia. Nic więcej się nie zmienia."
+                ],
                 "1.4.0": [
                     "Dzieli jedno miejsce w panelu użytkownika z przełącznikami innych pluginów: gdy jest ich kilka, trafiają do jednego przycisku Evi z menu, więc Twoja nazwa i zębatka ustawień Discorda zachowują miejsce."
                 ],
@@ -177,6 +198,9 @@
             "name": "Alternar atividade de jogo",
             "description": "Mostre ou oculte o jogo que você está jogando com um clique: um botão de controle ao lado de silenciar e ensurdecer, um atalho de teclado ou /gameactivity.",
             "changelog": {
+                "1.4.1": [
+                    "Um pouco menor: dois textos em inglês sem uso, que sobraram de antes da tradução, foram removidos. Nada mais muda."
+                ],
                 "1.4.0": [
                     "Divide um único espaço do painel de usuário com os interruptores de outros plugins: quando há mais de um, eles viram um botão do Evi com menu, e seu nome e a engrenagem de configurações do Discord mantêm o espaço."
                 ],
@@ -201,6 +225,9 @@
             "name": "Переключатель игровой активности",
             "description": "Показывайте или скрывайте игру, в которую играете, одним кликом: кнопка с геймпадом рядом с кнопками отключения микрофона и звука, сочетание клавиш или /gameactivity.",
             "changelog": {
+                "1.4.1": [
+                    "Стал чуть меньше: удалены две неиспользуемые английские надписи, оставшиеся с времён до перевода. Больше ничего не меняется."
+                ],
                 "1.4.0": [
                     "Делит одно место в панели пользователя с переключателями других плагинов: если их несколько, они собираются в одну кнопку Evi с меню, и вашему имени и шестерёнке настроек Discord хватает места."
                 ],
@@ -225,6 +252,9 @@
             "name": "Oyun Etkinliği Anahtarı",
             "description": "Oynadığın oyunu tek tıkla göster veya gizle: mikrofonu ve sesi kapatma düğmelerinin yanındaki oyun kolu düğmesi, klavye kısayolu ya da /gameactivity.",
             "changelog": {
+                "1.4.1": [
+                    "Biraz daha küçük: çeviriden önceden kalan, kullanılmayan iki İngilizce metin kaldırıldı. Başka bir şey değişmiyor."
+                ],
                 "1.4.0": [
                     "Kullanıcı panelinde tek bir yeri diğer eklentilerin anahtarlarıyla paylaşır: birden fazlaysa menülü tek bir Evi düğmesinde toplanırlar, böylece adın ve Discord'un ayarlar çarkı yerinde kalır."
                 ],

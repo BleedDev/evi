@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import type { Replacement } from "../src/renderer/patching/source";
 import { canonicalizeMatch, matchesFind } from "../src/renderer/patching/source";
-import { buttonLabel, PATCHES, readShowCurrentGame, toggledMessage } from "../plugins/game-activity-toggle/toggle";
+import { PATCHES, readShowCurrentGame } from "../plugins/game-activity-toggle/toggle";
 
 // Verbatim from Discord's web build (test-results/chunks), trimmed to the patched spots
 const SOURCES = {
@@ -33,17 +33,6 @@ describe("readShowCurrentGame", () => {
         expect(readShowCurrentGame({})).toBe(true);
         expect(readShowCurrentGame({ status: {} })).toBe(true);
         expect(readShowCurrentGame({ status: { showCurrentGame: {} } })).toBe(true);
-    });
-});
-
-describe("labels", () => {
-    test("button says what a click does", () => {
-        expect(buttonLabel(true)).toBe("Hide game activity");
-        expect(buttonLabel(false)).toBe("Show game activity");
-    });
-    test("toast describes the new state", () => {
-        expect(toggledMessage(true)).toContain("visible");
-        expect(toggledMessage(false)).toContain("hidden");
     });
 });
 

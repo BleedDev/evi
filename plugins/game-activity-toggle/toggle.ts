@@ -17,14 +17,6 @@ export function readShowCurrentGame(protoSettings: any): boolean {
     return typeof value === "boolean" ? value : true;
 }
 
-/** Button tooltip and aria-label: what a click does */
-export const buttonLabel = (shown: boolean) => shown ? "Hide game activity" : "Show game activity";
-
-/** Toast and /gameactivity reply after flipping to `shown` */
-export const toggledMessage = (shown: boolean) => shown
-    ? "Game activity is visible: others can see what you're playing."
-    : "Game activity is hidden: others won't see what you're playing.";
-
 export const PATCHES = {
     /** Captures Discord's showCurrentGame setting object right after it's defined */
     setting: {

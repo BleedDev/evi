@@ -212,6 +212,8 @@ function Editor({ session }: { session: EditorSession; }) {
     const [problems, setProblems] = React.useState<Problems>({});
     const [saving, setSaving] = React.useState(false);
     const [asking, setAsking] = React.useState<"discard" | "publish">();
+    // Discard confirmed: the session ends once the dialog has played its exit
+    const discarding = React.useRef(false);
     const [copied, setCopied] = React.useState(false);
     const dirty = ThemeEditor.dirty();
     const saved = !!session.savedCss;
@@ -344,12 +346,28 @@ function Editor({ session }: { session: EditorSession; }) {
             </Folded>
 
             {asking === "discard" && (
-                <Dialog id="dl-theme-editor-discard" title={t("themeEditor.discardTitle")} onClose={() => setAsking(undefined)}>
+                <Dialog
+                    id="dl-theme-editor-discard"
+                    title={t("themeEditor.discardTitle")}
+                    onClose={() => {
+                        setAsking(undefined);
+                        if (discarding.current) ThemeEditor.close();
+                        discarding.current = false;
+                    }}
+                >
                     {close => (
                         <div className="dl-stack">
                             <Text tag="p" variant="text-sm/normal" color="text-subtle">{t("themeEditor.discardBody")}</Text>
                             <div className="dl-toolbar">
-                                <Button variant="danger" onClick={() => ThemeEditor.close()}>{t("themeEditor.discard")}</Button>
+                                <Button
+                                    variant="danger"
+                                    onClick={() => {
+                                        discarding.current = true;
+                                        close();
+                                    }}
+                                >
+                                    {t("themeEditor.discard")}
+                                </Button>
                                 <Button onClick={close}>{t("themeEditor.keepEditing")}</Button>
                             </div>
                         </div>

@@ -1,7 +1,8 @@
 import { IPC, WallpaperPickResult, WallpaperReadResult } from "@shared/ipc";
 import { extensionOf, MAX_WALLPAPER_BYTES, WALLPAPER_EXTENSIONS, wallpaperKind, wallpaperMime } from "@shared/wallpaper";
 import { app, BrowserWindow, dialog, ipcMain, IpcMainInvokeEvent, powerMonitor } from "electron";
-import { copyFileSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync } from "fs";
+import { copyFileSync, mkdirSync, readdirSync, renameSync, rmSync, statSync } from "fs";
+import { readFile } from "fs/promises";
 import { join } from "path";
 
 import { DATA_DIR } from "./paths";
@@ -71,12 +72,13 @@ export function initWallpaper() {
     });
 
     // Never a path from the page: only ever the one file main copied in
-    ipcMain.handle(IPC.WALLPAPER_READ, (): WallpaperReadResult => {
+    ipcMain.handle(IPC.WALLPAPER_READ, async (): Promise<WallpaperReadResult> => {
         const file = currentFile();
         if (!file) return { ok: false, error: "There's no wallpaper file, choose one again" };
         try {
+            // Up to MAX_WALLPAPER_BYTES: read off the main thread, which Discord's own work and every request wait on.
             // A Buffer arrives in the page as a Uint8Array
-            return { ok: true, file, mime: wallpaperMime(file)!, bytes: readFileSync(join(WALLPAPER_DIR, file)) };
+            return { ok: true, file, mime: wallpaperMime(file)!, bytes: await readFile(join(WALLPAPER_DIR, file)) };
         } catch (err) {
             return { ok: false, error: `Couldn't read the wallpaper: ${errorOf(err)}` };
         }

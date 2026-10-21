@@ -6,6 +6,7 @@ import { join } from "path";
 
 import { DATA_DIR } from "./paths";
 import { settings } from "./settings";
+import { applyBeforeRestart } from "./updater";
 
 const STATE_FILE = join(DATA_DIR, "idle.json");
 const CHECK_EVERY_MS = 60_000;
@@ -23,8 +24,9 @@ let hiddenSince: number | undefined;
 let trimmed = false;
 let timer: ReturnType<typeof setInterval> | undefined;
 
-/** Evi's one way to restart Discord */
+/** Evi's one way to restart Discord. app.exit skips will-quit, where a silent update installs: it goes in here */
 export function relaunch(args?: string[]) {
+    applyBeforeRestart();
     app.relaunch(args ? { args } : undefined);
     app.exit(0);
 }

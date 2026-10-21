@@ -422,6 +422,22 @@ function applyOnQuit() {
     }
 }
 
+/**
+ * Evi's own restarts (idle.ts relaunch) end in app.exit, which skips will-quit: a staged core goes in
+ * first, so Discord comes back on the new Evi. A staged installer still waits for a real quit: it
+ * runs once Discord is gone, and a restart brings Discord straight back.
+ */
+export function applyBeforeRestart() {
+    const staged = readStaged();
+    const flavor = flavorOf(process.execPath);
+    if (installing || !shouldApplyOnQuit({ enabled: silentOn(), staged, running: EVI_VERSION, blocked: blockedReason(), flavor })) return;
+    try {
+        if (applyStagedCore(stagedFile(staged!.sha256, [CORE_PENDING]))) console.log(`[Evi] Installed Evi ${staged!.version} before restarting Discord`);
+    } catch (err) {
+        console.error("[Evi] Couldn’t install the downloaded update", err);
+    }
+}
+
 export function initUpdater() {
     // Installed, or older than what runs now (betas turned off, installed by hand): not needed any more
     if (!isStagedRelevant(readStaged(), EVI_VERSION)) forgetStaged();

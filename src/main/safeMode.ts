@@ -21,6 +21,7 @@ import { app, WebContents } from "electron";
 import { readFileSync, renameSync, writeFileSync } from "fs";
 import { join } from "path";
 
+import { relaunch } from "./idle";
 import { DATA_DIR } from "./paths";
 import { settings } from "./settings";
 
@@ -147,8 +148,7 @@ export const SafeMode = {
         // The safe mode notice already told them about it
         if (state.crash) state.crash.seen = true;
         save();
-        app.relaunch({ args: process.argv.slice(1).filter(a => a !== SAFE_FLAG) });
-        app.exit(0);
+        relaunch(process.argv.slice(1).filter(a => a !== SAFE_FLAG));
     },
 
     recordChange(change: Omit<RecentChange, "at">) {

@@ -2,7 +2,7 @@
     "id": "clear-urls",
     "name": "Clear URLs",
     "description": "Removes tracking parameters like utm_source and si from links before you send them.",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "authors": [
         "Evi"
     ],
@@ -13,6 +13,12 @@
         "readMessages": true
     },
     "changelog": [
+        {
+            "version": "1.1.1",
+            "notes": [
+                "A cleaned link keeps what comes after it: the closing || of a spoiler, ** of bold, ) of a masked link and the full stop at the end of a sentence. Links in code are left alone."
+            ]
+        },
         {
             "version": "1.1.0",
             "notes": [
@@ -38,6 +44,9 @@
             "name": "Links bereinigen",
             "description": "Entfernt Tracking-Parameter wie utm_source und si aus Links, bevor du sie sendest.",
             "changelog": {
+                "1.1.1": [
+                    "Ein bereinigter Link behält, was danach kommt: das schließende || eines Spoilers, ** von Fettschrift, ) eines maskierten Links und den Punkt am Satzende. Links in Code bleiben unverändert."
+                ],
                 "1.1.0": [
                     "Folgt der Sprache von Discord: Deutsch, Spanisch, Französisch, Japanisch, Polnisch, Portugiesisch, Russisch und Türkisch, dazu Englisch."
                 ],
@@ -53,6 +62,9 @@
             "name": "Limpiar enlaces",
             "description": "Quita los parámetros de rastreo como utm_source y si de los enlaces antes de enviarlos.",
             "changelog": {
+                "1.1.1": [
+                    "Un enlace limpio conserva lo que va después: el || que cierra un spoiler, los ** de la negrita, el ) de un enlace con texto y el punto al final de la frase. Los enlaces dentro de código no se tocan."
+                ],
                 "1.1.0": [
                     "Sigue el idioma de Discord: alemán, español, francés, japonés, polaco, portugués, ruso y turco, además de inglés."
                 ],
@@ -68,6 +80,9 @@
             "name": "Nettoyeur de liens",
             "description": "Retire les paramètres de suivi comme utm_source et si des liens avant leur envoi.",
             "changelog": {
+                "1.1.1": [
+                    "Un lien nettoyé garde ce qui le suit : le || qui ferme un spoiler, les ** du gras, la ) d'un lien masqué et le point en fin de phrase. Les liens dans du code ne sont plus modifiés."
+                ],
                 "1.1.0": [
                     "Suit la langue de Discord : allemand, espagnol, français, japonais, polonais, portugais, russe et turc, en plus de l'anglais."
                 ],
@@ -83,6 +98,9 @@
             "name": "URLクリーナー",
             "description": "送信前のリンクから、utm_sourceやsiなどのトラッキングパラメーターを取り除きます。",
             "changelog": {
+                "1.1.1": [
+                    "整えたリンクの後ろにあるものが消えなくなりました。スポイラーを閉じる ||、太字の **、マスクリンクの )、文末の句点がそのまま残ります。コード内のリンクは変更しません。"
+                ],
                 "1.1.0": [
                     "Discordの言語設定に合わせて表示されます。英語のほか、ドイツ語、スペイン語、フランス語、日本語、ポーランド語、ポルトガル語、ロシア語、トルコ語に対応しています。"
                 ],
@@ -98,6 +116,9 @@
             "name": "Czyszczenie linków",
             "description": "Usuwa z linków parametry śledzące, takie jak utm_source i si, zanim je wyślesz.",
             "changelog": {
+                "1.1.1": [
+                    "Oczyszczony link zachowuje to, co stoi po nim: zamykające || spoilera, ** pogrubienia, ) linku z tekstem i kropkę na końcu zdania. Linki w kodzie zostają bez zmian."
+                ],
                 "1.1.0": [
                     "Mówi w języku Discorda: po niemiecku, hiszpańsku, francusku, japońsku, polsku, portugalsku, rosyjsku i turecku, oprócz angielskiego."
                 ],
@@ -113,6 +134,9 @@
             "name": "Limpar links",
             "description": "Remove parâmetros de rastreamento como utm_source e si dos links antes de você enviá-los.",
             "changelog": {
+                "1.1.1": [
+                    "Um link limpo mantém o que vem depois dele: o || que fecha um spoiler, os ** do negrito, o ) de um link mascarado e o ponto final da frase. Links dentro de código não são alterados."
+                ],
                 "1.1.0": [
                     "Segue o idioma do Discord: alemão, espanhol, francês, japonês, polonês, português, russo e turco, além do inglês."
                 ],
@@ -128,6 +152,9 @@
             "name": "Очистка ссылок",
             "description": "Удаляет из ссылок параметры отслеживания, такие как utm_source и si, перед отправкой.",
             "changelog": {
+                "1.1.1": [
+                    "Очищенная ссылка больше не съедает то, что идёт после неё: закрывающие || спойлера, ** жирного текста, ) ссылки с текстом и точку в конце предложения. Ссылки в коде не меняются."
+                ],
                 "1.1.0": [
                     "Говорит на языке Discord: немецком, испанском, французском, японском, польском, португальском, русском и турецком, а также на английском."
                 ],
@@ -143,6 +170,9 @@
             "name": "Bağlantı Temizleyici",
             "description": "Bağlantıları göndermeden önce utm_source ve si gibi izleme parametrelerini kaldırır.",
             "changelog": {
+                "1.1.1": [
+                    "Temizlenen bağlantı, ardından gelenleri korur: spoiler'ı kapatan ||, kalın yazının **'ı, maskeli bağlantının )'i ve cümle sonundaki nokta. Koddaki bağlantılara dokunulmaz."
+                ],
                 "1.1.0": [
                     "Discord'un dilini kullanır: İngilizcenin yanı sıra Almanca, İspanyolca, Fransızca, Japonca, Lehçe, Portekizce, Rusça ve Türkçe."
                 ],

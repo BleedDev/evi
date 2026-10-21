@@ -1,13 +1,7 @@
 import { definePlugin, filters } from "@evi/api";
 
+import { cleanMessage, DEFAULT_PARAMS } from "./clean";
 import { t } from "./strings";
-
-const DEFAULT_PARAMS = [
-    "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "utm_id",
-    "fbclid", "gclid", "dclid", "msclkid", "igshid", "mc_eid", "si", "ref_src", "ref_url", "_hsenc", "_hsmi",
-];
-
-const URL_REGEX = /https?:\/\/[^\s<>"'`]+/g;
 
 export default definePlugin({
     settings: {
@@ -26,21 +20,7 @@ export default definePlugin({
             const extra = ctx.settings.get("extraParams").split(",").map(s => s.trim()).filter(Boolean);
             const params = new Set([...DEFAULT_PARAMS, ...extra]);
 
-            return content.replace(URL_REGEX, raw => {
-                try {
-                    const url = new URL(raw);
-                    let changed = false;
-                    for (const key of [...url.searchParams.keys()]) {
-                        if (params.has(key)) {
-                            url.searchParams.delete(key);
-                            changed = true;
-                        }
-                    }
-                    return changed ? url.toString() : raw;
-                } catch {
-                    return raw;
-                }
-            });
+            return cleanMessage(content, params);
         };
 
         // Export hooks: the message actions module is found whenever it loads, and unhooked on stop

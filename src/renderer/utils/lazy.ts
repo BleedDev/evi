@@ -10,10 +10,11 @@ export function lazy<T>(getter: () => T, knownKeys: readonly string[] = [], over
     let cached: any;
     const resolve = () => cached ??= getter();
 
-    // An arrow function target: callable, constructable via the trap, and no non-configurable keys
-    const target = (() => { }) as any;
+    // A bound function target: callable and constructable (an arrow function isn't, so the construct
+    // trap would never run), and unlike a plain function no non-configurable `prototype` key
+    const target = function () { }.bind(null) as any;
 
-    return new Proxy(target, {
+    const proxy: any = new Proxy(target, {
         get(_, key) {
             if (key === SYM_LAZY_GET) return resolve;
             if (overrides && Object.hasOwn(overrides, key)) return overrides[key];
@@ -23,7 +24,8 @@ export function lazy<T>(getter: () => T, knownKeys: readonly string[] = [], over
         set: (_, key, value) => Reflect.set(resolve(), key, value),
         has: (_, key) => Reflect.has(resolve(), key),
         apply: (_, thisArg, args) => Reflect.apply(resolve(), thisArg, args),
-        construct: (_, args, newTarget) => Reflect.construct(resolve(), args, newTarget === target ? resolve() : newTarget),
+        // `new value()` passes the proxy as newTarget, a subclass passes itself
+        construct: (_, args, newTarget) => Reflect.construct(resolve(), args, newTarget === proxy ? resolve() : newTarget),
         ownKeys() {
             try {
                 return Reflect.ownKeys(resolve());
@@ -46,7 +48,8 @@ export function lazy<T>(getter: () => T, knownKeys: readonly string[] = [], over
             return desc;
         },
         getPrototypeOf: () => Reflect.getPrototypeOf(resolve()),
-    }) as T;
+    });
+    return proxy;
 }
 
 /** Forces a lazy value to resolve, returning the real object */

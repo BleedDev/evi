@@ -1,6 +1,6 @@
 import type { AccountLinkResult, AccountStatus, AccountUser } from "@shared/account";
 import type { Announcement } from "@shared/announcements";
-import { isDiscordAppUrl, isOverlayWindow } from "@shared/appHosts";
+import { isDiscordAppUrl, isOverlayWindow, isPopoutUrl } from "@shared/appHosts";
 import type { AuthorLink, AuthorStatsResult } from "@shared/authorStats";
 import type { ImportMode } from "@shared/backup";
 import type { BadgeAdminAction, BadgeAdminResult, BadgePrefs, BadgePrefsResult, BadgesResult, CreditsDocument } from "@shared/badges";
@@ -222,7 +222,11 @@ function handOver() {
     };
 }
 
-if (isDiscordApp) {
+if (isDiscordApp && isPopoutUrl(location.href)) {
+    // Discord's popout windows: only Evi's styles (src/renderer/popout.ts), and no bridge
+    const popout: string = ipcRenderer.sendSync(IPC.GET_RENDERER, "popout");
+    if (popout) void webFrame.executeJavaScript(popout);
+} else if (isDiscordApp) {
     const lock = handOver();
     // Runs in the page's world, ahead of Discord's scripts. Whatever happened in there (a renderer
     // that failed before claiming it), nothing after it gets the bridge.

@@ -35,7 +35,7 @@ globalThis.__eviCoreDir ??= globalThis.__delightCoreDir!;
 declare global {
     // eslint-disable-next-line no-var
     var __eviLoadedDiscord: boolean | undefined;
-    /** Folder holding main.js, preload.js and renderer.js. Set by the loader. */
+    /** Folder holding main.js, preload.js, renderer.js and popout.js. Set by the loader. */
     var __eviCoreDir: string;
     /** Set by loaders installed before the rename to Evi */
     var __delightCoreDir: string | undefined;
@@ -56,7 +56,16 @@ function readQuickCss() {
 }
 
 function registerIpc() {
-    ipcMain.on(IPC.GET_RENDERER, e => {
+    ipcMain.on(IPC.GET_RENDERER, (e, kind?: unknown) => {
+        // Discord's popout windows get popout.js, never the renderer; without it, nothing
+        if (kind === "popout") {
+            try {
+                e.returnValue = readFileSync(join(globalThis.__eviCoreDir, "popout.js"), "utf8");
+            } catch {
+                e.returnValue = "";
+            }
+            return;
+        }
         // Read fresh every time so Ctrl+R picks up a rebuilt renderer without restarting Discord
         e.returnValue = readFileSync(join(globalThis.__eviCoreDir, "renderer.js"), "utf8");
     });

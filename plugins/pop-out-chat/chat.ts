@@ -1,6 +1,6 @@
 /**
  * What a chat window is about, without Discord or the DOM: which channels have a chat to pop out,
- * the window key Discord's popout manager gets, and the title it shows.
+ * the window key Discord's popout manager gets, the title it shows, and which styles it leaves to Evi.
  */
 
 /** Channel types whose page is Discord's chat: text, DMs, voice and stage text chat, announcements, threads */
@@ -64,3 +64,10 @@ export function chatTitle(channel: ChatChannel, getUser: (id: string) => ChatUse
     // Like Discord's own headers: a # for text and announcement channels, none for voice, stage and threads
     return channel.type === 0 || channel.type === 5 ? `#${channel.name}` : channel.name;
 }
+
+/**
+ * The main window's styles a chat window doesn't copy: the ones Evi itself copies into every popout
+ * (its themes, Quick CSS, dialog motion and typing dots, src/renderer/popoutStyles.ts), so they aren't
+ * there twice; and the wallpaper's, which only goes with the wallpaper behind Discord's main window.
+ */
+export const copiedByEvi = (id: string) => /^evi-(theme-.+|neutral-discord-tint|quickcss|layer-motion|typing-dots|wallpaper-style)$/.test(id);

@@ -135,6 +135,15 @@ async function buildCore() {
             plugins: [jsxShim],
             sourcemap: WATCH ? "inline" : "none",
         }, true),
+        // What Discord's popout windows get instead of the renderer (src/renderer/popout.ts)
+        bundle("popout", {
+            entrypoints: [join(ROOT, "src/renderer/popout.ts")],
+            outdir: CORE_OUT,
+            naming: "popout.js",
+            target: "browser",
+            format: "iife",
+            sourcemap: WATCH ? "inline" : "none",
+        }, true),
     ]);
     results.push(await data);
     if (results.every(Boolean)) console.log(`✓ core (${Math.round(performance.now() - start)}ms)`);

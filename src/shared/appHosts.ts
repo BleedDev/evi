@@ -18,6 +18,19 @@ export function isOverlayUrl(url: string) {
 }
 
 /**
+ * Discord's popout windows (a popped-out call or stream, Pop Out Chat): /popout, opened by the main
+ * window with window.open and drawn into by it. The page itself has no webpack, so nothing of Evi's
+ * can start there; it only gets Evi's styles (src/renderer/popout.ts).
+ */
+export function isPopoutUrl(url: string) {
+    try {
+        return /^\/popout(\/|$)/.test(new URL(url).pathname);
+    } catch {
+        return false;
+    }
+}
+
+/**
  * Discord's newer overlay (Overlay V3, "out of process"): not the /overlay page but a see-through
  * popout at /popout, opened with window.open("/popout", this name) and drawn into by the main window
  */

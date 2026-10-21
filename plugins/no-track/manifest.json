@@ -2,7 +2,7 @@
     "id": "no-track",
     "name": "No Track",
     "description": "Turns off Discord's analytics, metrics and error reporting inside Discord, and blocks anything that still tries to send before it leaves your machine.",
-    "version": "1.2.3",
+    "version": "1.2.4",
     "authors": [
         "Evi"
     ],
@@ -11,6 +11,12 @@
     ],
     "permissions": {},
     "changelog": [
+        {
+            "version": "1.2.4",
+            "notes": [
+                "Only Discord's tracking addresses are checked now: pictures, videos and the rest of what Discord loads pass straight through."
+            ]
+        },
         {
             "version": "1.2.3",
             "notes": [
@@ -61,6 +67,9 @@
             "name": "No Track",
             "description": "Schaltet die Analysen, Metriken und Fehlerberichte von Discord in Discord selbst ab und blockiert alles, was trotzdem senden will, bevor es deinen Rechner verlässt.",
             "changelog": {
+                "1.2.4": [
+                    "Geprüft werden jetzt nur noch Discords Tracking-Adressen: Bilder, Videos und alles andere, was Discord lädt, gehen direkt durch."
+                ],
                 "1.2.3": [
                     "Stoppt auch den Größenbericht, den Discord beim Start oder Neuverbinden aus allem errechnet, was es lädt. Nur seine Analysen lesen ihn."
                 ],
@@ -89,6 +98,9 @@
             "name": "No Track",
             "description": "Desactiva las analíticas, métricas e informes de errores de Discord dentro del propio Discord, y bloquea lo que aún intente enviarse antes de que salga de tu equipo.",
             "changelog": {
+                "1.2.4": [
+                    "Ahora solo se revisan las direcciones de seguimiento de Discord: las imágenes, los vídeos y todo lo demás que carga Discord pasan directamente."
+                ],
                 "1.2.3": [
                     "También detiene el informe de tamaños que Discord calcula a partir de todo lo que carga al iniciar o reconectarse. Solo lo leen sus analíticas."
                 ],
@@ -117,6 +129,9 @@
             "name": "No Track",
             "description": "Désactive les analyses, métriques et rapports d'erreurs de Discord dans Discord même, et bloque ce qui tente encore d'être envoyé avant que ça ne quitte votre machine.",
             "changelog": {
+                "1.2.4": [
+                    "Seules les adresses de suivi de Discord sont désormais vérifiées : les images, les vidéos et tout le reste de ce que Discord charge passent directement."
+                ],
                 "1.2.3": [
                     "Arrête aussi le rapport de tailles que Discord calcule à partir de tout ce qu'il charge au démarrage ou à la reconnexion. Seules ses statistiques le lisent."
                 ],
@@ -145,6 +160,9 @@
             "name": "No Track",
             "description": "Discordの分析・メトリクス・エラーレポートをDiscord内でオフにし、それでも送信しようとするものはお使いのPCから出る前にブロックします。",
             "changelog": {
+                "1.2.4": [
+                    "確認するのは Discord のトラッキング用アドレスだけになりました。画像や動画など、Discord が読み込むその他のものはそのまま通ります。"
+                ],
                 "1.2.3": [
                     "Discord が起動時や再接続時に読み込んだすべてのデータから算出するサイズ報告も止めます。これを使うのは分析だけです。"
                 ],
@@ -173,6 +191,9 @@
             "name": "No Track",
             "description": "Wyłącza analitykę, metryki i raporty błędów Discorda w samym Discordzie, a to, co mimo to próbuje wysłać, blokuje, zanim opuści Twój komputer.",
             "changelog": {
+                "1.2.4": [
+                    "Sprawdzane są teraz tylko adresy śledzące Discorda: zdjęcia, filmy i cała reszta tego, co wczytuje Discord, przechodzą od razu."
+                ],
                 "1.2.3": [
                     "Zatrzymuje też raport rozmiarów, który Discord wylicza ze wszystkiego, co wczytuje przy starcie lub ponownym połączeniu. Czyta go tylko jego analityka."
                 ],
@@ -201,6 +222,9 @@
             "name": "No Track",
             "description": "Desliga as análises, métricas e relatórios de erro do Discord dentro do próprio Discord, e bloqueia o que ainda tentar enviar antes que saia do seu computador.",
             "changelog": {
+                "1.2.4": [
+                    "Agora só os endereços de rastreamento do Discord são verificados: imagens, vídeos e todo o resto que o Discord carrega passam direto."
+                ],
                 "1.2.3": [
                     "Também interrompe o relatório de tamanhos que o Discord calcula a partir de tudo o que carrega ao iniciar ou reconectar. Só as análises dele o leem."
                 ],
@@ -229,6 +253,9 @@
             "name": "No Track",
             "description": "Отключает аналитику, метрики и отчёты об ошибках Discord внутри самого Discord, а всё, что всё равно пытается отправиться, блокирует до того, как оно покинет ваш компьютер.",
             "changelog": {
+                "1.2.4": [
+                    "Теперь проверяются только адреса отслеживания Discord: картинки, видео и всё остальное, что загружает Discord, проходят напрямую."
+                ],
                 "1.2.3": [
                     "Также отключает отчёт о размерах, который Discord составляет из всего, что загружает при запуске или переподключении. Его читает только аналитика."
                 ],
@@ -257,6 +284,9 @@
             "name": "No Track",
             "description": "Discord'un analiz, ölçüm ve hata raporlamasını Discord'un içinde kapatır; yine de gönderilmeye çalışılanı bilgisayarından çıkmadan engeller.",
             "changelog": {
+                "1.2.4": [
+                    "Artık yalnızca Discord'un izleme adresleri denetleniyor: resimler, videolar ve Discord'un yüklediği diğer her şey doğrudan geçiyor."
+                ],
                 "1.2.3": [
                     "Discord'un açılışta veya yeniden bağlanırken yüklediği her şeyden çıkardığı boyut raporunu da durdurur. Bu raporu yalnızca analizleri okur."
                 ],

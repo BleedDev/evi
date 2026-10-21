@@ -476,7 +476,8 @@ import { net } from "electron";
 export default {
     start(ctx) {
         // ctx.pluginId, ctx.pluginDir, ctx.dataDir
-        ctx.onBeforeRequest(({ url }) => url.includes("/science") ? { cancel: true } : undefined);
+        // The patterns keep every other request out of main's JS; the filter still checks the URL
+        ctx.onBeforeRequest(({ url }) => url.includes("/science") ? { cancel: true } : undefined, ["https://*.discord.com/api/*"]);
         ctx.onDispose(() => { /* ... */ });
     },
     stop() { },

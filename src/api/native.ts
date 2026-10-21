@@ -13,8 +13,15 @@ export interface NativeContext {
     readonly pluginId: string;
     readonly pluginDir: string;
     readonly dataDir: string;
-    /** Cancel or redirect requests made by Discord. Removed automatically on stop. */
-    onBeforeRequest(filter: (details: OnBeforeRequestListenerDetails) => { cancel?: boolean; redirectURL?: string; } | void): () => void;
+    /**
+     * Cancel or redirect requests made by Discord. Removed automatically on stop.
+     *
+     * `urls` are Chrome match patterns ("https://*.discord.com/api/*"): only requests matching one
+     * go through main's JS, the rest are left alone without waiting on it. Left out, the filter
+     * sees every request. Patterns narrow what arrives but don't guarantee it: the filter may still
+     * see requests another plugin asked for, so it checks the URL itself.
+     */
+    onBeforeRequest(filter: (details: OnBeforeRequestListenerDetails) => { cancel?: boolean; redirectURL?: string; } | void, urls?: readonly string[]): () => void;
     /** Run when the plugin stops or is hot-reloaded. */
     onDispose(fn: () => void): void;
 }

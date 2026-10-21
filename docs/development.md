@@ -294,7 +294,8 @@ import type { NativePlugin } from "@evi/api/native";
 
 export default {
     start(ctx) {
-        ctx.onBeforeRequest(({ url }) => url.includes("/science") ? { cancel: true } : undefined);
+        // Optional Chrome match patterns: other requests never reach main's JS
+        ctx.onBeforeRequest(({ url }) => url.includes("/science") ? { cancel: true } : undefined, ["https://*.discord.com/api/*"]);
     },
     async readConfig(path: string) { /* full Node + Electron access */ },
 } satisfies NativePlugin;

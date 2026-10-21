@@ -191,8 +191,8 @@ function startNative(id: string) {
         pluginId: id,
         pluginDir: plugin.dir,
         dataDir: DATA_DIR,
-        onBeforeRequest: filter => {
-            const remove = addRequestFilter(session.defaultSession, filter);
+        onBeforeRequest: (filter, urls) => {
+            const remove = addRequestFilter(session.defaultSession, filter, urls);
             native.disposers.push(remove);
             return remove;
         },

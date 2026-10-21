@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import type { Replacement } from "../src/renderer/patching/source";
 import { canonicalizeMatch, matchesFind } from "../src/renderer/patching/source";
-import { isTracking } from "../plugins/no-track/native";
+import { isTracking, TRACKING_URLS } from "../plugins/no-track/native";
 import { PATCHES } from "../plugins/no-track/patches";
 
 // Verbatim from Discord's web build (2026-10-02), trimmed to the patched spots
@@ -139,16 +139,43 @@ describe("ready size report", () => {
     });
 });
 
+/** Chrome's match patterns, as far as these use them: scheme, a host with an optional leading *., a path glob over path and query */
+function matchesPattern(pattern: string, url: string) {
+    const [, scheme, host, path] = pattern.match(/^(\w+):\/\/([^/]+)(\/.*)$/)!;
+    const u = new URL(url);
+    const hostOk = host.startsWith("*.") ? u.hostname === host.slice(2) || u.hostname.endsWith(host.slice(1)) : u.hostname === host;
+    const glob = new RegExp(`^${path.split("*").map(s => s.replace(/[.?+^$()[\]{}|\\]/g, "\\$&")).join(".*")}$`);
+    return u.protocol === `${scheme}:` && hostOk && glob.test(u.pathname + u.search);
+}
+
 describe("main process filter", () => {
+    const TRACKED = [
+        "https://discord.com/api/v9/science",
+        "https://ptb.discord.com/api/v10/metrics/v2",
+        "https://discordapp.com/api/v9/science?x=1",
+        "https://discord.com/error-reporting-proxy/web?sentry_key=x",
+        "https://canary.discord.com/error-reporting-proxy/web",
+        "https://o64374.ingest.sentry.io/api/146342/envelope/",
+        "https://sentry.io/api/140984/store/",
+    ];
+
     test("blocks analytics, metrics and error reports", () => {
+        for (const url of TRACKED) expect(isTracking(url)).toBe(true);
+    });
+
+    test("only tracking URLs reach main: the patterns cover every one, and not Discord's media or the rest of its API", () => {
+        const reaches = (url: string) => TRACKING_URLS.some(p => matchesPattern(p, url));
+        for (const url of TRACKED) expect(reaches(url)).toBe(true);
         for (const url of [
-            "https://discord.com/api/v9/science",
-            "https://ptb.discord.com/api/v10/metrics/v2",
-            "https://discord.com/error-reporting-proxy/web?sentry_key=x",
-            "https://canary.discord.com/error-reporting-proxy/web",
-            "https://o64374.ingest.sentry.io/api/146342/envelope/",
-            "https://sentry.io/api/140984/store/",
-        ]) expect(isTracking(url)).toBe(true);
+            "https://discord.com/api/v9/channels/1/messages",
+            "https://cdn.discordapp.com/attachments/1/2/sentry.io.png",
+            "https://media.discordapp.net/attachments/1/2/a.png?width=400",
+            "https://notsentry.io/api",
+            "https://discord.com/app",
+            "https://example.com/error-reporting-proxy/web",
+        ]) expect(reaches(url)).toBe(false);
+        // Looser than isTracking, which still decides
+        expect(reaches("https://discord.com/api/v9/users/@me/science-settings")).toBe(true);
     });
 
     test("leaves everything else alone", () => {

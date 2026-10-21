@@ -2,7 +2,7 @@
     "id": "no-track",
     "name": "No Track",
     "description": "Turns off Discord's analytics, metrics and error reporting inside Discord, and blocks anything that still tries to send before it leaves your machine.",
-    "version": "1.2.2",
+    "version": "1.2.3",
     "authors": [
         "Evi"
     ],
@@ -11,6 +11,12 @@
     ],
     "permissions": {},
     "changelog": [
+        {
+            "version": "1.2.3",
+            "notes": [
+                "Also stops the size report Discord works out from everything it loads when it starts or reconnects. Only its analytics read it."
+            ]
+        },
         {
             "version": "1.2.2",
             "notes": [
@@ -55,6 +61,9 @@
             "name": "No Track",
             "description": "Schaltet die Analysen, Metriken und Fehlerberichte von Discord in Discord selbst ab und blockiert alles, was trotzdem senden will, bevor es deinen Rechner verlässt.",
             "changelog": {
+                "1.2.3": [
+                    "Stoppt auch den Größenbericht, den Discord beim Start oder Neuverbinden aus allem errechnet, was es lädt. Nur seine Analysen lesen ihn."
+                ],
                 "1.2.2": [
                     "Die Einstellungen protokollieren keinen Fehler mehr alle 2 Sekunden, solange die Zahl der blockierten Anfragen nicht gelesen werden kann."
                 ],
@@ -80,6 +89,9 @@
             "name": "No Track",
             "description": "Desactiva las analíticas, métricas e informes de errores de Discord dentro del propio Discord, y bloquea lo que aún intente enviarse antes de que salga de tu equipo.",
             "changelog": {
+                "1.2.3": [
+                    "También detiene el informe de tamaños que Discord calcula a partir de todo lo que carga al iniciar o reconectarse. Solo lo leen sus analíticas."
+                ],
                 "1.2.2": [
                     "Sus ajustes ya no registran un error cada 2 segundos mientras no se puede leer el recuento de bloqueos."
                 ],
@@ -105,6 +117,9 @@
             "name": "No Track",
             "description": "Désactive les analyses, métriques et rapports d'erreurs de Discord dans Discord même, et bloque ce qui tente encore d'être envoyé avant que ça ne quitte votre machine.",
             "changelog": {
+                "1.2.3": [
+                    "Arrête aussi le rapport de tailles que Discord calcule à partir de tout ce qu'il charge au démarrage ou à la reconnexion. Seules ses statistiques le lisent."
+                ],
                 "1.2.2": [
                     "Ses paramètres n'enregistrent plus une erreur toutes les 2 secondes tant que le nombre de requêtes bloquées ne peut pas être lu."
                 ],
@@ -130,6 +145,9 @@
             "name": "No Track",
             "description": "Discordの分析・メトリクス・エラーレポートをDiscord内でオフにし、それでも送信しようとするものはお使いのPCから出る前にブロックします。",
             "changelog": {
+                "1.2.3": [
+                    "Discord が起動時や再接続時に読み込んだすべてのデータから算出するサイズ報告も止めます。これを使うのは分析だけです。"
+                ],
                 "1.2.2": [
                     "ブロック数を読み取れない間、設定画面が2秒ごとにエラーを記録しなくなりました。"
                 ],
@@ -155,6 +173,9 @@
             "name": "No Track",
             "description": "Wyłącza analitykę, metryki i raporty błędów Discorda w samym Discordzie, a to, co mimo to próbuje wysłać, blokuje, zanim opuści Twój komputer.",
             "changelog": {
+                "1.2.3": [
+                    "Zatrzymuje też raport rozmiarów, który Discord wylicza ze wszystkiego, co wczytuje przy starcie lub ponownym połączeniu. Czyta go tylko jego analityka."
+                ],
                 "1.2.2": [
                     "Ustawienia nie zapisują już błędu co 2 sekundy, gdy nie da się odczytać liczby zablokowanych żądań."
                 ],
@@ -180,6 +201,9 @@
             "name": "No Track",
             "description": "Desliga as análises, métricas e relatórios de erro do Discord dentro do próprio Discord, e bloqueia o que ainda tentar enviar antes que saia do seu computador.",
             "changelog": {
+                "1.2.3": [
+                    "Também interrompe o relatório de tamanhos que o Discord calcula a partir de tudo o que carrega ao iniciar ou reconectar. Só as análises dele o leem."
+                ],
                 "1.2.2": [
                     "As configurações não registram mais um erro a cada 2 segundos enquanto a contagem de bloqueios não pode ser lida."
                 ],
@@ -205,6 +229,9 @@
             "name": "No Track",
             "description": "Отключает аналитику, метрики и отчёты об ошибках Discord внутри самого Discord, а всё, что всё равно пытается отправиться, блокирует до того, как оно покинет ваш компьютер.",
             "changelog": {
+                "1.2.3": [
+                    "Также отключает отчёт о размерах, который Discord составляет из всего, что загружает при запуске или переподключении. Его читает только аналитика."
+                ],
                 "1.2.2": [
                     "Настройки больше не записывают ошибку каждые 2 секунды, пока не удаётся прочитать число заблокированных запросов."
                 ],
@@ -230,6 +257,9 @@
             "name": "No Track",
             "description": "Discord'un analiz, ölçüm ve hata raporlamasını Discord'un içinde kapatır; yine de gönderilmeye çalışılanı bilgisayarından çıkmadan engeller.",
             "changelog": {
+                "1.2.3": [
+                    "Discord'un açılışta veya yeniden bağlanırken yüklediği her şeyden çıkardığı boyut raporunu da durdurur. Bu raporu yalnızca analizleri okur."
+                ],
                 "1.2.2": [
                     "Engellenen istek sayısı okunamadığı sürece ayarlar artık her 2 saniyede bir hata kaydetmiyor."
                 ],

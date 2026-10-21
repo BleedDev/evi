@@ -15,6 +15,9 @@ const SOURCES = {
     sentry: 'window.DiscordSentry=function(){t.Ts({tunnel:"/error-reporting-proxy/web",dsn:"https://fa97a90475514c03a42f80cd36d147c4@sentry.io/140984",autoSessionTracking:!1,environment:window.GLOBAL_ENV.RELEASE_CHANNEL,integrations:[n.L({onerror:!0,onunhandledrejection:!0}),i.F({console:!0,dom:!0,fetch:!0,history:!0,sentry:!0,xhr:!0}),l.S()]});return d}();',
 };
 
+// The gateway socket's READY branch, verbatim from the 2026-10-21 build, up to the dispatch
+const READY = '"READY"===r){let e,n,d=function(e){let t=Date.now(),{guilds:n,merged_presences:i,merged_members:r,read_state:a,private_channels:s,user_guild_settings:l,user_settings:o,user_settings_proto:d,experiments:c,guild_experiments:u,relationships:_,users:E,...A}=e,h=[],f=[],I=[],p=[],T=[],m=[],g=[],S=[];return n.forEach(e=>{if(e.unavailable)return;let{features:t,...n}=e.properties??{},{threads:i,guild_scheduled_events:r,...a}=e;h.push("partial"===e.data_mode?e.partial_updates.channels:e.channels),f.push("partial"===e.data_mode?e.partial_updates.roles:e.roles),I.push("partial"===e.data_mode?e.partial_updates.emojis:e.emojis),p.push(i),T.push("partial"===e.data_mode?e.partial_updates.stickers:e.stickers),m.push(t),g.push(r),S.push(a,n)}),{presences_size:JSON.stringify(i?.friends??[]).length,users_size:JSON.stringify(E).length,read_states_size:JSON.stringify(a).length,private_channels_size:JSON.stringify(s).length,user_settings_size:JSON.stringify(o??"").length+(d??"").length,experiments_size:JSON.stringify(c??[]).length+JSON.stringify(u??[]).length,user_guild_settings_size:JSON.stringify(l).length,relationships_size:JSON.stringify(_).length,remaining_data_size:JSON.stringify(A??{}).length,guild_channels_size:JSON.stringify(h).length,guild_members_size:JSON.stringify(r??[]).length,guild_presences_size:JSON.stringify(i?.guilds??[]).length,guild_roles_size:JSON.stringify(f).length,guild_emojis_size:JSON.stringify(I).length,guild_threads_size:JSON.stringify(p).length,guild_stickers_size:JSON.stringify(T).length,guild_events_size:JSON.stringify(g).length,guild_features_size:JSON.stringify(m).length,guild_remaining_data_size:JSON.stringify(S).length,size_metrics_duration_ms:Date.now()-t}}(i);';
+
 type AnyPatch = { find: string; replace: Replacement | Replacement[]; };
 
 function replacements(patch: AnyPatch) {
@@ -111,6 +114,28 @@ describe("sentry", () => {
         expect(options.defaultIntegrations).toBe(false);
         expect(options.tunnel).toBe("/error-reporting-proxy/web");
         expect(typeof window.DiscordSentry.captureException).toBe("function");
+    });
+});
+
+describe("ready size report", () => {
+    const [r] = replacements(PATCHES.readySize);
+    /** The size report itself, as the function expression the READY branch calls */
+    const report = (code: string) => new Function(`return ${code.slice(code.indexOf("function(e){"), code.lastIndexOf("(i);"))}`)() as (ready: unknown) => object;
+    const ready = {
+        guilds: [{ id: "1", channels: [{ id: "2" }], roles: [] }], merged_presences: { friends: [] }, users: [{ id: "3" }],
+        read_state: [], private_channels: [], user_guild_settings: [], relationships: [],
+    };
+
+    test("finds only the gateway socket's READY branch", () => {
+        expect(matchesFind(READY, PATCHES.readySize.find)).toBe(true);
+        expect(matchesFind("ready_guild_remaining_data_size:this.readyProperties.guild_remaining_data_size,", PATCHES.readySize.find)).toBe(false);
+        expect(matchesFind(Object.values(SOURCES).join(""), PATCHES.readySize.find)).toBe(false);
+        for (const patch of [PATCHES.analytics, PATCHES.metrics, PATCHES.sentry]) expect(matchesFind(READY, patch.find)).toBe(false);
+    });
+
+    test("READY isn't stringified for its sizes anymore", () => {
+        expect(report(READY)(ready)).toHaveProperty("users_size", JSON.stringify(ready.users).length);
+        expect(report(apply(r, READY))(ready)).toEqual({});
     });
 });
 

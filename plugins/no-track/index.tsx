@@ -37,11 +37,12 @@ function BlockedCounter({ ctx }: { ctx: PluginContext; }) {
 
 /**
  * Two layers: patches.ts stops Discord's analytics, metrics and Sentry in the page, so the events
- * are never built, queued or retried; native.ts blocks whatever still tries to leave, in the main
- * process, Discord's own Sentry there included.
+ * are never built, queued or retried, and skips the READY size report that only analytics reads;
+ * native.ts blocks whatever still tries to leave, in the main process, Discord's own Sentry there
+ * included.
  */
 export default definePlugin({
-    patches: [PATCHES.analytics, PATCHES.metrics, PATCHES.sentry],
+    patches: [PATCHES.analytics, PATCHES.metrics, PATCHES.sentry, PATCHES.readySize],
     settingsPanel: ctx => <BlockedCounter ctx={ctx} />,
     /** Called by the patched analytics code for every event it stops */
     dropped() {

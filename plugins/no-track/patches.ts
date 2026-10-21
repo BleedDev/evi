@@ -73,4 +73,23 @@ export const PATCHES = {
             with: "enabled:!1,defaultIntegrations:!1,",
         },
     },
+
+    /**
+     * The gateway socket, on every READY (each start, and each full reconnect):
+     *     "READY"===r){let e,n,d=function(e){let t=Date.now(),{guilds:n,merged_presences:i,...}=e,...;
+     *     return ...,{presences_size:JSON.stringify(i?.friends??[]).length,users_size:...,
+     *     guild_remaining_data_size:JSON.stringify(S).length,size_metrics_duration_ms:Date.now()-t}}(i);
+     *     this.getDispatchHandler(r)?.dispatch(i,r,s,l)
+     * stringifies nearly the whole READY payload, in about 19 slices, before the stores even get it,
+     * only to put the sizes in analytics (readyProperties and READY_PAYLOAD_RECEIVED). It returns
+     * nothing now. num_guilds, which Discord reads elsewhere, comes from a separate function.
+     */
+    readySize: {
+        find: "guild_remaining_data_size:JSON.stringify(",
+        optional: true,
+        replace: {
+            match: /=function\(\i\)\{(?=let \i=Date\.now\(\),\{guilds:\i,merged_presences:)/,
+            with: "$&return{};",
+        },
+    },
 } satisfies Record<string, SourcePatch>;

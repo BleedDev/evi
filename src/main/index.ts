@@ -21,7 +21,7 @@ import { SafeMode } from "./safeMode";
 import { saveSettings, settings } from "./settings";
 import { initStars } from "./stars";
 import { initStore } from "./store";
-import { mergeListSwitches } from "./switches";
+import { applyLowerMemory, mergeListSwitches } from "./switches";
 import { initThemeSubmit } from "./themeSubmit";
 import { getThemePayloads, initThemes } from "./themes";
 import { initUpdater } from "./updater";
@@ -241,6 +241,7 @@ function setup() {
     SafeMode.watchCrashes();
     enableDevTools();
     mergeListSwitches();
+    applyLowerMemory();
     applyChromiumSwitches();
     app.on("session-created", addPreload);
     app.whenReady().then(() => addPreload(session.defaultSession));

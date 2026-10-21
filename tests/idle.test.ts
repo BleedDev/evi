@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { LIST_SWITCHES, mergeSwitchList } from "../src/shared/chromiumSwitches";
+import { LIST_SWITCHES, LOWER_MEMORY_JS_FLAGS, mergeJsFlags, mergeSwitchList } from "../src/shared/chromiumSwitches";
 import { DEFAULT_RESTART_GB, isBusy, isChannelPath, relaunchArgs, RESTART_AWAY_MS, RESTART_EVERY_MS, RESTART_MIN_UPTIME_MS, RestartCheck, restartLimitGb, shouldRestart, shouldTrim, TRIM_HIDDEN_MS } from "../src/shared/idle";
 
 const GB = 1024 ** 3;
@@ -19,6 +19,20 @@ describe("feature list switches", () => {
         expect(LIST_SWITCHES.has("enable-features")).toBe(true);
         expect(LIST_SWITCHES.has("js-flags")).toBe(false);
         expect(LIST_SWITCHES.has("autoplay-policy")).toBe(false);
+    });
+});
+
+describe("js-flags", () => {
+    test("Discord's flag joins Evi's instead of replacing them", () => {
+        expect(mergeJsFlags(LOWER_MEMORY_JS_FLAGS, "--verify-snapshot-checksum")).toBe(`${LOWER_MEMORY_JS_FLAGS} --verify-snapshot-checksum`);
+        expect(mergeJsFlags("", "--expose-gc")).toBe("--expose-gc");
+        expect(mergeJsFlags("  --a  ", " --b ")).toBe("--a --b");
+    });
+
+    test("a flag given twice keeps the later value", () => {
+        expect(mergeJsFlags("--max-semi-space-size=8 --foo", "--max_semi_space_size=16")).toBe("--foo --max_semi_space_size=16");
+        expect(mergeJsFlags("--lazy", "--no-lazy")).toBe("--no-lazy");
+        expect(mergeJsFlags("--no-lazy", "-lazy")).toBe("-lazy");
     });
 });
 

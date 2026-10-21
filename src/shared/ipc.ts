@@ -323,6 +323,8 @@ export interface EviSettings {
     idleRestartGb?: number;
     /** Discord's own Game Mode, which Discord keeps behind an experiment (renderer/gameMode.ts). Missing: off */
     gameMode?: boolean;
+    /** V8 keeps a smaller heap in Discord's renderers, from the next start (main/switches.ts). Missing: off */
+    lowerMemory?: boolean;
 }
 
 /** An answer from evi.rest's community side; `unlinked` when it needs this Evi linked to an account */

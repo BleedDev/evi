@@ -15,7 +15,7 @@ import { Perf, PluginReport, RecordingReport, SiteKind, SLOW_CALL_MS, Totals, WI
 import { PluginManager } from "../plugins/manager";
 import { Settings } from "../settings";
 import { React } from "../webpack/common";
-import { Badge, Button, Collapse, Dropdown, EmptyState, IconButton, Section, Status, SwitchRow, Text, useStore } from "./components";
+import { Badge, Button, Collapse, Dropdown, EmptyState, IconButton, Notice, Section, Status, SwitchRow, Text, useStore } from "./components";
 
 /** A forgotten recording stops by itself */
 const MAX_RECORDING_MS = 60_000;
@@ -211,10 +211,15 @@ function MemoryRow({ name, value, loaded }: { name: string; value?: number; load
     );
 }
 
+/** Lower memory as Discord started with it: its V8 flags only change when Discord restarts */
+let lowerMemoryAtStart: boolean | undefined;
+
 /** What Discord uses now (main's app.getAppMetrics), and the restart while you're away (main/idle.ts) */
 function Memory() {
     const [usage, setUsage] = React.useState<MemoryUsage>();
     const restart = useStore(Settings.subscribe, () => Settings.data.idleRestart === true);
+    const lower = useStore(Settings.subscribe, () => Settings.data.lowerMemory === true);
+    lowerMemoryAtStart ??= lower;
     const limit = useStore(Settings.subscribe, () => restartLimitGb(Settings.data.idleRestartGb));
 
     React.useEffect(() => {
@@ -260,6 +265,20 @@ function Memory() {
                         })}
                     />
                 </div>
+            </Collapse>
+            <SwitchRow
+                id="dl-perf-lower-memory"
+                label={t("perf.lowerMemory.setting")}
+                description={t("perf.lowerMemory.settingHint")}
+                checked={lower}
+                onChange={on => Settings.update(d => {
+                    d.lowerMemory = on;
+                })}
+            />
+            <Collapse open={lower !== lowerMemoryAtStart} id="dl-perf-lower-memory-restart">
+                <Notice tone="info" action={<Button icon="refresh" onClick={() => void Native.relaunch()}>{t("perf.lowerMemory.restart")}</Button>}>
+                    {t("perf.lowerMemory.restartNotice")}
+                </Notice>
             </Collapse>
         </Section>
     );

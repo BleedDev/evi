@@ -129,6 +129,8 @@ function replaceModule(id: string, removed: SourcePatch[]): LiveOutcome {
         factory.call(fresh.exports, fresh, fresh.exports, req);
     } catch (err) {
         logger.error(`Re-running module ${id} threw`, err);
+        // What the half-run copy subscribed before it threw would handle every action next to the real module's
+        if (subscriptions) revertNewSubscriptions(subscriptions);
         return { id, ok: false, reason: `re-running it threw: ${err}` };
     }
 

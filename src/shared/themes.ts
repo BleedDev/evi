@@ -60,10 +60,17 @@ export function whyNotCss(text: string, contentType = "", tr: Tr = englishTr): s
     if (!/[{}]|@import/.test(text)) return tr("check.css.noRules");
 }
 
-/** A safe file name for a theme downloaded from a URL */
+/** A safe file name for a theme downloaded from a URL: always one isPlainThemeFileName accepts, so it can be deleted again */
 export function themeFileName(url: URL, meta: { name?: string; }) {
-    const last = decodeURIComponent(url.pathname.split("/").pop() ?? "");
+    const segment = url.pathname.split("/").pop() ?? "";
+    let last: string;
+    try {
+        last = decodeURIComponent(segment);
+    } catch {
+        // A stray % that isn't an escape (a%E0.css): the name as written
+        last = segment;
+    }
     const base = isThemeFile(last) ? last.replace(/\.css$/i, "") : meta.name || url.hostname;
-    const safe = base.replace(/[^\w.-]+/g, "-").replace(/^[-.]+|-+$/g, "").slice(0, 80) || "theme";
+    const safe = base.replace(/[^\w.-]+/g, "-").replace(/\.{2,}/g, ".").slice(0, 80).replace(/^[-.]+|[-.]+$/g, "") || "theme";
     return `${safe}.css`;
 }

@@ -49,6 +49,12 @@ describe("remote themes", () => {
         expect(themeFileName(new URL("https://x.dev/themes/Clear%20Vision.theme.css"), {})).toBe("Clear-Vision.theme.css");
         expect(themeFileName(new URL("https://x.dev/raw?id=4"), { name: "../../evil" })).toBe("evil.css");
         expect(themeFileName(new URL("https://x.dev/"), { name: "" })).toBe("x.dev.css");
+        // A % that isn't an escape doesn't throw, and every name can be deleted again
+        expect(themeFileName(new URL("https://x.dev/dark%E0.css"), {})).toBe("dark-E0.css");
+        for (const [url, name] of [["https://x.dev/my..theme.css", undefined], ["https://x.dev/a.", "Night."], ["https://x.dev/", "x".repeat(79) + ".y"]] as const) {
+            expect(isPlainThemeFileName(themeFileName(new URL(url), { name }))).toBe(true);
+        }
+        expect(themeFileName(new URL("https://x.dev/my..theme.css"), {})).toBe("my.theme.css");
     });
 });
 

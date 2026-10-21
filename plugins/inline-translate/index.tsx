@@ -397,10 +397,11 @@ export default definePlugin({
     settings,
 
     patches: [{
-        // The message hover bar: (0,a.jsx)(nl,{label:…,icon:…,onClick:e=>(0,tC.$b)(t,n,e)},"reply-other"):null,
+        // The message hover bar: (0,a.jsx)(nt.qv,{label:…,icon:…,onClick:e=>(0,tx.$b)(t,n,e)},"reply-other"):null,
+        // (the button was a plain local, nl, before Discord's October 2026 build; either works)
         find: '},"reply-other")',
         replace: {
-            match: /(\(0,\i\.jsx\)\((\i),\{label:[^{}]*?onClick:\i=>\(0,\i\.\i\)\((\i),(\i),\i\)\},"reply-other"\):null,)/,
+            match: /(\(0,\i\.jsx\)\((\i(?:\.\i)?),\{label:[^{}]*?onClick:\i=>\(0,\i\.\i\)\((\i),(\i),\i\)\},"reply-other"\):null,)/,
             with: "$1$self.hoverButton($2,$3,$4),",
         },
     }],

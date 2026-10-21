@@ -1,10 +1,21 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, mock, test } from "bun:test";
 
 import {
     cacheKey, chunkText, googleLanguage, isTranslatable, languageName, LRU, mightBeForeign, mightBeIn, normalizeLanguage, parseGoogleResponse,
     parseLanguageList, protect, RateQueue, restore, sameLanguage, shouldAutoTranslate, shouldShowAuto, translatableText, translateUrl,
 } from "../plugins/inline-translate/translate";
 import type { AutoOptions } from "../plugins/inline-translate/translate";
+import { canonicalizeMatch, matchesFind } from "../src/renderer/patching/source";
+
+mock.module("@evi/api", () => ({
+    definePlugin: (plugin: unknown) => plugin,
+    defineStrings: () => (key: string) => key,
+    filters: { byCode: () => () => false },
+    findMenuGroup: () => undefined,
+    getStore: () => undefined,
+    Menu: {},
+    React: {},
+}));
 
 describe("languages", () => {
     test("normalizes locales and Google's legacy codes", () => {
@@ -280,5 +291,23 @@ describe("RateQueue", () => {
         expect(dropped).toEqual(["2"]);
         expect(slow.size).toBe(0);
         q.stop();
+    });
+});
+
+describe("hover bar patch", () => {
+    // Discord's hover bar, trimmed to the Reply button (October 2026 build, and the earlier one with a plain local)
+    const sources = [
+        'g&&!c?(0,a.jsx)(nt.qv,{label:eL.intl.string(eL.t["5IEsGx"]),icon:tU.W,onClick:e=>(0,tx.$b)(t,n,e)},"reply-other"):null,c?(0,a.jsx)(nt.qv,{label:eL.intl.string(eL.t.bt75uw)},"edit"):null',
+        'g&&!c?(0,a.jsx)(nl,{label:eL.intl.string(eL.t["5IEsGx"]),icon:tU.W,onClick:e=>(0,tC.$b)(t,n,e)},"reply-other"):null,c?(0,a.jsx)(nl,{label:eL.intl.string(eL.t.bt75uw)},"edit"):null',
+    ];
+
+    test("adds our button right after Reply, given Discord's button, channel and message", async () => {
+        const { patches } = (await import("../plugins/inline-translate/index")).default as any;
+        const [patch] = patches;
+        for (const code of sources) {
+            expect(matchesFind(code, patch.find)).toBe(true);
+            const next = code.replace(canonicalizeMatch(patch.replace.match) as RegExp, patch.replace.with.replaceAll("$self", "IT"));
+            expect(next).toMatch(/,"reply-other"\):null,IT\.hoverButton\((nt\.qv|nl),t,n\),c\?/);
+        }
     });
 });

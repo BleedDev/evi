@@ -1,8 +1,8 @@
 {
     "id": "experiments",
     "name": "Experiments",
-    "description": "Unlocks Discord's Experiments and developer settings tabs.",
-    "version": "1.1.0",
+    "description": "Unlocks Discord's Experiments and developer settings tabs. Can also turn on two of Discord's own tests that load chat images and nameplate videos only when needed.",
+    "version": "1.2.0",
     "authors": [
         "Evi"
     ],
@@ -11,6 +11,12 @@
     ],
     "permissions": {},
     "changelog": [
+        {
+            "version": "1.2.0",
+            "notes": [
+                "Two new options, off by default: load chat images as you scroll, and load nameplate videos only when they play. Both turn on Discord's own tests for the session, and leave alone any you set yourself in the Experiments tab."
+            ]
+        },
         {
             "version": "1.1.0",
             "notes": [
@@ -33,8 +39,11 @@
     "locales": {
         "de": {
             "name": "Experimente",
-            "description": "Schaltet die Reiter „Experimente“ und Entwicklereinstellungen von Discord frei.",
+            "description": "Schaltet die Reiter „Experimente“ und Entwicklereinstellungen von Discord frei. Kann außerdem zwei eigene Tests von Discord einschalten, die Chat-Bilder und Namensschild-Videos erst bei Bedarf laden.",
             "changelog": {
+                "1.2.0": [
+                    "Zwei neue Optionen, standardmäßig aus: Chat-Bilder beim Scrollen laden und Namensschild-Videos erst beim Abspielen laden. Beide schalten Discords eigene Tests für die Sitzung ein und lassen Tests unverändert, die du im Reiter „Experimente“ selbst eingestellt hast."
+                ],
                 "1.1.0": [
                     "Folgt der Sprache von Discord: Deutsch, Spanisch, Französisch, Japanisch, Polnisch, Portugiesisch, Russisch und Türkisch, dazu Englisch."
                 ],
@@ -48,8 +57,11 @@
         },
         "es": {
             "name": "Experimentos",
-            "description": "Desbloquea las pestañas de Experimentos y de ajustes de desarrollador de Discord.",
+            "description": "Desbloquea las pestañas de Experimentos y de ajustes de desarrollador de Discord. También puede activar dos pruebas del propio Discord que cargan las imágenes del chat y los vídeos de placas de nombre solo cuando hacen falta.",
             "changelog": {
+                "1.2.0": [
+                    "Dos opciones nuevas, desactivadas por defecto: cargar imágenes del chat al desplazarte y cargar vídeos de placas de nombre solo al reproducirse. Ambas activan pruebas del propio Discord durante la sesión y no tocan las que ajustaste tú mismo en la pestaña Experimentos."
+                ],
                 "1.1.0": [
                     "Sigue el idioma de Discord: alemán, español, francés, japonés, polaco, portugués, ruso y turco, además de inglés."
                 ],
@@ -63,8 +75,11 @@
         },
         "fr": {
             "name": "Expériences",
-            "description": "Débloque les onglets Expériences et paramètres développeur de Discord.",
+            "description": "Débloque les onglets Expériences et paramètres développeur de Discord. Peut aussi activer deux tests de Discord lui-même qui ne chargent les images du chat et les vidéos des plaques de nom qu'au besoin.",
             "changelog": {
+                "1.2.0": [
+                    "Deux nouvelles options, désactivées par défaut : charger les images du chat au défilement et ne charger les vidéos des plaques de nom qu'à la lecture. Les deux activent des tests de Discord lui-même pour la session et laissent intacts ceux que tu as réglés toi-même dans l'onglet Expériences."
+                ],
                 "1.1.0": [
                     "Suit la langue de Discord : allemand, espagnol, français, japonais, polonais, portugais, russe et turc, en plus de l'anglais."
                 ],
@@ -78,8 +93,11 @@
         },
         "ja": {
             "name": "実験機能",
-            "description": "Discordの「Experiments」タブと開発者向け設定タブを解放します。",
+            "description": "Discordの「Experiments」タブと開発者向け設定タブを解放します。チャットの画像とネームプレートの動画を必要なときだけ読み込む、Discord 自身の2つのテストをオンにすることもできます。",
             "changelog": {
+                "1.2.0": [
+                    "新しいオプションを2つ追加しました(既定はオフ):スクロールに合わせてチャット画像を読み込む、ネームプレートの動画を再生時だけ読み込む。どちらもこのセッションの間だけ Discord 自身のテストをオンにし、Experiments タブで自分で設定したテストは変更しません。"
+                ],
                 "1.1.0": [
                     "Discordの言語設定に合わせて表示されます。英語のほか、ドイツ語、スペイン語、フランス語、日本語、ポーランド語、ポルトガル語、ロシア語、トルコ語に対応しています。"
                 ],
@@ -93,8 +111,11 @@
         },
         "pl": {
             "name": "Eksperymenty",
-            "description": "Odblokowuje karty Eksperymentów i ustawień deweloperskich w Discordzie.",
+            "description": "Odblokowuje karty Eksperymentów i ustawień deweloperskich w Discordzie. Może też włączyć dwa własne testy Discorda, które wczytują obrazy na czacie i filmy plakietek z nazwą dopiero wtedy, gdy są potrzebne.",
             "changelog": {
+                "1.2.0": [
+                    "Dwie nowe opcje, domyślnie wyłączone: wczytywanie obrazów na czacie podczas przewijania i wczytywanie filmów plakietek z nazwą dopiero przy odtwarzaniu. Obie włączają własne testy Discorda na czas sesji i nie zmieniają tych, które sam ustawisz na karcie Eksperymenty."
+                ],
                 "1.1.0": [
                     "Mówi w języku Discorda: po niemiecku, hiszpańsku, francusku, japońsku, polsku, portugalsku, rosyjsku i turecku, oprócz angielskiego."
                 ],
@@ -108,8 +129,11 @@
         },
         "pt-BR": {
             "name": "Experimentos",
-            "description": "Libera as abas de Experimentos e de configurações de desenvolvedor do Discord.",
+            "description": "Libera as abas de Experimentos e de configurações de desenvolvedor do Discord. Também pode ativar dois testes do próprio Discord que carregam imagens do chat e vídeos de placas de nome só quando necessário.",
             "changelog": {
+                "1.2.0": [
+                    "Duas novas opções, desativadas por padrão: carregar imagens do chat ao rolar e carregar vídeos de placas de nome só ao reproduzir. As duas ativam testes do próprio Discord durante a sessão e não mexem nos que você mesmo ajustou na aba Experimentos."
+                ],
                 "1.1.0": [
                     "Segue o idioma do Discord: alemão, espanhol, francês, japonês, polonês, português, russo e turco, além do inglês."
                 ],
@@ -123,8 +147,11 @@
         },
         "ru": {
             "name": "Эксперименты",
-            "description": "Открывает вкладки «Эксперименты» и настроек разработчика в Discord.",
+            "description": "Открывает вкладки «Эксперименты» и настроек разработчика в Discord. Также может включить два собственных теста Discord, которые загружают изображения в чате и видео табличек с именем только при необходимости.",
             "changelog": {
+                "1.2.0": [
+                    "Две новые настройки, по умолчанию выключенные: загружать изображения в чате при прокрутке и загружать видео табличек с именем только при воспроизведении. Обе включают собственные тесты Discord на время сеанса и не трогают те, что вы сами настроили на вкладке «Эксперименты»."
+                ],
                 "1.1.0": [
                     "Говорит на языке Discord: немецком, испанском, французском, японском, польском, португальском, русском и турецком, а также на английском."
                 ],
@@ -138,8 +165,11 @@
         },
         "tr": {
             "name": "Deneyler",
-            "description": "Discord'un Deneyler ve geliştirici ayarları sekmelerinin kilidini açar.",
+            "description": "Discord'un Deneyler ve geliştirici ayarları sekmelerinin kilidini açar. Sohbet görsellerini ve isim plakası videolarını yalnızca gerektiğinde yükleyen, Discord'un kendi iki testini de açabilir.",
             "changelog": {
+                "1.2.0": [
+                    "Varsayılan olarak kapalı iki yeni seçenek: sohbet görsellerini kaydırdıkça yükleme ve isim plakası videolarını yalnızca oynatılınca yükleme. İkisi de oturum boyunca Discord'un kendi testlerini açar ve Deneyler sekmesinde kendin ayarladığın testlere dokunmaz."
+                ],
                 "1.1.0": [
                     "Discord'un dilini kullanır: İngilizcenin yanı sıra Almanca, İspanyolca, Fransızca, Japonca, Lehçe, Portekizce, Rusça ve Türkçe."
                 ],

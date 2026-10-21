@@ -93,6 +93,8 @@ let latest: { status: number; tag?: string; } = { status: 404 };
 let asset = new Uint8Array();
 let checksum = "";
 let downloads = 0;
+/** Releases stopped carrying the CLI at 1.5.0 */
+let withCli = true;
 
 const server = Bun.serve({
     port: 0,
@@ -106,7 +108,7 @@ const server = Bun.serve({
                 html_url: `${origin}/releases/${latest.tag}`,
                 draft: false,
                 prerelease: false,
-                assets: ["evi.exe", "evi.exe.sha256"].map(name => ({ name, browser_download_url: `${origin}/download/${name}` })),
+                assets: (withCli ? ["evi.exe", "evi.exe.sha256"] : ["evi-core.json", "evi-core.json.sha256"]).map(name => ({ name, browser_download_url: `${origin}/download/${name}` })),
             });
         }
         if (pathname === "/download/evi.exe") {
@@ -167,6 +169,16 @@ const deadApi = closed.url.href.replace(/\/$/, "");
 closed.stop(true);
 r = await update(["update", "--check"], deadApi);
 check("update: network error fails with a message", r.code === 1 && r.out.includes("Couldn't reach"), r.out);
+
+// A release without the CLI still reports the version (and git pull from source); only replacing the exe needs it
+withCli = false;
+latest = { status: 200, tag: "v99.0.0" };
+r = await update(["update", "--check"]);
+check("update --check: a release without the CLI still reports the version", r.code === 0 && r.out.includes("99.0.0 is available"), r.out);
+r = await update(["update"]);
+if (!EXE) check("update from source with a release without the CLI points at git pull", r.code === 0 && r.out.includes("git pull"), r.out);
+else check("update: a release without the CLI fails in plain words", r.code === 1 && r.out.includes("doesn't include the evi CLI") && downloads === 0, r.out);
+withCli = true;
 
 latest = { status: 200, tag: "v99.0.0" };
 if (!EXE) {

@@ -9,13 +9,13 @@ import { join, resolve } from "path";
 import { parseArgs } from "util";
 
 import pkg from "../../package.json";
-import { readAsarFile } from "../shared/asar";
 import { FLAVORS } from "../shared/release";
-import { createShimAsar, ORIGINAL_ASAR } from "../shared/shim";
+import { ORIGINAL_ASAR } from "../shared/shim";
 import { parseRemovedPlugins, REMOVED_PLUGINS_FILE, RETIRED_PLUGINS, STORE_MARKER } from "../shared/store";
 import { DiscordInstall, findInstalls, injectionState, isDiscordRunning, killDiscord, searchedLocations, startDiscord, waitForExit } from "./discord";
 import { APP_DATA, giveBackToUser, isSudo } from "./paths";
-import { cleanupPreviousUpdate, COMPILED, downloadVerified, fetchLatestRelease, isNewer, replaceExecutable, UpdateError } from "./update";
+import { swapIn, swapOut } from "./swap";
+import { cleanupPreviousUpdate, COMPILED, downloadVerified, fetchLatestRelease, isNewer, missingExe, replaceExecutable, UpdateError } from "./update";
 
 interface Embed {
     version: string;
@@ -163,24 +163,19 @@ async function install() {
             if (!(await waitForExit(discord))) fail(`Discord ${discord.flavor} is still running, so nothing was changed. Quit it fully and run this again.`);
         }
     }
-    const core = await prepareCore();
-
-    for (const discord of installs) {
+    // The core is shared by every Discord: only rewrite it when at least one can take Evi
+    const targets = installs.flatMap(discord => {
         const { resources, version } = discord.versions[0];
         const state = injectionState(resources);
-        const asar = join(resources, "app.asar");
-        const original = join(resources, ORIGINAL_ASAR);
+        if (state !== "other-mod") return [{ discord, resources, version, state }];
+        console.error(c.err(`✗ ${discord.flavor} ${version}: another client mod (Vencord, Equicord, ...) is installed. Uninstall it first.`));
+        return [];
+    });
+    if (!targets.length) return;
+    const core = await prepareCore();
 
-        if (state === "other-mod") {
-            console.error(c.err(`✗ ${discord.flavor} ${version}: another client mod (Vencord, Equicord, ...) is installed. Uninstall it first.`));
-            continue;
-        }
-
-        const done = await withDiscordClosed(discord, () => {
-            if (state === "clean") renameSync(asar, original);
-            const pkg = JSON.parse(readAsarFile(original, "package.json"));
-            writeFileSync(asar, createShimAsar(core, pkg));
-        });
+    for (const { discord, resources, version, state } of targets) {
+        const done = await withDiscordClosed(discord, () => swapIn(resources, state, core));
         if (!done) continue;
 
         console.log(c.ok(`✓ ${state === "evi" ? "Updated" : "Installed"} Evi in Discord ${discord.flavor} ${version}`) + c.dim(flags.dev ? " (dev build)" : ""));
@@ -189,18 +184,25 @@ async function install() {
 
 async function uninstall() {
     for (const discord of selectedInstalls()) {
+        // Nothing to remove: never close a Discord (and drop its call) for that
+        if (!discord.versions.some(v => injectionState(v.resources) === "evi")) {
+            console.log(c.dim(`  Evi wasn't installed in Discord ${discord.flavor}`));
+            continue;
+        }
         let removed = 0;
+        let missing = 0;
         const done = await withDiscordClosed(discord, () => {
             // Every version folder, the auto-repair may have injected older ones too
             for (const { resources } of discord.versions) {
                 if (injectionState(resources) !== "evi") continue;
-                const asar = join(resources, "app.asar");
-                rmSync(asar);
-                renameSync(join(resources, ORIGINAL_ASAR), asar);
-                removed++;
+                if (swapOut(resources)) removed++;
+                else {
+                    missing++;
+                    console.error(c.err(`✗ Discord's own archive (${ORIGINAL_ASAR}) is missing from ${resources}, so Evi was left there.`));
+                }
             }
         });
-        if (!done) continue;
+        if (!done || (missing && !removed)) continue;
         console.log(removed ? c.ok(`✓ Removed Evi from Discord ${discord.flavor}`) : c.dim(`  Evi wasn't installed in Discord ${discord.flavor}`));
     }
 }
@@ -243,6 +245,9 @@ async function update() {
 
     console.log(`Evi ${release.version} is available, you have ${current}.`);
     if (!COMPILED) return console.log(c.dim(sourceHint));
+    const missing = missingExe(release);
+    if (missing && flags.check) return console.log(c.dim(missing));
+    if (missing) fail(missing);
     if (flags.check) return console.log(c.dim(`Run \`evi update\` to install it. ${release.url}`));
 
     const exe = process.execPath;

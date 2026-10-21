@@ -12,8 +12,9 @@ export interface Release {
     tag: string;
     version: string;
     url: string;
-    exeUrl: string;
-    checksumUrl: string;
+    /** Missing since 1.5.0: releases stopped carrying the CLI */
+    exeUrl?: string;
+    checksumUrl?: string;
 }
 
 interface GitHubRelease {
@@ -51,11 +52,14 @@ export async function fetchLatestRelease(beta = false): Promise<Release | null> 
     const data: GitHubRelease | undefined = beta ? pickRelease(json, true) : json;
     if (!data || data.draft) return null;
     const asset = (name: string) => data.assets.find(a => a.name === name)?.browser_download_url;
-    const exeUrl = asset(EXE_ASSET);
-    const checksumUrl = asset(CHECKSUM_ASSET);
-    if (!exeUrl || !checksumUrl) throw new UpdateError(`Release ${data.tag_name} is missing ${exeUrl ? CHECKSUM_ASSET : EXE_ASSET}`);
+    return { tag: data.tag_name, version: cleanVersion(data.tag_name), url: data.html_url, exeUrl: asset(EXE_ASSET), checksumUrl: asset(CHECKSUM_ASSET) };
+}
 
-    return { tag: data.tag_name, version: cleanVersion(data.tag_name), url: data.html_url, exeUrl, checksumUrl };
+/** Why this release can't replace the CLI, if it can't */
+export function missingExe(release: Release) {
+    if (release.exeUrl && release.checksumUrl) return;
+    if (release.exeUrl) return `Release ${release.tag} is missing ${CHECKSUM_ASSET}`;
+    return `Release ${release.tag} doesn't include the evi CLI (releases stopped carrying it at 1.5.0). Build it from a source checkout with \`bun scripts/build.ts --cli\`.`;
 }
 
 async function download(url: string, timeout: number) {
@@ -70,11 +74,13 @@ async function download(url: string, timeout: number) {
 
 /** Downloads the release's installer for this system and checks it against the published SHA-256 */
 export async function downloadVerified(release: Release) {
-    const checksumText = new TextDecoder().decode(await download(release.checksumUrl, 30_000));
+    const { exeUrl, checksumUrl } = release;
+    if (!exeUrl || !checksumUrl) throw new UpdateError(missingExe(release));
+    const checksumText = new TextDecoder().decode(await download(checksumUrl, 30_000));
     const expected = checksumText.match(/\b[a-f0-9]{64}\b/i)?.[0].toLowerCase();
     if (!expected) throw new UpdateError(`${CHECKSUM_ASSET} doesn't contain a SHA-256 hash`);
 
-    const exe = await download(release.exeUrl, 10 * 60_000);
+    const exe = await download(exeUrl, 10 * 60_000);
     const actual = new Bun.CryptoHasher("sha256").update(exe).digest("hex");
     if (actual !== expected) throw new UpdateError(`Checksum mismatch, the download was not installed.\n  expected ${expected}\n  got      ${actual}`);
     return exe;

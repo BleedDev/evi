@@ -1,6 +1,6 @@
 import type { AccountLinkResult, AccountStatus, AccountUser } from "@shared/account";
 import type { Announcement } from "@shared/announcements";
-import { isDiscordAppUrl } from "@shared/appHosts";
+import { isDiscordAppUrl, isOverlayWindow } from "@shared/appHosts";
 import type { AuthorLink, AuthorStatsResult } from "@shared/authorStats";
 import type { ImportMode } from "@shared/backup";
 import type { BadgeAdminAction, BadgeAdminResult, BadgePrefs, BadgePrefsResult, BadgesResult, CreditsDocument } from "@shared/badges";
@@ -173,8 +173,10 @@ const EviNative = {
 
 export type EviNativeApi = typeof EviNative;
 
-// Session preloads run in every frame of every window, only boot in Discord's app frame
-const isDiscordApp = window === window.top && isDiscordAppUrl(location.href);
+// Session preloads run in every frame of every window, only boot in Discord's app frame. Not in the
+// in-game overlay (the /overlay page or the newer overlay's popout): nothing of Evi's runs there
+// (src/renderer/index.ts), so it doesn't get the renderer either. window.name is already set here.
+const isDiscordApp = window === window.top && isDiscordAppUrl(location.href) && !isOverlayWindow(location.href, window.name);
 
 /**
  * Hands the bridge to Evi's renderer, and to nothing else in the page.

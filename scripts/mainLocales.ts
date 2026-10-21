@@ -13,7 +13,8 @@ export const MAIN_KEYS = /^(main|common|check|themeEditor)\./;
 export const mainLocales: BunPlugin = {
     name: "evi-main-locales",
     setup(build) {
-        build.onLoad({ filter: /[\\/]src[\\/]shared[\\/]locales[\\/](?!index\.ts$)[\w-]+\.ts$/ }, async args => {
+        // Only the language tables: index.ts and tags.ts (the list of languages) stay as written
+        build.onLoad({ filter: /[\\/]src[\\/]shared[\\/]locales[\\/](en|de|es|fr|ja|pl|pt-BR|ru|tr)\.ts$/ }, async args => {
             // One export per file: en, de, es, fr, ja, pl, ptBR, ru, tr
             const [[name, table]] = Object.entries(await import(args.path) as Record<string, Record<string, unknown>>);
             const kept = Object.fromEntries(Object.entries(table).filter(([key]) => MAIN_KEYS.test(key)));

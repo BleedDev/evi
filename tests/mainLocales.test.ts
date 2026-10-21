@@ -4,6 +4,7 @@ import { join } from "path";
 
 import { MAIN_KEYS, mainLocales, strayKeys } from "../scripts/mainLocales";
 import { CATALOGS } from "../src/shared/locales";
+import { LOCALES } from "../src/shared/locales/tags";
 
 const ROOT = join(import.meta.dir, "..");
 
@@ -23,6 +24,20 @@ describe("main's locale tables", () => {
         expect(mainJs).toContain(JSON.stringify(CATALOGS.en!["main.backup.notJson"]));
         // The other languages are locale-<tag>.json files main reads when one is in use (scripts/coreData.ts)
         expect(mainJs).not.toContain(JSON.stringify(CATALOGS.ru!["main.backup.notJson"]));
+    });
+
+    // tags.ts sits beside the tables: filtered like one, LOCALES came out {} and main threw on its first setLocale
+    test("main.js keeps the list of languages whole", async () => {
+        const result = await Bun.build({
+            entrypoints: [join(ROOT, "src/shared/locales/tags.ts")],
+            target: "node",
+            format: "cjs",
+            plugins: [mainLocales],
+        });
+        expect(result.success).toBe(true);
+        const module = { exports: {} as { LOCALES?: unknown; } };
+        new Function("module", "exports", await result.outputs[0].text())(module, module.exports);
+        expect(module.exports.LOCALES).toEqual(LOCALES);
     });
 
     test("the stray-key check sees a key outside MAIN_KEYS", () => {

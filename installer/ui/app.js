@@ -136,7 +136,8 @@ async function scan(animate) {
 }
 
 async function run(action) {
-    const flavors = chosen().map(i => i.flavor);
+    // Uninstall only touches the ones with Evi: it closes Discord, which would drop a call for nothing
+    const flavors = chosen().filter(i => action === "install" || i.state === "evi").map(i => i.flavor);
     if (!flavors.length || state.busy) return;
     state.busy = true;
     updateButtons();

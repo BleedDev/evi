@@ -202,9 +202,11 @@ writeFileSync(original, discordAsar);
 writeFileSync(asar, createAsar({ "index.js": "// vencord", "package.json": "{}" }));
 r = await setup("status");
 check("status: another mod is reported", stable(r.json)?.state === "other-mod", stable(r.json));
+writeFileSync(join(DATA, "core", "marker.js"), "");
 r = await setup("install", "--no-restart");
 check("refuses to install over another client mod", r.code === 1 && /Another client mod/.test(r.json?.outcomes?.[0]?.message), r.log);
 check("other mod's files left alone", readAsarFile(asar, "index.js") === "// vencord");
+check("Evi's files aren't rewritten when no Discord can take them", existsSync(join(DATA, "core", "marker.js")));
 
 // Flavors: only what's asked for is touched
 const ptbResources = join(LOCAL, "DiscordPTB", "app-1.0.1000", "resources");
@@ -212,6 +214,16 @@ mkdirSync(ptbResources, { recursive: true });
 writeFileSync(join(ptbResources, "app.asar"), discordAsar);
 r = await setup("install", "--flavor", "ptb", "--no-restart");
 check("install --flavor ptb touches only PTB", r.code === 0 && readAsarFile(join(ptbResources, "app.asar"), "index.js").startsWith(SHIM_MARKER) && readAsarFile(asar, "index.js") === "// vencord", r.log);
+check("no loader left half-written beside it", !existsSync(join(ptbResources, "app.asar.new")));
+
+// Discord's own archive gone (antivirus, a cleanup tool): the loader stays rather than leaving no app.asar
+const ptbLoader = readFileSync(join(ptbResources, "app.asar"));
+rmSync(join(ptbResources, ORIGINAL_ASAR));
+r = await setup("uninstall", "--flavor", "ptb", "--no-restart");
+check("uninstall without Discord's archive fails in plain words", r.code === 1 && /_app\.asar\) is missing/.test(r.json?.outcomes?.[0]?.message), r.log);
+check("…and keeps the loader in place", readFileSync(join(ptbResources, "app.asar")).equals(ptbLoader));
+writeFileSync(join(ptbResources, ORIGINAL_ASAR), discordAsar);
+
 r = await setup("uninstall", "--flavor", "ptb", "--no-restart");
 check("uninstall --flavor ptb restores PTB", r.code === 0 && readFileSync(join(ptbResources, "app.asar")).equals(discordAsar), r.log);
 

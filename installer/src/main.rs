@@ -22,10 +22,15 @@ mod ops;
 mod paths;
 mod release;
 
+use std::sync::atomic::{AtomicBool, Ordering};
+
 use serde::Serialize;
 use tauri::{AppHandle, Emitter};
 
 use ops::{Outcome, Progress};
+
+/// An install or uninstall is running: the window doesn't close until it's done
+static BUSY: AtomicBool = AtomicBool::new(false);
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -122,14 +127,16 @@ async fn latest_release() -> Latest {
 
 #[tauri::command]
 async fn run(app: AppHandle, action: String, flavors: Vec<String>) -> RunReport {
-    tauri::async_runtime::spawn_blocking(move || {
+    BUSY.store(true, Ordering::SeqCst);
+    let report = tauri::async_runtime::spawn_blocking(move || {
         let emit = |text: &str| {
             let _ = app.emit("progress", text);
         };
         run_now(&action, &flavors, true, &Progress(&emit))
     })
-    .await
-    .unwrap()
+    .await;
+    BUSY.store(false, Ordering::SeqCst);
+    report.unwrap()
 }
 
 /// No window: for scripts and scripts/test-installer.ts. Prints JSON, exits 1 when something failed.
@@ -161,7 +168,16 @@ fn headless(args: &[String], version: &str) -> i32 {
             }
             Err(e) => done(Err(e)),
         },
-        "swap" => done(ops::elevated_swap(&value("--flavor"), &value("--core"))),
+        "swap" => match ops::elevated_swap(&value("--flavor"), &value("--core")) {
+            // Evi is in, the watcher isn't: one line for the Evi Setup that asked, to pass on
+            Ok(note) => {
+                if let Some(note) = note {
+                    println!("{}", note.replace(['\r', '\n'], " "));
+                }
+                0
+            }
+            Err(e) => done(Err(e)),
+        },
         "unswap" => done(ops::elevated_unswap(&value("--flavor"))),
         "status" => {
             print(serde_json::to_value(scan_now(version)).unwrap());
@@ -195,6 +211,15 @@ fn main() {
 
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![scan, latest_release, run])
+        // Alt+F4 or the taskbar's Close during a run would quit between closing Discord and starting it
+        // again, or mid-swap. The title bar's own button is already off while busy
+        .on_window_event(|_, event| {
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                if BUSY.load(Ordering::SeqCst) {
+                    api.prevent_close();
+                }
+            }
+        })
         .run(context)
         .expect("error while running Evi Setup");
 }

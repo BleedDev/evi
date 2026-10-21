@@ -675,10 +675,17 @@ export function StoreView({ kind }: { kind: StoreKind; }) {
         setAuthor(slug);
     };
 
-    // The mouse's back button and Alt+Left go back from a page too, like the Back button
+    const items = itemsOf(kind);
+    const current = selected ? items.find(i => i.entry.id === selected) : undefined;
+    const profile = author ? Store.authorOf(author) : undefined;
+    // What's on screen: a target that isn't listed (yet) leaves the list showing
+    const onAuthor = !!profile, onItem = !onAuthor && !!current;
+
+    // The mouse's back button and Alt+Left go back from a page too, like the Back button. Only from
+    // a page that shows: on the list, they'd only drop a target that isn't listed
     React.useEffect(() => {
-        if (!selected && !author) return;
-        const back = () => author ? setAuthor(undefined) : setSelected(undefined);
+        if (!onAuthor && !onItem) return;
+        const back = () => onAuthor ? setAuthor(undefined) : setSelected(undefined);
         const visible = () => !!topRef.current?.isConnected && topRef.current.getClientRects().length > 0;
         const onKey = (e: KeyboardEvent) => {
             if (!e.altKey || e.key !== "ArrowLeft" || e.ctrlKey || e.metaKey || e.shiftKey || !visible()) return;
@@ -700,7 +707,7 @@ export function StoreView({ kind }: { kind: StoreKind; }) {
             window.removeEventListener("mousedown", onMouse, true);
             window.removeEventListener("mouseup", onMouse, true);
         };
-    }, [selected, author]);
+    }, [onAuthor, onItem]);
 
     // Detail pages start at their top, wherever the list was scrolled to: only when one opens or
     // closes, never when the Store itself opens (that scrolled Discord's settings under its sticky
@@ -716,9 +723,6 @@ export function StoreView({ kind }: { kind: StoreKind; }) {
         if (selected || author) scrollToTop(topRef.current);
     }, [selected, author]);
 
-    const items = itemsOf(kind);
-    const current = selected ? items.find(i => i.entry.id === selected) : undefined;
-    const profile = author ? Store.authorOf(author) : undefined;
     if (profile) {
         return (
             <div ref={topRef}>

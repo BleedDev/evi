@@ -43,7 +43,12 @@ export function functionSource(fn: Function) {
 }
 
 export function matchesAll(source: string, code: CodeMatcher[]) {
-    return code.every(c => typeof c === "string" ? source.includes(c) : c.test(source));
+    return code.every(c => {
+        if (typeof c === "string") return source.includes(c);
+        // A global or sticky RegExp starts where its last test ended, often in another source
+        c.lastIndex = 0;
+        return c.test(source);
+    });
 }
 
 /** Unwraps React.memo / forwardRef / lazy wrappers down to the render function */

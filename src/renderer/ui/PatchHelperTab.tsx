@@ -5,6 +5,7 @@
 import { hotfixDraft } from "@shared/hotfixes";
 import type { ReactNode } from "react";
 
+import { t, tNodes, useLocale } from "../i18n";
 import { moduleSources } from "../patching/diagnose";
 import { evaluatePatch, Excerpt, parsePatchValue, PatchDraft, PatchHelperResult } from "../patching/helper";
 import { getPatchRecords } from "../patching/source";
@@ -51,32 +52,30 @@ function ModuleCard({ result, scanned, onPick }: { result: PatchHelperResult; sc
     const { candidates, moduleId, errors } = result;
     if (errors.find) {
         return (
-            <ResultCard id="dl-ph-modules" title="Module" status={<Status tone="danger">Invalid regex</Status>}>
+            <ResultCard id="dl-ph-modules" title={t("patchHelper.module.title")} status={<Status tone="danger">{t("patchHelper.invalidRegex")}</Status>}>
                 <pre className="dl-error">{errors.find}</pre>
             </ResultCard>
         );
     }
 
     const status = candidates.length === 0
-        ? <Status tone="danger">No module matches</Status>
-        : candidates.length === 1
-            ? <Status tone="success">1 module</Status>
-            : <Status tone="warning">{candidates.length} modules</Status>;
+        ? <Status tone="danger">{t("patchHelper.module.none")}</Status>
+        : <Status tone={candidates.length === 1 ? "success" : "warning"}>{t("patchHelper.module.count", { count: candidates.length })}</Status>;
 
     return (
-        <ResultCard id="dl-ph-modules" title="Module" status={status}>
+        <ResultCard id="dl-ph-modules" title={t("patchHelper.module.title")} status={status}>
             {candidates.length === 0 && (
-                <p className="dl-hint">None of the {scanned.toLocaleString()} modules Discord has registered contain this. Check for typos, or open the part of Discord that uses the code so its chunk loads.</p>
+                <p className="dl-hint">{t("patchHelper.module.noneHint", { modules: scanned.toLocaleString() })}</p>
             )}
-            {candidates.length === 1 && <p className="dl-hint dl-mono">Module {moduleId}</p>}
+            {candidates.length === 1 && <p className="dl-hint dl-mono">{t("patchHelper.module.id", { id: moduleId ?? "" })}</p>}
             {candidates.length > 1 && (
                 <>
-                    <p className="dl-hint">The find should match exactly one module, make it more specific. Showing results for the selected one.</p>
-                    <div className="dl-chips" role="group" aria-label="Matching modules">
+                    <p className="dl-hint">{t("patchHelper.module.many")}</p>
+                    <div className="dl-chips" role="group" aria-label={t("patchHelper.module.list")}>
                         {candidates.slice(0, MAX_LISTED_MODULES).map(id => (
                             <button key={id} type="button" className="dl-chip dl-mono" aria-pressed={id === moduleId} onClick={() => onPick(id)}>{id}</button>
                         ))}
-                        {candidates.length > MAX_LISTED_MODULES && <span className="dl-hint">and {candidates.length - MAX_LISTED_MODULES} more</span>}
+                        {candidates.length > MAX_LISTED_MODULES && <span className="dl-hint">{t("patchHelper.module.more", { count: candidates.length - MAX_LISTED_MODULES })}</span>}
                     </div>
                 </>
             )}
@@ -86,19 +85,19 @@ function ModuleCard({ result, scanned, onPick }: { result: PatchHelperResult; sc
 
 function MatchCard({ result, hasMatch }: { result: PatchHelperResult; hasMatch: boolean; }) {
     let status: ReactNode;
-    if (result.errors.match) status = <Status tone="danger">Invalid regex</Status>;
-    else if (!hasMatch) status = <Status tone="muted">Enter a match</Status>;
-    else if (!result.matchCount) status = <Status tone="danger">Matched nothing</Status>;
-    else status = <Status tone="success">{result.matchCount === 1 ? "Matched once" : `Matched ${result.matchCount} times`}</Status>;
+    if (result.errors.match) status = <Status tone="danger">{t("patchHelper.invalidRegex")}</Status>;
+    else if (!hasMatch) status = <Status tone="muted">{t("patchHelper.match.empty")}</Status>;
+    else if (!result.matchCount) status = <Status tone="danger">{t("patchHelper.match.none")}</Status>;
+    else status = <Status tone="success">{result.matchCount === 1 ? t("patchHelper.match.once") : t("patchHelper.match.times", { count: result.matchCount })}</Status>;
 
     return (
-        <ResultCard id="dl-ph-match" title="Match" status={status}>
+        <ResultCard id="dl-ph-match" title={t("patchHelper.match.label")} status={status}>
             {result.errors.match && <pre className="dl-error">{result.errors.match}</pre>}
-            {result.match && <Code label={result.matchCount > 1 ? "First match" : "Matched code"} excerpt={result.match} />}
+            {result.match && <Code label={result.matchCount > 1 ? t("patchHelper.match.first") : t("patchHelper.match.code")} excerpt={result.match} />}
             {result.groups.length > 0 && (
                 <dl className="dl-groups dl-mono">
                     {result.groups.map((g, i) => (
-                        <div key={i}><dt>${i + 1}</dt><dd>{g === undefined ? "(no match)" : JSON.stringify(g)}</dd></div>
+                        <div key={i}><dt>${i + 1}</dt><dd>{g === undefined ? t("patchHelper.match.noGroup") : JSON.stringify(g)}</dd></div>
                     ))}
                 </dl>
             )}
@@ -109,23 +108,23 @@ function MatchCard({ result, hasMatch }: { result: PatchHelperResult; hasMatch: 
 function ResultChangeCard({ result }: { result: PatchHelperResult; }) {
     if (!result.changed) {
         return (
-            <ResultCard id="dl-ph-result" title="Result" status={<Status tone="danger">No change</Status>}>
-                <p className="dl-hint">The replacement produces the same code. Evi reports this as a failed replacement.</p>
+            <ResultCard id="dl-ph-result" title={t("patchHelper.result.title")} status={<Status tone="danger">{t("patchHelper.result.noChange")}</Status>}>
+                <p className="dl-hint">{t("patchHelper.result.noChangeHint")}</p>
             </ResultCard>
         );
     }
     const { compile } = result;
     const status = compile?.ok
-        ? <Status tone="success">Compiles</Status>
-        : <Status tone="danger">Doesn’t compile</Status>;
+        ? <Status tone="success">{t("patchHelper.result.compiles")}</Status>
+        : <Status tone="danger">{t("patchHelper.result.broken")}</Status>;
     return (
-        <ResultCard id="dl-ph-result" title="Result" status={status}>
+        <ResultCard id="dl-ph-result" title={t("patchHelper.result.title")} status={status}>
             <div className="dl-diff">
-                {result.before && <Code label="Before" excerpt={result.before} kind="removed" />}
-                {result.after && <Code label="After" excerpt={result.after} kind="added" />}
+                {result.before && <Code label={t("patchHelper.result.before")} excerpt={result.before} kind="removed" />}
+                {result.after && <Code label={t("patchHelper.result.after")} excerpt={result.after} kind="added" />}
             </div>
             {compile && !compile.ok && (
-                <pre className="dl-error">{compile.error}{"\n"}Evi would revert this patch.</pre>
+                <pre className="dl-error">{compile.error}{"\n"}{t("patchHelper.result.revert")}</pre>
             )}
         </ResultCard>
     );
@@ -137,8 +136,8 @@ function useCopy(text: string) {
     React.useEffect(() => setCopied(false), [text]);
     React.useEffect(() => {
         if (!copied) return;
-        const t = setTimeout(() => setCopied(false), 2000);
-        return () => clearTimeout(t);
+        const timer = setTimeout(() => setCopied(false), 2000);
+        return () => clearTimeout(timer);
     }, [copied]);
 
     // Only animate the icon once it actually swaps, not when the card first appears
@@ -155,12 +154,12 @@ function SnippetCard({ snippet }: { snippet: string; }) {
     return (
         <ResultCard
             id="dl-ph-snippet"
-            title="Patch"
-            status={<Button icon={copied ? "check" : "copy"} className={className} onClick={copy}>{copied ? "Copied" : "Copy patch"}</Button>}
+            title={t("patchHelper.patch.title")}
+            status={<Button icon={copied ? "check" : "copy"} className={className} onClick={copy}>{copied ? t("patchHelper.copied") : t("patchHelper.patch.copy")}</Button>}
         >
-            <p className="dl-hint">Add this to your plugin’s <code className="dl-mono">patches</code> array.</p>
+            <p className="dl-hint">{tNodes("patchHelper.patch.hint", { patches: <code className="dl-mono">patches</code> })}</p>
             <pre className="dl-code"><ApiText text={snippet} /></pre>
-            <span className="dl-sr-only" role="status">{copied ? "Patch copied to clipboard" : ""}</span>
+            <span className="dl-sr-only" role="status">{copied ? t("patchHelper.patch.copied") : ""}</span>
         </ResultCard>
     );
 }
@@ -171,12 +170,12 @@ function HotfixCard({ json }: { json: string; }) {
     return (
         <ResultCard
             id="dl-ph-hotfix"
-            title="Hotfix"
-            status={<Button icon={copied ? "check" : "copy"} className={className} onClick={copy}>{copied ? "Copied" : "Copy as hotfix"}</Button>}
+            title={t("patchHelper.hotfix.title")}
+            status={<Button icon={copied ? "check" : "copy"} className={className} onClick={copy}>{copied ? t("patchHelper.copied") : t("patchHelper.hotfix.copy")}</Button>}
         >
-            <p className="dl-hint">For Evi’s team: paste it into Hotfixes on evi.rest, write the note people see, and publish. Every install on this version gets the fix within minutes.</p>
+            <p className="dl-hint">{t("patchHelper.hotfix.hint")}</p>
             <pre className="dl-code">{json}</pre>
-            <span className="dl-sr-only" role="status">{copied ? "Hotfix copied to clipboard" : ""}</span>
+            <span className="dl-sr-only" role="status">{copied ? t("patchHelper.hotfix.copied") : ""}</span>
         </ResultCard>
     );
 }
@@ -192,7 +191,7 @@ function fixablePatches() {
     return getPatchRecords().flatMap(r => {
         const state = PluginManager.get(r.plugin);
         const original = state?.definition?.patches?.[r.index];
-        return state && original ? [{ value: `${r.plugin}:${r.index}`, label: `${state.manifest.name} · Patch ${r.index + 1}`, state, original, index: r.index }] : [];
+        return state && original ? [{ value: `${r.plugin}:${r.index}`, label: t("patchHelper.target.patch", { plugin: state.manifest.name, number: r.index + 1 }), state, original, index: r.index }] : [];
     });
 }
 
@@ -216,6 +215,7 @@ function hotfixJson(draft: PatchDraft): string | undefined {
 }
 
 export function PatchHelperTab() {
+    useLocale();
     const [input, setInput] = React.useState<PatchDraft>(() => ({ ...draft }));
     const [preferred, setPreferred] = React.useState<string>();
     const [state, setState] = React.useState<{ result: PatchHelperResult; scanned: number; } | null>(null);
@@ -229,12 +229,12 @@ export function PatchHelperTab() {
             return;
         }
         setChecking(true);
-        const t = setTimeout(() => {
+        const timer = setTimeout(() => {
             const sources = moduleSources();
             setState({ result: evaluatePatch(input, sources, preferred), scanned: sources.length });
             setChecking(false);
         }, DEBOUNCE_MS);
-        return () => clearTimeout(t);
+        return () => clearTimeout(timer);
     }, [input.find, input.match, input.replace, preferred]);
 
     const field = (key: keyof PatchDraft) => (value: string) => setInput(prev => ({ ...prev, [key]: value }));
@@ -255,17 +255,17 @@ export function PatchHelperTab() {
 
     return (
         <div className="dl-tab">
-            <Section id="dl-ph-draft" title="Patch" description="Nothing is applied: this previews a patch against the code Discord is running right now.">
+            <Section id="dl-ph-draft" title={t("patchHelper.patch.title")} description={t("patchHelper.draft.description")}>
                 <div className="dl-ph-fields dl-stack-loose">
                     {targets.length > 0 && (
                         <div className="dl-field">
-                            <Text variant="text-md/medium" color="text-strong" id="dl-ph-target-label">Start from</Text>
-                            <p className="dl-hint">A plugin’s patch to fix, or a new one.</p>
+                            <Text variant="text-md/medium" color="text-strong" id="dl-ph-target-label">{t("patchHelper.target.label")}</Text>
+                            <p className="dl-hint">{t("patchHelper.target.hint")}</p>
                             <Dropdown
                                 id="dl-ph-target"
-                                label="Start from"
+                                label={t("patchHelper.target.label")}
                                 labelledBy="dl-ph-target-label"
-                                options={[{ label: "A new patch", value: "" }, ...targets.map(({ label, value }) => ({ label, value }))]}
+                                options={[{ label: t("patchHelper.target.new"), value: "" }, ...targets.map(({ label, value }) => ({ label, value }))]}
                                 value={targets.some(p => p.value === target) ? target : ""}
                                 onChange={pick}
                             />
@@ -273,8 +273,8 @@ export function PatchHelperTab() {
                     )}
                     <TextField
                         id="dl-ph-find"
-                        label="Find"
-                        description="Text that only the target module contains. Write /…/flags for a regex."
+                        label={t("patchHelper.find.label")}
+                        description={t("patchHelper.find.description")}
                         placeholder="Object.defineProperties(this,{isDeveloper"
                         spellCheck={false}
                         value={input.find}
@@ -282,8 +282,8 @@ export function PatchHelperTab() {
                     />
                     <TextField
                         id="dl-ph-match"
-                        label="Match"
-                        description="What to replace in that module, text or /…/flags. \i matches any identifier."
+                        label={t("patchHelper.match.label")}
+                        description={t("patchHelper.match.description")}
                         placeholder="/(?<=isDeveloper:\{[^}]*?get:\(\)=>)\i/"
                         spellCheck={false}
                         value={input.match}
@@ -291,8 +291,8 @@ export function PatchHelperTab() {
                     />
                     <TextField
                         id="dl-ph-replace"
-                        label="Replace with"
-                        description="$1 inserts a capture group, $& the whole match, $self your plugin."
+                        label={t("patchHelper.replace.label")}
+                        description={t("patchHelper.replace.description")}
                         placeholder="true"
                         spellCheck={false}
                         value={input.replace}
@@ -301,14 +301,14 @@ export function PatchHelperTab() {
                 </div>
             </Section>
 
-            <Section id="dl-ph-results" title="Results">
+            <Section id="dl-ph-results" title={t("patchHelper.results.title")}>
                 <p className="dl-hint dl-tabular" role="status" aria-live="polite">
-                    {!input.find ? "" : checking || !state ? "Checking…" : `Checked ${state.scanned.toLocaleString()} modules.`}
+                    {!input.find ? "" : checking || !state ? t("patchHelper.results.checking") : t("patchHelper.results.checked", { count: state.scanned, modules: state.scanned.toLocaleString() })}
                 </p>
 
                 {!input.find ? (
-                    <EmptyState icon="beaker" title="Try a patch against Discord’s code">
-                        Enter a find above to see which module it hits, what your match catches, and whether the result still compiles.
+                    <EmptyState icon="beaker" title={t("patchHelper.empty.title")}>
+                        {t("patchHelper.empty.body")}
                     </EmptyState>
                 ) : result && (
                     <div className="dl-stack" aria-busy={checking} data-checking={checking ? "" : undefined}>

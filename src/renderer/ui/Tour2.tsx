@@ -295,10 +295,11 @@ function Done({ on, failed, names }: { on: string[]; failed: string[]; names: (i
 export function Tour2({ onClose }: { onClose(): void; }) {
     useLocale();
     const exit = useExit(onClose);
-    const { ref, onKeyDown } = useModal(exit.close);
+    const [step, setStep] = React.useState<Step>("welcome");
+    // Like clicking beside it, Escape waits for the installs: the Done step says which failed
+    const { ref, onKeyDown } = useModal(() => step !== "install" && exit.close());
     const store = useStore(Store.subscribe, Store.getSnapshot);
     useStore(PluginManager.subscribe, PluginManager.getSnapshot);
-    const [step, setStep] = React.useState<Step>("welcome");
     const [picked, setPicked] = React.useState<Set<string>>(new Set());
     const [progress, setProgress] = React.useState<Progress>({});
     const list = offers();

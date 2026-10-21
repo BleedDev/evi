@@ -2,7 +2,7 @@
     "id": "platform-indicators",
     "name": "Platform Indicators",
     "description": "Shows whether someone is on desktop, mobile, web or a console: on their profile, next to their name in chat and in the member list.",
-    "version": "1.3.0",
+    "version": "1.3.1",
     "authors": [
         "Evi"
     ],
@@ -12,6 +12,12 @@
     "minEviVersion": "0.4.0",
     "permissions": {},
     "changelog": [
+        {
+            "version": "1.3.1",
+            "notes": [
+                "Works again after Discord's update: the icons show in the member list again."
+            ]
+        },
         {
             "version": "1.3.0",
             "notes": [
@@ -62,6 +68,9 @@
             "name": "Plattform-Anzeigen",
             "description": "Zeigt, ob jemand am Desktop, auf dem Handy, im Web oder an einer Konsole ist: im Profil, neben dem Namen im Chat und in der Mitgliederliste.",
             "changelog": {
+                "1.3.1": [
+                    "Funktioniert nach Discords Update wieder: Die Symbole erscheinen wieder in der Mitgliederliste."
+                ],
                 "1.3.0": [
                     "Folgt der Sprache von Discord: Deutsch, Spanisch, Französisch, Japanisch, Polnisch, Portugiesisch, Russisch und Türkisch, dazu Englisch."
                 ],
@@ -91,6 +100,9 @@
             "name": "Indicadores de plataforma",
             "description": "Muestra si alguien está en el escritorio, el móvil, la web o una consola: en su perfil, junto a su nombre en el chat y en la lista de miembros.",
             "changelog": {
+                "1.3.1": [
+                    "Vuelve a funcionar tras la actualización de Discord: los iconos vuelven a aparecer en la lista de miembros."
+                ],
                 "1.3.0": [
                     "Sigue el idioma de Discord: alemán, español, francés, japonés, polaco, portugués, ruso y turco, además de inglés."
                 ],
@@ -120,6 +132,9 @@
             "name": "Indicateurs de plateforme",
             "description": "Montre si quelqu'un est sur ordinateur, mobile, web ou console : sur son profil, à côté de son nom dans le chat et dans la liste des membres.",
             "changelog": {
+                "1.3.1": [
+                    "Fonctionne à nouveau après la mise à jour de Discord : les icônes s'affichent de nouveau dans la liste des membres."
+                ],
                 "1.3.0": [
                     "Suit la langue de Discord : allemand, espagnol, français, japonais, polonais, portugais, russe et turc, en plus de l'anglais."
                 ],
@@ -149,6 +164,9 @@
             "name": "プラットフォーム表示",
             "description": "相手がデスクトップ、モバイル、ウェブ、ゲーム機のどれを使っているかを、プロフィール、チャットの名前の横、メンバーリストに表示します。",
             "changelog": {
+                "1.3.1": [
+                    "Discordのアップデート後も再び動作します。メンバーリストにアイコンが再び表示されます。"
+                ],
                 "1.3.0": [
                     "Discordの言語設定に合わせて表示されます。英語のほか、ドイツ語、スペイン語、フランス語、日本語、ポーランド語、ポルトガル語、ロシア語、トルコ語に対応しています。"
                 ],
@@ -178,6 +196,9 @@
             "name": "Wskaźniki platformy",
             "description": "Pokazuje, czy ktoś jest na komputerze, telefonie, w przeglądarce czy na konsoli: na profilu, obok nazwy na czacie i na liście członków.",
             "changelog": {
+                "1.3.1": [
+                    "Znów działa po aktualizacji Discorda: ikony znów pokazują się na liście członków."
+                ],
                 "1.3.0": [
                     "Mówi w języku Discorda: po niemiecku, hiszpańsku, francusku, japońsku, polsku, portugalsku, rosyjsku i turecku, oprócz angielskiego."
                 ],
@@ -207,6 +228,9 @@
             "name": "Indicadores de plataforma",
             "description": "Mostra se alguém está no computador, no celular, na web ou em um console: no perfil, ao lado do nome no chat e na lista de membros.",
             "changelog": {
+                "1.3.1": [
+                    "Volta a funcionar após a atualização do Discord: os ícones voltam a aparecer na lista de membros."
+                ],
                 "1.3.0": [
                     "Segue o idioma do Discord: alemão, espanhol, francês, japonês, polonês, português, russo e turco, além do inglês."
                 ],
@@ -236,6 +260,9 @@
             "name": "Индикаторы платформы",
             "description": "Показывает, с чего человек сидит: с компьютера, телефона, браузера или консоли. Значок виден в профиле, рядом с именем в чате и в списке участников.",
             "changelog": {
+                "1.3.1": [
+                    "Снова работает после обновления Discord: значки снова видны в списке участников."
+                ],
                 "1.3.0": [
                     "Говорит на языке Discord: немецком, испанском, французском, японском, польском, португальском, русском и турецком, а также на английском."
                 ],
@@ -265,6 +292,9 @@
             "name": "Platform Göstergeleri",
             "description": "Birinin masaüstünde, mobilde, web'de ya da konsolda olduğunu gösterir: profilinde, sohbette adının yanında ve üye listesinde.",
             "changelog": {
+                "1.3.1": [
+                    "Discord güncellemesinden sonra yeniden çalışıyor: simgeler üye listesinde yeniden görünüyor."
+                ],
                 "1.3.0": [
                     "Discord'un dilini kullanır: İngilizcenin yanı sıra Almanca, İspanyolca, Fransızca, Japonca, Lehçe, Portekizce, Rusça ve Türkçe."
                 ],

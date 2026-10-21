@@ -234,8 +234,9 @@ export default definePlugin({
 
     patches: [
         {
-            // The member row: decorators:(0,i.jsx)(er,{user:p,isOwner:u,…}) → [that, ours]
-            find: "lostPermissionTooltipText",
+            // The member row: decorators:(0,i.jsx)(er,{user:p,isOwner:u,…}) → [that, ours]. Found by that
+            // code: the member list that renders the row now mentions lostPermissionTooltipText too
+            find: /decorators:\(0,[\w$]+\.jsx\)\([\w$]+,\{user:[\w$]+,isOwner:/,
             replace: {
                 match: /decorators:(\(0,\i\.jsx\)\(\i,\{user:(\i),isOwner:[^}]*\}\))/,
                 with: "decorators:[$1,$self.memberIndicators($2)]",

@@ -260,9 +260,13 @@ async function start(state: PluginState) {
             Perf.end(startSite, began);
         }
         await started;
+        // Turned off or reloaded while it awaited: this run is over, its context undid everything
+        if (state.ctx !== ctx) return;
         logger.info(`Started ${state.manifest.name}`);
     } catch (err) {
         logger.error(`Failed to start ${state.manifest.name}`, err);
+        // Only this run's error: a later one (turned off and on while it awaited) keeps going
+        if (state.ctx !== ctx) return;
         state.error = String(err);
         stop(state);
     }

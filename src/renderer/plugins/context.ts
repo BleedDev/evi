@@ -107,6 +107,11 @@ export class PluginContext<S extends SettingsSchema = SettingsSchema> {
     readonly logger: Logger;
     readonly settings: PluginSettings<S>;
     private disposers: (() => void)[] = [];
+    /**
+     * Stopped. An async start can still be running after its plugin was turned off or reloaded: what
+     * it registers from then on is undone at once instead of staying on until Discord restarts.
+     */
+    private disposed = false;
     private lookupCheck?: ReturnType<typeof setTimeout>;
     /** Holds what it registers to the permissions it declares (guard.ts) */
     private readonly guard: PluginGuard;
@@ -133,9 +138,16 @@ export class PluginContext<S extends SettingsSchema = SettingsSchema> {
         return this.#id;
     }
 
-    /** Register cleanup to run when the plugin stops */
+    /** Register cleanup to run when the plugin stops, or now if it already has */
     onDispose(fn: () => void) {
-        this.disposers.push(fn);
+        if (!this.disposed) this.disposers.push(fn);
+        else {
+            try {
+                fn();
+            } catch (err) {
+                this.logger.error("Cleanup threw", err);
+            }
+        }
         return fn;
     }
 
@@ -280,6 +292,8 @@ export class PluginContext<S extends SettingsSchema = SettingsSchema> {
      * own; with several, they share one Evi button that opens a menu of them. Removed on stop.
      */
     panelToggle(toggle: PanelToggle) {
+        // One switch per plugin: a stopped run's would replace the running one's, then take it away
+        if (this.disposed) return () => { };
         ensurePanelPatch();
         return this.onDispose(addPanelToggle(this.id, toggle));
     }
@@ -289,6 +303,8 @@ export class PluginContext<S extends SettingsSchema = SettingsSchema> {
      * after Evi's own on the profile and in Discord's badge directory ("Your badges"). Removed on stop.
      */
     profileBadges(provider: ProfileBadgeProvider) {
+        // Kept by provider: a stopped run adding the same one would take away the running one's
+        if (this.disposed) return () => { };
         return this.onDispose(ProfileBadges.add(this.manifest.name, Perf.measure(Perf.site(this.id, "badges", "profile badges"), provider)));
     }
 
@@ -314,6 +330,7 @@ export class PluginContext<S extends SettingsSchema = SettingsSchema> {
 
     /** @internal */
     dispose() {
+        this.disposed = true;
         for (const fn of this.disposers.splice(0).reverse()) {
             try {
                 fn();

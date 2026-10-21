@@ -95,14 +95,14 @@ function registerIpc() {
     ipcMain.handle(IPC.WHATS_NEW, (_, seen: unknown, locale: unknown) => readWhatsNew(seen, locale));
 
     ipcMain.handle(IPC.SETTINGS_SAVE, (e, next: EviSettings) => saveFromPage(next, e.sender));
-    ipcMain.handle(IPC.CSS_SAVE, (_, css: string) => writeFileSync(QUICK_CSS_FILE, css));
+    ipcMain.handle(IPC.CSS_SAVE, (e, css: string) => saveQuickCss(css, e.sender));
     ipcMain.on(IPC.SETTINGS_SAVE_SYNC, (e, next: EviSettings) => {
         // Saved before this returns; any question about turning a plugin on is answered later
         void saveFromPage(next, e.sender);
         e.returnValue = true;
     });
     ipcMain.on(IPC.CSS_SAVE_SYNC, (e, css: string) => {
-        writeFileSync(QUICK_CSS_FILE, css);
+        saveQuickCss(css, e.sender);
         e.returnValue = true;
     });
 
@@ -166,13 +166,25 @@ async function saveFromPage(next: EviSettings, sender: WebContents): Promise<Set
     return { refused };
 }
 
+/** The last Quick CSS a page saved, which that page already shows, until the file says something else */
+let ownSave: { css: string; from: number; } | undefined;
+
+function saveQuickCss(css: string, from: WebContents) {
+    writeFileSync(QUICK_CSS_FILE, css);
+    ownSave = { css, from: from.id };
+}
+
 function watchQuickCss() {
     let timer: ReturnType<typeof setTimeout> | undefined;
     const changed = () => {
         const css = readQuickCss();
         // Our own saves land here too: every edit is recorded, wherever it's made
         SafeMode.recordChange({ kind: "quickCss", id: "quick.css", action: "edited" });
-        for (const wc of webContents.getAllWebContents()) wc.send(IPC.CSS_CHANGED, css);
+        if (ownSave?.css !== css) ownSave = undefined;
+        // Not back to the page that saved it: the same text again restyles all of Discord a second time
+        for (const wc of webContents.getAllWebContents()) {
+            if (wc.id !== ownSave?.from) wc.send(IPC.CSS_CHANGED, css);
+        }
     };
     const start = () => {
         let watcher: FSWatcher;

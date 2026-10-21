@@ -394,11 +394,16 @@ function PublishDialog({ session, onClose }: { session: EditorSession; onClose()
     const css = session.savedCss ?? "";
     const policyProblem = whyNotCommunityCss(css, t);
 
-    // Checked again every few seconds while it isn't linked, so linking from here moves on by itself
+    // Checked again every few seconds while it isn't linked, so linking from here moves on by itself,
+    // and so does a failed check once evi.rest answers again. A failed check while linking keeps the
+    // account card, which shows its own error, so a link code that's out isn't lost
     React.useEffect(() => {
-        if (account.state !== "checking" && account.state !== "unlinked") return;
+        if (account.state === "linked") return;
         let live = true;
-        const check = () => Native.accountStatus().then(res => live && setAccount(!res.ok ? { state: "offline", error: res.error } : res.user ? { state: "linked" } : { state: "unlinked" }));
+        const failed = (error: string) => setAccount(prev => prev.state === "unlinked" ? prev : { state: "offline", error });
+        const check = () => Native.accountStatus()
+            .then(res => live && (!res.ok ? failed(res.error) : setAccount(res.user ? { state: "linked" } : { state: "unlinked" })))
+            .catch(err => live && failed(String((err as Error)?.message ?? err)));
         if (account.state === "checking") void check();
         const timer = setInterval(check, 3000);
         return () => {

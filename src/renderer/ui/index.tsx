@@ -6,6 +6,7 @@ import { Developer } from "../developer";
 import { Native } from "../native";
 import { React } from "../webpack/common";
 import { Button, ErrorBoundary, Icon, openDialogs, Text, trapTab, useStore } from "./components";
+import { showTab } from "./nav";
 import { PageView, visiblePages } from "./pages";
 import { currentRelease, WhatsNewModal } from "./WhatsNew";
 import { ensureStyles } from "./stylesheet";
@@ -162,6 +163,14 @@ export const SettingsUI = {
         }
         mount();
         setView("open");
+    },
+    /**
+     * Opens the panel on one of a page's tabs. showTab alone only changes which tab that page
+     * shows, so nothing happens on screen when another page is the one showing
+     */
+    openTab(page: string, tab: string) {
+        showTab(page, tab);
+        SettingsUI.open(page);
     },
     close,
     toggle() {

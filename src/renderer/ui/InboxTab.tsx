@@ -9,7 +9,8 @@ import { I18n, t, timeAgo as ago } from "../i18n";
 import { Settings } from "../settings";
 import { React } from "../webpack/common";
 import { Button, EmptyState, Icon, IconName, IconButton, Notice, Status, SwitchRow, Text, useStore } from "./components";
-import { openStore, showTab } from "./nav";
+import { SettingsUI } from "./index";
+import { openStore } from "./nav";
 
 /** Each kind of notification's icon, in the inbox and its live toasts */
 export const kindIcon: Record<NotificationKind, IconName> = {
@@ -34,8 +35,12 @@ function dayLabel(at: number) {
 function open(n: EviNotification) {
     const link = n.link;
     if (!link) return;
-    if (link.kind === "plugin" || link.kind === "theme") openStore(link.kind, link.id);
-    else if (link.kind === "url") window.open(link.url, "_blank", "noopener");
+    if (link.kind === "plugin") openStore("plugin", link.id);
+    // The inbox is on the Plugins page, so the Themes page has to be brought up too
+    else if (link.kind === "theme") {
+        openStore("theme", link.id);
+        SettingsUI.open("themes");
+    } else if (link.kind === "url") window.open(link.url, "_blank", "noopener");
     else if (link.kind === "author") openStore("plugin");
 }
 
@@ -83,7 +88,7 @@ export function InboxTab() {
     return (
         <div className="dl-tab dl-tab-compact">
             {state.linked === false && (
-                <Notice tone="info" action={<Button icon="link" onClick={() => showTab("general", "account")}>{t("community.linkAccount")}</Button>}>
+                <Notice tone="info" action={<Button icon="link" onClick={() => SettingsUI.openTab("general", "account")}>{t("community.linkAccount")}</Button>}>
                     {t("inbox.linkHint")}
                 </Notice>
             )}

@@ -21,7 +21,7 @@ import { Store, StoreKind, StoreOp, UpdateAllResult } from "../store";
 import { React } from "../webpack/common";
 import { Badge, Button, Collapse, Dialog, discordAvatarUrl, Dropdown, EmptyState, FilterChips, Icon, IconButton, List, Notice, Pagination, scrollToTop, SearchField, Status, SwitchRow, Text, Tooltip, useStore } from "./components";
 import { SettingsUI } from "./index";
-import { openStore, showTab, takeStoreTarget } from "./nav";
+import { openStore, takeStoreTarget } from "./nav";
 import { PluginChangelogSetting } from "./PluginChangelog";
 import { DeclaredPermissionsList, PermissionGrowthList, StorePluginPermissions } from "./PluginPermissions";
 import type { PluginPage } from "@shared/reviews";
@@ -1299,7 +1299,7 @@ function SupportersBanner({ locked, id }: { locked: boolean; id: string; }) {
                 <Text tag="h3" variant="text-md/semibold" color="text-strong" id={`dl-supporters-${id}`}>{t(locked ? "supporters.bannerLockedTitle" : "supporters.bannerTitle")}</Text>
                 <Text tag="p" variant="text-sm/normal" color="text-subtle" id={locked ? `dl-store-locked-${id}` : undefined}>{t(locked ? "community.supportersOnlyHint" : "supporters.bannerThanks")}</Text>
             </div>
-            {locked && <Button variant="accent" onClick={() => { showTab("general", "account"); SettingsUI.open("general"); }}>{t("supporters.become")}</Button>}
+            {locked && <Button variant="accent" onClick={() => SettingsUI.openTab("general", "account")}>{t("supporters.become")}</Button>}
         </section>
     );
 }

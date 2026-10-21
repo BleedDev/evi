@@ -18,7 +18,7 @@ import { Store, StoreKind } from "../store";
 import { React } from "../webpack/common";
 import { findStore } from "../webpack/find";
 import { Badge, Button, discordAvatarUrl, Icon, Status, SwitchRow, Text, useStore } from "./components";
-import { showTab } from "./nav";
+import { SettingsUI } from "./index";
 
 /** The Discord account Evi runs under, for "you" in the store: supporters, your own review */
 export function currentUserId(): string | undefined {
@@ -270,7 +270,7 @@ function YourReview({ id, mine, linked }: { id: string; mine: (Review & { hidden
         return (
             <div className="dl-review-mine">
                 <Text tag="p" variant="text-sm/normal" color="text-subtle">{t("community.linkToReview")}</Text>
-                <div><Button icon="link" onClick={() => showTab("general", "account")}>{t("community.linkAccount")}</Button></div>
+                <div><Button icon="link" onClick={() => SettingsUI.openTab("general", "account")}>{t("community.linkAccount")}</Button></div>
             </div>
         );
     }
@@ -416,7 +416,7 @@ export function FollowButton({ profile }: { profile: AuthorProfile; }) {
     if (profile.userId === currentUserId()) return null;
     const following = Store.isFollowing(profile.slug);
     if (state.linked === false) {
-        return <Button icon="link" onClick={() => showTab("general", "account")}>{t("community.linkToFollow")}</Button>;
+        return <Button icon="link" onClick={() => SettingsUI.openTab("general", "account")}>{t("community.linkToFollow")}</Button>;
     }
     return (
         <span className="dl-follow">

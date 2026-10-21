@@ -2,7 +2,7 @@
     "id": "video-controls-plus",
     "name": "Video Controls+",
     "description": "Playback speed from 0.25x to 3x, loop, frame stepping and picture-in-picture for videos in chat, plus YouTube-style keyboard shortcuts while you hover a video.",
-    "version": "1.1.2",
+    "version": "1.1.3",
     "authors": [
         "Evi"
     ],
@@ -12,6 +12,12 @@
     "minEviVersion": "0.3.2",
     "permissions": {},
     "changelog": [
+        {
+            "version": "1.1.3",
+            "notes": [
+                "Turning it off and on again no longer leaves videos already in chat half working: the speed is remembered and the controls follow play, pause and speed changes again."
+            ]
+        },
         {
             "version": "1.1.2",
             "notes": [
@@ -54,6 +60,9 @@
             "name": "Video-Steuerung+",
             "description": "Wiedergabegeschwindigkeit von 0,25x bis 3x, Wiederholen, Einzelbildschaltung und Bild-in-Bild für Videos im Chat, dazu YouTube-artige Tastenkürzel, solange du mit der Maus über einem Video bist.",
             "changelog": {
+                "1.1.3": [
+                    "Aus- und wieder Einschalten lässt Videos, die schon im Chat sind, nicht mehr halb funktionierend zurück: Die Geschwindigkeit wird wieder gemerkt, und die Steuerung folgt wieder Abspielen, Pause und Geschwindigkeitsänderungen."
+                ],
                 "1.1.2": [
                     "Schonender, während du über einem Video bist: Die Steuerung bewegt sich nur, wenn sich das Video bewegt."
                 ],
@@ -78,6 +87,9 @@
             "name": "Controles de vídeo+",
             "description": "Velocidad de reproducción de 0,25x a 3x, repetición, avance fotograma a fotograma e imagen en imagen para los vídeos del chat, además de atajos de teclado al estilo de YouTube mientras pasas el ratón por un vídeo.",
             "changelog": {
+                "1.1.3": [
+                    "Desactivarlo y volver a activarlo ya no deja a medias los vídeos que ya están en el chat: la velocidad se recuerda y los controles vuelven a seguir la reproducción, la pausa y los cambios de velocidad."
+                ],
                 "1.1.2": [
                     "Más ligero al pasar el ratón sobre un vídeo: los controles solo se mueven cuando se mueve el vídeo."
                 ],
@@ -102,6 +114,9 @@
             "name": "Contrôles vidéo+",
             "description": "Vitesse de lecture de 0,25x à 3x, lecture en boucle, avance image par image et image dans l'image pour les vidéos du chat, avec des raccourcis clavier à la YouTube quand vous survolez une vidéo.",
             "changelog": {
+                "1.1.3": [
+                    "Le désactiver puis le réactiver ne laisse plus à moitié fonctionnelles les vidéos déjà dans le chat : la vitesse est de nouveau mémorisée et les contrôles suivent à nouveau la lecture, la pause et les changements de vitesse."
+                ],
                 "1.1.2": [
                     "Plus léger quand tu survoles une vidéo : les commandes ne bougent que si la vidéo bouge."
                 ],
@@ -126,6 +141,9 @@
             "name": "動画コントロール+",
             "description": "チャット内の動画に、0.25xから3xまでの再生速度、ループ、コマ送り、ピクチャーインピクチャーを追加します。動画にカーソルを合わせている間は、YouTubeのようなキーボードショートカットも使えます。",
             "changelog": {
+                "1.1.3": [
+                    "オフにしてからオンに戻しても、チャットにすでにある動画が中途半端に動かなくなることはなくなりました。速度が再び記憶され、コントロールが再生、一時停止、速度の変更に再び追従します。"
+                ],
                 "1.1.2": [
                     "動画にカーソルを合わせているときの負荷が軽くなりました。コントロールは動画が動いたときだけ移動します。"
                 ],
@@ -150,6 +168,9 @@
             "name": "Sterowanie wideo+",
             "description": "Prędkość odtwarzania od 0,25x do 3x, zapętlanie, przechodzenie klatka po klatce i obraz w obrazie dla filmów na czacie, a do tego skróty klawiszowe w stylu YouTube, gdy kursor jest nad filmem.",
             "changelog": {
+                "1.1.3": [
+                    "Wyłączenie i ponowne włączenie nie zostawia już filmów, które są już na czacie, działających tylko w połowie: prędkość znów jest zapamiętywana, a sterowanie znów nadąża za odtwarzaniem, pauzą i zmianami prędkości."
+                ],
                 "1.1.2": [
                     "Lżej, gdy najedziesz na film: elementy sterujące przesuwają się tylko wtedy, gdy przesuwa się film."
                 ],
@@ -174,6 +195,9 @@
             "name": "Controles de vídeo+",
             "description": "Velocidade de reprodução de 0,25x a 3x, repetição, avanço quadro a quadro e picture-in-picture para os vídeos do chat, além de atalhos de teclado no estilo do YouTube enquanto você passa o mouse sobre um vídeo.",
             "changelog": {
+                "1.1.3": [
+                    "Desativar e ativar de novo não deixa mais os vídeos que já estão no chat funcionando pela metade: a velocidade volta a ser lembrada e os controles voltam a acompanhar a reprodução, a pausa e as mudanças de velocidade."
+                ],
                 "1.1.2": [
                     "Mais leve com o mouse sobre um vídeo: os controles só se movem quando o vídeo se move."
                 ],
@@ -198,6 +222,9 @@
             "name": "Управление видео+",
             "description": "Скорость воспроизведения от 0,25x до 3x, повтор, покадровый просмотр и «картинка в картинке» для видео в чате, а также горячие клавиши как на YouTube, пока курсор наведён на видео.",
             "changelog": {
+                "1.1.3": [
+                    "Если выключить и снова включить его, видео, которые уже есть в чате, больше не работают наполовину: скорость снова запоминается, а элементы управления снова следят за воспроизведением, паузой и сменой скорости."
+                ],
                 "1.1.2": [
                     "Меньше нагрузки, пока курсор над видео: панель управления двигается, только когда двигается само видео."
                 ],
@@ -222,6 +249,9 @@
             "name": "Video Denetimleri+",
             "description": "Sohbetteki videolar için 0,25x ile 3x arası oynatma hızı, döngü, kare kare ilerleme ve pencere içinde pencere; bir videonun üzerindeyken YouTube tarzı klavye kısayolları da var.",
             "changelog": {
+                "1.1.3": [
+                    "Kapatıp yeniden açmak, sohbette zaten olan videoları artık yarım çalışır halde bırakmıyor: hız yeniden hatırlanıyor ve kontroller oynatma, duraklatma ve hız değişikliklerini yeniden takip ediyor."
+                ],
                 "1.1.2": [
                     "Bir videonun üzerindeyken daha hafif: kontroller yalnızca video hareket ettiğinde yer değiştiriyor."
                 ],

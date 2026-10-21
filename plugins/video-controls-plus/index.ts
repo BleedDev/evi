@@ -70,7 +70,8 @@ let ctx: PluginContext<Settings> | undefined;
 interface Touched { rate?: boolean; loop?: boolean; pip?: boolean; }
 
 let events: AbortController | undefined;
-const attached = new WeakSet<HTMLVideoElement>();
+/** Videos with our listeners on, which go with `events`: a new set per start */
+let attached = new WeakSet<HTMLVideoElement>();
 const sped = new WeakSet<HTMLVideoElement>();
 const touched = new Map<HTMLVideoElement, Touched>();
 const fps = new WeakMap<HTMLVideoElement, number>();
@@ -721,6 +722,8 @@ export default definePlugin({
         context.onDispose(() => {
             events?.abort();
             events = undefined;
+            // Their listeners are gone: the next start attaches them again
+            attached = new WeakSet();
             cancelAnimationFrame(frame);
             frame = 0;
             clearTimeout(idleTimer);

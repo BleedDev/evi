@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { applySourcePatches, getPatchRecords, matchesFind, registerPatches, unregisterPatches } from "../src/renderer/patching/source";
+import { applySourcePatches, getPatchRecords, matchesFind, registerPatches, SourcePatch, unregisterPatches } from "../src/renderer/patching/source";
 
 const modules: Record<string, string> = {
     "1": 'function(e,t,n){t.A=function(){return"alpha"}}',
@@ -31,5 +31,47 @@ describe("source patch finds", () => {
         expect(run("1").patchedBy).toEqual([]);
         expect(run("3").patchedBy).toEqual([PLUGIN]);
         expect(record().state).toBe("applied");
+    });
+});
+
+describe("patch records", () => {
+    const all: SourcePatch = { find: "function(e,t,n)", all: true, replace: { match: 'return"alpha"', with: 'return"gamma"' } };
+
+    test("an all patch that fails on one module and applies on another is partial, in either order", () => {
+        registerPatches(PLUGIN, [all]);
+        run("2");
+        run("1");
+        expect(record().state).toBe("partial");
+        unregisterPatches(PLUGIN);
+
+        registerPatches(PLUGIN, [all]);
+        run("1");
+        run("2");
+        expect(record().state).toBe("partial");
+        expect(record().errors.length).toBe(1);
+    });
+
+    test("applied or failed everywhere is applied or failed", () => {
+        registerPatches(PLUGIN, [all]);
+        run("1");
+        run("3");
+        expect(record().state).toBe("applied");
+        unregisterPatches(PLUGIN);
+
+        registerPatches(PLUGIN, [{ ...all, replace: { match: "nowhere", with: "" } }]);
+        run("1");
+        run("2");
+        expect(record().state).toBe("failed");
+    });
+
+    test("live re-runs don't add the same errors again", () => {
+        registerPatches(PLUGIN, [{ find: 'return"beta"', replace: [{ match: "return", with: "return " }, { match: "nowhere", with: "" }] }]);
+        run("2");
+        const errors = [...record().errors];
+        expect(errors.length).toBe(1);
+        run("2", true);
+        run("2", true);
+        expect(record().errors).toEqual(errors);
+        expect(record().state).toBe("partial");
     });
 });

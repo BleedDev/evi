@@ -129,6 +129,31 @@ export function getPatchRecords(plugin?: string) {
     return plugin ? records.filter(r => r.plugin === plugin) : [...records];
 }
 
+/** How a patch did on one module: its state there, or none when its predicate threw */
+interface ModuleOutcome {
+    state?: PatchState;
+    errors: string[];
+}
+const outcomes = new WeakMap<PatchRecord, Map<string, ModuleOutcome>>();
+
+/**
+ * Notes how a patch did on a module (undefined: it had nothing to do there) and sums up the record.
+ * A live re-run replaces what the module had, so errors don't pile up with every toggle, and an `all`
+ * patch's state covers every module: applied or failed on all of them, partial on a mix.
+ */
+function settle(record: PatchRecord, moduleId: string, outcome: ModuleOutcome | undefined) {
+    let byModule = outcomes.get(record);
+    if (!outcome) {
+        if (!byModule?.delete(moduleId)) return;
+    } else {
+        if (!byModule) outcomes.set(record, byModule = new Map());
+        byModule.set(moduleId, outcome);
+    }
+    const states = [...byModule.values()].flatMap(o => o.state ?? []);
+    if (states.length) record.state = states.every(s => s === "applied") ? "applied" : states.every(s => s === "failed") ? "failed" : "partial";
+    record.errors = [...byModule.values()].flatMap(o => o.errors);
+}
+
 interface Step {
     record: PatchRecord;
     /** Whether the record already listed this module before this run */
@@ -211,7 +236,7 @@ export function applySourcePatches(
         try {
             if (patch.predicate && !patch.predicate()) continue;
         } catch (err) {
-            record.errors.push(`predicate threw: ${err}`);
+            settle(record, moduleId, { errors: [`predicate threw: ${err}`] });
             continue;
         }
 
@@ -254,12 +279,15 @@ export function applySourcePatches(
     }
 
     for (const { record, before, next, replacements, failed, errors, skipped } of steps) {
-        if (skipped) continue;
+        if (skipped) {
+            settle(record, moduleId, undefined);
+            continue;
+        }
         if (next !== before) patchedBy.push(record.plugin);
-        record.state = failed === 0 ? "applied" : failed < replacements && !record.patch.group ? "partial" : "failed";
-        if (!rerun || record.state !== "applied") record.errors.push(...errors);
-        if (record.state !== "applied" && !rerun) {
-            logger.warn(`Patch ${record.index} of ${record.plugin} ${record.state} on module ${moduleId}`, errors);
+        const state: PatchState = failed === 0 ? "applied" : failed < replacements && !record.patch.group ? "partial" : "failed";
+        settle(record, moduleId, { state, errors });
+        if (state !== "applied" && !rerun) {
+            logger.warn(`Patch ${record.index} of ${record.plugin} ${state} on module ${moduleId}`, errors);
         }
     }
 

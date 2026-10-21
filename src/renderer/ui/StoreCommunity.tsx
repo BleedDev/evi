@@ -229,13 +229,15 @@ export function RelatedPlugins({ ids, onOpen }: { ids: string[]; onOpen(id: stri
     return <HomeRow id="related" title={t("community.alsoInstall")} kind="plugin" tiles={tiles} onOpen={onOpen} />;
 }
 
-/** Choosing 1 to 5 stars: a radio group, arrow keys move between them */
+/** Choosing 1 to 5 stars: a radio group, arrow keys move between them, focus going along */
 function StarPicker({ value, onChange, labelledBy }: { value: number; onChange(n: number): void; labelledBy: string; }) {
+    const buttons = React.useRef<(HTMLButtonElement | null)[]>([]);
     return (
         <div className="dl-star-picker" role="radiogroup" aria-labelledby={labelledBy}>
             {[1, 2, 3, 4, 5].map(n => (
                 <button
                     key={n}
+                    ref={el => void (buttons.current[n - 1] = el)}
                     type="button"
                     role="radio"
                     aria-checked={value === n}
@@ -244,10 +246,13 @@ function StarPicker({ value, onChange, labelledBy }: { value: number; onChange(n
                     data-on={n <= value ? "" : undefined}
                     onClick={() => onChange(n)}
                     onKeyDown={e => {
-                        if (e.key === "ArrowRight" || e.key === "ArrowUp") onChange(Math.min(5, (value || 0) + 1));
-                        else if (e.key === "ArrowLeft" || e.key === "ArrowDown") onChange(Math.max(1, (value || 2) - 1));
+                        let next: number;
+                        if (e.key === "ArrowRight" || e.key === "ArrowUp") next = Math.min(5, (value || 0) + 1);
+                        else if (e.key === "ArrowLeft" || e.key === "ArrowDown") next = Math.max(1, (value || 2) - 1);
                         else return;
                         e.preventDefault();
+                        onChange(next);
+                        buttons.current[next - 1]?.focus();
                     }}
                 >
                     <Icon name="star" size={24} />

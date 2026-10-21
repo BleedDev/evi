@@ -168,6 +168,7 @@ export function manifestAuthors(manifest: PluginManifest): string[] {
 }
 
 const images = new Map<string, Promise<string | null>>();
+const MAX_IMAGES = 24;
 const media = new Map<string, Promise<{ url: string; video: boolean; } | null>>();
 
 /** A plugin's entry as this install gets it: its beta when you opted into betas and there's a newer one */
@@ -571,12 +572,17 @@ export const Store = {
     /** A screenshot from the registry as a data URL, or null when it can't be shown */
     image(url: string) {
         let pending = images.get(url);
-        if (!pending) {
+        // Last seen goes last: the ones dropped are the ones longest unseen
+        if (pending) images.delete(url);
+        else {
             pending = (Native.storeImage?.(url) ?? Promise.resolve({ ok: false as const, error: t("common.notSupported") }))
                 .then(r => r.ok ? r.dataUrl : null, () => null);
-            images.set(url, pending);
-            pending.then(r => r === null && images.delete(url));
+            const settled = pending;
+            settled.then(r => r === null && images.get(url) === settled && images.delete(url));
+            // Data URLs, often hundreds of KB each: only the latest few dozen are kept
+            if (images.size >= MAX_IMAGES) images.delete(images.keys().next().value!);
         }
+        images.set(url, pending);
         return pending;
     },
 

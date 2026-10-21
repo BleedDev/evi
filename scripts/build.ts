@@ -10,7 +10,7 @@
  */
 import type { BunPlugin } from "bun";
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, watch, writeFileSync } from "fs";
-import { basename, join, resolve } from "path";
+import { basename, dirname, join, resolve } from "path";
 
 import pkg from "../package.json";
 import type { PluginManifest } from "../src/shared/ipc";
@@ -18,6 +18,7 @@ import { CORE_GZ_ASSET, RELEASE_ASSETS } from "../src/shared/release";
 import { RETIRED_PLUGINS } from "../src/shared/store";
 import { escapeNonLatin1 } from "./escapeNonLatin1";
 import { mainLocales, strayKeys } from "./mainLocales";
+import { lazyStringsPlugin } from "./lazyStrings";
 
 const ROOT = resolve(import.meta.dir, "..");
 const DIST = join(ROOT, "dist");
@@ -171,6 +172,9 @@ async function buildPlugin(dir: string, outRoot = PLUGINS_OUT) {
         format: "cjs",
         // Provided at runtime by Evi, see requireMap in src/renderer/plugins/manager.ts
         external: ["@evi/api", "react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
+        // Official plugins build their languages but English when first read. Not userplugins/: their
+        // authors upload this build to evi.rest, whose checks may predate the lazy form
+        plugins: outRoot === PLUGINS_OUT && dirname(dir) === PLUGIN_ROOTS[0] ? [lazyStringsPlugin] : [],
         sourcemap: WATCH ? "inline" : "none",
     });
     if (!ok) return;

@@ -83,6 +83,10 @@ function ownKeys(body: string): { key: string; value: string; }[] {
         }
         while (/\s/.test(body[i] ?? "")) i++;
         if (body[i] !== ":") {
+            // A language Evi's build made lazy (scripts/lazyStrings.ts) counts as its table:
+            // get de() { return Object.defineProperty(this, "de", { value: {…} })["de"]; }
+            const lazy = key === "get" ? /^(?:"[^"]*"|[\w$-]+)\s*\(\)\s*\{\s*return\s+Object\.defineProperty\(this,\s*"([^"]+)",\s*\{\s*value:\s*(?=\{)/.exec(body.slice(i)) : null;
+            if (lazy) out.push({ key: lazy[1], value: body.slice(i + lazy[0].length, matching(body, i + lazy[0].length)) });
             // A method or getter: skip to its end
             const brace = body.indexOf("{", i);
             i = brace === -1 ? body.length : matching(body, brace);

@@ -49,6 +49,10 @@ const STAGED = join(DATA_DIR, "update-staged.json");
 /** A downloaded, verified evi-core.json waiting to be written in */
 const CORE_PENDING = join(DATA_DIR, "update-core.json.pending");
 const MAX_CORE_BYTES = 64 * 1024 * 1024;
+/** A download that gets nothing for this long has stalled */
+const STALL_MS = 30_000;
+/** And none takes longer than this, the installer on a slow line included */
+const DOWNLOAD_MS = 30 * 60 * 1000;
 const LOG = join(DATA_DIR, "logs", "update.log");
 
 let last: UpdateStatus | undefined;
@@ -179,23 +183,48 @@ export function checkForUpdate(force = false): Promise<UpdateStatus> {
     return checking;
 }
 
+/**
+ * A download that stalls (wifi gone, a sleep, a proxy holding the connection) gives up instead of
+ * waiting forever: Install would wait on it, and every try after it, until Discord restarted
+ */
 async function fetchBytes(url: string, max: number, onProgress?: (done: number, total: number) => void) {
-    const res = await net.fetch(url, { headers: { "User-Agent": HEADERS["User-Agent"] }, cache: "no-store" });
-    if (!res.ok || !res.body) throw new Error(mt("main.update.downloadFailed", { status: res.status }));
-    const total = Number(res.headers.get("content-length")) || 0;
-    if (total > max) throw new Error(mt("main.update.tooLarge"));
-    const reader = res.body.getReader();
-    const chunks: Uint8Array[] = [];
-    let done = 0;
-    while (true) {
-        const { done: end, value } = await reader.read();
-        if (end) break;
-        done += value.length;
-        if (done > max) throw new Error(mt("main.update.tooLarge"));
-        chunks.push(value);
-        onProgress?.(done, total);
+    const stop = new AbortController();
+    let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
+    const abort = () => {
+        stop.abort();
+        // Ends a read that's waiting, should the body not hear the abort
+        reader?.cancel().catch(() => { });
+    };
+    let stalled = setTimeout(abort, STALL_MS);
+    const overall = setTimeout(abort, DOWNLOAD_MS);
+    try {
+        const res = await net.fetch(url, { headers: { "User-Agent": HEADERS["User-Agent"] }, cache: "no-store", signal: stop.signal });
+        if (!res.ok || !res.body) throw new Error(mt("main.update.downloadFailed", { status: res.status }));
+        const total = Number(res.headers.get("content-length")) || 0;
+        if (total > max) throw new Error(mt("main.update.tooLarge"));
+        reader = res.body.getReader();
+        const chunks: Uint8Array[] = [];
+        let done = 0;
+        while (true) {
+            const { done: end, value } = await reader.read();
+            if (stop.signal.aborted) break;
+            if (end) return Buffer.concat(chunks);
+            clearTimeout(stalled);
+            stalled = setTimeout(abort, STALL_MS);
+            done += value.length;
+            if (done > max) throw new Error(mt("main.update.tooLarge"));
+            chunks.push(value);
+            onProgress?.(done, total);
+        }
+    } catch (err) {
+        if (!stop.signal.aborted) throw err;
+    } finally {
+        clearTimeout(stalled);
+        clearTimeout(overall);
+        // Stops the rest coming in after an error (too large)
+        reader?.cancel().catch(() => { });
     }
-    return Buffer.concat(chunks);
+    throw new Error(mt("main.dl.interrupted"));
 }
 
 /**

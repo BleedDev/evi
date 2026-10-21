@@ -74,15 +74,21 @@ function useDiscordBase(): ThemeBase {
 /** The minimum contrast on Chat before a colour gets a warning: body text needs more than the rest */
 const MIN_CONTRAST: Partial<Record<ColorKey, number>> = { text: 4.5, strong: 4.5, muted: 3, icon: 3, link: 3 };
 
+/** The colour a hex field's text means: the leading # can be left out */
+function fieldHex(text: string) {
+    const value = text.trim();
+    return toHex(value.startsWith("#") || /^rgba?\(/i.test(value) ? value : `#${value}`);
+}
+
 function ColorRow({ colorKey, value, chat, onChange }: { colorKey: ColorKey; value: string; chat: string; onChange(hex: string): void; }) {
     const id = `dl-theme-color-${colorKey}`;
     const name = t(`themeEditor.color.${colorKey}`);
     const [text, setText] = React.useState(value);
     // Picked with the swatch, or a new start: the field follows
     React.useEffect(() => {
-        if (toHex(text) !== value) setText(value);
+        if (fieldHex(text) !== value) setText(value);
     }, [value]);
-    const invalid = !toHex(text);
+    const invalid = !fieldHex(text);
     const min = MIN_CONTRAST[colorKey];
     const ratio = min && colorKey !== "chat" ? contrast(value, chat) : undefined;
 
@@ -116,7 +122,7 @@ function ColorRow({ colorKey, value, chat, onChange }: { colorKey: ColorKey; val
                         onChange={e => {
                             const next = e.currentTarget.value;
                             setText(next);
-                            const hex = toHex(next.startsWith("#") ? next : `#${next}`);
+                            const hex = fieldHex(next);
                             if (hex) onChange(hex);
                         }}
                         onBlur={() => invalid && setText(value)}

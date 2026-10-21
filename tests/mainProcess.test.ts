@@ -20,6 +20,9 @@ afterAll(() => rmSync(DATA, { recursive: true, force: true }));
 const sent: { channel: string; args: unknown[]; }[] = [];
 const page = { isDestroyed: () => false, send: (channel: string, ...args: unknown[]) => void sent.push({ channel, args }) };
 
+/** Questions main asked in a system dialog, answered by calling them with the button index */
+const asked: ((answer: { response: number; }) => void)[] = [];
+
 /** What net.fetch answers, by URL */
 const responses = new Map<string, () => Response>();
 
@@ -30,7 +33,7 @@ mock.module("electron", () => ({
     session: { defaultSession: {} },
     webContents: { getAllWebContents: () => [page] },
     BrowserWindow: { fromWebContents: () => null },
-    dialog: {},
+    dialog: { showMessageBox: () => new Promise(resolve => asked.push(resolve)) },
     powerMonitor: {},
     shell: {},
 }));
@@ -140,5 +143,50 @@ describe("two plugin folders with the same id", () => {
         refreshUserPlugin("twin - Copy");
         expect(pluginLocation("twin")).toBeUndefined();
         expect(changes()).toEqual([{ type: "remove", id: "twin" }]);
+    });
+});
+
+describe("restoring a backup that turns on a plugin with native code", () => {
+    test("saves made while the question is up are kept, and so is the restore", async () => {
+        const { refreshUserPlugin } = await import("../src/main/plugins");
+        const { applyBackup } = await import("../src/main/backup");
+        const settingsModule = await import("../src/main/settings");
+        const { buildBackup } = await import("../src/shared/backup");
+
+        const dir = join(DATA, "plugins", "nat");
+        mkdirSync(dir, { recursive: true });
+        writeFileSync(join(dir, "manifest.json"), JSON.stringify({ id: "nat", name: "Nat", version: "1.0.0", description: "", authors: [], native: "native.js" }));
+        writeFileSync(join(dir, "index.js"), "");
+        writeFileSync(join(dir, "native.js"), "module.exports = {};");
+        refreshUserPlugin("nat");
+
+        const before = structuredClone(settingsModule.settings);
+        const backup = buildBackup({
+            settings: { ...before, betaUpdates: true, plugins: { nat: { enabled: true }, other: { enabled: true } } },
+            quickCss: "",
+            themes: [],
+            plugins: [],
+        }, "2.5.2");
+
+        asked.length = 0;
+        const result = applyBackup(backup, "replace");
+        await Bun.sleep(10);
+        expect(asked.length).toBe(1);
+        // The page still has the settings from before, and saves on top of them
+        settingsModule.saveSettings({ ...before, lastSeenVersion: "9.9.9" });
+        asked[0]({ response: 0 });
+
+        const done = await result;
+        const saved = settingsModule.settings;
+        expect(done.ok && done.settings).toEqual(saved);
+        expect(saved.betaUpdates).toBe(true);
+        expect(saved.plugins.other?.enabled).toBe(true);
+        expect(saved.plugins.nat?.enabled).toBe(true);
+        expect(saved.lastSeenVersion).toBe("9.9.9");
+        expect(JSON.parse(readFileSync(join(DATA, "settings.json"), "utf8"))).toEqual(saved);
+        // Safe mode can name what the restore turned on
+        const changes = JSON.parse(readFileSync(join(DATA, "safe-mode.json"), "utf8")).changes;
+        expect(changes).toContainEqual(expect.objectContaining({ kind: "plugin", id: "nat", action: "enabled" }));
+        expect(changes).toContainEqual(expect.objectContaining({ kind: "plugin", id: "other", action: "enabled" }));
     });
 });

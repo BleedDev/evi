@@ -1,13 +1,16 @@
 import { backupFileName, BackupSource, buildBackup, EviBackup, ImportMode, MAX_BACKUP_BYTES, parseBackup, planImport } from "@shared/backup";
 import { BackupApplyResult, BackupExportResult, BackupOpenResult, EviSettings, IPC } from "@shared/ipc";
+import { diffSettings } from "@shared/safeMode";
 import { randomUUID } from "crypto";
 import { app, BrowserWindow, dialog, ipcMain, IpcMainInvokeEvent, WebContents } from "electron";
 import { existsSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from "fs";
 import { basename, join } from "path";
+import { isDeepStrictEqual } from "util";
 
 import { mt } from "./locale";
 import { QUICK_CSS_FILE, THEMES_DIR } from "./paths";
 import { askToEnable, enablesNeedingConsent, getPluginPayloads } from "./plugins";
+import { SafeMode } from "./safeMode";
 import { saveSettings, settings } from "./settings";
 import { getThemePayloads, reloadTheme } from "./themes";
 import { broadcast, errorOf } from "./util";
@@ -119,6 +122,33 @@ function keepSwitch(base: EviSettings, previous: EviSettings, id: string, enable
     return { ...base, plugins: { ...base.plugins, [id]: entry } };
 }
 
+/**
+ * `restored` with the saves made since the restore began on top. The page has the settings from
+ * before it (`before`) until the restore returns, so it saves on top of those: only what a save
+ * changed (a version seen, a switch) carries over, not the old values it still holds.
+ */
+function withSavedSince(restored: EviSettings, before: EviSettings, now: EviSettings): EviSettings {
+    const changed = <T extends object>(base: T, from: T, to: T) => {
+        const out = { ...base } as Record<string, unknown>;
+        for (const key of new Set([...Object.keys(from), ...Object.keys(to)])) {
+            const value = (to as Record<string, unknown>)[key];
+            if (isDeepStrictEqual((from as Record<string, unknown>)[key], value)) continue;
+            if (value === undefined) delete out[key];
+            else out[key] = value;
+        }
+        return out as T;
+    };
+    // Plugins one by one: a switch flipped meanwhile doesn't bring back every plugin's old entry
+    return { ...changed(restored, before, now), plugins: changed(restored.plugins, before.plugins, now.plugins) };
+}
+
+/** Saves, and remembers what that turned on or changed for safe mode, as a save from the page does */
+function saveAndRecord(next: EviSettings) {
+    const changes = diffSettings(settings, next);
+    saveSettings(next);
+    for (const change of changes) SafeMode.recordChange(change);
+}
+
 export async function applyBackup(backup: EviBackup, mode: ImportMode, sender?: WebContents): Promise<BackupApplyResult> {
     const previousSettings = structuredClone(settings);
     const plan = planImport(currentState(), backup, mode);
@@ -137,7 +167,7 @@ export async function applyBackup(backup: EviBackup, mode: ImportMode, sender?: 
         return { ok: false, error: mt("main.backup.writeFailed", { error: errorOf(err) }) };
     }
     try {
-        saveSettings(plan.settings);
+        saveAndRecord(plan.settings);
     } catch (err) {
         try {
             rollback();
@@ -146,17 +176,27 @@ export async function applyBackup(backup: EviBackup, mode: ImportMode, sender?: 
         return { ok: false, error: mt("main.backup.settingsFailed", { error: errorOf(err) }) };
     }
 
-    for (const manifest of held) {
-        if (!await askToEnable(manifest, sender)) continue;
-        plan.settings = keepSwitch(plan.settings, previousSettings, manifest.id, true);
-        saveSettings(plan.settings);
+    if (held.length) {
+        const approved: string[] = [];
+        for (const manifest of held) {
+            if (await askToEnable(manifest, sender)) approved.push(manifest.id);
+        }
+        // The questions can stay up for minutes, and saves land meanwhile: keep them and the restore
+        let next = withSavedSince(plan.settings, previousSettings, settings);
+        for (const id of approved) next = keepSwitch(next, previousSettings, id, true);
+        try {
+            saveAndRecord(next);
+        } catch (err) {
+            // Main holds them anyway, and the page saves them again with its next change
+            console.error("[Evi] Couldn't save the plugins a restored backup turned on", err);
+        }
     }
 
     // Don't wait for the watchers, the renderer should have everything when this resolves
     for (const { file } of plan.themes) reloadTheme(basename(file));
     if (plan.quickCss !== null) broadcast(IPC.CSS_CHANGED, plan.quickCss);
     console.log(`[Evi] Restored a backup (${mode}), ${plan.preview.changes} changes`);
-    return { ok: true, settings: plan.settings, preview: plan.preview };
+    return { ok: true, settings, preview: plan.preview };
 }
 
 export function initBackup() {

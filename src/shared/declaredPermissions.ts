@@ -109,10 +109,24 @@ export const isMessageStore = (name: string) => MESSAGE_STORE.test(name);
 /** Discord's API paths (no /api/vN prefix) that write, by what they need */
 const DISCORD_WRITES: [PermissionFlag, RegExp][] = [
     // Posting, editing, deleting and reacting to messages; slash commands to bots; webhooks; new threads
-    ["sendMessages", /^\/(?:channels\/\d+\/(?:messages|threads)(?:\/|$)|interactions$|webhooks\/\d+\/[^/]+)/],
+    ["sendMessages", /^\/(?:channels\/\d+\/(?:messages|threads)(?:\/|$)|interactions$|webhooks\/\d+\/[^/]+)/i],
     // Your account, profile and settings (settings-proto, per-server notification settings)
-    ["changeSettings", /^\/users\/@me(?:\/(?:settings(?:-proto\/\d+)?|guilds\/\d+\/settings|profile|consent|connections(?:\/.*)?))?$/],
+    ["changeSettings", /^\/users\/@me(?:\/(?:settings(?:-proto\/\d+)?|guilds\/\d+\/settings|profile|consent|connections(?:\/.*)?))?$/i],
 ];
+
+/**
+ * A path as Discord's API reads it, for DISCORD_WRITES: %-escapes decoded (users/%40me is users/@me),
+ * repeated and trailing slashes dropped, and no /api/vN prefix. Undefined when it can't be decoded.
+ */
+function apiPath(pathname: string) {
+    let path: string;
+    try {
+        path = decodeURIComponent(pathname);
+    } catch {
+        return undefined;
+    }
+    return path.replace(/\/{2,}/g, "/").replace(/(.)\/$/, "$1").replace(/^\/api(?:\/v\d+)?(?=\/)/i, "");
+}
 
 export interface BlockedRequest {
     permission: PermissionKey;
@@ -135,10 +149,12 @@ export function checkRequest(declared: DeclaredPermissions, input: string, metho
     if (!/^(?:https?|wss?):$/.test(url.protocol) || !url.hostname) return undefined;
     const host = url.host.toLowerCase();
     if (!hostAllowed(declared, host)) return { permission: "network", host };
-    if (/^(?:GET|HEAD|OPTIONS)$/i.test(method) || !DISCORD_HOST.test(url.hostname.toLowerCase())) return undefined;
-    const path = url.pathname.replace(/^\/api(?:\/v\d+)?(?=\/)/, "");
+    // discord.com. (a trailing dot) is discord.com too
+    if (/^(?:GET|HEAD|OPTIONS)$/i.test(method) || !DISCORD_HOST.test(url.hostname.toLowerCase().replace(/\.$/, ""))) return undefined;
+    const path = apiPath(url.pathname);
     for (const [permission, re] of DISCORD_WRITES) {
-        if (re.test(path) && !declared[permission]) return { permission, host };
+        // A path that can't be read could be any of them
+        if ((path === undefined || re.test(path)) && !declared[permission]) return { permission, host };
     }
     return undefined;
 }

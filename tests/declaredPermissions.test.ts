@@ -106,6 +106,23 @@ describe("declared permissions: requests", () => {
         // Only Discord's API: the same path elsewhere is just a site
         expect(checkRequest(declared({ network: ["api.example.com"] }), "https://api.example.com/api/channels/1/messages", "POST")).toBeUndefined();
     });
+
+    test("other ways of writing the same endpoint need the same permission", () => {
+        const d = declared({ network: ["discord.com"] });
+        const send = { permission: "sendMessages", host: "discord.com" };
+        const settings = { permission: "changeSettings", host: "discord.com" };
+        expect(checkRequest(d, "https://discord.com./api/v9/channels/123/messages", "POST")).toEqual({ ...send, host: "discord.com." });
+        expect(checkRequest(d, "https://discord.com/api/v9//channels/123/messages", "POST")).toEqual(send);
+        expect(checkRequest(d, "https://discord.com/api/V9/channels/123/messages", "POST")).toEqual(send);
+        expect(checkRequest(d, "https://discord.com/api/v9/%63hannels/123/messages", "POST")).toEqual(send);
+        expect(checkRequest(d, "https://discord.com/api/v9/users/%40me", "PATCH")).toEqual(settings);
+        expect(checkRequest(d, "https://discord.com/api/v9/users/@me/", "PATCH")).toEqual(settings);
+        // A path that can't be decoded isn't let through
+        expect(checkRequest(d, "https://discord.com/api/v9/users/%E0", "PATCH")).toEqual(send);
+        expect(checkRequest(declared({ network: ["discord.com"], sendMessages: true, changeSettings: true }), "https://discord.com/api/v9/users/%E0", "PATCH")).toBeUndefined();
+        // Other endpoints stay free to write
+        expect(checkRequest(d, "https://discord.com/api/v9/channels/123/typing", "POST")).toBeUndefined();
+    });
 });
 
 describe("declared permissions: updates", () => {

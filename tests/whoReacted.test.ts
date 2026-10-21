@@ -153,6 +153,7 @@ describe("after stop", () => {
     // when the store changes: they draw nothing, with the same hooks, instead of crashing the message
     test("a drawn Reactors re-renders to nothing once the plugin stopped", async () => {
         const shim = await import("../src/renderer/react/jsx-runtime");
+        const realApi = { ...await import("@evi/api") };
         const hooks: string[] = [];
         const jsx = (type: unknown, props: any) => ({ type, props });
         const runtime = { jsx, jsxs: jsx, jsxDEV: jsx, Fragment: "F" };
@@ -192,6 +193,7 @@ describe("after stop", () => {
         } finally {
             mock.module("react/jsx-runtime", () => shim);
             mock.module("react/jsx-dev-runtime", () => shim);
+            mock.module("@evi/api", () => realApi);
         }
     });
 });

@@ -1,4 +1,4 @@
-import { describe, expect, mock, test } from "bun:test";
+import { afterAll, describe, expect, mock, test } from "bun:test";
 
 import {
     cacheKey, chunkText, googleLanguage, isTranslatable, languageName, LRU, mightBeForeign, mightBeIn, normalizeLanguage, parseGoogleResponse,
@@ -6,6 +6,10 @@ import {
 } from "../plugins/inline-translate/translate";
 import type { AutoOptions } from "../plugins/inline-translate/translate";
 import { canonicalizeMatch, matchesFind } from "../src/renderer/patching/source";
+
+// Other test files share @evi/api: it comes back whole afterwards
+const realApi = { ...await import("@evi/api") };
+afterAll(() => void mock.module("@evi/api", () => realApi));
 
 mock.module("@evi/api", () => ({
     definePlugin: (plugin: unknown) => plugin,

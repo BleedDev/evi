@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { afterAll, beforeEach, describe, expect, mock, test } from "bun:test";
 
 // A PermissionStore that counts how often it's asked, with Discord's version counters
 const Permissions = { VIEW_CHANNEL: 1n << 10n, CONNECT: 1n << 20n };
@@ -20,6 +20,10 @@ const PermissionStore = {
 };
 const channels: Record<string, any> = {};
 const ChannelStore = { getChannel: (id: string) => channels[id] };
+
+// Other test files share @evi/api: it comes back whole afterwards
+const realApi = { ...await import("@evi/api") };
+afterAll(() => void mock.module("@evi/api", () => realApi));
 
 mock.module("@evi/api", () => ({
     find: () => undefined,

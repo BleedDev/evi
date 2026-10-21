@@ -142,8 +142,9 @@ export class PluginContext<S extends SettingsSchema = SettingsSchema> {
         return this.#id;
     }
 
-    /** Register cleanup to run when the plugin stops, or now if it already has */
+    /** Register cleanup to run when the plugin stops */
     onDispose(fn: () => void) {
+        // Already stopped: now
         if (!this.disposed) this.disposers.push(fn);
         else {
             try {

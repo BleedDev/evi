@@ -536,6 +536,8 @@ export default definePlugin({
         /** Pending lists to set up again even if they are the current session's (settings changed) */
         const rebuild = new Set<string>();
         let scheduled = false;
+        /** Turned off: a setup already waiting for its frame must not start a session nothing would dispose */
+        let disposed = false;
 
         /**
          * Sets up the waiting lists once Discord has drawn them. Doing it straight away, while Discord was
@@ -547,6 +549,7 @@ export default definePlugin({
             scheduled = true;
             requestAnimationFrame(() => setTimeout(() => {
                 scheduled = false;
+                if (disposed) return;
                 for (const kind of LISTS) {
                     const list = pending.get(kind.key);
                     if (!list) continue;
@@ -621,7 +624,11 @@ export default definePlugin({
 
         refresh();
         ctx.onDispose(() => {
+            disposed = true;
+            pending.clear();
+            rebuild.clear();
             for (const session of sessions.values()) session.dispose();
+            sessions.clear();
             // Belt and braces: nothing of ours may survive a disable
             for (const el of document.querySelectorAll(`.${ROW}, .${FAR}`)) el.classList.remove(ROW, FAR);
         });

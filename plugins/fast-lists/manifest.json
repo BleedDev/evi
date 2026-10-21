@@ -2,7 +2,7 @@
     "id": "fast-lists",
     "name": "Fast Lists",
     "description": "Keeps Discord smooth with hundreds of servers. Servers and members far out of view skip rendering work, without ever being removed, so nothing flickers, disappears or jumps.",
-    "version": "2.3.0",
+    "version": "2.3.1",
     "minEviVersion": "2.1.0",
     "authors": [
         "Evi"
@@ -12,6 +12,12 @@
     ],
     "permissions": {},
     "changelog": [
+        {
+            "version": "2.3.1",
+            "notes": [
+                "Turning it off right as a list was being set up no longer leaves that list's watchers running until Discord reloads."
+            ]
+        },
         {
             "version": "2.3.0",
             "notes": [
@@ -91,6 +97,9 @@
             "name": "Schnelle Listen",
             "description": "Hält Discord flüssig, auch mit Hunderten Servern. Server und Mitglieder weit außerhalb des Sichtbereichs sparen sich die Renderarbeit, ohne je entfernt zu werden, sodass nichts flackert, verschwindet oder springt.",
             "changelog": {
+                "2.3.1": [
+                    "Wird es genau dann ausgeschaltet, wenn eine Liste eingerichtet wird, laufen deren Beobachter nicht mehr bis zum Neuladen von Discord weiter."
+                ],
                 "2.3.0": [
                     "Die Chat-Option ist weg: Schnelle Listen lässt den Chat in Ruhe.",
                     "Das Überspringen weit entfernter Nachrichten kam Discord beim Scrollen immer wieder in die Quere, für wenig Gewinn. Die Serverliste funktioniert wie bisher."
@@ -136,6 +145,9 @@
             "name": "Listas rápidas",
             "description": "Mantiene Discord fluido con cientos de servidores. Los servidores y miembros muy fuera de la vista se ahorran el trabajo de renderizado sin eliminarse nunca, así que nada parpadea, desaparece ni da saltos.",
             "changelog": {
+                "2.3.1": [
+                    "Desactivarlo justo cuando se estaba preparando una lista ya no deja sus observadores funcionando hasta que Discord se recarga."
+                ],
                 "2.3.0": [
                     "La opción de chat ya no está: Listas rápidas deja el chat en paz.",
                     "Omitir los mensajes lejanos chocaba una y otra vez con cómo Discord mantiene tu posición al desplazarte, para poca ganancia. La lista de servidores funciona como antes."
@@ -181,6 +193,9 @@
             "name": "Listes rapides",
             "description": "Garde Discord fluide avec des centaines de serveurs. Les serveurs et membres très loin de la vue évitent le travail de rendu sans jamais être supprimés, donc rien ne clignote, ne disparaît ni ne saute.",
             "changelog": {
+                "2.3.1": [
+                    "Le désactiver pile pendant la préparation d'une liste ne laisse plus ses observateurs tourner jusqu'au rechargement de Discord."
+                ],
                 "2.3.0": [
                     "L'option Chat a disparu : Listes rapides laisse le chat tranquille.",
                     "Ignorer les messages lointains entrait sans cesse en conflit avec la façon dont Discord garde ta position pendant le défilement, pour peu de gain. La liste des serveurs fonctionne comme avant."
@@ -226,6 +241,9 @@
             "name": "高速リスト",
             "description": "数百のサーバーがあっても Discord をなめらかに保ちます。画面から大きく外れたサーバーやメンバーは削除されることなく描画処理だけを省くので、ちらつきや消失、ジャンプは起きません。",
             "changelog": {
+                "2.3.1": [
+                    "リストの準備中にオフにしても、そのリストの監視処理がDiscordの再読み込みまで動き続けることはなくなりました。"
+                ],
                 "2.3.0": [
                     "チャットの設定はなくなりました。高速リストはチャットに手を加えません。",
                     "離れたメッセージの描画を省く処理は、スクロール中に位置を保つ Discord の仕組みとぶつかり続け、効果もわずかでした。サーバーリストはこれまでどおりです。"
@@ -271,6 +289,9 @@
             "name": "Szybkie listy",
             "description": "Utrzymuje płynność Discorda przy setkach serwerów. Serwery i członkowie daleko poza widokiem pomijają pracę renderowania, ale nigdy nie są usuwani, więc nic nie migocze, nie znika ani nie skacze.",
             "changelog": {
+                "2.3.1": [
+                    "Wyłączenie go akurat podczas przygotowywania listy nie zostawia już jej obserwatorów działających do przeładowania Discorda."
+                ],
                 "2.3.0": [
                     "Opcja czatu zniknęła: Szybkie listy nie ruszają czatu.",
                     "Pomijanie dalekich wiadomości ciągle kłóciło się z tym, jak Discord trzyma twoje miejsce podczas przewijania, a zysk był niewielki. Lista serwerów działa jak dotąd."
@@ -316,6 +337,9 @@
             "name": "Listas rápidas",
             "description": "Mantém o Discord fluido com centenas de servidores. Servidores e membros bem fora da tela pulam o trabalho de renderização sem nunca serem removidos, então nada pisca, some ou pula.",
             "changelog": {
+                "2.3.1": [
+                    "Desativá-lo bem quando uma lista estava sendo preparada não deixa mais os observadores dela rodando até o Discord recarregar."
+                ],
                 "2.3.0": [
                     "A opção de chat saiu: o Listas rápidas deixa o chat em paz.",
                     "Pular mensagens distantes vivia brigando com o jeito que o Discord mantém sua posição enquanto você rola, para pouco ganho. A lista de servidores funciona como antes."
@@ -361,6 +385,9 @@
             "name": "Быстрые списки",
             "description": "Сохраняет плавность Discord при сотнях серверов. Серверы и участники далеко за пределами экрана не отрисовываются, но никогда не удаляются, поэтому ничего не мерцает, не пропадает и не прыгает.",
             "changelog": {
+                "2.3.1": [
+                    "Если выключить плагин как раз во время подготовки списка, его наблюдатели больше не продолжают работать до перезагрузки Discord."
+                ],
                 "2.3.0": [
                     "Настройки чата больше нет: Быстрые списки не трогают чат.",
                     "Пропуск далёких сообщений постоянно конфликтовал с тем, как Discord удерживает позицию при прокрутке, а выигрыш был небольшим. Список серверов работает как раньше."
@@ -406,6 +433,9 @@
             "name": "Hızlı Listeler",
             "description": "Yüzlerce sunucuyla Discord'u akıcı tutar. Görüş alanının çok dışındaki sunucular ve üyeler hiç kaldırılmadan oluşturma işinden muaf tutulur; böylece hiçbir şey titremez, kaybolmaz veya sıçramaz.",
             "changelog": {
+                "2.3.1": [
+                    "Bir liste hazırlanırken kapatıldığında, o listenin izleyicileri artık Discord yeniden yüklenene kadar çalışmaya devam etmiyor."
+                ],
                 "2.3.0": [
                     "Sohbet seçeneği kaldırıldı: Hızlı Listeler sohbete dokunmuyor.",
                     "Uzaktaki mesajları atlamak, Discord'un kaydırırken yerini koruma şekliyle sürekli çakışıyordu ve kazancı azdı. Sunucu listesi eskisi gibi çalışıyor."

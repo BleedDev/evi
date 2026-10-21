@@ -608,9 +608,19 @@ function SnippetIcon() {
     );
 }
 
+const noSettings = () => undefined;
+const noSubscribe = () => () => { };
+
+/**
+ * The settings, or undefined once the plugin stopped. Stopping closes an open picker, which re-renders
+ * the button after ctx is gone (the patch keeps it in the chat bar). One useSyncExternalStore either
+ * way, so the hooks stay in the same order.
+ */
+const useSettings = () => ctx ? ctx.settings.use() : React.useSyncExternalStore(noSubscribe, noSettings);
+
 function SnippetsButton({ channel }: { channel: any; }) {
     useLocale();
-    const { showButton } = ctx!.settings.use();
+    const showButton = useSettings()?.showButton;
     const ref = React.useRef<HTMLDivElement>(null);
     const anchor = useOpenAnchor();
     if (!showButton) return null;

@@ -384,6 +384,9 @@ function remove(id: string) {
     emit();
 }
 
+/** How long startAll waits for async starts to finish */
+const START_WAIT_MS = 10_000;
+
 /** Native code or Chromium switches: turning it on takes the user's yes in main (main/index.ts) */
 const reachesBeyondPage = ({ native, chromiumSwitches }: PluginManifest) => !!native || Object.keys(chromiumSwitches ?? {}).length > 0;
 
@@ -429,13 +432,19 @@ export const PluginManager = {
         emit();
     },
 
-    /** Start enabled plugins, once Discord's core modules exist */
+    /**
+     * Start enabled plugins, once Discord's core modules exist. Resolves when they've all started, or
+     * after START_WAIT_MS if an async start is still going.
+     */
     async startAll() {
         ready = true;
         if (SafeMode.active) return emit();
-        for (const state of plugins.values()) {
-            if (shouldRun(state)) await start(state);
-        }
+        // Side by side: an async start that waits (a lookup Discord removed, a slow fetch) doesn't hold up
+        // the plugins after it, and the healthy-start report only so long: starts without one end in safe mode
+        const starts = [...plugins.values()].filter(state => shouldRun(state)).map(state => start(state));
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        await Promise.race([Promise.allSettled(starts), new Promise(resolve => timer = setTimeout(resolve, START_WAIT_MS))]);
+        clearTimeout(timer);
         emit();
     },
 

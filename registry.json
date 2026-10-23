@@ -8141,13 +8141,13 @@
             "authors": [
                 "Evi"
             ],
-            "version": "1.0.1",
+            "version": "1.0.2",
             "tags": [
                 "dark",
                 "colourful",
                 "supporters"
             ],
-            "updatedAt": "2026-09-28",
+            "updatedAt": "2026-10-23",
             "source": "https://github.com/BleedDev/evi/tree/main/themes/aurora.css",
             "screenshots": [],
             "changelog": [],
@@ -8188,8 +8188,8 @@
             },
             "minEviVersion": "1.1.0",
             "file": {
-                "url": "https://evi.rest/store/themes/aurora.css?v=043f95e33f5d",
-                "sha256": "043f95e33f5de9e5a4781e9e21b84bcfea6d626d1e3f5c8ba9821ec51a6b38b9"
+                "url": "https://evi.rest/store/themes/aurora.css?v=cc8ca260adc4",
+                "sha256": "cc8ca260adc45e2ff3ac50adf8f227588e5a2fcd74a532a15af82c7035ed1bdc"
             }
         },
         {
@@ -8199,13 +8199,13 @@
             "authors": [
                 "Evi"
             ],
-            "version": "1.1.1",
+            "version": "1.1.2",
             "tags": [
                 "dark",
                 "oled",
                 "minimal"
             ],
-            "updatedAt": "2026-09-28",
+            "updatedAt": "2026-10-23",
             "source": "https://github.com/BleedDev/evi/tree/main/themes/midnight.css",
             "screenshots": [],
             "changelog": [],
@@ -8245,8 +8245,8 @@
             },
             "minEviVersion": "1.1.0",
             "file": {
-                "url": "https://evi.rest/store/themes/midnight.css?v=0af05727af72",
-                "sha256": "0af05727af72d540c93f28f90eef5ead5f8af29bceb946fe0645e37428010a79"
+                "url": "https://evi.rest/store/themes/midnight.css?v=3d5e2e74300e",
+                "sha256": "3d5e2e74300ec1975ce3ef3a8fa255cb86ac73fa5474df3f0880803d1475602d"
             }
         }
     ]

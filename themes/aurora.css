@@ -18,7 +18,7 @@
  * @description:ru Благодарность за поддержку Evi: глубокие фиолетовые поверхности, мягкое сияние северного сияния и розовые акценты.
  * @description:tr Evi’yi desteklediğin için bir teşekkür: koyu mor yüzeyler, yumuşak bir aurora parıltısı ve pembe vurgular.
  * @author Evi
- * @version 1.0.1
+ * @version 1.0.2
  * @tags dark, colourful, supporters
  * @supporters true
  */
@@ -43,6 +43,7 @@
     --background-tertiary: #0d0a18;
     --background-floating: #1f1935;
     --modal-background: #1f1935;
+    --modal-footer-background: #1f1935;
     --chat-background: #141024;
     --channeltextarea-background: #1f1935;
 

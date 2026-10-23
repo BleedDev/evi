@@ -18,7 +18,7 @@
  * @description:ru Чисто чёрный фон для OLED-экранов, а фирменные акценты Discord остаются как есть.
  * @description:tr OLED ekranlar için simsiyah arka planlar; Discord’un kendi vurgu renkleri olduğu gibi kalır.
  * @author Evi
- * @version 1.1.1
+ * @version 1.1.2
  * @tags dark, oled, minimal
  */
 
@@ -42,6 +42,7 @@
     --background-tertiary: #000;
     --background-floating: #0b0b0d;
     --modal-background: #0b0b0d;
+    --modal-footer-background: #0b0b0d;
     --chat-background: #000;
     --channeltextarea-background: #0b0b0d;
 }

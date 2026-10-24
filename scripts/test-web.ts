@@ -3149,7 +3149,28 @@ await page.click("#dl-tab-plugins");
 await findPlugin("store-lookup");
 await lookupRow.getByText("Others are seeing this too.", { exact: false }).waitFor({ timeout: 5000 }).catch(() => { });
 const lookupRowText = await page.evaluate(sel => document.querySelector(sel)?.textContent ?? "", lookupRowSelector);
-check("the Plugins list shows what evi.rest knows about a plugin, next to its own problem", ["Being looked into", "Evi: Fix coming in 1.0.1", "Can’t find 1 part of Discord", "Others are seeing this too."].every(t => lookupRowText.includes(t)), lookupRowText.slice(0, 300));
+check("the Plugins list shows what evi.rest knows about a plugin, next to its own problem", ["Being looked into", "Evi: Fix coming in 1.0.1", "Others are seeing this too."].every(t => lookupRowText.includes(t)), lookupRowText.slice(0, 300));
+// A plugin that isn't working says so first: a banner at the top of its card, and the card's edge
+const lookupTrouble = await page.evaluate(sel => {
+    const li = document.querySelector(sel);
+    const banner = li?.querySelector(".dl-plugin-trouble");
+    return { tone: li?.getAttribute("data-trouble"), banner: banner?.textContent ?? "", first: banner === li?.children[1] };
+}, lookupRowSelector);
+check("a plugin that isn't working gets a banner at the top of its card", lookupTrouble.tone === "warning" && lookupTrouble.banner.startsWith("Being looked into") && lookupTrouble.banner.includes("Evi: Fix coming in 1.0.1") && lookupTrouble.first, lookupTrouble);
+await lookupRow.screenshot({ path: join(OUT, "ui-plugin-trouble.png") });
+// The list says how many aren't working, and shows just those
+await page.fill("#dl-plugin-search", "");
+await page.waitForTimeout(150);
+const troubleNotice = await page.evaluate(() => document.querySelector("#dl-plugin-show-trouble")?.closest(".dl-notice")?.textContent ?? "");
+await page.click("#dl-plugin-show-trouble").catch(() => { });
+await page.waitForTimeout(150);
+const troubleShown = await page.evaluate(() => [...document.querySelectorAll("li.dl-plugin-card")].map(li => [li.getAttribute("aria-labelledby"), li.getAttribute("data-trouble")]));
+check("the Plugins tab says how many plugins aren't working and filters to them", /plugins? (isn’t|aren’t) working right now/.test(troubleNotice) && troubleShown.length > 0 && troubleShown.every(([, tone]) => !!tone) && troubleShown.some(([id]) => id === "dl-plugin-store-lookup"), { troubleNotice, troubleShown });
+await page.screenshot({ path: join(OUT, "ui-plugins-trouble.png") });
+// Back to every plugin for what follows: the tab starts on All when it opens again
+await page.click("#dl-tab-themes");
+await page.click("#dl-tab-plugins");
+await findPlugin("store-lookup");
 
 // Send to author: shows the report first, sends it once, then says so
 await lookupRow.getByRole("button", { name: "Send to author" }).click();

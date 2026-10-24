@@ -31,7 +31,7 @@ import { AuthorBanner, AuthorNote, BetaSwitch, FollowButton, isSupporter, KnownI
 
 const storeName = (kind: StoreKind) => t(`store.name.${kind}`);
 
-const healthLabel = (health: PluginHealth) => t(
+export const healthLabel = (health: PluginHealth) => t(
     health.state === "investigating" ? "health.investigating"
         : health.state === "fixed" ? health.hotfix ? "hotfix.label" : "health.fixed"
             : health.automatic ? "health.brokenAuto" : "health.broken",
@@ -338,6 +338,9 @@ function StarButton({ item, large }: { item: Item; large?: boolean; }) {
     );
 }
 
+/** How loudly a store card says it has a known problem: broken is red, being looked into is amber */
+const troubleTone = (health?: PluginHealth) => health?.state === "broken" ? "danger" : health?.state === "investigating" ? "warning" : undefined;
+
 /** Known to be broken right now, from evi.rest: enough installs reported it, or its author said so */
 export function HealthPill({ health }: { health: PluginHealth; }) {
     return (
@@ -429,7 +432,7 @@ function StoreCard({ item, onOpen, onAuthor, pinned }: { item: Item; onOpen(): v
     // The whole card opens the detail page (the title's button stretches over it); the star and the
     // action buttons sit above that layer
     return (
-        <li className="dl-store-card" aria-labelledby={titleId} data-store-id={entry.id} data-supporters={item.supportersOnly || undefined}>
+        <li className="dl-store-card" aria-labelledby={titleId} data-store-id={entry.id} data-supporters={item.supportersOnly || undefined} data-trouble={troubleTone(item.health)}>
             <div className="dl-store-card-top">
                 <Glyph name={entry.name} />
                 <div className="dl-store-card-title">

@@ -1823,6 +1823,37 @@
 
 .dl-plugin-card > :is(.dl-error, .dl-row-note, .dl-crash) { margin: 0; }
 
+/* A plugin that isn't working says so before anything else (PluginsTab.tsx troubleOf) */
+.dl-plugin-card[data-trouble="danger"] { border-color: color-mix(in oklab, var(--dl-text-critical) 60%, transparent); }
+.dl-plugin-card[data-trouble="warning"] { border-color: color-mix(in oklab, var(--dl-text-warning) 60%, transparent); }
+
+.dl-plugin-trouble {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--dl-radius-control);
+    background: var(--dl-bg-critical);
+}
+
+.dl-plugin-trouble[data-tone="warning"] { background: var(--dl-bg-warning); }
+
+.dl-plugin-trouble > svg {
+    flex: none;
+    color: var(--dl-text-critical);
+}
+
+.dl-plugin-trouble[data-tone="warning"] > svg { color: var(--dl-text-warning); }
+
+.dl-plugin-trouble-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-inline-size: 0;
+}
+
+.dl-plugin-trouble-text > * { margin: 0; text-wrap: pretty; }
+
 .dl-plugin-card-matches {
     display: flex;
     align-items: center;
@@ -2473,6 +2504,15 @@
 }
 
 .dl-health > svg { flex: none; }
+
+/* Broken outright is red; being looked into stays amber */
+.dl-health[data-state="broken"] {
+    background: color-mix(in oklab, var(--dl-text-critical) 18%, transparent);
+    color: var(--dl-text-critical);
+}
+
+.dl-store-card[data-trouble="danger"] { border-color: color-mix(in oklab, var(--dl-text-critical) 60%, transparent); }
+.dl-store-card[data-trouble="warning"] { border-color: color-mix(in oklab, var(--dl-text-warning) 60%, transparent); }
 
 .dl-store-health {
     border-color: color-mix(in oklab, var(--dl-text-warning) 45%, transparent);

@@ -1,5 +1,5 @@
 import { MAX_REPORT_CHARS } from "@shared/crashReports";
-import { healthWarns } from "@shared/health";
+import { healthWarns, PluginHealth } from "@shared/health";
 import { isPluginEnabled } from "@shared/ipc";
 import { keybindConflict, KeybindOwner, matchesPlugin, matchingSettings } from "@shared/pluginSearch";
 
@@ -7,7 +7,7 @@ import { buildCrashReport, copyText, discordBuild } from "../crashReport";
 import { t } from "../i18n";
 import { Native } from "../native";
 import { getPatchRecords } from "../patching/source";
-import { diagnoseLookups, isLookupProblem, LookupDiagnosis } from "../plugins/lookups";
+import { diagnoseLookups, isLookupProblem } from "../plugins/lookups";
 import { PluginManager, PluginState } from "../plugins/manager";
 import { SafeMode } from "../safeMode";
 import { crashKey, fitReport } from "../sentReports";
@@ -18,10 +18,10 @@ import { Badge, Button, Dialog, Icon, Dropdown, EmptyState, IconButton, Notice, 
 import { openStore, showTab } from "./nav";
 import { PluginDetailsButton } from "./PluginPermissions";
 import { SafeModeNotice } from "./SafeModeNotice";
-import { Glyph, HealthPill, useStoreState } from "./Store";
+import { Glyph, healthLabel, useStoreState } from "./Store";
 import { HotfixNote, PulledNotice } from "./Trust";
 
-type Filter = "all" | "enabled" | "disabled" | "settings" | "dev";
+type Filter = "all" | "enabled" | "disabled" | "settings" | "dev" | "trouble";
 
 /** A custom settings panel needs the running plugin's ctx, so it only counts while the plugin runs */
 function hasSettings({ definition, ctx }: PluginState) {
@@ -34,6 +34,7 @@ const filterTests: Record<Filter, (p: PluginState) => boolean> = {
     disabled: p => !isPluginEnabled(Settings.data, p.manifest),
     settings: hasSettings,
     dev: p => p.source === "dev",
+    trouble: p => !!troubleOf(p),
 };
 
 const matchesQuery = (p: PluginState, q: string) => matchesPlugin({
@@ -59,20 +60,58 @@ function keybindOwners(): KeybindOwner[] {
     return owners;
 }
 
-/** Only when something went wrong: working patches are the expected state, Advanced > Patches lists them all */
-function PatchFailures({ id }: { id: string; }) {
-    const records = getPatchRecords(id);
-    const failed = records.filter(r => r.state === "failed" || r.state === "partial").length;
-    if (!failed) return null;
-    return <Status tone="danger">{records.length === 1 ? t("plugins.patchFailed") : t("plugins.patchesFailed", { failed, count: records.length })}</Status>;
+/** What evi.rest knows about the version installed, when it's a problem (dev builds aren't the store's) */
+function knownProblem(state: PluginState): PluginHealth | undefined {
+    const known = state.source === "dev" ? undefined : Store.healthOf(state.manifest.id);
+    return healthWarns(known, Store.installedPlugin(state.manifest.id)?.version ?? state.manifest.version) ? known : undefined;
 }
 
-/** Parts of Discord the plugin waited for that never showed up: it runs, but without them */
-function LookupSummary({ problems }: { problems: LookupDiagnosis[]; }) {
-    if (!problems.length) return null;
-    const broken = problems.some(d => d.health === "broken");
-    const n = problems.length;
-    return <Status tone={broken ? "danger" : "warning"}>{t("plugins.lookupProblems", { count: n })}</Status>;
+/** Parts of Discord the running plugin waited for that never showed up */
+const lookupProblemsOf = (state: PluginState) => state.running ? diagnoseLookups(state.manifest.id).filter(d => isLookupProblem(d.health)) : [];
+
+interface Trouble {
+    tone: "danger" | "warning";
+    title: string;
+    body?: string;
+    /** It's what evi.rest knows, so the banner already says what the card's note would */
+    reported?: boolean;
+}
+
+/**
+ * Why a plugin isn't working, worst first: it didn't start, its patches don't apply, it can't find
+ * parts of Discord, or other installs report it broken. Undefined for a plugin that works. Runtime
+ * problems only count while it's on; what evi.rest knows counts either way, so you hear it before
+ * turning one on. A pulled version has its own notice (PulledNotice), so it gets no text here.
+ */
+function troubleOf(state: PluginState, lookups = lookupProblemsOf(state), health = knownProblem(state)): Trouble | undefined {
+    if (state.pulled) return { tone: "danger", title: "" };
+    const enabled = isPluginEnabled(Settings.data, state.manifest);
+    if (enabled && state.error) return { tone: "danger", title: t("plugins.trouble.start"), body: t("plugins.trouble.startBody") };
+    const patches = enabled ? getPatchRecords(state.manifest.id) : [];
+    if (patches.some(r => r.state === "failed" || r.state === "partial")) return { tone: "danger", title: t("health.brokenAuto"), body: t("plugins.trouble.patchesBody") };
+    if (lookups.some(d => d.health === "broken")) return { tone: "danger", title: t("health.brokenAuto"), body: t("plugins.trouble.lookupsBody") };
+    if (health) {
+        // Whoever set it said why (the author, or Evi's team); otherwise it's installs reporting it
+        const body = health.message
+            ? `${health.setBy ? `${health.setBy}: ` : ""}${health.message}`
+            : t(health.state === "investigating" ? "plugins.trouble.investigatingBody" : "plugins.trouble.reportedBody");
+        return { tone: health.state === "investigating" ? "warning" : "danger", title: healthLabel(health), body, reported: true };
+    }
+    if (lookups.length) return { tone: "warning", title: t("plugins.trouble.missing"), body: t("plugins.trouble.missingBody") };
+}
+
+/** The first thing a card says when its plugin isn't working, so a broken plugin can't pass for a working one */
+function TroubleBanner({ trouble, updateReady }: { trouble: Trouble; updateReady: boolean; }) {
+    return (
+        <div className="dl-plugin-trouble" data-tone={trouble.tone}>
+            <Icon name={trouble.tone === "danger" ? "circleError" : "warning"} size={20} />
+            <div className="dl-plugin-trouble-text">
+                <Text variant="text-sm/semibold" color="text-strong">{trouble.title}</Text>
+                {trouble.body && <Text tag="p" variant="text-sm/normal" color="text-default">{trouble.body}</Text>}
+                {updateReady && <Text tag="p" variant="text-sm/medium" color="text-strong">{t("plugins.trouble.updateMayFix")}</Text>}
+            </div>
+        </div>
+    );
 }
 
 function PluginSettings({ state, highlight = [] }: { state: PluginState; highlight?: string[]; }) {
@@ -217,10 +256,9 @@ function PluginCard({ state, query }: { state: PluginState; query: string; }) {
     const entry = Store.getSnapshot().plugins.find(p => p.id === manifest.id);
     const op = Store.getSnapshot().ops[manifest.id];
     const busy = op?.type === "busy";
-    const lookupProblems = state.running ? diagnoseLookups(manifest.id).filter(d => isLookupProblem(d.health)) : [];
-    // What evi.rest knows about this version (dev builds aren't the store's)
-    const known = state.source === "dev" ? undefined : Store.healthOf(manifest.id);
-    const health = healthWarns(known, Store.installedPlugin(manifest.id)?.version ?? manifest.version) ? known : undefined;
+    const lookupProblems = lookupProblemsOf(state);
+    const health = knownProblem(state);
+    const trouble = troubleOf(state, lookupProblems, health);
     // Evi turned this version off everywhere: it can't run, and says why instead
     const { pulled } = state;
     const authors = Store.authorsOf(state);
@@ -231,7 +269,7 @@ function PluginCard({ state, query }: { state: PluginState; query: string; }) {
     const update = () => entry?.native || Store.growthOf(manifest.id) ? openStore("plugin", manifest.id) : Store.install(manifest.id);
 
     return (
-        <li className="dl-plugin-card" aria-labelledby={titleId}>
+        <li className="dl-plugin-card" aria-labelledby={titleId} data-trouble={trouble?.tone}>
             <div className="dl-plugin-card-top">
                 <Glyph name={manifest.name} />
                 <div className="dl-plugin-card-title">
@@ -248,6 +286,7 @@ function PluginCard({ state, query }: { state: PluginState; query: string; }) {
                 {/* Off while pulled, whatever it's set to; the notice below says why */}
                 <Switch checked={enabled && !pulled} disabled={!!pulled} labelledBy={titleId} onChange={v => PluginManager.setEnabled(manifest.id, v)} />
             </div>
+            {trouble?.title && <TroubleBanner trouble={trouble} updateReady={action === "update"} />}
             {manifest.description && <Text tag="p" variant="text-sm/normal" color="text-subtle" className="dl-plugin-card-desc">{manifest.description}</Text>}
             {matched.length > 0 && (
                 <Text tag="p" variant="text-sm/normal" color="text-subtle" className="dl-plugin-card-matches">
@@ -272,12 +311,8 @@ function PluginCard({ state, query }: { state: PluginState; query: string; }) {
                     {op?.type === "done" && <Status tone="success">{op.message}</Status>}
                     {pulled && <Status tone="danger">{t("pulled.label")}</Status>}
                     {!op && !pulled && action === "update" && <Status tone="warning">{t("plugins.versionAvailable", { version: entry?.version ?? "" })}</Status>}
-                    {state.error && <Status tone="danger">{t("plugins.failedToStart")}</Status>}
                     {state.needsReload && <Status tone="warning">{t("plugins.reloadToApply")}</Status>}
                     {paused && !pulled && <Status tone="muted">{t("plugins.pausedSafeMode")}</Status>}
-                    {enabled && !pulled && <PatchFailures id={manifest.id} />}
-                    <LookupSummary problems={lookupProblems} />
-                    {health && <HealthPill health={health} />}
                 </span>
                 <div className="dl-row-controls dl-plugin-card-actions">
                     {action === "update" && !pulled && <Button variant="accent" icon="download" disabled={busy} onClick={update}>{t("common.update")}</Button>}
@@ -309,7 +344,7 @@ function PluginCard({ state, query }: { state: PluginState; query: string; }) {
                     {lookupProblems.map((d, i) => <pre key={i} className="dl-error">{d.target}</pre>)}
                 </>
             )}
-            {health?.message && (
+            {health?.message && !trouble?.reported && (
                 <Text tag="p" variant="text-sm/normal" color="text-subtle" className="dl-row-note">{health.setBy ? `${health.setBy}: ` : ""}{health.message}</Text>
             )}
             {state.hotfix && enabled && !pulled && !health && <HotfixNote hotfix={state.hotfix} />}
@@ -403,14 +438,28 @@ export function InstalledPlugins() {
     const q = query.trim().toLowerCase();
     const listRef = React.useRef<HTMLDivElement>(null);
 
+    // Plugins that aren't working go first. Once seen, one keeps its place for as long as the tab is open:
+    // turning it off clears its runtime problem, and the card shouldn't jump away from the switch
+    const troubled = React.useRef(new Set<string>()).current;
+    const notWorking = plugins.filter(p => {
+        const trouble = !!troubleOf(p);
+        if (trouble) troubled.add(p.manifest.id);
+        return trouble && (!!p.pulled || isPluginEnabled(Settings.data, p.manifest));
+    }).length;
+    const troubledKey = [...troubled].join("\n");
+
     // Which plugins a filter shows is decided when the filter or search changes, not on every toggle:
     // switching a plugin off under "Enabled" leaves it in place instead of pulling it from under the cursor
     const ids = plugins.map(p => p.manifest.id).join("\n");
     const shown = React.useMemo(
-        () => new Set(plugins.filter(p => filterTests[filter](p) && matchesQuery(p, q)).map(p => p.manifest.id)),
-        [filter, q, ids],
+        () => plugins
+            .filter(p => filterTests[filter](p) && matchesQuery(p, q))
+            .map(p => p.manifest.id)
+            .sort((a, b) => Number(troubled.has(b)) - Number(troubled.has(a))),
+        [filter, q, ids, troubledKey],
     );
-    const visible = plugins.filter(p => shown.has(p.manifest.id));
+    const byId = new Map(plugins.map(p => [p.manifest.id, p]));
+    const visible = shown.flatMap(id => byId.get(id) ?? []);
     const paged = usePages(visible, PAGE_SIZE, `${filter}\n${q}`);
 
     const count = (f: Filter) => plugins.filter(filterTests[f]).length;
@@ -430,11 +479,17 @@ export function InstalledPlugins() {
         { value: "disabled", label: `${t("plugins.filter.disabled")} (${plugins.length - enabledCount})` },
         { value: "settings", label: `${t("plugins.filter.settings")} (${count("settings")})` },
         ...devCount ? [{ value: "dev" as const, label: `${t("common.dev")} (${devCount})` }] : [],
+        ...troubled.size ? [{ value: "trouble" as const, label: `${t("plugins.filter.trouble")} (${count("trouble")})` }] : [],
     ];
 
     return (
         <div className="dl-tab dl-tab-compact">
             {SafeMode.active && <SafeModeNotice />}
+            {notWorking > 0 && filter !== "trouble" && (
+                <Notice tone="danger" action={<Button id="dl-plugin-show-trouble" onClick={() => setFilter("trouble")}>{t("plugins.showTrouble", { count: notWorking })}</Button>}>
+                    {t("plugins.troubleCount", { count: notWorking })}
+                </Notice>
+            )}
             {needsReload && (
                 <Notice tone="warning" action={<Button variant="accent" onClick={() => location.reload()}>{t("common.reloadDiscord")}</Button>}>
                     {t("plugins.needsReload")}

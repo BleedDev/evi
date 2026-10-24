@@ -1,0 +1,99 @@
+{
+    "id": "upload-tools",
+    "name": "Upload Tools",
+    "description": "See how fast your files are sending and how long is left, cancel one file of several, and watch the progress on the taskbar. Drag files waiting to be sent into order or spoiler them all at once, and add files to your messages while you edit them.",
+    "version": "1.0.0",
+    "authors": [
+        "Evi"
+    ],
+    "tags": [
+        "messages",
+        "utility"
+    ],
+    "permissions": {
+        "readMessages": true,
+        "sendMessages": true
+    },
+    "changelog": [
+        {
+            "version": "1.0.0",
+            "notes": [
+                "First release."
+            ]
+        }
+    ],
+    "locales": {
+        "de": {
+            "name": "Upload-Werkzeuge",
+            "description": "Sieh, wie schnell deine Dateien gesendet werden und wie lange es noch dauert, brich eine von mehreren Dateien ab und verfolge den Fortschritt in der Taskleiste. Ziehe Dateien, die auf das Senden warten, in die richtige Reihenfolge oder markiere alle auf einmal als Spoiler, und füge deinen Nachrichten beim Bearbeiten Dateien hinzu.",
+            "changelog": {
+                "1.0.0": [
+                    "Erste Version."
+                ]
+            }
+        },
+        "es": {
+            "name": "Herramientas de subida",
+            "description": "Mira a qué velocidad se envían tus archivos y cuánto falta, cancela un archivo de varios y sigue el progreso en la barra de tareas. Arrastra los archivos que esperan para enviarse al orden que quieras o márcalos todos como spoiler de una vez, y añade archivos a tus mensajes mientras los editas.",
+            "changelog": {
+                "1.0.0": [
+                    "Primera versión."
+                ]
+            }
+        },
+        "fr": {
+            "name": "Outils d'envoi",
+            "description": "Vois à quelle vitesse tes fichiers s'envoient et combien de temps il reste, annule un fichier parmi plusieurs et suis la progression dans la barre des tâches. Fais glisser les fichiers en attente d'envoi dans l'ordre voulu ou mets-les tous en spoiler d'un coup, et ajoute des fichiers à tes messages en les modifiant.",
+            "changelog": {
+                "1.0.0": [
+                    "Première version."
+                ]
+            }
+        },
+        "ja": {
+            "name": "アップロードツール",
+            "description": "ファイルの送信速度と残り時間を確認し、複数のうち1つだけをキャンセルでき、タスクバーで進行状況も見られます。送信待ちのファイルをドラッグで並べ替えたり、まとめてスポイラーにしたり、編集中のメッセージにファイルを追加したりできます。",
+            "changelog": {
+                "1.0.0": [
+                    "初回リリース。"
+                ]
+            }
+        },
+        "pl": {
+            "name": "Narzędzia przesyłania",
+            "description": "Zobacz, jak szybko wysyłają się twoje pliki i ile czasu zostało, anuluj jeden z kilku plików i śledź postęp na pasku zadań. Przeciągaj pliki czekające na wysłanie w odpowiedniej kolejności albo oznacz je wszystkie naraz jako spoilery, i dodawaj pliki do wiadomości podczas ich edycji.",
+            "changelog": {
+                "1.0.0": [
+                    "Pierwsze wydanie."
+                ]
+            }
+        },
+        "pt-BR": {
+            "name": "Ferramentas de envio",
+            "description": "Veja a velocidade com que seus arquivos são enviados e quanto tempo falta, cancele um arquivo entre vários e acompanhe o progresso na barra de tarefas. Arraste os arquivos que aguardam envio para a ordem que quiser ou marque todos como spoiler de uma vez, e adicione arquivos às suas mensagens enquanto as edita.",
+            "changelog": {
+                "1.0.0": [
+                    "Primeira versão."
+                ]
+            }
+        },
+        "ru": {
+            "name": "Инструменты загрузки",
+            "description": "Смотрите, как быстро отправляются файлы и сколько осталось, отменяйте один файл из нескольких и следите за прогрессом на панели задач. Перетаскивайте ожидающие отправки файлы в нужном порядке или отмечайте их все как спойлеры сразу, и добавляйте файлы в свои сообщения при редактировании.",
+            "changelog": {
+                "1.0.0": [
+                    "Первый выпуск."
+                ]
+            }
+        },
+        "tr": {
+            "name": "Yükleme Araçları",
+            "description": "Dosyalarının ne kadar hızlı gönderildiğini ve ne kadar kaldığını gör, birkaç dosyadan birini iptal et ve ilerlemeyi görev çubuğunda izle. Gönderilmeyi bekleyen dosyaları sürükleyerek sırala ya da hepsini tek seferde spoiler yap, ve mesajlarını düzenlerken onlara dosya ekle.",
+            "changelog": {
+                "1.0.0": [
+                    "İlk sürüm."
+                ]
+            }
+        }
+    }
+}

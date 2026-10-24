@@ -51,6 +51,7 @@ export const tr = {
     "panel.openDataFolder": "Veri klasörünü aç",
     "panel.versionWhatsNew": "Evi {version} · Yenilikler",
     "panel.close": "Evi ayarlarını kapat",
+    "settingsSearch.pluginSettings": "Eklenti ayarları",
 
     // ---- Quick CSS ----
     "quickCss.apply": "Quick CSS’i uygula",

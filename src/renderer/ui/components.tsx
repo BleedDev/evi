@@ -1147,16 +1147,19 @@ export function Dialog({ title, onClose, children, id, className }: { title: Rea
     const { ref, onKeyDown } = useModal(exit.close);
     const body = React.useRef<HTMLDivElement>(null);
 
-    // A dialog opens at its top. Inside Discord's settings, Discord's focus lock can move focus to a
-    // field further down as the dialog opens, which scrolled the body there: until the user scrolls
-    // or presses a key themselves, any scroll that focus causes goes back to the top
+    // A dialog opens at its top, or on what its content marks with data-dialog-start (a setting the
+    // search found). Inside Discord's settings, Discord's focus lock can move focus to a field further
+    // down as the dialog opens, which scrolled the body there: until the user scrolls or presses a key
+    // themselves, any scroll that focus causes goes back to where it opened
     React.useLayoutEffect(() => {
         const el = body.current;
         if (!el) return;
         el.scrollTop = 0;
+        el.querySelector("[data-dialog-start]")?.scrollIntoView({ block: "nearest" });
+        const start = el.scrollTop;
         let settled = false;
         const settle = () => void (settled = true);
-        const onScroll = () => { if (!settled) el.scrollTop = 0; };
+        const onScroll = () => { if (!settled) el.scrollTop = start; };
         el.addEventListener("scroll", onScroll);
         el.addEventListener("wheel", settle, { passive: true });
         el.addEventListener("pointerdown", settle);

@@ -35,3 +35,24 @@ export function takeStoreTarget(kind: StoreKind) {
     delete storeTargets[kind];
     return id;
 }
+
+export interface PluginTarget {
+    id: string;
+    /** A setting to open the plugin's settings on, highlighted */
+    setting?: string;
+}
+
+/** An installed plugin to show, taken by the Plugins tab when it next shows or right away if it's showing */
+let pluginTarget: PluginTarget | undefined;
+
+/** Switches to the installed plugins, on the plugin's card, or in its settings on one of them */
+export function openPlugin(id: string, setting?: string) {
+    pluginTarget = { id, setting };
+    showTab("plugins", "installed");
+}
+
+export function takePluginTarget() {
+    const target = pluginTarget;
+    pluginTarget = undefined;
+    return target;
+}

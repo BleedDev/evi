@@ -51,6 +51,7 @@ export const ptBR = {
     "panel.openDataFolder": "Abrir pasta de dados",
     "panel.versionWhatsNew": "Evi {version} · Novidades",
     "panel.close": "Fechar configurações do Evi",
+    "settingsSearch.pluginSettings": "Configurações de plugins",
 
     // ---- Quick CSS ----
     "quickCss.apply": "Aplicar Quick CSS",

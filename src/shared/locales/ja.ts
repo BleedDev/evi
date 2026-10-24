@@ -51,6 +51,7 @@ export const ja = {
     "panel.openDataFolder": "データフォルダを開く",
     "panel.versionWhatsNew": "Evi {version} · 新機能",
     "panel.close": "Eviの設定を閉じる",
+    "settingsSearch.pluginSettings": "プラグインの設定",
 
     // ---- Quick CSS ----
     "quickCss.apply": "Quick CSSを適用",

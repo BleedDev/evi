@@ -12,7 +12,7 @@ Evi is a client mod for the Discord desktop app. Plugins and themes from one sto
 
 ## Installing
 
-Get **Evi Setup** from [evi.rest/download](https://evi.rest/download), pick your Discord and click **Install Evi**. Discord restarts with Evi in it. Then press **Ctrl+Shift+D**, or find Evi in Discord's settings.
+Get **Evi Setup** from [evi.rest/download](https://evi.rest/download), pick your Discord and click **Install Evi**. Discord restarts with Evi in it. Then press **Ctrl+Shift+D**, or find Evi in Discord's settings, where Discord's search finds Evi's tabs, plugins and plugin settings too.
 
 On a Mac, the first time you open Evi Setup, allow it under System Settings → Privacy & Security. On Linux, mark the download as executable first.
 

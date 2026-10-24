@@ -1,9 +1,10 @@
 /**
  * The Plugins tab's search, over what a plugin is (name, description, id, authors) and over its
  * settings: "blur" finds Streamer Mode+ by its "Blur images" setting, even though its name doesn't say.
+ * Discord's own settings search finds plugins and settings with the same tests (settingsSearch.ts).
  */
 
-interface SearchableSetting {
+export interface SearchableSetting {
     type: string;
     label: string;
     description?: string;
@@ -18,19 +19,28 @@ export interface SearchablePlugin {
     settings?: Record<string, SearchableSetting>;
 }
 
-const has = (text: string | undefined, q: string) => !!text && text.toLowerCase().includes(q);
+/** What's typed in a search box, as `q` below always is: lowercase and trimmed */
+export const normalizeQuery = (query: string) => query.trim().toLowerCase();
 
-/** Keys of the settings `q` (lowercase, trimmed) finds, by label, description or an option's label */
+export const includesQuery = (text: string | undefined, q: string) => !!text && text.toLowerCase().includes(q);
+
+/** Whether `q` finds a setting, by its label, description or an option's label */
+export const settingMatches = (s: SearchableSetting, q: string) =>
+    includesQuery(s.label, q) || includesQuery(s.description, q) || !!s.options?.some(o => includesQuery(o.label, q));
+
+/** Keys of the settings `q` finds */
 export function matchingSettings(settings: SearchablePlugin["settings"], q: string): string[] {
     if (!q || !settings) return [];
-    return Object.entries(settings)
-        .filter(([, s]) => has(s.label, q) || has(s.description, q) || !!s.options?.some(o => has(o.label, q)))
-        .map(([key]) => key);
+    return Object.entries(settings).filter(([, s]) => settingMatches(s, q)).map(([key]) => key);
 }
+
+/** Whether `q` finds the plugin itself (name, description, id, authors), leaving its settings out */
+export const matchesPluginInfo = (p: SearchablePlugin, q: string) =>
+    includesQuery(`${p.name} ${p.description ?? ""} ${p.id} ${p.authors.join(" ")}`, q);
 
 export function matchesPlugin(p: SearchablePlugin, q: string): boolean {
     if (!q) return true;
-    return has(`${p.name} ${p.description ?? ""} ${p.id} ${p.authors.join(" ")}`, q) || matchingSettings(p.settings, q).length > 0;
+    return matchesPluginInfo(p, q) || matchingSettings(p.settings, q).length > 0;
 }
 
 export interface KeybindOwner {

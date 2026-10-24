@@ -3,7 +3,8 @@
  *
  * Discord describes its settings as a tree of layout nodes (ROOT > SECTION > SIDEBAR_ITEM > PANEL >
  * CATEGORY > CUSTOM), each with a lazy `buildLayout()`. We wrap the `$Root` node's buildLayout to
- * insert our section, using export hooks only, no source patches.
+ * insert our section, using export hooks only, no source patches. Discord's settings search finds
+ * Evi's tabs, plugins and plugin settings through results in each page's panel (settingsSearch.ts).
  */
 import { useLocale } from "../i18n";
 import { Logger } from "../logger";
@@ -12,15 +13,17 @@ import { findExport, filters, waitFor } from "../webpack/find";
 import { ErrorBoundary } from "./components";
 import { ensureStyles } from "./index";
 import { Page, pages, PageView } from "./pages";
+import { installSettingsSearch, SearchResults, searchResults } from "./settingsSearch";
 
-interface LayoutNode {
+export interface LayoutNode {
     key: string;
     type: number;
     buildLayout?(): LayoutNode[];
     [prop: string]: unknown;
 }
 
-type NodeTypes = Record<"SECTION" | "SIDEBAR_ITEM" | "PANEL" | "CATEGORY" | "CUSTOM", number>;
+/** Search results are left out if Discord ever drops NAVIGATOR, the rest still works */
+export type NodeTypes = Record<"SECTION" | "SIDEBAR_ITEM" | "PANEL" | "CATEGORY" | "CUSTOM", number> & { NAVIGATOR?: number; };
 
 const logger = new Logger("SettingsEntry", "#8ab4f8");
 const SECTION_KEY = "evi_section";
@@ -60,15 +63,23 @@ function buildSection(types: NodeTypes): LayoutNode {
     // nodes' ones, and those use no hooks. So these mustn't either: a hook here changed how many hooks
     // Discord's header rendered when it moved onto an Evi page, and React crashed Discord (error #310).
     // They read the language as they're called; Discord redraws its settings when its language changes.
+    // Discord's search results, made afresh by the section's buildLayout, which Discord calls first
+    let search: SearchResults | undefined;
     const entry = (page: Page): LayoutNode => {
         const key = page.id;
         const title = () => page.label();
         const Component = () => <Embedded page={page} />;
-        // Discord's settings search finds a page by its tabs too ("Quick CSS", "Backup"...)
-        const useSearchTerms = () => ["Evi", title(), ...page.tabs.map(tab => tab.label())];
+        // Terms Discord's search never finds: a search shows the page's results instead (its tabs
+        // and, on Plugins, plugins and settings), or all of it when it finds the page's title
+        const useSearchTerms = () => [];
         const custom: LayoutNode = { key: `evi_${key}_custom`, type: types.CUSTOM, Component, useSearchTerms };
         const category: LayoutNode = { key: `evi_${key}_category`, type: types.CATEGORY, buildLayout: () => [custom] };
-        const panel: LayoutNode = { key: `evi_${key}_panel`, type: types.PANEL, useTitle: title, buildLayout: () => [category] };
+        const panel: LayoutNode = {
+            key: `evi_${key}_panel`,
+            type: types.PANEL,
+            useTitle: title,
+            buildLayout: () => [category, ...search?.categories(key, category.key) ?? []],
+        };
         return {
             key: `evi_${key}_sidebar_item`,
             type: types.SIDEBAR_ITEM,
@@ -81,7 +92,15 @@ function buildSection(types: NodeTypes): LayoutNode {
     const items = pages.map(page => ({ page, node: entry(page) }));
 
     // Asked each time Discord builds its settings, so the Developers page comes and goes with the account
-    return { key: SECTION_KEY, type: types.SECTION, useTitle: () => "Evi", buildLayout: () => items.filter(i => i.page.visible?.() ?? true).map(i => i.node) };
+    return {
+        key: SECTION_KEY,
+        type: types.SECTION,
+        useTitle: () => "Evi",
+        buildLayout: () => {
+            search = searchResults(types);
+            return items.filter(i => i.page.visible?.() ?? true).map(i => i.node);
+        },
+    };
 }
 
 function wrapRoot(root: LayoutNode, types: NodeTypes) {
@@ -103,6 +122,7 @@ const isRoot = (v: any) => v?.key === "$Root" && typeof v.buildLayout === "funct
 
 export function installSettingsEntry() {
     ensureStyles();
+    installSettingsSearch();
     waitFor<NodeTypes>(filters.byProps("SECTION", "SIDEBAR_ITEM", "PANEL", "CATEGORY", "CUSTOM"), types => {
         // Discord doesn't export the root node, but passes it through this tree builder every time settings open
         waitFor(filters.byCode('"buildLayout"in', ".buildLayout().map("), (_, found) => {

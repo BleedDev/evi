@@ -54,6 +54,8 @@ export const en = {
     "panel.openDataFolder": "Open data folder",
     "panel.versionWhatsNew": "Evi {version} · What’s new",
     "panel.close": "Close Evi settings",
+    // Discord's settings search, heading Evi's results for plugin settings (ui/settingsSearch.ts)
+    "settingsSearch.pluginSettings": "Plugin settings",
 
     // ---- Quick CSS ----
     "quickCss.apply": "Apply Quick CSS",

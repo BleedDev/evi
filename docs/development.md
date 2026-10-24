@@ -17,7 +17,7 @@ With `bun run dev` running:
 - **Renderer core edits** apply on `Ctrl+R` in Discord.
 - **Main process edits** need Discord restarted.
 
-Press `Ctrl+Shift+D` in Discord to open the settings panel, where you manage plugins, themes, Quick CSS and patch health, and try out new source patches in the Patch Helper. The same pages are also in Discord's own settings, under Evi.
+Press `Ctrl+Shift+D` in Discord to open the settings panel, where you manage plugins, themes, Quick CSS and patch health, and try out new source patches in the Patch Helper. The same pages are also in Discord's own settings, under Evi, and Discord's settings search finds Evi's tabs, the installed plugins and every plugin setting (with the Plugins tab's matching, `src/shared/settingsSearch.ts`). Results are Discord's own rows under Evi; choosing one opens that tab, the plugin's card, or the plugin's settings with that setting highlighted.
 
 To ship it: releases carry Evi Setup (below) and `evi-core.json`, the core and official plugins Evi Setup and in-app updates download. `bun scripts/build.ts --release` writes `evi-core.json` with its `.sha256`; `bun scripts/build.ts --installer` builds Evi Setup into `dist/`, on its own leaving `dist/core` and the plugins alone. The evi CLI is for developing Evi: `bun run compile` builds `dist/evi.exe`, and `--release --cli` builds it for every system at once (re-signing the macOS ones ad hoc with [rcodesign](https://github.com/indygreg/apple-platform-rs/releases), on your `PATH` or `RCODESIGN=`). Releases stopped carrying it at 1.5.0.
 

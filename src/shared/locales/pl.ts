@@ -51,6 +51,7 @@ export const pl = {
     "panel.openDataFolder": "Otwórz folder danych",
     "panel.versionWhatsNew": "Evi {version} · Co nowego",
     "panel.close": "Zamknij ustawienia Evi",
+    "settingsSearch.pluginSettings": "Ustawienia wtyczek",
 
     // ---- Quick CSS ----
     "quickCss.apply": "Stosuj Quick CSS",

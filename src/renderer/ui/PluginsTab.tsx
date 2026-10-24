@@ -1,7 +1,7 @@
 import { MAX_REPORT_CHARS } from "@shared/crashReports";
 import { healthWarns, PluginHealth } from "@shared/health";
 import { isPluginEnabled } from "@shared/ipc";
-import { keybindConflict, KeybindOwner, matchesPlugin, matchingSettings } from "@shared/pluginSearch";
+import { keybindConflict, KeybindOwner, matchesPlugin, matchingSettings, normalizeQuery, SearchablePlugin } from "@shared/pluginSearch";
 
 import { buildCrashReport, copyText, discordBuild } from "../crashReport";
 import { t } from "../i18n";
@@ -15,7 +15,7 @@ import { Settings } from "../settings";
 import { Store } from "../store";
 import { React } from "../webpack/common";
 import { Badge, Button, Dialog, Icon, Dropdown, EmptyState, IconButton, Notice, Pagination, scrollToTop, SearchField, SettingField, Status, Switch, Text, usePages, useStore } from "./components";
-import { openStore, showTab } from "./nav";
+import { openStore, PluginTarget, showTab, subscribeTabs, takePluginTarget } from "./nav";
 import { PluginDetailsButton } from "./PluginPermissions";
 import { SafeModeNotice } from "./SafeModeNotice";
 import { Glyph, healthLabel, useStoreState } from "./Store";
@@ -37,13 +37,16 @@ const filterTests: Record<Filter, (p: PluginState) => boolean> = {
     trouble: p => !!troubleOf(p),
 };
 
-const matchesQuery = (p: PluginState, q: string) => matchesPlugin({
+/** What the search looks at, here and in Discord's settings search (settingsSearch.ts) */
+export const searchablePlugin = (p: PluginState): SearchablePlugin => ({
     name: p.manifest.name,
     description: p.manifest.description,
     id: p.manifest.id,
     authors: Store.authorsOf(p),
     settings: p.definition?.settings,
-}, q);
+});
+
+const matchesQuery = (p: PluginState, q: string) => matchesPlugin(searchablePlugin(p), q);
 
 /** Every shortcut set in a turned-on plugin, to say when two plugins want the same keys */
 function keybindOwners(): KeybindOwner[] {
@@ -125,13 +128,6 @@ function PluginSettings({ state, highlight = [] }: { state: PluginState; highlig
         ((d.plugins[manifest.id] ??= {}).settings ??= {})[key] = value;
     });
 
-    // The first setting the search found, brought into view as the dialog opens. A block body on
-    // purpose: Chrome's scrollIntoView now returns a promise, and React would call it as the cleanup
-    const firstMatch = React.useRef<HTMLDivElement>(null);
-    React.useEffect(() => {
-        firstMatch.current?.scrollIntoView({ block: "nearest" });
-    }, []);
-
     return (
         <div className="dl-row-settings">
             {Object.entries(schema).map(([key, def]) => {
@@ -146,10 +142,19 @@ function PluginSettings({ state, highlight = [] }: { state: PluginState; highlig
                     />
                 );
                 if (!highlight.includes(key)) return field;
-                return <div key={key} className="dl-setting-match" ref={key === highlight[0] ? firstMatch : undefined}>{field}</div>;
+                // The dialog opens on the first setting the search found
+                return <div key={key} className="dl-setting-match" data-dialog-start={key === highlight[0] ? "" : undefined}>{field}</div>;
             })}
             {ctx && definition?.settingsPanel?.(ctx)}
         </div>
+    );
+}
+
+function SettingsDialog({ state, highlight, onClose }: { state: PluginState; highlight: string[]; onClose(): void; }) {
+    return (
+        <Dialog id={`dl-plugin-${state.manifest.id}-settings`} title={t("plugins.settingsOf", { name: state.manifest.name })} onClose={onClose}>
+            <PluginSettings state={state} highlight={highlight} />
+        </Dialog>
     );
 }
 
@@ -376,11 +381,7 @@ function PluginCard({ state, query }: { state: PluginState; query: string; }) {
                     )}
                 </Dialog>
             )}
-            {withSettings && settingsOpen && (
-                <Dialog id={settingsId} title={t("plugins.settingsOf", { name: manifest.name })} onClose={() => setSettingsOpen(false)}>
-                    <PluginSettings state={state} highlight={highlight} />
-                </Dialog>
-            )}
+            {withSettings && settingsOpen && <SettingsDialog state={state} highlight={highlight} onClose={() => setSettingsOpen(false)} />}
         </li>
     );
 }
@@ -435,7 +436,22 @@ export function InstalledPlugins() {
     const [undo, setUndo] = React.useState<Undo>();
     const [query, setQuery] = React.useState("");
     const [filter, setFilter] = React.useState<Filter>("all");
-    const q = query.trim().toLowerCase();
+    const q = normalizeQuery(query);
+    // Sent here by Discord's settings search: the plugin's card, searched for by name, and its
+    // settings open on the setting it found. Before the first paint, so the whole list never flashes by
+    const [opened, setOpened] = React.useState<PluginTarget>();
+    React.useLayoutEffect(() => {
+        const open = (target = takePluginTarget()) => {
+            const plugin = target && PluginManager.getSnapshot().find(p => p.manifest.id === target.id);
+            if (!target || !plugin) return;
+            setQuery(plugin.manifest.name);
+            setFilter("all");
+            setOpened(target.setting ? target : undefined);
+        };
+        open();
+        return subscribeTabs(() => open());
+    }, []);
+    const openedState = opened && plugins.find(p => p.manifest.id === opened.id);
     const listRef = React.useRef<HTMLDivElement>(null);
 
     // Plugins that aren't working go first. Once seen, one keeps its place for as long as the tab is open:
@@ -567,6 +583,9 @@ export function InstalledPlugins() {
                     </EmptyState>
                 )}
             </div>
+            {opened?.setting && openedState && hasSettings(openedState) && (
+                <SettingsDialog key={`${opened.id}:${opened.setting}`} state={openedState} highlight={[opened.setting]} onClose={() => setOpened(undefined)} />
+            )}
         </div>
     );
 }

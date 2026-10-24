@@ -1,8 +1,8 @@
 {
     "id": "video-controls-plus",
     "name": "Video Controls+",
-    "description": "Playback speed from 0.25x to 3x, loop, frame stepping and picture-in-picture for videos in chat, plus YouTube-style keyboard shortcuts while you hover a video.",
-    "version": "1.1.3",
+    "description": "Playback speed from 0.25x to 3x, loop, frame stepping and picture-in-picture for videos in chat, YouTube-style keyboard shortcuts while you hover a video, a small player that follows you when you scroll away from a playing video, and muted previews on hover.",
+    "version": "1.2.0",
     "authors": [
         "Evi"
     ],
@@ -12,6 +12,13 @@
     "minEviVersion": "0.3.2",
     "permissions": {},
     "changelog": [
+        {
+            "version": "1.2.0",
+            "notes": [
+                "Sticky video: a video you're playing follows you to a corner of the chat when you scroll away from it, with buttons to go back to its message or close it, and goes back to its place when you scroll back. YouTube and other embeds too. Turn it off in the plugin's settings.",
+                "Play videos on hover: videos in chat play muted while the pointer rests on them and stop when it leaves, so you can see what they are without clicking. Clicking one plays it as usual, with sound. Off while Discord's Reduced Motion is on, and in the plugin's settings."
+            ]
+        },
         {
             "version": "1.1.3",
             "notes": [
@@ -58,8 +65,12 @@
     "locales": {
         "de": {
             "name": "Video-Steuerung+",
-            "description": "Wiedergabegeschwindigkeit von 0,25x bis 3x, Wiederholen, Einzelbildschaltung und Bild-in-Bild für Videos im Chat, dazu YouTube-artige Tastenkürzel, solange du mit der Maus über einem Video bist.",
+            "description": "Wiedergabegeschwindigkeit von 0,25x bis 3x, Wiederholen, Einzelbildschaltung und Bild-in-Bild für Videos im Chat, YouTube-artige Tastenkürzel, solange du mit der Maus über einem Video bist, ein kleiner Player, der dir folgt, wenn du von einem laufenden Video wegscrollst, und stumme Vorschauen beim Darüberfahren.",
             "changelog": {
+                "1.2.0": [
+                    "Mitlaufendes Video: Ein Video, das du abspielst, folgt dir in eine Ecke des Chats, wenn du davon wegscrollst, mit Schaltflächen, um zu seiner Nachricht zurückzukehren oder es zu schließen, und kehrt an seinen Platz zurück, wenn du zurückscrollst. Auch bei YouTube und anderen Einbettungen. Abschalten kannst du es in den Einstellungen des Plugins.",
+                    "Videos beim Darüberfahren abspielen: Videos im Chat spielen stumm, solange der Mauszeiger darauf ruht, und halten an, wenn er weggeht, damit du ohne Klick siehst, was sie zeigen. Ein Klick spielt es wie gewohnt ab, mit Ton. Aus, solange in Discord reduzierte Bewegung an ist, und abschaltbar in den Einstellungen des Plugins."
+                ],
                 "1.1.3": [
                     "Aus- und wieder Einschalten lässt Videos, die schon im Chat sind, nicht mehr halb funktionierend zurück: Die Geschwindigkeit wird wieder gemerkt, und die Steuerung folgt wieder Abspielen, Pause und Geschwindigkeitsänderungen."
                 ],
@@ -85,8 +96,12 @@
         },
         "es": {
             "name": "Controles de vídeo+",
-            "description": "Velocidad de reproducción de 0,25x a 3x, repetición, avance fotograma a fotograma e imagen en imagen para los vídeos del chat, además de atajos de teclado al estilo de YouTube mientras pasas el ratón por un vídeo.",
+            "description": "Velocidad de reproducción de 0,25x a 3x, repetición, avance fotograma a fotograma e imagen en imagen para los vídeos del chat, atajos de teclado al estilo de YouTube mientras pasas el ratón por un vídeo, un reproductor pequeño que te sigue cuando te desplazas lejos de un vídeo que se está reproduciendo, y vistas previas sin sonido al pasar el ratón.",
             "changelog": {
+                "1.2.0": [
+                    "Vídeo fijo: un vídeo que estás reproduciendo te sigue a una esquina del chat cuando te desplazas lejos de él, con botones para volver a su mensaje o cerrarlo, y vuelve a su sitio cuando regresas. También YouTube y otros vídeos insertados. Puedes desactivarlo en los ajustes del plugin.",
+                    "Reproducir vídeos al pasar el ratón: los vídeos del chat se reproducen sin sonido mientras el puntero está sobre ellos y se detienen cuando se va, para que veas qué son sin hacer clic. Al hacer clic se reproduce como siempre, con sonido. Desactivado mientras Discord tenga activado el movimiento reducido, y en los ajustes del plugin."
+                ],
                 "1.1.3": [
                     "Desactivarlo y volver a activarlo ya no deja a medias los vídeos que ya están en el chat: la velocidad se recuerda y los controles vuelven a seguir la reproducción, la pausa y los cambios de velocidad."
                 ],
@@ -112,8 +127,12 @@
         },
         "fr": {
             "name": "Contrôles vidéo+",
-            "description": "Vitesse de lecture de 0,25x à 3x, lecture en boucle, avance image par image et image dans l'image pour les vidéos du chat, avec des raccourcis clavier à la YouTube quand vous survolez une vidéo.",
+            "description": "Vitesse de lecture de 0,25x à 3x, lecture en boucle, avance image par image et image dans l'image pour les vidéos du chat, des raccourcis clavier à la YouTube quand vous survolez une vidéo, un petit lecteur qui vous suit quand vous faites défiler loin d'une vidéo en cours, et des aperçus sans le son au survol.",
             "changelog": {
+                "1.2.0": [
+                    "Vidéo épinglée : une vidéo que vous lisez vous suit dans un coin du chat quand vous faites défiler loin d'elle, avec des boutons pour revenir à son message ou la fermer, et reprend sa place quand vous revenez. Aussi pour YouTube et les autres intégrations. Désactivable dans les paramètres du plugin.",
+                    "Lire les vidéos au survol : les vidéos du chat se lisent sans le son tant que le pointeur reste dessus et s'arrêtent quand il s'en va, pour voir ce qu'elles montrent sans cliquer. Un clic la lit comme d'habitude, avec le son. Désactivé tant que les animations réduites sont activées dans Discord, et désactivable dans les paramètres du plugin."
+                ],
                 "1.1.3": [
                     "Le désactiver puis le réactiver ne laisse plus à moitié fonctionnelles les vidéos déjà dans le chat : la vitesse est de nouveau mémorisée et les contrôles suivent à nouveau la lecture, la pause et les changements de vitesse."
                 ],
@@ -139,8 +158,12 @@
         },
         "ja": {
             "name": "動画コントロール+",
-            "description": "チャット内の動画に、0.25xから3xまでの再生速度、ループ、コマ送り、ピクチャーインピクチャーを追加します。動画にカーソルを合わせている間は、YouTubeのようなキーボードショートカットも使えます。",
+            "description": "チャット内の動画に、0.25xから3xまでの再生速度、ループ、コマ送り、ピクチャーインピクチャーを追加します。動画にカーソルを合わせている間はYouTubeのようなキーボードショートカットが使え、再生中の動画からスクロールして離れると小さなプレーヤーがついてきて、カーソルを合わせるとミュートでプレビューされます。",
             "changelog": {
+                "1.2.0": [
+                    "動画の追従表示: 再生中の動画からスクロールして離れると、動画がチャットの隅についてきます。メッセージに戻るボタンと閉じるボタンがあり、スクロールして戻ると元の場所に戻ります。YouTubeなどの埋め込みにも対応します。プラグインの設定でオフにできます。",
+                    "カーソルを合わせて動画を再生: チャット内の動画にカーソルを置いている間はミュートで再生され、離れると止まるので、クリックしなくても内容がわかります。クリックすると通常どおり音声付きで再生されます。Discordで動きを減らす設定がオンのときは無効で、プラグインの設定でもオフにできます。"
+                ],
                 "1.1.3": [
                     "オフにしてからオンに戻しても、チャットにすでにある動画が中途半端に動かなくなることはなくなりました。速度が再び記憶され、コントロールが再生、一時停止、速度の変更に再び追従します。"
                 ],
@@ -166,8 +189,12 @@
         },
         "pl": {
             "name": "Sterowanie wideo+",
-            "description": "Prędkość odtwarzania od 0,25x do 3x, zapętlanie, przechodzenie klatka po klatce i obraz w obrazie dla filmów na czacie, a do tego skróty klawiszowe w stylu YouTube, gdy kursor jest nad filmem.",
+            "description": "Prędkość odtwarzania od 0,25x do 3x, zapętlanie, przechodzenie klatka po klatce i obraz w obrazie dla filmów na czacie, skróty klawiszowe w stylu YouTube, gdy kursor jest nad filmem, mały odtwarzacz, który podąża za tobą, gdy przewiniesz od odtwarzanego filmu, i podgląd bez dźwięku po najechaniu.",
             "changelog": {
+                "1.2.0": [
+                    "Przyklejony film: odtwarzany film podąża za tobą do rogu czatu, gdy przewiniesz od niego, z przyciskami powrotu do jego wiadomości i zamknięcia, i wraca na miejsce, gdy przewiniesz z powrotem. Działa też z YouTube i innymi osadzonymi filmami. Można to wyłączyć w ustawieniach wtyczki.",
+                    "Odtwarzanie filmów po najechaniu: filmy na czacie odtwarzają się bez dźwięku, gdy kursor jest nad nimi, i zatrzymują, gdy z nich zjedzie, więc widać, co to jest, bez klikania. Kliknięcie odtwarza film jak zwykle, z dźwiękiem. Wyłączone, gdy w Discordzie włączone jest ograniczenie ruchu, i w ustawieniach wtyczki."
+                ],
                 "1.1.3": [
                     "Wyłączenie i ponowne włączenie nie zostawia już filmów, które są już na czacie, działających tylko w połowie: prędkość znów jest zapamiętywana, a sterowanie znów nadąża za odtwarzaniem, pauzą i zmianami prędkości."
                 ],
@@ -193,8 +220,12 @@
         },
         "pt-BR": {
             "name": "Controles de vídeo+",
-            "description": "Velocidade de reprodução de 0,25x a 3x, repetição, avanço quadro a quadro e picture-in-picture para os vídeos do chat, além de atalhos de teclado no estilo do YouTube enquanto você passa o mouse sobre um vídeo.",
+            "description": "Velocidade de reprodução de 0,25x a 3x, repetição, avanço quadro a quadro e picture-in-picture para os vídeos do chat, atalhos de teclado no estilo do YouTube enquanto você passa o mouse sobre um vídeo, um player pequeno que te acompanha quando você rola para longe de um vídeo em reprodução, e prévias sem som ao passar o mouse.",
             "changelog": {
+                "1.2.0": [
+                    "Vídeo fixo: um vídeo que você está reproduzindo te acompanha num canto do chat quando você rola para longe dele, com botões para voltar à mensagem ou fechá-lo, e volta ao lugar quando você rola de volta. Também para YouTube e outros vídeos incorporados. Dá para desligar nas configurações do plugin.",
+                    "Reproduzir vídeos ao passar o mouse: os vídeos do chat são reproduzidos sem som enquanto o ponteiro está sobre eles e param quando ele sai, para você ver o que são sem clicar. Clicar reproduz como sempre, com som. Desligado enquanto o movimento reduzido do Discord estiver ativado, e nas configurações do plugin."
+                ],
                 "1.1.3": [
                     "Desativar e ativar de novo não deixa mais os vídeos que já estão no chat funcionando pela metade: a velocidade volta a ser lembrada e os controles voltam a acompanhar a reprodução, a pausa e as mudanças de velocidade."
                 ],
@@ -220,8 +251,12 @@
         },
         "ru": {
             "name": "Управление видео+",
-            "description": "Скорость воспроизведения от 0,25x до 3x, повтор, покадровый просмотр и «картинка в картинке» для видео в чате, а также горячие клавиши как на YouTube, пока курсор наведён на видео.",
+            "description": "Скорость воспроизведения от 0,25x до 3x, повтор, покадровый просмотр и «картинка в картинке» для видео в чате, горячие клавиши как на YouTube, пока курсор наведён на видео, маленький плеер, который следует за вами, когда вы прокручиваете чат дальше от играющего видео, и беззвучный предпросмотр при наведении.",
             "changelog": {
+                "1.2.0": [
+                    "Закреплённое видео: видео, которое вы смотрите, следует за вами в угол чата, когда вы прокручиваете дальше, с кнопками, чтобы вернуться к его сообщению или закрыть его, и возвращается на место, когда вы прокручиваете обратно. Работает и с YouTube, и с другими встроенными видео. Отключается в настройках плагина.",
+                    "Воспроизведение при наведении: видео в чате играют без звука, пока на них наведён курсор, и останавливаются, когда он уходит, чтобы понять, что это, не нажимая. Нажатие запускает видео как обычно, со звуком. Отключено, пока в Discord включено уменьшение движения, и отключается в настройках плагина."
+                ],
                 "1.1.3": [
                     "Если выключить и снова включить его, видео, которые уже есть в чате, больше не работают наполовину: скорость снова запоминается, а элементы управления снова следят за воспроизведением, паузой и сменой скорости."
                 ],
@@ -247,8 +282,12 @@
         },
         "tr": {
             "name": "Video Denetimleri+",
-            "description": "Sohbetteki videolar için 0,25x ile 3x arası oynatma hızı, döngü, kare kare ilerleme ve pencere içinde pencere; bir videonun üzerindeyken YouTube tarzı klavye kısayolları da var.",
+            "description": "Sohbetteki videolar için 0,25x ile 3x arası oynatma hızı, döngü, kare kare ilerleme ve pencere içinde pencere; bir videonun üzerindeyken YouTube tarzı klavye kısayolları, oynayan bir videodan uzağa kaydırdığında seni takip eden küçük bir oynatıcı ve üzerine gelince sessiz önizlemeler.",
             "changelog": {
+                "1.2.0": [
+                    "Yapışkan video: oynattığın bir video, ondan uzağa kaydırdığında sohbetin bir köşesinde seni takip eder; mesajına dönmek ya da kapatmak için düğmeleri vardır ve geri kaydırdığında yerine döner. YouTube ve diğer gömülü videolarda da çalışır. Eklentinin ayarlarından kapatabilirsin.",
+                    "Üzerine gelince videoları oynat: sohbetteki videolar imleç üzerlerindeyken sessiz oynar, imleç gidince durur; böylece tıklamadan ne olduklarını görürsün. Tıklayınca her zamanki gibi sesli oynar. Discord'da hareketi azaltma açıkken kapalıdır, eklentinin ayarlarından da kapatılabilir."
+                ],
                 "1.1.3": [
                     "Kapatıp yeniden açmak, sohbette zaten olan videoları artık yarım çalışır halde bırakmıyor: hız yeniden hatırlanıyor ve kontroller oynatma, duraklatma ve hız değişikliklerini yeniden takip ediyor."
                 ],

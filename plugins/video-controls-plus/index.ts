@@ -815,6 +815,8 @@ interface Sticky {
     lifted: HTMLElement[];
     holderStyle?: [string, string];
     unmount?: MutationObserver;
+    /** The chat area changing size without the window (the member list opening): the corner moves with it */
+    resize?: ResizeObserver;
     /** Discord removed the message while it was in the corner */
     orphan?: boolean;
     /** Bumped by each pin and unpin, so a finished exit animation knows it's stale */
@@ -997,6 +999,12 @@ function pin(s: Sticky) {
         if (!s.anchor.isConnected) unmounted(s);
     });
     for (let el: HTMLElement | null = s.holder; el; el = el.parentElement) s.unmount.observe(el, { childList: true });
+    if (area) {
+        s.resize = new ResizeObserver(() => {
+            if (s.state === "pinned") place(s);
+        });
+        s.resize.observe(area);
+    }
     update();
 }
 
@@ -1027,6 +1035,8 @@ function release(s: Sticky) {
     leaving.delete(s);
     s.unmount?.disconnect();
     s.unmount = undefined;
+    s.resize?.disconnect();
+    s.resize = undefined;
     if (s.mode === "popover" && s.anchor.hasAttribute("popover")) {
         try {
             s.anchor.hidePopover();
@@ -1058,6 +1068,8 @@ function release(s: Sticky) {
 function unmounted(s: Sticky) {
     s.unmount?.disconnect();
     s.unmount = undefined;
+    s.resize?.disconnect();
+    s.resize = undefined;
     if (sticky === s) {
         sticky = undefined;
         stickyObserver?.unobserve(s.holder);

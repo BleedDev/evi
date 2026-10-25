@@ -47,7 +47,7 @@ const LINUX_SLUGS: Record<Flavor, string> = {
 export function searchedLocations() {
     if (process.platform === "win32") return "%LOCALAPPDATA%";
     if (process.platform === "darwin") return "/Applications and ~/Applications";
-    return "/usr/share, /usr/lib, /opt, ~/.local/share and ~ (Flatpak and Snap aren't supported)";
+    return "/usr/share, /usr/lib, /opt, ~/.local/share, ~/.config and ~ (Flatpak and Snap aren't supported)";
 }
 
 function buildVersion(resources: string) {
@@ -98,7 +98,7 @@ export function findInstalls(): DiscordInstall[] {
         return findInPlaceInstalls(flavor => ["/Applications", join(home, "Applications")].map(dir => join(dir, MAC_APPS[flavor])), join("Contents", "Resources"));
     }
     if (process.platform === "linux") {
-        return findInPlaceInstalls(flavor => {
+        const installs = findInPlaceInstalls(flavor => {
             const slug = LINUX_SLUGS[flavor];
             return [
                 `/usr/share/${slug}`, `/usr/lib/${slug}`, `/usr/lib64/${slug}`, `/opt/${slug}`, `/opt/${FLAVORS[flavor]}`,
@@ -106,6 +106,23 @@ export function findInstalls(): DiscordInstall[] {
                 join(home, ".local", "share", slug), join(home, FLAVORS[flavor]),
             ];
         }, "resources");
+        // Official Linux bootstrap installs to ~/.config/discord/app-x.y.z (and flavor variants)
+        for (const flavor of Object.keys(FLAVORS) as Flavor[]) {
+            const slug = LINUX_SLUGS[flavor];
+            const configDir = join(home, ".config", slug);
+            if (!existsSync(configDir)) continue;
+            const appDirs = readdirSync(configDir)
+                .filter(d => /^app-\d/.test(d) && existsSync(join(configDir, d, "resources", "app.asar")))
+                .map(d => ({ version: d.slice(4), root: join(configDir, d) }))
+                .sort((a, b) => compareVersions(b.version, a.version));
+            if (appDirs.length > 0 && !installs.find(i => i.flavor === flavor)) {
+                const best = appDirs[0];
+                const root = realpathSync(best.root);
+                const resources = join(root, "resources");
+                installs.push({ flavor, root, versions: [{ version: buildVersion(resources), resources }] });
+            }
+        }
+        return installs;
     }
     return [];
 }

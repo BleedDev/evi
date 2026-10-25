@@ -2,7 +2,7 @@
     "id": "side-browser",
     "name": "Side Browser",
     "description": "Links you click in chat open in a panel beside it, so you can read them without leaving Discord. Go back and forward, reload, copy the link or open it in your browser, and drag the panel's edge to make it wider. Pages open on their own, apart from your Discord account, and the panel takes no memory once it's closed.",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "authors": [
         "Evi"
     ],
@@ -13,6 +13,14 @@
     "minEviVersion": "3.0.0",
     "permissions": {},
     "changelog": [
+        {
+            "version": "1.0.1",
+            "notes": [
+                "Opens next to the chat without squeezing your DM list or channel list, and the chat always keeps room.",
+                "Opens and closes smoothly by its width, without sliding past the window's edge or making a scrollbar appear.",
+                "Pages show more reliably: empty window-sized frames no longer count as something covering the panel."
+            ]
+        },
         {
             "version": "1.0.0",
             "notes": [
@@ -26,6 +34,11 @@
             "name": "Seitenbrowser",
             "description": "Links, die du im Chat anklickst, öffnen sich in einem Bereich daneben, damit du sie lesen kannst, ohne Discord zu verlassen. Geh vor und zurück, lade neu, kopiere den Link oder öffne ihn in deinem Browser, und zieh den Rand des Bereichs, um ihn breiter zu machen. Seiten laufen für sich, getrennt von deinem Discord-Konto, und der Bereich belegt keinen Speicher mehr, sobald er geschlossen ist.",
             "changelog": {
+                "1.0.1": [
+                    "Öffnet sich neben dem Chat, ohne deine Direktnachrichten- oder Kanalliste zusammenzudrücken, und der Chat behält immer Platz.",
+                    "Öffnet und schließt sich sanft über seine Breite, ohne über den Fensterrand zu rutschen oder eine Bildlaufleiste erscheinen zu lassen.",
+                    "Seiten werden zuverlässiger angezeigt: Leere, fenstergroße Rahmen zählen nicht mehr als etwas, das den Bereich verdeckt."
+                ],
                 "1.0.0": [
                     "Erste Version."
                 ]
@@ -35,6 +48,11 @@
             "name": "Navegador lateral",
             "description": "Los enlaces en los que haces clic en el chat se abren en un panel a su lado, para leerlos sin salir de Discord. Ve atrás y adelante, recarga, copia el enlace o ábrelo en tu navegador, y arrastra el borde del panel para ensancharlo. Las páginas se abren por su cuenta, separadas de tu cuenta de Discord, y el panel no ocupa memoria una vez cerrado.",
             "changelog": {
+                "1.0.1": [
+                    "Se abre junto al chat sin apretar tu lista de MD ni de canales, y el chat siempre conserva espacio.",
+                    "Se abre y se cierra con suavidad cambiando su ancho, sin salirse por el borde de la ventana ni hacer aparecer una barra de desplazamiento.",
+                    "Las páginas se muestran con más fiabilidad: los marcos vacíos del tamaño de la ventana ya no cuentan como algo que tapa el panel."
+                ],
                 "1.0.0": [
                     "Primera versión."
                 ]
@@ -44,6 +62,11 @@
             "name": "Navigateur latéral",
             "description": "Les liens sur lesquels vous cliquez dans le chat s'ouvrent dans un panneau à côté, pour les lire sans quitter Discord. Revenez en arrière ou avancez, rechargez, copiez le lien ou ouvrez-le dans votre navigateur, et faites glisser le bord du panneau pour l'élargir. Les pages s'ouvrent à part, séparées de votre compte Discord, et le panneau ne prend plus de mémoire une fois fermé.",
             "changelog": {
+                "1.0.1": [
+                    "S’ouvre à côté du chat sans écraser ta liste de MP ou de salons, et le chat garde toujours de la place.",
+                    "S’ouvre et se ferme en douceur par sa largeur, sans glisser hors de la fenêtre ni faire apparaître de barre de défilement.",
+                    "Les pages s’affichent de façon plus fiable : les cadres vides de la taille de la fenêtre ne comptent plus comme quelque chose qui couvre le panneau."
+                ],
                 "1.0.0": [
                     "Première version."
                 ]
@@ -53,6 +76,11 @@
             "name": "サイドブラウザ",
             "description": "チャットでクリックしたリンクが横のパネルで開き、Discordを離れずに読めます。戻る・進む、再読み込み、リンクのコピー、ブラウザで開くことができ、パネルの端をドラッグして幅を広げられます。ページはDiscordのアカウントとは切り離して開かれ、パネルを閉じるとメモリを使いません。",
             "changelog": {
+                "1.0.1": [
+                    "DMリストやチャンネルリストを押しつぶさずにチャットの横に開き、チャットの幅も常に残ります。",
+                    "幅を変えながらなめらかに開閉し、ウィンドウの端からはみ出したりスクロールバーが出たりしなくなりました。",
+                    "ページがより確実に表示されます。ウィンドウ大の空の枠がパネルを覆うものとして扱われなくなりました。"
+                ],
                 "1.0.0": [
                     "初回リリース。"
                 ]
@@ -62,6 +90,11 @@
             "name": "Boczna przeglądarka",
             "description": "Linki klikane na czacie otwierają się w panelu obok, więc możesz je czytać bez wychodzenia z Discorda. Cofaj i przechodź dalej, odświeżaj, kopiuj link albo otwieraj go w przeglądarce, a przeciągnij krawędź panelu, żeby go poszerzyć. Strony otwierają się osobno, z dala od twojego konta Discord, a zamknięty panel nie zajmuje pamięci.",
             "changelog": {
+                "1.0.1": [
+                    "Otwiera się obok czatu, nie ściskając listy wiadomości prywatnych ani kanałów, a czat zawsze zachowuje miejsce.",
+                    "Otwiera się i zamyka płynnie, zmieniając szerokość, bez wysuwania się poza krawędź okna i bez pojawiania się paska przewijania.",
+                    "Strony wyświetlają się pewniej: puste ramki wielkości okna nie liczą się już jako coś, co zasłania panel."
+                ],
                 "1.0.0": [
                     "Pierwsza wersja."
                 ]
@@ -71,6 +104,11 @@
             "name": "Navegador lateral",
             "description": "Os links em que você clica no chat abrem em um painel ao lado, para ler sem sair do Discord. Volte e avance, recarregue, copie o link ou abra no seu navegador, e arraste a borda do painel para alargá-lo. As páginas abrem à parte, separadas da sua conta do Discord, e o painel não ocupa memória depois de fechado.",
             "changelog": {
+                "1.0.1": [
+                    "Abre ao lado do chat sem apertar sua lista de DMs ou de canais, e o chat sempre mantém espaço.",
+                    "Abre e fecha suavemente pela largura, sem passar da borda da janela nem fazer aparecer uma barra de rolagem.",
+                    "As páginas aparecem com mais confiabilidade: molduras vazias do tamanho da janela não contam mais como algo cobrindo o painel."
+                ],
                 "1.0.0": [
                     "Primeira versão."
                 ]
@@ -80,6 +118,11 @@
             "name": "Боковой браузер",
             "description": "Ссылки, по которым вы нажимаете в чате, открываются в панели рядом, чтобы читать их, не выходя из Discord. Переходите назад и вперёд, перезагружайте, копируйте ссылку или открывайте её в браузере, а край панели можно потянуть, чтобы сделать её шире. Страницы открываются отдельно от вашего аккаунта Discord, а закрытая панель не занимает память.",
             "changelog": {
+                "1.0.1": [
+                    "Открывается рядом с чатом, не сжимая список личных сообщений или каналов, а у чата всегда остаётся место.",
+                    "Плавно открывается и закрывается по ширине, не выезжая за край окна и без появления полосы прокрутки.",
+                    "Страницы показываются надёжнее: пустые рамки размером с окно больше не считаются тем, что закрывает панель."
+                ],
                 "1.0.0": [
                     "Первый выпуск."
                 ]
@@ -89,6 +132,11 @@
             "name": "Yan Tarayıcı",
             "description": "Sohbette tıkladığın bağlantılar yanındaki bir panelde açılır, böylece Discord'dan çıkmadan okuyabilirsin. Geri ve ileri git, yenile, bağlantıyı kopyala ya da tarayıcında aç, paneli genişletmek için kenarını sürükle. Sayfalar Discord hesabından ayrı açılır ve panel kapandığında bellek kullanmaz.",
             "changelog": {
+                "1.0.1": [
+                    "DM listeni veya kanal listeni sıkıştırmadan sohbetin yanında açılır ve sohbete her zaman yer kalır.",
+                    "Genişliğiyle yumuşakça açılıp kapanır; pencerenin kenarından taşmaz ve kaydırma çubuğu çıkarmaz.",
+                    "Sayfalar daha güvenilir görünür: pencere boyutundaki boş çerçeveler artık paneli kapatan bir şey sayılmıyor."
+                ],
                 "1.0.0": [
                     "İlk sürüm."
                 ]

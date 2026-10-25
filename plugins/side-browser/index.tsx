@@ -29,7 +29,7 @@
  */
 import { Components, definePlugin, exitDone, filters, find, React, useLocale } from "@evi/api";
 import type { PluginContext } from "@evi/api";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 import type { Gesture, Mode, PanelBounds, Rect, SiteRules } from "./links";
 import { clampWidth, classifyUrl, DEFAULT_WIDTH, displayHost, intersects, MODES, opensInPanel, parseSiteRules, sameRect, samplePoints } from "./links";
@@ -282,7 +282,11 @@ function onAuxClick(event: MouseEvent) {
  */
 function layerOver(el: Element, rect: Rect, depth = 2): boolean {
     if ((el as any).checkVisibility?.({ visibilityProperty: true }) === false) return false;
-    if (intersects(el.getBoundingClientRect(), rect)) return true;
+    const box = el.getBoundingClientRect();
+    // A wrapper the size of the window is a frame, not something drawn: what's in it counts. A real dialog
+    // or backdrop takes clicks, so the hit test above finds it anyway
+    const frame = box.width * box.height >= 0.9 * window.innerWidth * window.innerHeight;
+    if (!frame && box.width > 0 && box.height > 0 && intersects(box, rect)) return true;
     if (depth > 1) for (const child of el.children) if (layerOver(child, rect, depth - 1)) return true;
     return false;
 }
@@ -487,15 +491,26 @@ function SidePanel({ s }: { s: PanelState; }) {
         return () => void (live = false);
     }, [closing]);
 
-    // The room next to the chat, for the width's limits
+    // The room the panel shares with the chat, for the width's limits. Not the whole row: in DMs and on
+    // some pages it also holds the channel list, which the panel mustn't squeeze
     React.useEffect(() => {
-        const parent = rootRef.current?.parentElement;
-        if (!parent) return;
-        const measure = () => setAvailable(parent.clientWidth);
+        const panel = rootRef.current, parent = panel?.parentElement;
+        if (!panel || !parent) return;
+        const chat = parent.querySelector<HTMLElement>(":scope > :is([class^=\"chat_\"], [class*=\" chat_\"])");
+        const measure = () => {
+            const room = chat ? chat.getBoundingClientRect().width + panel.getBoundingClientRect().width : parent.clientWidth;
+            // Never more than the window has to give, whatever the row says
+            setAvailable(Math.min(room, window.innerWidth - parent.getBoundingClientRect().left));
+        };
         measure();
         const observer = new ResizeObserver(measure);
         observer.observe(parent);
-        return () => observer.disconnect();
+        if (chat) observer.observe(chat);
+        window.addEventListener("resize", measure);
+        return () => {
+            observer.disconnect();
+            window.removeEventListener("resize", measure);
+        };
     }, []);
 
     const resizeTo = (next: number) => setWidth(clampWidth(next, available));
@@ -552,7 +567,7 @@ function SidePanel({ s }: { s: PanelState; }) {
     }
 
     return (
-        <aside ref={rootRef} className="evi-sbrowser" aria-label={t("panel.label")} style={{ width: shown }} data-closing={closing ? "" : undefined} data-resizing={resizing ? "" : undefined}>
+        <aside ref={rootRef} className="evi-sbrowser" aria-label={t("panel.label")} style={{ width: shown, "--evi-sbrowser-width": `${shown}px` } as CSSProperties} data-closing={closing ? "" : undefined} data-resizing={resizing ? "" : undefined}>
             <div
                 className="evi-sbrowser-resize"
                 role="separator"
@@ -627,8 +642,11 @@ const css = `
   :root:not(.reduce-motion) .evi-sbrowser { animation: evi-sbrowser-in var(--evi-modal-in, 230ms) var(--evi-spring-in, ease-out); }
   :root:not(.reduce-motion) .evi-sbrowser[data-closing] { animation: evi-sbrowser-out var(--evi-modal-out, 200ms) var(--evi-spring-out, ease-in) forwards; }
 }
-@keyframes evi-sbrowser-in { from { opacity: 0; translate: 24px 0; } }
-@keyframes evi-sbrowser-out { to { opacity: 0; translate: 24px 0; } }
+/* It opens and closes by its width, its contents keeping their size: the chat makes room and takes it back,
+   and nothing moves past the window's edge (sliding it out made the row scroll) */
+@keyframes evi-sbrowser-in { from { width: 0; opacity: 0; } }
+@keyframes evi-sbrowser-out { to { width: 0; opacity: 0; } }
+.evi-sbrowser > :is(.evi-sbrowser-header, .evi-sbrowser-body) { min-width: var(--evi-sbrowser-width); }
 .evi-sbrowser-resize { position: absolute; z-index: 2; top: 0; bottom: 0; left: 0; width: 6px; cursor: ew-resize; touch-action: none; outline: none; }
 .evi-sbrowser-resize:focus-visible { box-shadow: inset 2px 0 0 var(--focus-primary, #00b0f4); }
 .evi-sbrowser[data-resizing] { user-select: none; }

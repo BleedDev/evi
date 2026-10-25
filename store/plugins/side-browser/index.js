@@ -692,7 +692,9 @@ function onAuxClick(event) {
 function layerOver(el, rect, depth = 2) {
   if (el.checkVisibility?.({ visibilityProperty: true }) === false)
     return false;
-  if (intersects(el.getBoundingClientRect(), rect))
+  const box = el.getBoundingClientRect();
+  const frame = box.width * box.height >= 0.9 * window.innerWidth * window.innerHeight;
+  if (!frame && box.width > 0 && box.height > 0 && intersects(box, rect))
     return true;
   if (depth > 1) {
     for (const child of el.children)
@@ -907,14 +909,24 @@ function SidePanel({ s }) {
     return () => void (live = false);
   }, [closing]);
   import_api2.React.useEffect(() => {
-    const parent = rootRef.current?.parentElement;
-    if (!parent)
+    const panel = rootRef.current, parent = panel?.parentElement;
+    if (!panel || !parent)
       return;
-    const measure = () => setAvailable(parent.clientWidth);
+    const chat = parent.querySelector(':scope > :is([class^="chat_"], [class*=" chat_"])');
+    const measure = () => {
+      const room = chat ? chat.getBoundingClientRect().width + panel.getBoundingClientRect().width : parent.clientWidth;
+      setAvailable(Math.min(room, window.innerWidth - parent.getBoundingClientRect().left));
+    };
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(parent);
-    return () => observer.disconnect();
+    if (chat)
+      observer.observe(chat);
+    window.addEventListener("resize", measure);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+    };
   }, []);
   const resizeTo = (next) => setWidth(clampWidth(next, available));
   const save = () => storage()?.set(WIDTH_KEY, shownRef.current);
@@ -984,7 +996,7 @@ function SidePanel({ s }) {
     ref: rootRef,
     className: "evi-sbrowser",
     "aria-label": t("panel.label"),
-    style: { width: shown },
+    style: { width: shown, "--evi-sbrowser-width": `${shown}px` },
     "data-closing": closing ? "" : undefined,
     "data-resizing": resizing ? "" : undefined,
     children: [
@@ -1123,8 +1135,11 @@ var css = `
   :root:not(.reduce-motion) .evi-sbrowser { animation: evi-sbrowser-in var(--evi-modal-in, 230ms) var(--evi-spring-in, ease-out); }
   :root:not(.reduce-motion) .evi-sbrowser[data-closing] { animation: evi-sbrowser-out var(--evi-modal-out, 200ms) var(--evi-spring-out, ease-in) forwards; }
 }
-@keyframes evi-sbrowser-in { from { opacity: 0; translate: 24px 0; } }
-@keyframes evi-sbrowser-out { to { opacity: 0; translate: 24px 0; } }
+/* It opens and closes by its width, its contents keeping their size: the chat makes room and takes it back,
+   and nothing moves past the window's edge (sliding it out made the row scroll) */
+@keyframes evi-sbrowser-in { from { width: 0; opacity: 0; } }
+@keyframes evi-sbrowser-out { to { width: 0; opacity: 0; } }
+.evi-sbrowser > :is(.evi-sbrowser-header, .evi-sbrowser-body) { min-width: var(--evi-sbrowser-width); }
 .evi-sbrowser-resize { position: absolute; z-index: 2; top: 0; bottom: 0; left: 0; width: 6px; cursor: ew-resize; touch-action: none; outline: none; }
 .evi-sbrowser-resize:focus-visible { box-shadow: inset 2px 0 0 var(--focus-primary, #00b0f4); }
 .evi-sbrowser[data-resizing] { user-select: none; }

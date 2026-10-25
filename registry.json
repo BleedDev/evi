@@ -5302,6 +5302,129 @@
             }
         },
         {
+            "id": "side-browser",
+            "name": "Side Browser",
+            "description": "Links you click in chat open in a panel beside it, so you can read them without leaving Discord. Go back and forward, reload, copy the link or open it in your browser, and drag the panel's edge to make it wider. Pages open on their own, apart from your Discord account, and the panel takes no memory once it's closed.",
+            "authors": [
+                "Evi"
+            ],
+            "authorIds": [
+                "evi"
+            ],
+            "version": "1.0.0",
+            "tags": [
+                "utility",
+                "messages"
+            ],
+            "native": true,
+            "minEviVersion": "3.0.0",
+            "files": {
+                "manifest.json": {
+                    "url": "https://evi.rest/store/plugins/side-browser/manifest.json?v=80dbfd665c5a",
+                    "sha256": "80dbfd665c5adb8930f83aa0e8c2ca35db1a191843631075285dfc4992a2bfd5"
+                },
+                "index.js": {
+                    "url": "https://evi.rest/store/plugins/side-browser/index.js?v=6003beee304e",
+                    "sha256": "6003beee304ef2d7e5d6cf171ee1f9ef94fc710effdbbbb9e1531fd64b2a242c"
+                },
+                "native.js": {
+                    "url": "https://evi.rest/store/plugins/side-browser/native.js?v=a46f887c3667",
+                    "sha256": "a46f887c36671f07bf96e30d7b092f52bcb0868029f3c9c8ac87ea8890d4517d"
+                }
+            },
+            "updatedAt": "2026-10-24",
+            "source": "https://github.com/BleedDev/evi/tree/main/plugins/side-browser",
+            "screenshots": [],
+            "changelog": [
+                {
+                    "version": "1.0.0",
+                    "notes": [
+                        "First release."
+                    ]
+                }
+            ],
+            "locales": {
+                "de": {
+                    "name": "Seitenbrowser",
+                    "description": "Links, die du im Chat anklickst, öffnen sich in einem Bereich daneben, damit du sie lesen kannst, ohne Discord zu verlassen. Geh vor und zurück, lade neu, kopiere den Link oder öffne ihn in deinem Browser, und zieh den Rand des Bereichs, um ihn breiter zu machen. Seiten laufen für sich, getrennt von deinem Discord-Konto, und der Bereich belegt keinen Speicher mehr, sobald er geschlossen ist.",
+                    "changelog": {
+                        "1.0.0": [
+                            "Erste Version."
+                        ]
+                    }
+                },
+                "es": {
+                    "name": "Navegador lateral",
+                    "description": "Los enlaces en los que haces clic en el chat se abren en un panel a su lado, para leerlos sin salir de Discord. Ve atrás y adelante, recarga, copia el enlace o ábrelo en tu navegador, y arrastra el borde del panel para ensancharlo. Las páginas se abren por su cuenta, separadas de tu cuenta de Discord, y el panel no ocupa memoria una vez cerrado.",
+                    "changelog": {
+                        "1.0.0": [
+                            "Primera versión."
+                        ]
+                    }
+                },
+                "fr": {
+                    "name": "Navigateur latéral",
+                    "description": "Les liens sur lesquels vous cliquez dans le chat s'ouvrent dans un panneau à côté, pour les lire sans quitter Discord. Revenez en arrière ou avancez, rechargez, copiez le lien ou ouvrez-le dans votre navigateur, et faites glisser le bord du panneau pour l'élargir. Les pages s'ouvrent à part, séparées de votre compte Discord, et le panneau ne prend plus de mémoire une fois fermé.",
+                    "changelog": {
+                        "1.0.0": [
+                            "Première version."
+                        ]
+                    }
+                },
+                "ja": {
+                    "name": "サイドブラウザ",
+                    "description": "チャットでクリックしたリンクが横のパネルで開き、Discordを離れずに読めます。戻る・進む、再読み込み、リンクのコピー、ブラウザで開くことができ、パネルの端をドラッグして幅を広げられます。ページはDiscordのアカウントとは切り離して開かれ、パネルを閉じるとメモリを使いません。",
+                    "changelog": {
+                        "1.0.0": [
+                            "初回リリース。"
+                        ]
+                    }
+                },
+                "pl": {
+                    "name": "Boczna przeglądarka",
+                    "description": "Linki klikane na czacie otwierają się w panelu obok, więc możesz je czytać bez wychodzenia z Discorda. Cofaj i przechodź dalej, odświeżaj, kopiuj link albo otwieraj go w przeglądarce, a przeciągnij krawędź panelu, żeby go poszerzyć. Strony otwierają się osobno, z dala od twojego konta Discord, a zamknięty panel nie zajmuje pamięci.",
+                    "changelog": {
+                        "1.0.0": [
+                            "Pierwsza wersja."
+                        ]
+                    }
+                },
+                "pt-BR": {
+                    "name": "Navegador lateral",
+                    "description": "Os links em que você clica no chat abrem em um painel ao lado, para ler sem sair do Discord. Volte e avance, recarregue, copie o link ou abra no seu navegador, e arraste a borda do painel para alargá-lo. As páginas abrem à parte, separadas da sua conta do Discord, e o painel não ocupa memória depois de fechado.",
+                    "changelog": {
+                        "1.0.0": [
+                            "Primeira versão."
+                        ]
+                    }
+                },
+                "ru": {
+                    "name": "Боковой браузер",
+                    "description": "Ссылки, по которым вы нажимаете в чате, открываются в панели рядом, чтобы читать их, не выходя из Discord. Переходите назад и вперёд, перезагружайте, копируйте ссылку или открывайте её в браузере, а край панели можно потянуть, чтобы сделать её шире. Страницы открываются отдельно от вашего аккаунта Discord, а закрытая панель не занимает память.",
+                    "changelog": {
+                        "1.0.0": [
+                            "Первый выпуск."
+                        ]
+                    }
+                },
+                "tr": {
+                    "name": "Yan Tarayıcı",
+                    "description": "Sohbette tıkladığın bağlantılar yanındaki bir panelde açılır, böylece Discord'dan çıkmadan okuyabilirsin. Geri ve ileri git, yenile, bağlantıyı kopyala ya da tarayıcında aç, paneli genişletmek için kenarını sürükle. Sayfalar Discord hesabından ayrı açılır ve panel kapandığında bellek kullanmaz.",
+                    "changelog": {
+                        "1.0.0": [
+                            "İlk sürüm."
+                        ]
+                    }
+                }
+            },
+            "permissions": {
+                "network": [],
+                "readMessages": false,
+                "sendMessages": false,
+                "changeSettings": false
+            }
+        },
+        {
             "id": "silent-typing",
             "name": "Silent Typing",
             "description": "Others don't see \"is typing…\" while you type. Toggle it with /silenttyping or the keyboard button in the chat bar.",
@@ -6859,6 +6982,125 @@
             }
         },
         {
+            "id": "upload-tools",
+            "name": "Upload Tools",
+            "description": "See how fast your files are sending and how long is left, cancel one file of several, and watch the progress on the taskbar. Drag files waiting to be sent into order or spoiler them all at once, and add files to your messages while you edit them.",
+            "authors": [
+                "Evi"
+            ],
+            "authorIds": [
+                "evi"
+            ],
+            "version": "1.0.0",
+            "tags": [
+                "messages",
+                "utility"
+            ],
+            "native": false,
+            "minEviVersion": "3.0.0",
+            "files": {
+                "manifest.json": {
+                    "url": "https://evi.rest/store/plugins/upload-tools/manifest.json?v=d5d6867587f2",
+                    "sha256": "d5d6867587f2b0558023c1bb9cd4de09aa0c520a56f10f2fd6eed2cab3cba498"
+                },
+                "index.js": {
+                    "url": "https://evi.rest/store/plugins/upload-tools/index.js?v=f1ef0b03df5e",
+                    "sha256": "f1ef0b03df5e6db4d18e72ef8441a6007fbe07383dfd146e97126b37922db607"
+                }
+            },
+            "updatedAt": "2026-10-24",
+            "source": "https://github.com/BleedDev/evi/tree/main/plugins/upload-tools",
+            "screenshots": [],
+            "changelog": [
+                {
+                    "version": "1.0.0",
+                    "notes": [
+                        "First release."
+                    ]
+                }
+            ],
+            "locales": {
+                "de": {
+                    "name": "Upload-Werkzeuge",
+                    "description": "Sieh, wie schnell deine Dateien gesendet werden und wie lange es noch dauert, brich eine von mehreren Dateien ab und verfolge den Fortschritt in der Taskleiste. Ziehe Dateien, die auf das Senden warten, in die richtige Reihenfolge oder markiere alle auf einmal als Spoiler, und füge deinen Nachrichten beim Bearbeiten Dateien hinzu.",
+                    "changelog": {
+                        "1.0.0": [
+                            "Erste Version."
+                        ]
+                    }
+                },
+                "es": {
+                    "name": "Herramientas de subida",
+                    "description": "Mira a qué velocidad se envían tus archivos y cuánto falta, cancela un archivo de varios y sigue el progreso en la barra de tareas. Arrastra los archivos que esperan para enviarse al orden que quieras o márcalos todos como spoiler de una vez, y añade archivos a tus mensajes mientras los editas.",
+                    "changelog": {
+                        "1.0.0": [
+                            "Primera versión."
+                        ]
+                    }
+                },
+                "fr": {
+                    "name": "Outils d'envoi",
+                    "description": "Vois à quelle vitesse tes fichiers s'envoient et combien de temps il reste, annule un fichier parmi plusieurs et suis la progression dans la barre des tâches. Fais glisser les fichiers en attente d'envoi dans l'ordre voulu ou mets-les tous en spoiler d'un coup, et ajoute des fichiers à tes messages en les modifiant.",
+                    "changelog": {
+                        "1.0.0": [
+                            "Première version."
+                        ]
+                    }
+                },
+                "ja": {
+                    "name": "アップロードツール",
+                    "description": "ファイルの送信速度と残り時間を確認し、複数のうち1つだけをキャンセルでき、タスクバーで進行状況も見られます。送信待ちのファイルをドラッグで並べ替えたり、まとめてスポイラーにしたり、編集中のメッセージにファイルを追加したりできます。",
+                    "changelog": {
+                        "1.0.0": [
+                            "初回リリース。"
+                        ]
+                    }
+                },
+                "pl": {
+                    "name": "Narzędzia przesyłania",
+                    "description": "Zobacz, jak szybko wysyłają się twoje pliki i ile czasu zostało, anuluj jeden z kilku plików i śledź postęp na pasku zadań. Przeciągaj pliki czekające na wysłanie w odpowiedniej kolejności albo oznacz je wszystkie naraz jako spoilery, i dodawaj pliki do wiadomości podczas ich edycji.",
+                    "changelog": {
+                        "1.0.0": [
+                            "Pierwsze wydanie."
+                        ]
+                    }
+                },
+                "pt-BR": {
+                    "name": "Ferramentas de envio",
+                    "description": "Veja a velocidade com que seus arquivos são enviados e quanto tempo falta, cancele um arquivo entre vários e acompanhe o progresso na barra de tarefas. Arraste os arquivos que aguardam envio para a ordem que quiser ou marque todos como spoiler de uma vez, e adicione arquivos às suas mensagens enquanto as edita.",
+                    "changelog": {
+                        "1.0.0": [
+                            "Primeira versão."
+                        ]
+                    }
+                },
+                "ru": {
+                    "name": "Инструменты загрузки",
+                    "description": "Смотрите, как быстро отправляются файлы и сколько осталось, отменяйте один файл из нескольких и следите за прогрессом на панели задач. Перетаскивайте ожидающие отправки файлы в нужном порядке или отмечайте их все как спойлеры сразу, и добавляйте файлы в свои сообщения при редактировании.",
+                    "changelog": {
+                        "1.0.0": [
+                            "Первый выпуск."
+                        ]
+                    }
+                },
+                "tr": {
+                    "name": "Yükleme Araçları",
+                    "description": "Dosyalarının ne kadar hızlı gönderildiğini ve ne kadar kaldığını gör, birkaç dosyadan birini iptal et ve ilerlemeyi görev çubuğunda izle. Gönderilmeyi bekleyen dosyaları sürükleyerek sırala ya da hepsini tek seferde spoiler yap, ve mesajlarını düzenlerken onlara dosya ekle.",
+                    "changelog": {
+                        "1.0.0": [
+                            "İlk sürüm."
+                        ]
+                    }
+                }
+            },
+            "permissions": {
+                "network": [],
+                "readMessages": true,
+                "sendMessages": true,
+                "changeSettings": false
+            }
+        },
+        {
             "id": "user-voice-show",
             "name": "User Voice Show",
             "description": "Shows a speaker next to anyone in a voice channel: in chat, the member list, your DMs, the friends list and on profiles. Click it to open the channel, double-click to join.",
@@ -6900,14 +7142,14 @@
         {
             "id": "video-controls-plus",
             "name": "Video Controls+",
-            "description": "Playback speed from 0.25x to 3x, loop, frame stepping and picture-in-picture for videos in chat, plus YouTube-style keyboard shortcuts while you hover a video.",
+            "description": "Playback speed from 0.25x to 3x, loop, frame stepping and picture-in-picture for videos in chat, YouTube-style keyboard shortcuts while you hover a video, a small player that follows you when you scroll away from a playing video, and muted previews on hover.",
             "authors": [
                 "Evi"
             ],
             "authorIds": [
                 "evi"
             ],
-            "version": "1.1.0",
+            "version": "1.2.0",
             "tags": [
                 "media"
             ],
@@ -6915,18 +7157,43 @@
             "minEviVersion": "0.3.2",
             "files": {
                 "manifest.json": {
-                    "url": "https://evi.rest/store/plugins/video-controls-plus/manifest.json?v=362d425f4666",
-                    "sha256": "362d425f4666ec4c16f2decb6337ae320e369c544a22c51716dcff7632bcdebb"
+                    "url": "https://evi.rest/store/plugins/video-controls-plus/manifest.json?v=e9d3fd98865b",
+                    "sha256": "e9d3fd98865b721804ce40e1bf466c34f0ede8089589f677ed01bafca7942e2c"
                 },
                 "index.js": {
-                    "url": "https://evi.rest/store/plugins/video-controls-plus/index.js?v=f30686f56b62",
-                    "sha256": "f30686f56b6299766c2f0b9abe77e7077cfd13b4a2e761a5fe46fb46d121d815"
+                    "url": "https://evi.rest/store/plugins/video-controls-plus/index.js?v=e4a012eab16b",
+                    "sha256": "e4a012eab16b5f41c2ac0d12496d158afa1991a51b949777ccda48f01da429d1"
                 }
             },
-            "updatedAt": "2026-09-28",
+            "updatedAt": "2026-10-24",
             "source": "https://github.com/BleedDev/evi/tree/main/plugins/video-controls-plus",
             "screenshots": [],
             "changelog": [
+                {
+                    "version": "1.2.0",
+                    "notes": [
+                        "Sticky video: a video you're playing follows you to a corner of the chat when you scroll away from it, with buttons to go back to its message or close it, and goes back to its place when you scroll back. YouTube and other embeds too. Turn it off in the plugin's settings.",
+                        "Play videos on hover: videos in chat play muted while the pointer rests on them and stop when it leaves, so you can see what they are without clicking. Clicking one plays it as usual, with sound. Off while Discord's Reduced Motion is on, and in the plugin's settings."
+                    ]
+                },
+                {
+                    "version": "1.1.3",
+                    "notes": [
+                        "Turning it off and on again no longer leaves videos already in chat half working: the speed is remembered and the controls follow play, pause and speed changes again."
+                    ]
+                },
+                {
+                    "version": "1.1.2",
+                    "notes": [
+                        "Lighter while a video is hovered: the controls only move when the video does."
+                    ]
+                },
+                {
+                    "version": "1.1.1",
+                    "notes": [
+                        "The controls show on videos in chat again, not only in fullscreen."
+                    ]
+                },
                 {
                     "version": "1.1.0",
                     "notes": [
@@ -6955,8 +7222,21 @@
             "locales": {
                 "de": {
                     "name": "Video-Steuerung+",
-                    "description": "Wiedergabegeschwindigkeit von 0,25x bis 3x, Wiederholen, Einzelbildschaltung und Bild-in-Bild für Videos im Chat, dazu YouTube-artige Tastenkürzel, solange du mit der Maus über einem Video bist.",
+                    "description": "Wiedergabegeschwindigkeit von 0,25x bis 3x, Wiederholen, Einzelbildschaltung und Bild-in-Bild für Videos im Chat, YouTube-artige Tastenkürzel, solange du mit der Maus über einem Video bist, ein kleiner Player, der dir folgt, wenn du von einem laufenden Video wegscrollst, und stumme Vorschauen beim Darüberfahren.",
                     "changelog": {
+                        "1.2.0": [
+                            "Mitlaufendes Video: Ein Video, das du abspielst, folgt dir in eine Ecke des Chats, wenn du davon wegscrollst, mit Schaltflächen, um zu seiner Nachricht zurückzukehren oder es zu schließen, und kehrt an seinen Platz zurück, wenn du zurückscrollst. Auch bei YouTube und anderen Einbettungen. Abschalten kannst du es in den Einstellungen des Plugins.",
+                            "Videos beim Darüberfahren abspielen: Videos im Chat spielen stumm, solange der Mauszeiger darauf ruht, und halten an, wenn er weggeht, damit du ohne Klick siehst, was sie zeigen. Ein Klick spielt es wie gewohnt ab, mit Ton. Aus, solange in Discord reduzierte Bewegung an ist, und abschaltbar in den Einstellungen des Plugins."
+                        ],
+                        "1.1.3": [
+                            "Aus- und wieder Einschalten lässt Videos, die schon im Chat sind, nicht mehr halb funktionierend zurück: Die Geschwindigkeit wird wieder gemerkt, und die Steuerung folgt wieder Abspielen, Pause und Geschwindigkeitsänderungen."
+                        ],
+                        "1.1.2": [
+                            "Schonender, während du über einem Video bist: Die Steuerung bewegt sich nur, wenn sich das Video bewegt."
+                        ],
+                        "1.1.1": [
+                            "Die Steuerung erscheint wieder bei Videos im Chat, nicht nur im Vollbild."
+                        ],
                         "1.1.0": [
                             "Folgt der Sprache von Discord: Deutsch, Spanisch, Französisch, Japanisch, Polnisch, Portugiesisch, Russisch und Türkisch, dazu Englisch."
                         ],
@@ -6973,8 +7253,21 @@
                 },
                 "es": {
                     "name": "Controles de vídeo+",
-                    "description": "Velocidad de reproducción de 0,25x a 3x, repetición, avance fotograma a fotograma e imagen en imagen para los vídeos del chat, además de atajos de teclado al estilo de YouTube mientras pasas el ratón por un vídeo.",
+                    "description": "Velocidad de reproducción de 0,25x a 3x, repetición, avance fotograma a fotograma e imagen en imagen para los vídeos del chat, atajos de teclado al estilo de YouTube mientras pasas el ratón por un vídeo, un reproductor pequeño que te sigue cuando te desplazas lejos de un vídeo que se está reproduciendo, y vistas previas sin sonido al pasar el ratón.",
                     "changelog": {
+                        "1.2.0": [
+                            "Vídeo fijo: un vídeo que estás reproduciendo te sigue a una esquina del chat cuando te desplazas lejos de él, con botones para volver a su mensaje o cerrarlo, y vuelve a su sitio cuando regresas. También YouTube y otros vídeos insertados. Puedes desactivarlo en los ajustes del plugin.",
+                            "Reproducir vídeos al pasar el ratón: los vídeos del chat se reproducen sin sonido mientras el puntero está sobre ellos y se detienen cuando se va, para que veas qué son sin hacer clic. Al hacer clic se reproduce como siempre, con sonido. Desactivado mientras Discord tenga activado el movimiento reducido, y en los ajustes del plugin."
+                        ],
+                        "1.1.3": [
+                            "Desactivarlo y volver a activarlo ya no deja a medias los vídeos que ya están en el chat: la velocidad se recuerda y los controles vuelven a seguir la reproducción, la pausa y los cambios de velocidad."
+                        ],
+                        "1.1.2": [
+                            "Más ligero al pasar el ratón sobre un vídeo: los controles solo se mueven cuando se mueve el vídeo."
+                        ],
+                        "1.1.1": [
+                            "Los controles vuelven a aparecer en los vídeos del chat, no solo en pantalla completa."
+                        ],
                         "1.1.0": [
                             "Sigue el idioma de Discord: alemán, español, francés, japonés, polaco, portugués, ruso y turco, además de inglés."
                         ],
@@ -6991,8 +7284,21 @@
                 },
                 "fr": {
                     "name": "Contrôles vidéo+",
-                    "description": "Vitesse de lecture de 0,25x à 3x, lecture en boucle, avance image par image et image dans l'image pour les vidéos du chat, avec des raccourcis clavier à la YouTube quand vous survolez une vidéo.",
+                    "description": "Vitesse de lecture de 0,25x à 3x, lecture en boucle, avance image par image et image dans l'image pour les vidéos du chat, des raccourcis clavier à la YouTube quand vous survolez une vidéo, un petit lecteur qui vous suit quand vous faites défiler loin d'une vidéo en cours, et des aperçus sans le son au survol.",
                     "changelog": {
+                        "1.2.0": [
+                            "Vidéo épinglée : une vidéo que vous lisez vous suit dans un coin du chat quand vous faites défiler loin d'elle, avec des boutons pour revenir à son message ou la fermer, et reprend sa place quand vous revenez. Aussi pour YouTube et les autres intégrations. Désactivable dans les paramètres du plugin.",
+                            "Lire les vidéos au survol : les vidéos du chat se lisent sans le son tant que le pointeur reste dessus et s'arrêtent quand il s'en va, pour voir ce qu'elles montrent sans cliquer. Un clic la lit comme d'habitude, avec le son. Désactivé tant que les animations réduites sont activées dans Discord, et désactivable dans les paramètres du plugin."
+                        ],
+                        "1.1.3": [
+                            "Le désactiver puis le réactiver ne laisse plus à moitié fonctionnelles les vidéos déjà dans le chat : la vitesse est de nouveau mémorisée et les contrôles suivent à nouveau la lecture, la pause et les changements de vitesse."
+                        ],
+                        "1.1.2": [
+                            "Plus léger quand tu survoles une vidéo : les commandes ne bougent que si la vidéo bouge."
+                        ],
+                        "1.1.1": [
+                            "Les commandes s’affichent de nouveau sur les vidéos du chat, pas seulement en plein écran."
+                        ],
                         "1.1.0": [
                             "Suit la langue de Discord : allemand, espagnol, français, japonais, polonais, portugais, russe et turc, en plus de l'anglais."
                         ],
@@ -7009,8 +7315,21 @@
                 },
                 "ja": {
                     "name": "動画コントロール+",
-                    "description": "チャット内の動画に、0.25xから3xまでの再生速度、ループ、コマ送り、ピクチャーインピクチャーを追加します。動画にカーソルを合わせている間は、YouTubeのようなキーボードショートカットも使えます。",
+                    "description": "チャット内の動画に、0.25xから3xまでの再生速度、ループ、コマ送り、ピクチャーインピクチャーを追加します。動画にカーソルを合わせている間はYouTubeのようなキーボードショートカットが使え、再生中の動画からスクロールして離れると小さなプレーヤーがついてきて、カーソルを合わせるとミュートでプレビューされます。",
                     "changelog": {
+                        "1.2.0": [
+                            "動画の追従表示: 再生中の動画からスクロールして離れると、動画がチャットの隅についてきます。メッセージに戻るボタンと閉じるボタンがあり、スクロールして戻ると元の場所に戻ります。YouTubeなどの埋め込みにも対応します。プラグインの設定でオフにできます。",
+                            "カーソルを合わせて動画を再生: チャット内の動画にカーソルを置いている間はミュートで再生され、離れると止まるので、クリックしなくても内容がわかります。クリックすると通常どおり音声付きで再生されます。Discordで動きを減らす設定がオンのときは無効で、プラグインの設定でもオフにできます。"
+                        ],
+                        "1.1.3": [
+                            "オフにしてからオンに戻しても、チャットにすでにある動画が中途半端に動かなくなることはなくなりました。速度が再び記憶され、コントロールが再生、一時停止、速度の変更に再び追従します。"
+                        ],
+                        "1.1.2": [
+                            "動画にカーソルを合わせているときの負荷が軽くなりました。コントロールは動画が動いたときだけ移動します。"
+                        ],
+                        "1.1.1": [
+                            "チャット内の動画でも、全画面表示のときだけでなくコントロールが表示されるようになりました。"
+                        ],
                         "1.1.0": [
                             "Discordの言語設定に合わせて表示されます。英語のほか、ドイツ語、スペイン語、フランス語、日本語、ポーランド語、ポルトガル語、ロシア語、トルコ語に対応しています。"
                         ],
@@ -7027,8 +7346,21 @@
                 },
                 "pl": {
                     "name": "Sterowanie wideo+",
-                    "description": "Prędkość odtwarzania od 0,25x do 3x, zapętlanie, przechodzenie klatka po klatce i obraz w obrazie dla filmów na czacie, a do tego skróty klawiszowe w stylu YouTube, gdy kursor jest nad filmem.",
+                    "description": "Prędkość odtwarzania od 0,25x do 3x, zapętlanie, przechodzenie klatka po klatce i obraz w obrazie dla filmów na czacie, skróty klawiszowe w stylu YouTube, gdy kursor jest nad filmem, mały odtwarzacz, który podąża za tobą, gdy przewiniesz od odtwarzanego filmu, i podgląd bez dźwięku po najechaniu.",
                     "changelog": {
+                        "1.2.0": [
+                            "Przyklejony film: odtwarzany film podąża za tobą do rogu czatu, gdy przewiniesz od niego, z przyciskami powrotu do jego wiadomości i zamknięcia, i wraca na miejsce, gdy przewiniesz z powrotem. Działa też z YouTube i innymi osadzonymi filmami. Można to wyłączyć w ustawieniach wtyczki.",
+                            "Odtwarzanie filmów po najechaniu: filmy na czacie odtwarzają się bez dźwięku, gdy kursor jest nad nimi, i zatrzymują, gdy z nich zjedzie, więc widać, co to jest, bez klikania. Kliknięcie odtwarza film jak zwykle, z dźwiękiem. Wyłączone, gdy w Discordzie włączone jest ograniczenie ruchu, i w ustawieniach wtyczki."
+                        ],
+                        "1.1.3": [
+                            "Wyłączenie i ponowne włączenie nie zostawia już filmów, które są już na czacie, działających tylko w połowie: prędkość znów jest zapamiętywana, a sterowanie znów nadąża za odtwarzaniem, pauzą i zmianami prędkości."
+                        ],
+                        "1.1.2": [
+                            "Lżej, gdy najedziesz na film: elementy sterujące przesuwają się tylko wtedy, gdy przesuwa się film."
+                        ],
+                        "1.1.1": [
+                            "Sterowanie znowu pojawia się na filmach na czacie, nie tylko na pełnym ekranie."
+                        ],
                         "1.1.0": [
                             "Mówi w języku Discorda: po niemiecku, hiszpańsku, francusku, japońsku, polsku, portugalsku, rosyjsku i turecku, oprócz angielskiego."
                         ],
@@ -7045,8 +7377,21 @@
                 },
                 "pt-BR": {
                     "name": "Controles de vídeo+",
-                    "description": "Velocidade de reprodução de 0,25x a 3x, repetição, avanço quadro a quadro e picture-in-picture para os vídeos do chat, além de atalhos de teclado no estilo do YouTube enquanto você passa o mouse sobre um vídeo.",
+                    "description": "Velocidade de reprodução de 0,25x a 3x, repetição, avanço quadro a quadro e picture-in-picture para os vídeos do chat, atalhos de teclado no estilo do YouTube enquanto você passa o mouse sobre um vídeo, um player pequeno que te acompanha quando você rola para longe de um vídeo em reprodução, e prévias sem som ao passar o mouse.",
                     "changelog": {
+                        "1.2.0": [
+                            "Vídeo fixo: um vídeo que você está reproduzindo te acompanha num canto do chat quando você rola para longe dele, com botões para voltar à mensagem ou fechá-lo, e volta ao lugar quando você rola de volta. Também para YouTube e outros vídeos incorporados. Dá para desligar nas configurações do plugin.",
+                            "Reproduzir vídeos ao passar o mouse: os vídeos do chat são reproduzidos sem som enquanto o ponteiro está sobre eles e param quando ele sai, para você ver o que são sem clicar. Clicar reproduz como sempre, com som. Desligado enquanto o movimento reduzido do Discord estiver ativado, e nas configurações do plugin."
+                        ],
+                        "1.1.3": [
+                            "Desativar e ativar de novo não deixa mais os vídeos que já estão no chat funcionando pela metade: a velocidade volta a ser lembrada e os controles voltam a acompanhar a reprodução, a pausa e as mudanças de velocidade."
+                        ],
+                        "1.1.2": [
+                            "Mais leve com o mouse sobre um vídeo: os controles só se movem quando o vídeo se move."
+                        ],
+                        "1.1.1": [
+                            "Os controles voltam a aparecer nos vídeos do chat, não só em tela cheia."
+                        ],
                         "1.1.0": [
                             "Segue o idioma do Discord: alemão, espanhol, francês, japonês, polonês, português, russo e turco, além do inglês."
                         ],
@@ -7063,8 +7408,21 @@
                 },
                 "ru": {
                     "name": "Управление видео+",
-                    "description": "Скорость воспроизведения от 0,25x до 3x, повтор, покадровый просмотр и «картинка в картинке» для видео в чате, а также горячие клавиши как на YouTube, пока курсор наведён на видео.",
+                    "description": "Скорость воспроизведения от 0,25x до 3x, повтор, покадровый просмотр и «картинка в картинке» для видео в чате, горячие клавиши как на YouTube, пока курсор наведён на видео, маленький плеер, который следует за вами, когда вы прокручиваете чат дальше от играющего видео, и беззвучный предпросмотр при наведении.",
                     "changelog": {
+                        "1.2.0": [
+                            "Закреплённое видео: видео, которое вы смотрите, следует за вами в угол чата, когда вы прокручиваете дальше, с кнопками, чтобы вернуться к его сообщению или закрыть его, и возвращается на место, когда вы прокручиваете обратно. Работает и с YouTube, и с другими встроенными видео. Отключается в настройках плагина.",
+                            "Воспроизведение при наведении: видео в чате играют без звука, пока на них наведён курсор, и останавливаются, когда он уходит, чтобы понять, что это, не нажимая. Нажатие запускает видео как обычно, со звуком. Отключено, пока в Discord включено уменьшение движения, и отключается в настройках плагина."
+                        ],
+                        "1.1.3": [
+                            "Если выключить и снова включить его, видео, которые уже есть в чате, больше не работают наполовину: скорость снова запоминается, а элементы управления снова следят за воспроизведением, паузой и сменой скорости."
+                        ],
+                        "1.1.2": [
+                            "Меньше нагрузки, пока курсор над видео: панель управления двигается, только когда двигается само видео."
+                        ],
+                        "1.1.1": [
+                            "Элементы управления снова появляются на видео в чате, а не только в полноэкранном режиме."
+                        ],
                         "1.1.0": [
                             "Говорит на языке Discord: немецком, испанском, французском, японском, польском, португальском, русском и турецком, а также на английском."
                         ],
@@ -7081,8 +7439,21 @@
                 },
                 "tr": {
                     "name": "Video Denetimleri+",
-                    "description": "Sohbetteki videolar için 0,25x ile 3x arası oynatma hızı, döngü, kare kare ilerleme ve pencere içinde pencere; bir videonun üzerindeyken YouTube tarzı klavye kısayolları da var.",
+                    "description": "Sohbetteki videolar için 0,25x ile 3x arası oynatma hızı, döngü, kare kare ilerleme ve pencere içinde pencere; bir videonun üzerindeyken YouTube tarzı klavye kısayolları, oynayan bir videodan uzağa kaydırdığında seni takip eden küçük bir oynatıcı ve üzerine gelince sessiz önizlemeler.",
                     "changelog": {
+                        "1.2.0": [
+                            "Yapışkan video: oynattığın bir video, ondan uzağa kaydırdığında sohbetin bir köşesinde seni takip eder; mesajına dönmek ya da kapatmak için düğmeleri vardır ve geri kaydırdığında yerine döner. YouTube ve diğer gömülü videolarda da çalışır. Eklentinin ayarlarından kapatabilirsin.",
+                            "Üzerine gelince videoları oynat: sohbetteki videolar imleç üzerlerindeyken sessiz oynar, imleç gidince durur; böylece tıklamadan ne olduklarını görürsün. Tıklayınca her zamanki gibi sesli oynar. Discord'da hareketi azaltma açıkken kapalıdır, eklentinin ayarlarından da kapatılabilir."
+                        ],
+                        "1.1.3": [
+                            "Kapatıp yeniden açmak, sohbette zaten olan videoları artık yarım çalışır halde bırakmıyor: hız yeniden hatırlanıyor ve kontroller oynatma, duraklatma ve hız değişikliklerini yeniden takip ediyor."
+                        ],
+                        "1.1.2": [
+                            "Bir videonun üzerindeyken daha hafif: kontroller yalnızca video hareket ettiğinde yer değiştiriyor."
+                        ],
+                        "1.1.1": [
+                            "Kontroller artık yalnızca tam ekranda değil, sohbetteki videolarda da görünüyor."
+                        ],
                         "1.1.0": [
                             "Discord'un dilini kullanır: İngilizcenin yanı sıra Almanca, İspanyolca, Fransızca, Japonca, Lehçe, Portekizce, Rusça ve Türkçe."
                         ],

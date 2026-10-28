@@ -2,7 +2,7 @@
     "id": "code-block-tools",
     "name": "Code Block Tools",
     "description": "Code blocks and text files get Copy, Download, Pretty print for JSON and line numbers. Text files Discord only offers as a download get a preview.",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "authors": [
         "Evi"
     ],
@@ -17,6 +17,12 @@
         ]
     },
     "changelog": [
+        {
+            "version": "1.1.1",
+            "notes": [
+                "Works again after Discord's update: code blocks and text file previews get their buttons and line numbers again."
+            ]
+        },
         {
             "version": "1.1.0",
             "notes": [
@@ -43,6 +49,9 @@
             "name": "Codeblock-Werkzeuge",
             "description": "Codeblöcke und Textdateien bekommen Kopieren, Herunterladen, Formatieren für JSON und Zeilennummern. Textdateien, die Discord nur zum Herunterladen anbietet, bekommen eine Vorschau.",
             "changelog": {
+                "1.1.1": [
+                    "Funktioniert nach Discords Update wieder: Codeblöcke und Textdatei-Vorschauen bekommen wieder ihre Buttons und Zeilennummern."
+                ],
                 "1.1.0": [
                     "Sieht aus wie ein Teil von Discord: Kopieren sitzt in der Fußleiste von Textdateien neben Discords eigenen Schaltflächen, und Codeblöcke behalten Discords Platz für Kopieren, mit einem Häkchen nach dem Kopieren.",
                     "Zeilennummern stehen genau neben ihren Zeilen.",
@@ -60,6 +69,9 @@
             "name": "Herramientas para bloques de código",
             "description": "Los bloques de código y archivos de texto tienen Copiar, Descargar, Formatear para JSON y números de línea. Los archivos de texto que Discord solo ofrece para descargar tienen vista previa.",
             "changelog": {
+                "1.1.1": [
+                    "Vuelve a funcionar tras la actualización de Discord: los bloques de código y las vistas previas de archivos de texto vuelven a tener sus botones y números de línea."
+                ],
                 "1.1.0": [
                     "Parece parte de Discord: Copiar está en el pie de los archivos de texto junto a los botones de Discord, y los bloques de código mantienen el lugar de Copiar de Discord, con una marca al copiar.",
                     "Los números de línea quedan alineados con el texto.",
@@ -77,6 +89,9 @@
             "name": "Outils pour blocs de code",
             "description": "Les blocs de code et fichiers texte ont Copier, Télécharger, Mettre en forme pour le JSON et des numéros de ligne. Les fichiers texte que Discord ne propose qu'au téléchargement ont un aperçu.",
             "changelog": {
+                "1.1.1": [
+                    "Fonctionne à nouveau après la mise à jour de Discord : les blocs de code et les aperçus de fichiers texte retrouvent leurs boutons et numéros de ligne."
+                ],
                 "1.1.0": [
                     "On dirait une partie de Discord : Copier se trouve dans le pied des fichiers texte à côté des boutons de Discord, et les blocs de code gardent l'emplacement de Copier de Discord, avec une coche une fois copié.",
                     "Les numéros de ligne sont alignés sur le texte.",
@@ -94,6 +109,9 @@
             "name": "コードブロックツール",
             "description": "コードブロックとテキストファイルに、コピー、ダウンロード、JSONの整形、行番号を追加します。Discordがダウンロードとしてのみ表示するテキストファイルはプレビューできます。",
             "changelog": {
+                "1.1.1": [
+                    "Discordのアップデート後も再び動作します。コードブロックとテキストファイルのプレビューに、ボタンと行番号が再び表示されます。"
+                ],
                 "1.1.0": [
                     "Discordの一部のような見た目に：コピーはテキストファイルのフッターでDiscordのボタンの隣に並び、コードブロックではDiscordのコピーと同じ位置に表示され、コピーするとチェックマークになります。",
                     "行番号がテキストとぴったり揃います。",
@@ -111,6 +129,9 @@
             "name": "Narzędzia bloków kodu",
             "description": "Bloki kodu i pliki tekstowe dostają Kopiuj, Pobierz, formatowanie JSON i numery wierszy. Pliki tekstowe, które Discord oferuje tylko do pobrania, dostają podgląd.",
             "changelog": {
+                "1.1.1": [
+                    "Znów działa po aktualizacji Discorda: bloki kodu i podglądy plików tekstowych znów mają swoje przyciski i numery wierszy."
+                ],
                 "1.1.0": [
                     "Wygląda jak część Discorda: Kopiuj jest w stopce plików tekstowych obok przycisków Discorda, a bloki kodu zachowują miejsce Kopiuj z Discorda, z ptaszkiem po skopiowaniu.",
                     "Numery wierszy są wyrównane z tekstem.",
@@ -128,6 +149,9 @@
             "name": "Ferramentas de blocos de código",
             "description": "Blocos de código e arquivos de texto ganham Copiar, Baixar, Formatar para JSON e números de linha. Arquivos de texto que o Discord só oferece para baixar ganham pré-visualização.",
             "changelog": {
+                "1.1.1": [
+                    "Volta a funcionar após a atualização do Discord: blocos de código e prévias de arquivos de texto voltam a ter seus botões e números de linha."
+                ],
                 "1.1.0": [
                     "Parece parte do Discord: Copiar fica no rodapé dos arquivos de texto ao lado dos botões do Discord, e os blocos de código mantêm o lugar do Copiar do Discord, com uma marca ao copiar.",
                     "Os números de linha ficam alinhados com o texto.",
@@ -145,6 +169,9 @@
             "name": "Инструменты для блоков кода",
             "description": "Блоки кода и текстовые файлы получают копирование, скачивание, форматирование JSON и номера строк. Текстовые файлы, которые Discord предлагает только скачать, получают просмотр.",
             "changelog": {
+                "1.1.1": [
+                    "Снова работает после обновления Discord: у блоков кода и предпросмотра текстовых файлов снова есть кнопки и номера строк."
+                ],
                 "1.1.0": [
                     "Выглядит как часть Discord: «Копировать» стоит в нижней панели текстовых файлов рядом с кнопками Discord, а в блоках кода — на месте кнопки Discord, с галочкой после копирования.",
                     "Номера строк выровнены по тексту.",
@@ -162,6 +189,9 @@
             "name": "Kod Bloğu Araçları",
             "description": "Kod blokları ve metin dosyaları Kopyala, İndir, JSON için Biçimlendir ve satır numaraları alır. Discord'un yalnızca indirme olarak sunduğu metin dosyaları önizlenebilir.",
             "changelog": {
+                "1.1.1": [
+                    "Discord güncellemesinden sonra yeniden çalışıyor: kod blokları ve metin dosyası önizlemeleri düğmelerine ve satır numaralarına yeniden kavuşuyor."
+                ],
                 "1.1.0": [
                     "Discord'un bir parçası gibi görünüyor: Kopyala, metin dosyalarının alt çubuğunda Discord'un kendi düğmelerinin yanında duruyor; kod bloklarında Discord'un Kopyala yerinde, kopyalanınca onay işaretiyle.",
                     "Satır numaraları metinle tam hizalı.",

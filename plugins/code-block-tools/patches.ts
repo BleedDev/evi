@@ -1,18 +1,20 @@
 /**
  * Code Block Tools' source patches, pure so tests/codeBlockTools.test.ts can apply them to Discord's
- * code (checked 2026-10-11). What each one hooks is described in index.tsx.
+ * code (checked 2026-10-28). What each one hooks is described in index.tsx.
  */
 import type { SourcePatch } from "@evi/api";
 
 export const PATCHES = {
     /**
      * Discord's code block: its container gets our data attributes (line numbers), our buttons go first
-     * in it, and Discord's own Copy button steps aside while we're running (ours sits in its place)
+     * in it, and Discord's own Copy button steps aside while we're running (ours sits in its place).
+     * Since 2026-10-28 the rule is an arrow function, with no location:"MarkupReactRules" any more:
+     *     codeBlock:{react:(e,t,n)=>(0,i.jsx)("pre",{children:(0,i.jsxs)("div",{className:er.Hy,children:[L.p5?...
      */
     codeBlock: {
-        find: 'location:"MarkupReactRules"',
+        find: '"hljs"),highlightedClassName:',
         replace: {
-            match: /(codeBlock:\{react\((\i),\i,\i\)\{[^]{0,600}?"div",\{)(className:\i\.\i,children:\[)(\i\.\i\?)/,
+            match: /(codeBlock:\{react:?\((\i),\i,\i\)(?:=>|\{)[^]{0,600}?"div",\{)(className:\i\.\i,children:\[)(\i\.\i\?)/,
             with: "$1...$self?.containerProps?.($2),$3$self?.renderCodeTools?.($2),!$self?.ownsCopy?.()&&$4",
         },
     },
@@ -30,11 +32,15 @@ export const PATCHES = {
             },
         ],
     },
-    /** The text in a plaintext preview (and its full-screen view): line numbers for the code in its <pre> */
+    /**
+     * The text in a plaintext preview (and its full-screen view): line numbers for the code in its <pre>.
+     * Since 2026-10-28 it has no location:"PlaintextFilePreview" any more:
+     *     let{text:t,language:n,className:s}=e,c=a()(r.kw,"hljs",s);return(0,l.jsx)("pre",{children:(0,l.jsx)(i.E,{code:t,lang:n,className:c})})
+     */
     text: {
-        find: 'location:"PlaintextFilePreview"',
+        find: /let\{text:\i,language:\i,className:\i\}=\i,\i=\i\(\)\(\i\.\i,"hljs",\i\)/,
         replace: {
-            match: /(let\{text:(\i),language:\i,className:(\i)\}=\i,[^]{0,300}?"pre",\{)(children:\(0,\i\.jsx\)\(\i\.\i,\{location:"PlaintextFilePreview")/,
+            match: /(let\{text:(\i),language:\i,className:(\i)\}=\i,[^]{0,300}?"pre",\{)(children:\(0,\i\.jsx\)\(\i\.\i,\{(?:location:"PlaintextFilePreview",)?code:\2,)/,
             with: "$1...$self?.preProps?.($2,$3),$4",
         },
     },

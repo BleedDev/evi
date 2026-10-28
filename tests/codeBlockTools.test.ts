@@ -17,7 +17,13 @@ const SOURCES = {
     text: "function d(e){let{text:t,language:r,className:d}=e,c=a()(o.kw,\"hljs\",d);function u(){return(0,i.jsx)(\"code\",{className:c,children:t})}return(0,i.jsx)(\"pre\",{children:(0,i.jsx)(l.l,{location:\"PlaintextFilePreview\",code:t,lang:r,className:c,children:(0,i.jsx)(s.c2,{createPromise:()=>Promise.all([n.e(\"818449\"),n.e(\"175134\")]).then(n.bind(n,981776)),webpackId:981776,renderFallback:u,render:e=>{if(null==r||!e.hasLanguage(r))return u();let n=e.highlight(r,t,!0);return null==n?u():(0,i.jsx)(\"code\",{className:a()(c,n.language),dangerouslySetInnerHTML:{__html:n.value}})}})})})}",
 };
 
-type AnyPatch = { find: string; replace: Replacement | Replacement[]; };
+// Discord's build of 2026-10-28 (web.js): the rule is an arrow function and neither has a location any more
+const SOURCES_1028 = {
+    codeBlock: "codeBlock:{react:(e,t,n)=>(0,i.jsx)(\"pre\",{children:(0,i.jsxs)(\"div\",{className:er.Hy,children:[L.p5?(0,i.jsx)(\"div\",{className:er.lB,children:(0,i.jsx)(ed,{text:e.content})}):null,(0,i.jsx)(O.E,{code:e.content,lang:e.lang,className:s()(ea.kw,\"hljs\"),highlightedClassName:ei.H})]})},n.key)}",
+    text: "function c(e){let{text:t,language:n,className:s}=e,c=a()(r.kw,\"hljs\",s);return(0,l.jsx)(\"pre\",{children:(0,l.jsx)(i.E,{code:t,lang:n,className:c})})}",
+};
+
+type AnyPatch = { find: string | RegExp; replace: Replacement | Replacement[]; };
 
 /** Applies a patch like Evi does, each replacement matching exactly once */
 function apply(patch: AnyPatch, code: string, self = "S") {
@@ -39,9 +45,21 @@ const parses = (code: string) => new Function(`return (${code});`);
 describe("patches on Discord's code", () => {
     test("code block: its container gets our props, our tools go first, and Discord's Copy steps aside", () => {
         const rule = `{${SOURCES.codeBlock}}`;
-        expect(matchesFind(`location:"MarkupReactRules"${rule}`, PATCHES.codeBlock.find)).toBe(true);
+        expect(matchesFind(rule, PATCHES.codeBlock.find)).toBe(true);
         const out = apply({ ...PATCHES.codeBlock, find: "codeBlock:" }, rule);
         expect(out).toContain('(0,i.jsxs)("div",{...S?.containerProps?.(e),className:ea.Hy,children:[S?.renderCodeTools?.(e),!S?.ownsCopy?.()&&y.p5?');
+        expect(() => parses(out)).not.toThrow();
+    });
+
+    test("code block, 2026-10-28: the same, now that the rule is an arrow function", () => {
+        const out = apply(PATCHES.codeBlock, `{${SOURCES_1028.codeBlock}}`);
+        expect(out).toContain('(0,i.jsxs)("div",{...S?.containerProps?.(e),className:er.Hy,children:[S?.renderCodeTools?.(e),!S?.ownsCopy?.()&&L.p5?');
+        expect(() => parses(out)).not.toThrow();
+    });
+
+    test("plaintext text, 2026-10-28: preProps spread onto its <pre> without Discord's location prop", () => {
+        const out = apply(PATCHES.text, SOURCES_1028.text);
+        expect(out).toContain('("pre",{...S?.preProps?.(t,s),children:(0,l.jsx)(i.E,{code:t,');
         expect(() => parses(out)).not.toThrow();
     });
 

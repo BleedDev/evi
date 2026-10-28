@@ -6,8 +6,8 @@ import type { SourcePatch } from "@evi/api";
  * The setting is "Share my activity" (User Settings > Activity Privacy), stored in the
  * PreloadedUserSettings proto as `status.showCurrentGame`, a BoolValue wrapper where a missing
  * value means shown. Discord wraps it in a setting object built by
- *     ey=f("status","showCurrentGame",e=>e?.value??!0,e=>l._t.create({value:e}));
- * with { getSetting, updateSetting, useSetting }. Nothing names that object from outside, so a
+ *     eS=(0,_.c$)("status","showCurrentGame",e=>e?.value??!0,e=>l._t.create({value:e}));
+ * (a plain call, ey=f(...), before Discord's build of 2026-10-28) * with { getSetting, updateSetting, useSetting }. Nothing names that object from outside, so a
  * source patch hands it to the plugin right after it's created.
  */
 
@@ -22,7 +22,7 @@ export const PATCHES = {
     setting: {
         find: '"status","showCurrentGame"',
         replace: {
-            match: /(?<=(\i)=\i\("status","showCurrentGame",e=>e\?\.value\?\?!0,e=>\i\.\i\.create\(\{value:e\}\)\);)/,
+            match: /(?<=(\i)=(?:\(0,)?\i(?:\.\i)?\)?\("status","showCurrentGame",e=>e\?\.value\?\?!0,e=>\i\.\i\.create\(\{value:e\}\)\);)/,
             with: "$self?.captureSetting?.($1);",
         },
     },

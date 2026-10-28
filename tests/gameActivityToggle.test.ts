@@ -9,6 +9,9 @@ const SOURCES = {
     setting: 'f("textAndImages","dmSpamFilter",e=>e?.value??N.uH.NON_FRIENDS,e=>l.ZQ.create({value:e}));let eL=f("textAndImages","dmSpamFilterV2",e=>e??s.he.DEFAULT_UNSET,e=>e),ey=f("status","showCurrentGame",e=>e?.value??!0,e=>l._t.create({value:e}));f("privacy","recentGamesEnabled",e=>e?.value??!0,e=>l._t.create({value:e}));let eD=f("privacy","profileVisibility",e=>null==e||e===s.KP.UNSET?s.KP.FRIENDS_AND_ALL_GUILDS:e,e=>e);',
 };
 
+/** Discord's build of 2026-10-28 (web.js): the setting is made by (0,_.c$)(...), not a plain call */
+const SETTING_1028 = 'let eg=(0,_.c$)("textAndImages","dmSpamFilterV2",e=>e??s.he.DEFAULT_UNSET,e=>e),eS=(0,_.c$)("status","showCurrentGame",e=>e?.value??!0,e=>l._t.create({value:e}));(0,_.c$)("privacy","recentGamesEnabled",e=>e?.value??!0,e=>l._t.create({value:e}));let eN=(0,_.c$)("privacy","profileVisibility",e=>null==e||e===s.KP.UNSET?s.KP.FRIENDS_AND_ALL_GUILDS:e,e=>e);';
+
 function apply(key: keyof typeof PATCHES, code: string = SOURCES[key], self = "S") {
     const patch = PATCHES[key];
     expect(matchesFind(code, patch.find)).toBe(true);
@@ -43,6 +46,15 @@ describe("patches", () => {
         let captured: any;
         const f = (group: string, name: string) => ({ group, name });
         new Function("f", "l", "N", "s", "S", out)(f, {}, { uH: {} }, { he: {}, KP: {} }, { captureSetting: (v: any) => (captured = v) });
+        expect(captured).toEqual({ group: "status", name: "showCurrentGame" });
+    });
+
+    test("setting: also when Discord calls the setting maker as (0,_.c$)(...)", () => {
+        const out = apply("setting", SETTING_1028);
+        expect(out).toContain('e=>l._t.create({value:e}));S?.captureSetting?.(eS);(0,_.c$)("privacy"');
+        let captured: any;
+        const _ = { c$: (group: string, name: string) => ({ group, name }) };
+        new Function("_", "l", "s", "S", out)(_, {}, { he: {}, KP: {} }, { captureSetting: (v: any) => (captured = v) });
         expect(captured).toEqual({ group: "status", name: "showCurrentGame" });
     });
 });

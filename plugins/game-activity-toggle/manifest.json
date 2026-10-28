@@ -2,7 +2,7 @@
     "id": "game-activity-toggle",
     "name": "Game Activity Toggle",
     "description": "Show or hide the game you're playing with one click: a gamepad button next to mute and deafen, a keyboard shortcut, or /gameactivity.",
-    "version": "1.4.1",
+    "version": "1.4.2",
     "authors": [
         "Evi"
     ],
@@ -13,6 +13,12 @@
         "changeSettings": true
     },
     "changelog": [
+        {
+            "version": "1.4.2",
+            "notes": [
+                "Works again after Discord's update: the button, shortcut and /gameactivity turn your activity on and off again."
+            ]
+        },
         {
             "version": "1.4.1",
             "notes": [
@@ -63,6 +69,9 @@
             "name": "Spielaktivität umschalten",
             "description": "Zeige oder verberge das Spiel, das du spielst, mit einem Klick: ein Controller-Button neben Stummschalten und Ton aus, ein Tastenkürzel oder /gameactivity.",
             "changelog": {
+                "1.4.2": [
+                    "Funktioniert nach Discords Update wieder: Button, Tastenkürzel und /gameactivity schalten deine Aktivität wieder ein und aus."
+                ],
                 "1.4.1": [
                     "Etwas kleiner: Zwei ungenutzte englische Texte aus der Zeit vor der Übersetzung sind weg. Sonst ändert sich nichts."
                 ],
@@ -90,6 +99,9 @@
             "name": "Interruptor de actividad de juego",
             "description": "Muestra u oculta el juego al que juegas con un clic: un botón de mando junto a silenciar y ensordecer, un atajo de teclado o /gameactivity.",
             "changelog": {
+                "1.4.2": [
+                    "Vuelve a funcionar tras la actualización de Discord: el botón, el atajo y /gameactivity vuelven a activar y desactivar tu actividad."
+                ],
                 "1.4.1": [
                     "Un poco más ligero: se quitaron dos textos en inglés sin uso que quedaban de antes de la traducción. Nada más cambia."
                 ],
@@ -117,6 +129,9 @@
             "name": "Bascule d'activité de jeu",
             "description": "Affiche ou masque le jeu auquel tu joues en un clic : un bouton manette à côté de muet et sourdine, un raccourci clavier ou /gameactivity.",
             "changelog": {
+                "1.4.2": [
+                    "Fonctionne à nouveau après la mise à jour de Discord : le bouton, le raccourci et /gameactivity activent et désactivent de nouveau ton activité."
+                ],
                 "1.4.1": [
                     "Un peu plus léger : deux textes anglais inutilisés, restés d'avant la traduction, ont été retirés. Rien d'autre ne change."
                 ],
@@ -144,6 +159,9 @@
             "name": "ゲームアクティビティ切り替え",
             "description": "プレイ中のゲームの表示と非表示をワンクリックで切り替えます。ミュートとスピーカーミュートの横のゲームパッドボタン、キーボードショートカット、または /gameactivity で操作できます。",
             "changelog": {
+                "1.4.2": [
+                    "Discordのアップデート後も再び動作します。ボタン、ショートカット、/gameactivity でアクティビティを再び切り替えられます。"
+                ],
                 "1.4.1": [
                     "少し軽くなりました。翻訳前から残っていた、使われていない英語の文言を2つ削除しました。それ以外の変更はありません。"
                 ],
@@ -171,6 +189,9 @@
             "name": "Przełącznik aktywności w grze",
             "description": "Pokazuj lub ukrywaj grę, w którą grasz, jednym kliknięciem: przycisk pada obok wyciszenia mikrofonu i dźwięku, skrót klawiszowy albo /gameactivity.",
             "changelog": {
+                "1.4.2": [
+                    "Znów działa po aktualizacji Discorda: przycisk, skrót i /gameactivity znów włączają i wyłączają twoją aktywność."
+                ],
                 "1.4.1": [
                     "Trochę mniejszy: usunięto dwa nieużywane angielskie teksty pozostałe sprzed tłumaczenia. Nic więcej się nie zmienia."
                 ],
@@ -198,6 +219,9 @@
             "name": "Alternar atividade de jogo",
             "description": "Mostre ou oculte o jogo que você está jogando com um clique: um botão de controle ao lado de silenciar e ensurdecer, um atalho de teclado ou /gameactivity.",
             "changelog": {
+                "1.4.2": [
+                    "Volta a funcionar após a atualização do Discord: o botão, o atalho e /gameactivity voltam a ligar e desligar sua atividade."
+                ],
                 "1.4.1": [
                     "Um pouco menor: dois textos em inglês sem uso, que sobraram de antes da tradução, foram removidos. Nada mais muda."
                 ],
@@ -225,6 +249,9 @@
             "name": "Переключатель игровой активности",
             "description": "Показывайте или скрывайте игру, в которую играете, одним кликом: кнопка с геймпадом рядом с кнопками отключения микрофона и звука, сочетание клавиш или /gameactivity.",
             "changelog": {
+                "1.4.2": [
+                    "Снова работает после обновления Discord: кнопка, сочетание клавиш и /gameactivity снова включают и выключают вашу активность."
+                ],
                 "1.4.1": [
                     "Стал чуть меньше: удалены две неиспользуемые английские надписи, оставшиеся с времён до перевода. Больше ничего не меняется."
                 ],
@@ -252,6 +279,9 @@
             "name": "Oyun Etkinliği Anahtarı",
             "description": "Oynadığın oyunu tek tıkla göster veya gizle: mikrofonu ve sesi kapatma düğmelerinin yanındaki oyun kolu düğmesi, klavye kısayolu ya da /gameactivity.",
             "changelog": {
+                "1.4.2": [
+                    "Discord güncellemesinden sonra yeniden çalışıyor: düğme, kısayol ve /gameactivity etkinliğini yeniden açıp kapatıyor."
+                ],
                 "1.4.1": [
                     "Biraz daha küçük: çeviriden önceden kalan, kullanılmayan iki İngilizce metin kaldırıldı. Başka bir şey değişmiyor."
                 ],

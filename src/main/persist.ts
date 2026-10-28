@@ -1,6 +1,10 @@
-import { ORIGINAL_ASAR } from "@shared/shim";
+import { ORIGINAL_ASAR, SHIM_MARKER } from "@shared/shim";
+import { spawn } from "child_process";
 import { app } from "electron";
+import { homedir } from "os";
 import { basename, dirname, join } from "path";
+
+import { DATA_DIR } from "./paths";
 
 // Electron's fs treats .asar files as folders, original-fs sees them as the plain files they are
 const fs: typeof import("fs") = require("original-fs");
@@ -20,11 +24,12 @@ const sleep = (ms: number) => Atomics.wait(new Int32Array(new SharedArrayBuffer(
 /**
  * Discord's updater installs each version into a fresh app-x.y.z folder, which would silently drop
  * us. Move our loader into any sibling version that lacks it: on startup, once an update has been
- * written, and when Discord quits.
+ * written, and when Discord quits. macOS replaces the whole Discord.app instead: see relinkAfterMacUpdate.
  *
  * @param shimAsar our loader archive, resources/app.asar of the running version
  */
 export function persistAcrossUpdates(shimAsar: string) {
+    if (process.platform === "darwin") return relinkAfterMacUpdate(shimAsar);
     if (process.platform !== "win32") return;
 
     const installRoot = dirname(dirname(dirname(shimAsar)));
@@ -125,4 +130,92 @@ export function persistAcrossUpdates(shimAsar: string) {
         });
     };
     watch();
+}
+
+/**
+ * Waits for Discord to quit, then for ShipIt to put a new Discord.app in place of the old one (its
+ * Contents folder is a new one), and moves the loader into it the moment it's there: ShipIt starts
+ * Discord again right after. Arguments: Discord's pid, Contents, its inode now, the loader to copy,
+ * Discord's archive's new name, the loader's marker, the log.
+ */
+export const RELINK_SH = `
+pid=$1 contents=$2 ino=$3 loader=$4 original=$5 marker=$6 log=$7
+res="$contents/Resources"
+note() { echo "$(date '+%Y-%m-%d %H:%M:%S') $*" >> "$log"; }
+n=0
+while kill -0 "$pid" 2>/dev/null; do
+    n=$((n + 1)); [ $n -gt 300 ] && exit 0
+    sleep 0.2
+done
+n=0
+while [ $n -lt 3600 ]; do
+    set -- $(ls -di "$contents" 2>/dev/null)
+    if [ "$1" != "$ino" ] && [ -f "$res/app.asar" ]; then
+        if [ -e "$res/$original" ] || grep -qF "$marker" "$res/app.asar"; then exit 0; fi
+        if cp "$loader" "$res/app.asar.evi" 2>>"$log" && mv "$res/app.asar" "$res/$original" 2>>"$log"; then
+            if mv "$res/app.asar.evi" "$res/app.asar" 2>>"$log"; then note "Put Evi back into the updated $contents"; exit 0; fi
+            mv "$res/$original" "$res/app.asar"
+        fi
+        rm -f "$res/app.asar.evi"
+        note "Couldn't put Evi back into the updated $contents"
+        exit 1
+    fi
+    n=$((n + 1)); sleep 0.05
+done
+note "Discord quit with an update waiting, but $contents wasn't replaced"
+`;
+
+/**
+ * macOS Discord updates through Squirrel: once an update is downloaded, quitting hands it to ShipIt,
+ * which swaps in a whole new Discord.app, without the loader, and starts it. Evi Setup's launchd
+ * watcher looks seconds later, after Discord already started without Evi, and macOS's App Management
+ * can refuse it outright, since it isn't Discord. So when Discord quits with an update waiting, it
+ * leaves a shell behind that moves the loader in as soon as the new bundle is there. A child of
+ * Discord's changes Discord's bundle as Discord.
+ */
+function relinkAfterMacUpdate(shimAsar: string) {
+    const contents = dirname(dirname(shimAsar));
+    if (basename(contents) !== "Contents") return;
+
+    const started = Date.now();
+    let downloaded = false;
+    try {
+        // The same autoUpdater Discord's host updater uses on macOS
+        require("electron").autoUpdater.on("update-downloaded", () => downloaded = true);
+    } catch { }
+    /** Squirrel's request to ShipIt, written once an update is ready */
+    const shipItWaiting = () => {
+        const caches = join(homedir(), "Library", "Caches");
+        try {
+            return fs.readdirSync(caches).some(dir => {
+                const state = join(caches, dir, "ShipItState.plist");
+                return dir.startsWith("com.hnc.Discord") && dir.endsWith(".ShipIt") && fs.existsSync(state) && fs.statSync(state).mtimeMs > started;
+            });
+        } catch {
+            return false;
+        }
+    };
+
+    // before-quit and exit both come on one quit, and a quit can be called off
+    let handedOff = 0;
+    const handOff = () => {
+        if (Date.now() - handedOff < 60_000 || !(downloaded || shipItWaiting())) return;
+        handedOff = Date.now();
+        try {
+            // The old bundle, the running loader with it, is gone by the time it's needed
+            const loader = join(DATA_DIR, "relink-loader.asar");
+            fs.copyFileSync(shimAsar, loader);
+            const ino = fs.statSync(contents, { bigint: true }).ino.toString();
+            spawn("/bin/sh", ["-c", RELINK_SH, "evi-relink", String(process.pid), contents, ino, loader, ORIGINAL_ASAR, SHIM_MARKER, join(DATA_DIR, "relink.log")], {
+                detached: true,
+                stdio: "ignore",
+            }).unref();
+            console.log("[Evi] Discord is quitting to update, Evi will move into the new version");
+        } catch (err) {
+            console.error("[Evi] Couldn't prepare to follow Discord's update", err);
+        }
+    };
+    app.on("before-quit", handOff);
+    // app.exit() skips before-quit
+    process.on("exit", handOff);
 }

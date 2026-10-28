@@ -77,6 +77,37 @@ describe("staying in Discord across its updates", () => {
     });
 });
 
+describe("staying in Discord across its macOS updates", () => {
+    test.skipIf(process.platform === "win32")("once Discord quits, the loader moves into the Discord.app ShipIt puts in its place", async () => {
+        const { RELINK_SH } = await import("../src/main/persist");
+        const { SHIM_MARKER } = await import("../src/shared/shim");
+        const app = join(DATA, "Discord.app");
+        const contents = join(app, "Contents");
+        mkdirSync(join(contents, "Resources"), { recursive: true });
+        writeFileSync(join(contents, "Resources", "app.asar"), `${SHIM_MARKER} evi`);
+        writeFileSync(join(contents, "Resources", ORIGINAL_ASAR), "discord");
+        const loader = join(DATA, "relink-loader.asar");
+        writeFileSync(loader, `${SHIM_MARKER} evi`);
+        const ino = realFs.statSync(contents, { bigint: true }).ino.toString();
+
+        const discord = Bun.spawn(["sleep", "30"]);
+        const relink = Bun.spawn(["sh", "-c", RELINK_SH, "evi-relink", String(discord.pid), contents, ino, loader, ORIGINAL_ASAR, SHIM_MARKER, join(DATA, "relink.log")]);
+        await Bun.sleep(300);
+        discord.kill();
+        // ShipIt: the new bundle in place of the old one, after Discord quit
+        const staged = join(DATA, "staged", "Contents");
+        mkdirSync(join(staged, "Resources"), { recursive: true });
+        writeFileSync(join(staged, "Resources", "app.asar"), "discord 2");
+        rmSync(contents, { recursive: true });
+        realFs.renameSync(staged, contents);
+
+        expect(await relink.exited).toBe(0);
+        expect(readFileSync(join(contents, "Resources", "app.asar"), "utf8")).toBe(`${SHIM_MARKER} evi`);
+        expect(readFileSync(join(contents, "Resources", ORIGINAL_ASAR), "utf8")).toBe("discord 2");
+        expect(existsSync(join(contents, "Resources", "app.asar.evi"))).toBe(false);
+    });
+});
+
 describe("adding a theme from a link", () => {
     const css = "/**\n * @name Dark\n */\nbody { color: red; }";
 

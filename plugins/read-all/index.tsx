@@ -1,4 +1,4 @@
-import { Components, definePlugin, Dispatcher, findStore, Menu, React } from "@evi/api";
+import { Components, definePlugin, Dispatcher, filters, findStore, Menu, React } from "@evi/api";
 import type { PluginContext } from "@evi/api";
 
 import { chunk, collectUnread, collectUnreadSteps, countGuilds, summary, toAck } from "./collect";
@@ -53,7 +53,7 @@ function stores(): ReadStores | undefined {
     const GuildChannelStore = findStore("GuildChannelStore");
     const ReadStateStore = findStore("ReadStateStore");
     if (!GuildStore || !GuildChannelStore || !ReadStateStore) return;
-    return cachedStores = {
+    const found: ReadStores = {
         GuildStore,
         GuildChannelStore,
         ReadStateStore,
@@ -61,6 +61,9 @@ function stores(): ReadStores | undefined {
         ChannelStore: findStore("ChannelStore"),
         GuildReadStateStore: findStore("GuildReadStateStore"),
     };
+    // Kept only once the optional ones are there too, or a store missing at start up stays missing
+    if (found.ActiveJoinedThreadsStore && found.ChannelStore && found.GuildReadStateStore) cachedStores = found;
+    return found;
 }
 
 /** Marks everything read and returns what to tell the user */
@@ -217,9 +220,11 @@ export default definePlugin({
         },
     }],
 
-    /** Called by the patched server list */
+    /**
+     * Called by the patched server list. Always rendered: the server list can draw before the
+     * plugin starts, and the button shows itself once there's a count (it's 0 while stopped).
+     */
     renderButton() {
-        if (!context) return null;
         return <ReadAllButton key="evi-read-all" />;
     },
 
@@ -255,9 +260,20 @@ export default definePlugin({
             notify();
         });
 
-        // ReadStateStore changes on every new message and ack; GuildStore on joining or leaving
-        const watched = ["ReadStateStore", "GuildStore"].map(name => findStore(name)).filter(Boolean);
-        for (const store of watched) store.addChangeListener?.(scheduleRecount);
+        // ReadStateStore changes on every new message and ack; GuildStore on joining or leaving.
+        // When Discord starts, Evi can start the plugin before these stores are loaded: then it
+        // listens from when they load, or the button would stay hidden until the plugin restarts.
+        const watched: any[] = [];
+        for (const name of ["ReadStateStore", "GuildStore"]) {
+            const listen = (store: any) => {
+                store.addChangeListener?.(scheduleRecount);
+                watched.push(store);
+                scheduleRecount();
+            };
+            const store = findStore(name);
+            if (store) listen(store);
+            else ctx.waitFor(filters.byStoreName(name), listen);
+        }
         ctx.onDispose(() => watched.forEach(store => store.removeChangeListener?.(scheduleRecount)));
         showButton = ctx.settings.get("showButton");
         ctx.settings.onChange(values => {

@@ -9,7 +9,7 @@ use serde::Serialize;
 
 use crate::asar::{create_shim_asar, read_asar_file, ORIGINAL_ASAR};
 use crate::discord::{self, DiscordInstall, InjectionState};
-use crate::{autorepair, paths};
+use crate::{autorepair, macos, paths};
 use crate::release::{self, CorePayload};
 
 /// Mirrors src/shared/store.ts
@@ -34,6 +34,8 @@ pub struct InstallInfo {
     pub path: Option<String>,
     /// macOS and Linux: a watcher puts Evi back after Discord updates (autorepair.rs)
     pub auto_repair: bool,
+    /// macOS: why Evi Setup can't change this Discord, "app-management" or "no-access" (macos.rs)
+    pub access: Option<&'static str>,
 }
 
 pub fn status() -> Vec<InstallInfo> {
@@ -43,7 +45,7 @@ pub fn status() -> Vec<InstallInfo> {
         .iter()
         .map(|&(flavor, _, label)| {
             let Some(install) = found.iter().find(|i| i.flavor == flavor) else {
-                return InstallInfo { flavor, label, state: "missing".into(), discord_version: None, evi_version: None, dev_build: false, running: false, path: None, auto_repair: false };
+                return InstallInfo { flavor, label, state: "missing".into(), discord_version: None, evi_version: None, dev_build: false, running: false, path: None, auto_repair: false, access: None };
             };
             let latest = &install.versions[0];
             let state = discord::injection_state(&latest.resources);
@@ -59,6 +61,7 @@ pub fn status() -> Vec<InstallInfo> {
                 running: discord::is_discord_running(install),
                 path: Some(install.root.to_string_lossy().into_owned()),
                 auto_repair: autorepair::enabled(flavor),
+                access: macos::access_problem(&latest.resources),
             }
         })
         .collect()

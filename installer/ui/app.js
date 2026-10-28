@@ -91,11 +91,59 @@ function chosen() {
     return state.scan ? state.scan.installs.filter(i => state.selected.has(i.flavor) && selectable(i)) : [];
 }
 
+/** macOS: picked Discords Evi Setup isn't allowed to change, which would fail halfway through */
+const blocked = () => chosen().filter(i => i.access);
+
 function updateButtons() {
     const picked = chosen();
-    $("install").disabled = state.busy || !picked.length;
-    $("uninstall").disabled = state.busy || !picked.some(i => i.state === "evi");
+    const stopped = blocked().length > 0;
+    $("install").disabled = state.busy || stopped || !picked.length;
+    $("uninstall").disabled = state.busy || stopped || !picked.some(i => i.state === "evi");
     $("close").disabled = state.busy;
+    showAccess();
+}
+
+/** The window's size in tauri.conf.json; notices make it taller, never shorter */
+const WINDOW = { width: 420, height: 520 };
+let windowHeight = WINDOW.height;
+
+/** Grows the window to fit the notices, and back once they're gone */
+function fitWindow() {
+    const view = $("choose");
+    if (view.hidden) return;
+    // Measured without the space the actions' auto margin would take up
+    view.style.flex = "none";
+    const needed = Math.ceil(view.getBoundingClientRect().bottom + parseFloat(getComputedStyle(document.querySelector("main")).paddingBottom));
+    view.style.flex = "";
+    const height = Math.max(WINDOW.height, needed);
+    if (height === windowHeight) return;
+    windowHeight = height;
+    appWindow.setSize(new tauri.dpi.LogicalSize(WINDOW.width, height)).catch(() => { });
+}
+
+function reveal(el, on) {
+    if (el.hidden === !on) return;
+    el.hidden = !on;
+    el.classList.remove("entering");
+    if (on) {
+        void el.offsetWidth;
+        el.classList.add("entering");
+    }
+    fitWindow();
+}
+
+/** In place of the hint: what macOS needs before Evi Setup can change the picked Discords */
+function showAccess() {
+    const stuck = blocked();
+    const management = stuck.some(i => i.access === "app-management");
+    reveal($("access"), stuck.length > 0);
+    $("hint").hidden = stuck.length > 0;
+    if (!stuck.length) return;
+    $("access-text").textContent = management
+        ? t("appManagement")
+        : t("noAccess", { list: joinList(stuck.map(i => i.label)) });
+    $("access-actions").hidden = !management;
+    fitWindow();
 }
 
 function show(view) {
@@ -177,6 +225,25 @@ async function run(action) {
     scan(false).catch(() => { });
 }
 
+/** macOS: Evi Setup run from Downloads offers to move itself where launchers find it */
+async function offerMove() {
+    try {
+        if (await invoke("move_offer")) reveal($("move"), true);
+    } catch { }
+}
+
+async function moveToApplications() {
+    $("move-now").disabled = $("move-later").disabled = true;
+    try {
+        // Opens the moved copy and quits this one
+        await invoke("move_to_applications");
+    } catch (err) {
+        $("move-text").textContent = t("moveFailed", { error: err });
+        $("move-later").disabled = false;
+        fitWindow();
+    }
+}
+
 /** The Evi an install lays down: always the latest release */
 async function showLatest() {
     try {
@@ -188,6 +255,13 @@ async function showLatest() {
 $("install").addEventListener("click", () => run("install"));
 $("uninstall").addEventListener("click", () => run("uninstall"));
 $("back").addEventListener("click", () => show("choose"));
+$("move-now").addEventListener("click", moveToApplications);
+$("move-later").addEventListener("click", () => reveal($("move"), false));
+$("open-settings").addEventListener("click", () => invoke("open_app_management").catch(() => { }));
+// Back from System Settings: look again, so turning Evi Setup on there unblocks Install
+window.addEventListener("focus", () => {
+    if (!state.busy && state.scan?.installs.some(i => i.access)) scan(false).catch(() => { });
+});
 $("finish").addEventListener("click", () => appWindow.close());
 $("minimize").addEventListener("click", () => appWindow.minimize());
 $("close").addEventListener("click", () => {
@@ -209,3 +283,4 @@ scan(true).catch(err => {
     $("installs").textContent = t("scanFailed", { error: err });
 });
 showLatest();
+offerMove();

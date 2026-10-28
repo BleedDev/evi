@@ -29,11 +29,24 @@
         </header>
 
         <section class="view" id="choose">
+            <div class="notice" id="move" hidden>
+                <p class="notice-text" id="move-text" data-i18n="moveText">Move Evi Setup to Applications?</p>
+                <div class="notice-actions">
+                    <button class="button secondary small" id="move-later" type="button" data-i18n="notNow">Not now</button>
+                    <button class="button primary small" id="move-now" type="button" data-i18n="move">Move</button>
+                </div>
+            </div>
             <h2 class="section-label" id="installs-label" data-i18n="yourDiscord">Your Discord</h2>
             <div class="installs" id="installs" role="group" aria-labelledby="installs-label">
                 <div class="installs-loading" data-i18n="looking">Looking for Discord…</div>
             </div>
             <p class="hint" id="hint" data-i18n="hint">Discord closes and opens again while Evi installs.</p>
+            <div class="notice warn" id="access" role="status" hidden>
+                <p class="notice-text" id="access-text"></p>
+                <div class="notice-actions" id="access-actions">
+                    <button class="button secondary small" id="open-settings" type="button" data-i18n="openSettings">Open System Settings</button>
+                </div>
+            </div>
             <div class="actions">
                 <button class="button secondary" id="uninstall" type="button" data-i18n="uninstall" disabled>Uninstall Evi</button>
                 <button class="button primary" id="install" type="button" data-i18n="install" disabled>Install Evi</button>

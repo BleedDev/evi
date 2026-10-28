@@ -38,7 +38,8 @@ export const PATCHES = {
      *     let{text:t,language:n,className:s}=e,c=a()(r.kw,"hljs",s);return(0,l.jsx)("pre",{children:(0,l.jsx)(i.E,{code:t,lang:n,className:c})})
      */
     text: {
-        find: /let\{text:\i,language:\i,className:\i\}=\i,\i=\i\(\)\(\i\.\i,"hljs",\i\)/,
+        // No \i in a find: Evi before 3.0.0 doesn't expand it there
+        find: /let\{text:[\w$]+,language:[\w$]+,className:[\w$]+\}=[\w$]+,[\w$]+=[\w$]+\(\)\([\w$]+\.[\w$]+,"hljs",[\w$]+\)/,
         replace: {
             match: /(let\{text:(\i),language:\i,className:(\i)\}=\i,[^]{0,300}?"pre",\{)(children:\(0,\i\.jsx\)\(\i\.\i,\{(?:location:"PlaintextFilePreview",)?code:\2,)/,
             with: "$1...$self?.preProps?.($2,$3),$4",

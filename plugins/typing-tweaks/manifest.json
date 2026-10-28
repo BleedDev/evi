@@ -2,7 +2,7 @@
     "id": "typing-tweaks",
     "name": "Typing Tweaks",
     "description": "See who's typing at a glance: their avatars and role colours in the \"is typing\" line, and three dots on channels and DMs in your lists while someone types there.",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "authors": [
         "Evi"
     ],
@@ -12,6 +12,12 @@
     ],
     "permissions": {},
     "changelog": [
+        {
+            "version": "1.1.2",
+            "notes": [
+                "Works again after Discord's update: DMs in the list show the typing dots again."
+            ]
+        },
         {
             "version": "1.1.1",
             "notes": [
@@ -38,6 +44,9 @@
             "name": "Tipp-Anpassungen",
             "description": "Sieh auf einen Blick, wer schreibt: ihre Avatare und Rollenfarben in der Zeile „schreibt gerade“ und drei Punkte bei Kanälen und DMs in deinen Listen, solange dort jemand schreibt.",
             "changelog": {
+                "1.1.2": [
+                    "Funktioniert nach Discords Update wieder: Direktnachrichten in der Liste zeigen wieder die Tipp-Punkte."
+                ],
                 "1.1.1": [
                     "Funktioniert nach Discords Update wieder: Direktnachrichten in der Liste zeigen wieder die Tipp-Punkte."
                 ],
@@ -53,6 +62,9 @@
             "name": "Ajustes de escritura",
             "description": "Mira de un vistazo quién está escribiendo: sus avatares y colores de rol en la línea «está escribiendo», y tres puntos en los canales y MD de tus listas mientras alguien escribe en ellos.",
             "changelog": {
+                "1.1.2": [
+                    "Vuelve a funcionar tras la actualización de Discord: los mensajes directos de la lista vuelven a mostrar los puntos de escritura."
+                ],
                 "1.1.1": [
                     "Vuelve a funcionar tras la actualización de Discord: los mensajes directos de la lista vuelven a mostrar los puntos de escritura."
                 ],
@@ -68,6 +80,9 @@
             "name": "Améliorations d'écriture",
             "description": "Vois d'un coup d'œil qui est en train d'écrire : leurs avatars et les couleurs de leurs rôles dans la ligne « est en train d'écrire », et trois points sur les salons et MP de tes listes pendant que quelqu'un y écrit.",
             "changelog": {
+                "1.1.2": [
+                    "Fonctionne à nouveau après la mise à jour de Discord : les messages privés de la liste affichent de nouveau les points de saisie."
+                ],
                 "1.1.1": [
                     "Fonctionne à nouveau après la mise à jour de Discord : les messages privés de la liste affichent de nouveau les points de saisie."
                 ],
@@ -83,6 +98,9 @@
             "name": "入力表示の改善",
             "description": "誰が入力中かがひと目でわかります。「入力中」の表示にアバターとロールの色を加え、誰かが入力している間はリストのチャンネルやDMに3つのドットを表示します。",
             "changelog": {
+                "1.1.2": [
+                    "Discordのアップデート後も再び動作します。DMリストに入力中の点が再び表示されます。"
+                ],
                 "1.1.1": [
                     "Discordのアップデート後も再び動作します。DMリストに入力中の点が再び表示されます。"
                 ],
@@ -98,6 +116,9 @@
             "name": "Ulepszenia pisania",
             "description": "Zobacz od razu, kto pisze: awatary i kolory ról w linii „pisze” oraz trzy kropki przy kanałach i DM-ach na twoich listach, gdy ktoś w nich pisze.",
             "changelog": {
+                "1.1.2": [
+                    "Znów działa po aktualizacji Discorda: wiadomości prywatne na liście znów pokazują kropki pisania."
+                ],
                 "1.1.1": [
                     "Znów działa po aktualizacji Discorda: wiadomości prywatne na liście znów pokazują kropki pisania."
                 ],
@@ -113,6 +134,9 @@
             "name": "Ajustes de digitação",
             "description": "Veja de relance quem está digitando: os avatares e as cores dos cargos na linha “está digitando” e três pontinhos nos canais e DMs das suas listas enquanto alguém digita neles.",
             "changelog": {
+                "1.1.2": [
+                    "Volta a funcionar após a atualização do Discord: as mensagens diretas da lista voltam a mostrar os pontinhos de digitação."
+                ],
                 "1.1.1": [
                     "Volta a funcionar após a atualização do Discord: as mensagens diretas da lista voltam a mostrar os pontinhos de digitação."
                 ],
@@ -128,6 +152,9 @@
             "name": "Кто печатает",
             "description": "Сразу видно, кто печатает: аватары и цвета ролей в строке «печатает» и три точки у каналов и ЛС в списках, пока в них кто-то печатает.",
             "changelog": {
+                "1.1.2": [
+                    "Снова работает после обновления Discord: в списке личных сообщений снова видны точки набора текста."
+                ],
                 "1.1.1": [
                     "Снова работает после обновления Discord: в списке личных сообщений снова видны точки набора текста."
                 ],
@@ -143,6 +170,9 @@
             "name": "Yazma İyileştirmeleri",
             "description": "Kimin yazdığını tek bakışta gör: “yazıyor” satırında avatarları ve rol renkleri, listelerindeki kanallarda ve DM'lerde ise birisi yazarken üç nokta.",
             "changelog": {
+                "1.1.2": [
+                    "Discord güncellemesinden sonra yeniden çalışıyor: listedeki özel mesajlar yazıyor noktalarını yeniden gösteriyor."
+                ],
                 "1.1.1": [
                     "Discord güncellemesinden sonra yeniden çalışıyor: listedeki özel mesajlar yazıyor noktalarını yeniden gösteriyor."
                 ],

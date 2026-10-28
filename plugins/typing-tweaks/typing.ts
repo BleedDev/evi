@@ -81,14 +81,15 @@ export const PATCHES = {
     },
     /**
      * A DM or group DM in the DM list: first on its right side, before the close button (checked
-     * 2026-10-21). It now starts with an ongoing call's icon, when there is one:
-     *     (0,i.jsxs)("div",{className:s()(eM._q,{[eM.EY]:eQ}),children:[null!=eq&&(0,i.jsx)(em,{callMessageId:eq,className:eM.R4}),eK?(0,i.jsx)(eF,{}):eY?(0,i.jsx)(ek,{}):eH?(0,i.jsx)(ex,{}):null,...
+     * 2026-10-28). It starts with an ongoing call's icon, when there is one, whose className is
+     * now an object of its own:
+     *     (0,i.jsxs)("div",{className:s()(eP._q,{[eP.EY]:eJ}),children:[null!=eZ&&(0,i.jsx)(eg,{callMessageId:eZ,className:s()(eP.R4,{[eP.jd]:eJ,...})}),e$?(0,i.jsx)(eB,{}):eK?(0,i.jsx)(eF,{}):ej?(0,i.jsx)(ek,{}):null,...
      * It's inside a render-prop arrow function, so arguments[0] is still the row's props.
      */
     dm: {
         find: "PrivateChannel.renderAvatar",
         replace: {
-            match: /(?<=\(0,\i\.jsxs\)\("div",\{className:\i\(\)\(\i\.\i,\{\[\i\.\i\]:\i\}\),children:\[)(?=(?:null!=\i&&\(0,\i\.jsx\)\(\i,\{[^{}]*\}\),)?\i\?\(0,\i\.jsx\)\(\i,\{\}\):\i\?\(0,\i\.jsx\)\(\i,\{\}\):\i\?\(0,\i\.jsx\)\(\i,\{\}\):null,)/,
+            match: /(?<=\(0,\i\.jsxs\)\("div",\{className:\i\(\)\(\i\.\i,\{\[\i\.\i\]:\i\}\),children:\[)(?=(?:null!=\i&&\(0,\i\.jsx\)\(\i,\{callMessageId:[^;]{0,300}?\}\),)?\i\?\(0,\i\.jsx\)\(\i,\{\}\):\i\?\(0,\i\.jsx\)\(\i,\{\}\):\i\?\(0,\i\.jsx\)\(\i,\{\}\):null,)/,
             with: "$self?.renderIndicator?.(arguments[0]?.channel,\"dm\"),",
         },
     },

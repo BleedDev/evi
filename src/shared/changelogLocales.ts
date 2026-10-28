@@ -11,6 +11,19 @@ export type ReleaseNotes = Partial<Record<SectionKind, string[]>>;
 /** Language -> version -> section -> lines */
 export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
     de: {
+        "3.0.1": {
+            added: [
+                "**Evi in Discords Einstellungssuche.** Die Suche in Discords Einstellungen findet jetzt Evis Seiten, deine Plugins und jede Plugin-Einstellung und bringt dich direkt dorthin.",
+                "**Plugins, die nicht funktionieren, sagen es.** Ein Plugin, das nicht starten konnte, durch ein Discord-Update kaputtgegangen ist oder als defekt gemeldet wurde, bekommt einen roten oder gelben Rand und einen Hinweis unter seinem Namen, was los ist, und der Plugins-Tab zeigt, wie viele nicht funktionieren.",
+            ],
+            improved: [
+                "**Evi Setup auf dem Mac fragt zuerst nach der Erlaubnis.** Hat macOS Evi Setup noch nicht erlaubt, Discord zu ändern, sagt es dir das vor der Installation, mit einem Knopf zur richtigen Einstellung, statt mittendrin zu scheitern.",
+                "**Evi Setup auf dem Mac bietet an, sich in „Programme“ zu verschieben,** damit Spotlight, Launchpad und Raycast es finden.",
+            ],
+            fixed: [
+                "**Evi bleibt auf dem Mac nach Discord-Updates in Discord.** Größere Mac-Updates von Discord ersetzen die ganze App, und Evi war weg, bis du Evi Setup erneut ausgeführt hast. Evi zieht jetzt in das neue Discord um, sobald es da ist.",
+            ],
+        },
         "3.0.0": {
             added: [
                 "**Weniger Arbeitsspeicher.** Ein neuer Schalter im Leistungs-Tab: Discord hält weniger freien Speicher für seinen Code bereit, und unter Windows kann es Speicher an deine anderen Apps zurückgeben, solange sein Fenster ausgeblendet ist und du nicht in einem Anruf bist. Aus, bis du ihn einschaltest.",
@@ -384,6 +397,19 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     es: {
+        "3.0.1": {
+            added: [
+                "**Encuentra Evi en la búsqueda de ajustes de Discord.** Buscar en los ajustes de Discord ahora encuentra las páginas de Evi, tus plugins y cada ajuste de plugin, y te lleva directamente al que elijas.",
+                "**Los plugins que no funcionan lo dicen.** Un plugin que no pudo iniciarse, dejó de funcionar con una actualización de Discord o fue reportado como roto tiene un borde rojo o ámbar y una nota bajo su nombre que dice qué pasa, y la pestaña Plugins te dice cuántos no funcionan.",
+            ],
+            improved: [
+                "**Evi Setup en Mac pide permiso primero.** Si macOS aún no ha dejado que Evi Setup modifique Discord, te lo dice antes de instalar, con un botón al ajuste correcto, en vez de fallar a medias.",
+                "**Evi Setup en Mac se ofrece a moverse a Aplicaciones,** para que Spotlight, Launchpad y Raycast puedan encontrarlo.",
+            ],
+            fixed: [
+                "**Evi se queda en Discord en Mac después de sus actualizaciones.** Las actualizaciones grandes de Discord en Mac reemplazan toda la app, y Evi desaparecía hasta que volvías a ejecutar Evi Setup. Ahora Evi se pasa al nuevo Discord en cuanto está instalado.",
+            ],
+        },
         "3.0.0": {
             added: [
                 "**Menos memoria.** Un interruptor nuevo en la pestaña Rendimiento: Discord reserva menos memoria libre para su código y, en Windows, mientras su ventana está oculta y no estás en una llamada, puede devolver memoria a tus otras apps. Desactivado hasta que lo actives.",
@@ -757,6 +783,19 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     fr: {
+        "3.0.1": {
+            added: [
+                "**Retrouve Evi dans la recherche des paramètres de Discord.** La recherche dans les paramètres de Discord trouve maintenant les pages d'Evi, tes plugins et chaque paramètre de plugin, et t'y emmène directement.",
+                "**Les plugins qui ne fonctionnent pas le disent.** Un plugin qui n'a pas pu démarrer, qui a cassé avec une mise à jour de Discord ou qui a été signalé comme cassé a un bord rouge ou orange et une note sous son nom qui explique le problème, et l'onglet Plugins indique combien ne fonctionnent pas.",
+            ],
+            improved: [
+                "**Evi Setup sur Mac demande d'abord l'autorisation.** Si macOS n'a pas encore laissé Evi Setup modifier Discord, il te le dit avant l'installation, avec un bouton vers le bon réglage, au lieu d'échouer en cours de route.",
+                "**Evi Setup sur Mac propose de se déplacer dans Applications,** pour que Spotlight, Launchpad et Raycast le trouvent.",
+            ],
+            fixed: [
+                "**Evi reste dans Discord sur Mac après ses mises à jour.** Les grosses mises à jour de Discord sur Mac remplacent toute l'app, et Evi disparaissait jusqu'à ce que tu relances Evi Setup. Evi passe maintenant dans le nouveau Discord dès qu'il est en place.",
+            ],
+        },
         "3.0.0": {
             added: [
                 "**Moins de mémoire.** Un nouvel interrupteur dans l'onglet Performances : Discord garde moins de mémoire de réserve pour son code et, sous Windows, tant que sa fenêtre est cachée et que tu n'es pas en appel, il peut rendre de la mémoire à tes autres applis. Désactivé tant que tu ne l'actives pas.",
@@ -1130,6 +1169,19 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ja: {
+        "3.0.1": {
+            added: [
+                "**Discord の設定検索で Evi が見つかります。** Discord の設定を検索すると、Evi のページ、プラグイン、各プラグインの設定が見つかり、選んだ場所にそのまま移動できます。",
+                "**動いていないプラグインがひと目でわかります。** 起動できなかったプラグイン、Discord のアップデートで壊れたプラグイン、壊れていると報告されたプラグインには赤または黄色の縁と、名前の下に何が起きているかの説明が付きます。プラグインタブには動いていないプラグインの数も表示されます。",
+            ],
+            improved: [
+                "**Mac の Evi Setup は先に許可を確認します。** macOS がまだ Evi Setup に Discord の変更を許可していない場合、途中で失敗するのではなく、インストール前に設定へのボタンと一緒にお知らせします。",
+                "**Mac の Evi Setup は「アプリケーション」への移動を提案します。** Spotlight、Launchpad、Raycast から見つけられるようになります。",
+            ],
+            fixed: [
+                "**Mac で Discord がアップデートしても Evi が残ります。** Mac 版 Discord の大きなアップデートはアプリ全体を置き換えるため、Evi Setup をもう一度実行するまで Evi が消えていました。新しい Discord が配置されるとすぐに Evi が移るようになりました。",
+            ],
+        },
         "3.0.0": {
             added: [
                 "**メモリを節約。** パフォーマンスタブに新しいスイッチが加わりました。Discord がコード用に確保しておく予備のメモリを減らし、Windows では Discord のウィンドウが隠れていて通話中でないとき、ほかのアプリにメモリを返せます。オンにするまではオフです。",
@@ -1503,6 +1555,19 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     pl: {
+        "3.0.1": {
+            added: [
+                "**Evi w wyszukiwarce ustawień Discorda.** Wyszukiwanie w ustawieniach Discorda znajduje teraz strony Evi, twoje pluginy i każde ustawienie pluginu, i od razu tam przenosi.",
+                "**Pluginy, które nie działają, mówią o tym.** Plugin, który nie mógł się uruchomić, zepsuł się po aktualizacji Discorda albo został zgłoszony jako zepsuty, dostaje czerwoną lub żółtą krawędź i notkę pod nazwą z opisem problemu, a karta Pluginy pokazuje, ile z nich nie działa.",
+            ],
+            improved: [
+                "**Evi Setup na Macu najpierw prosi o zgodę.** Jeśli macOS jeszcze nie pozwolił Evi Setup zmieniać Discorda, mówi ci o tym przed instalacją, z przyciskiem do właściwego ustawienia, zamiast przerywać w połowie.",
+                "**Evi Setup na Macu proponuje przeniesienie się do Aplikacji,** żeby Spotlight, Launchpad i Raycast mogły go znaleźć.",
+            ],
+            fixed: [
+                "**Evi zostaje w Discordzie na Macu po jego aktualizacjach.** Większe aktualizacje Discorda na Macu podmieniają całą aplikację i Evi znikało, dopóki nie uruchomiłeś ponownie Evi Setup. Teraz Evi przenosi się do nowego Discorda, gdy tylko jest na miejscu.",
+            ],
+        },
         "3.0.0": {
             added: [
                 "**Mniej pamięci.** Nowy przełącznik w karcie Wydajność: Discord trzyma mniej zapasowej pamięci na swój kod, a w Windows, gdy jego okno jest ukryte i nie jesteś w rozmowie, może oddawać pamięć twoim innym aplikacjom. Wyłączony, dopóki go nie włączysz.",
@@ -1876,6 +1941,19 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     "pt-BR": {
+        "3.0.1": {
+            added: [
+                "**Encontre o Evi na busca das configurações do Discord.** Buscar nas configurações do Discord agora encontra as páginas do Evi, seus plugins e cada configuração de plugin, e leva você direto para a que escolher.",
+                "**Plugins que não estão funcionando avisam.** Um plugin que não conseguiu iniciar, quebrou com uma atualização do Discord ou foi reportado como quebrado ganha uma borda vermelha ou amarela e um aviso abaixo do nome dizendo o que houve, e a aba Plugins mostra quantos não estão funcionando.",
+            ],
+            improved: [
+                "**O Evi Setup no Mac pede permissão primeiro.** Se o macOS ainda não deixou o Evi Setup alterar o Discord, ele avisa antes de instalar, com um botão para o ajuste certo, em vez de falhar no meio.",
+                "**O Evi Setup no Mac se oferece para ir para Aplicativos,** para que o Spotlight, o Launchpad e o Raycast o encontrem.",
+            ],
+            fixed: [
+                "**O Evi continua no Discord no Mac depois das atualizações.** As atualizações maiores do Discord no Mac substituem o app inteiro, e o Evi sumia até você rodar o Evi Setup de novo. Agora o Evi passa para o novo Discord assim que ele está no lugar.",
+            ],
+        },
         "3.0.0": {
             added: [
                 "**Menos memória.** Um novo botão na aba Desempenho: o Discord guarda menos memória de reserva para o código dele e, no Windows, enquanto a janela do Discord está oculta e você não está em uma chamada, ele pode devolver memória para seus outros apps. Desativado até você ativar.",
@@ -2249,6 +2327,19 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ru: {
+        "3.0.1": {
+            added: [
+                "**Evi в поиске по настройкам Discord.** Поиск в настройках Discord теперь находит страницы Evi, ваши плагины и каждую настройку плагинов и сразу открывает нужное место.",
+                "**Неработающие плагины сообщают об этом.** Плагин, который не запустился, сломался после обновления Discord или помечен как сломанный, получает красную или жёлтую рамку и пояснение под названием, а вкладка «Плагины» показывает, сколько из них не работает.",
+            ],
+            improved: [
+                "**Evi Setup на Mac сначала просит разрешение.** Если macOS ещё не разрешила Evi Setup изменять Discord, он скажет об этом до установки и покажет кнопку к нужной настройке, а не сломается на полпути.",
+                "**Evi Setup на Mac предлагает переместить себя в «Программы»,** чтобы его находили Spotlight, Launchpad и Raycast.",
+            ],
+            fixed: [
+                "**Evi остаётся в Discord на Mac после обновлений.** Крупные обновления Discord на Mac заменяют всё приложение, и Evi пропадал, пока вы снова не запускали Evi Setup. Теперь Evi переходит в новый Discord, как только тот установлен.",
+            ],
+        },
         "3.0.0": {
             added: [
                 "**Меньше памяти.** Новый переключатель на вкладке «Производительность»: Discord держит меньше запасной памяти для своего кода, а в Windows, пока окно Discord скрыто и ты не в звонке, может отдавать память другим твоим приложениям. Выключен, пока ты его не включишь.",
@@ -2622,6 +2713,19 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     tr: {
+        "3.0.1": {
+            added: [
+                "**Evi, Discord'un ayar aramasında.** Discord'un ayarlarında arama artık Evi'nin sayfalarını, eklentilerini ve her eklenti ayarını bulur ve seni doğrudan seçtiğin yere götürür.",
+                "**Çalışmayan eklentiler bunu söylüyor.** Başlayamayan, bir Discord güncellemesiyle bozulan ya da bozuk diye bildirilen bir eklenti kırmızı veya sarı bir kenar ve adının altında neyin yanlış olduğunu anlatan bir not alır; Eklentiler sekmesi de kaç tanesinin çalışmadığını gösterir.",
+            ],
+            improved: [
+                "**Mac'te Evi Setup önce izin istiyor.** macOS, Evi Setup'ın Discord'u değiştirmesine henüz izin vermediyse yarıda kalmak yerine kurulumdan önce söyler ve doğru ayara giden bir düğme gösterir.",
+                "**Mac'te Evi Setup kendini Uygulamalar klasörüne taşımayı öneriyor,** böylece Spotlight, Launchpad ve Raycast onu bulabilir.",
+            ],
+            fixed: [
+                "**Evi, Mac'te Discord güncellemelerinden sonra Discord'da kalıyor.** Discord'un Mac'teki büyük güncellemeleri uygulamanın tamamını değiştiriyordu ve Evi Setup'ı tekrar çalıştırana kadar Evi yok oluyordu. Evi artık yeni Discord yerine oturur oturmaz ona geçiyor.",
+            ],
+        },
         "3.0.0": {
             added: [
                 "**Daha az bellek.** Performans sekmesinde yeni bir anahtar: Discord kodu için daha az yedek bellek tutar ve Windows'ta, Discord'un penceresi gizliyken ve bir aramada değilken diğer uygulamalarına bellek geri verebilir. Sen açana kadar kapalı.",

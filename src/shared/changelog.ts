@@ -12,6 +12,23 @@ export type { Release, SectionKind } from "./changelogNotes";
  */
 export const RELEASES: Release[] = [
     {
+        version: "3.0.1",
+        date: "2026-10-28",
+        sections: {
+            added: [
+                "**Find Evi in Discord's settings search.** Searching Discord's settings now finds Evi's pages, your plugins and every plugin setting, and takes you straight to the one you pick.",
+                "**Plugins that aren't working say so.** A plugin that couldn't start, broke with a Discord update or was reported broken gets a red or amber edge and a note under its name saying what's wrong, and the Plugins tab tells you how many aren't working.",
+            ],
+            improved: [
+                "**Evi Setup on Mac asks for permission first.** If macOS hasn't let Evi Setup change Discord yet, it tells you before installing, with a button to the right setting, instead of failing halfway.",
+                "**Evi Setup on Mac offers to move itself to Applications,** so Spotlight, Launchpad and Raycast can find it.",
+            ],
+            fixed: [
+                "**Evi stays in Discord on Mac after Discord updates.** Discord's bigger Mac updates replace the whole app, and Evi was gone until you ran Evi Setup again. Evi now moves into the new Discord as soon as it's in place.",
+            ],
+        },
+    },
+    {
         version: "3.0.0",
         date: "2026-10-21",
         sections: {

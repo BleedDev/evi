@@ -1,4 +1,4 @@
-import { definePlugin, Filter, find, getStore, Logger, React, showToast } from "@evi/api";
+import { definePlugin, Filter, find, findStore, Logger, React, showToast } from "@evi/api";
 
 import { artistLine, artUrl, choose, EVI_APP_ID, formatTime, fromApi, fromEvent, fromEviApp, fromEviPresence, livePosition, Playback, trackUrl, withPlaying } from "./player";
 import { t } from "./strings";
@@ -52,8 +52,8 @@ function set(next: Playback | null) {
     update(next.source === "spotify" ? "spotify" : next.controls ? "eviApp" : "eviPresence", next);
 }
 
-/** The connected account Spotify is playing on, from Discord's SpotifyStore */
-const activeSocket = (): Socket | undefined => getStore("SpotifyStore")?.getActiveSocketAndDevice?.()?.socket;
+/** The connected account Spotify is playing on, from Discord's SpotifyStore (findStore: getStore throws while it isn't loaded yet, which failed start()) */
+const activeSocket = (): Socket | undefined => findStore("SpotifyStore")?.getActiveSocketAndDevice?.()?.socket;
 
 class SpotifyError extends Error {
     constructor(readonly kind: "premium" | "device" | "failed") { super(kind); }
@@ -185,7 +185,7 @@ async function eviFetchCover(key: string) {
 
 /** Evi's "Listening to" presence, for an app that doesn't serve the control connection */
 function readEviPresence() {
-    const activity = getStore("LocalActivityStore")?.getApplicationActivity?.(EVI_APP_ID);
+    const activity = findStore("LocalActivityStore")?.getApplicationActivity?.(EVI_APP_ID);
     update("eviPresence", fromEviPresence(activity, Date.now()));
     // The app is running: it may have the control connection too
     if (activity && !evi.stream) eviConnect();

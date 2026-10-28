@@ -2,7 +2,7 @@
     "id": "music-player",
     "name": "Music Player",
     "description": "A small music player on top of your profile at the bottom left: the song, its cover, play and pause, previous and next, and where you are in it. It works with Spotify on your connected account (controlling it needs Spotify Premium) and with Evi, the music player at evi.wtf.",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "authors": [
         "Evi"
     ],
@@ -16,6 +16,12 @@
         ]
     },
     "changelog": [
+        {
+            "version": "1.0.2",
+            "notes": [
+                "Starts every time again: it no longer fails when Discord's Spotify or activity data hasn't loaded yet."
+            ]
+        },
         {
             "version": "1.0.1",
             "notes": [
@@ -35,6 +41,9 @@
             "name": "Musikplayer",
             "description": "Ein kleiner Musikplayer über deinem Profil unten links: Song, Cover, Abspielen und Pause, Zurück und Weiter und wo du im Song bist. Er funktioniert mit Spotify auf deinem verbundenen Konto (zum Steuern brauchst du Spotify Premium) und mit Evi, dem Musikplayer auf evi.wtf.",
             "changelog": {
+                "1.0.2": [
+                    "Startet wieder jedes Mal: Es schlägt nicht mehr fehl, wenn Discords Spotify- oder Aktivitätsdaten noch nicht geladen sind."
+                ],
                 "1.0.1": [
                     "Schonender während Musik läuft: Der Player zeichnet sich einmal pro Sekunde neu, genau wenn sich die Zeit ändert, statt zweimal pro Sekunde."
                 ],
@@ -47,6 +56,9 @@
             "name": "Reproductor de música",
             "description": "Un pequeño reproductor de música encima de tu perfil, abajo a la izquierda: la canción, su portada, reproducir y pausar, anterior y siguiente, y en qué parte vas. Funciona con Spotify en tu cuenta conectada (controlarlo requiere Spotify Premium) y con Evi, el reproductor de música de evi.wtf.",
             "changelog": {
+                "1.0.2": [
+                    "Vuelve a iniciarse siempre: ya no falla cuando los datos de Spotify o de actividad de Discord aún no se han cargado."
+                ],
                 "1.0.1": [
                     "Más ligero mientras suena música: el reproductor se vuelve a dibujar una vez por segundo, justo cuando cambia el tiempo, en lugar de dos veces por segundo."
                 ],
@@ -59,6 +71,9 @@
             "name": "Lecteur de musique",
             "description": "Un petit lecteur de musique au-dessus de votre profil, en bas à gauche : le morceau, sa pochette, lecture et pause, précédent et suivant, et où vous en êtes. Il fonctionne avec Spotify sur votre compte connecté (le contrôler demande Spotify Premium) et avec Evi, le lecteur de musique d'evi.wtf.",
             "changelog": {
+                "1.0.2": [
+                    "Démarre à nouveau à chaque fois : il n'échoue plus quand les données Spotify ou d'activité de Discord ne sont pas encore chargées."
+                ],
                 "1.0.1": [
                     "Plus léger pendant la lecture : le lecteur se redessine une fois par seconde, au moment où le temps change, au lieu de deux fois par seconde."
                 ],
@@ -71,6 +86,9 @@
             "name": "ミュージックプレーヤー",
             "description": "左下のプロフィールの上に小さな音楽プレーヤーを表示します。曲名、ジャケット、再生と一時停止、前へと次へ、再生位置がわかります。連携したアカウントのSpotify(操作にはSpotify Premiumが必要)と、evi.wtfの音楽プレーヤーEviに対応しています。",
             "changelog": {
+                "1.0.2": [
+                    "毎回正しく起動するようになりました。DiscordのSpotifyやアクティビティのデータがまだ読み込まれていなくても失敗しません。"
+                ],
                 "1.0.1": [
                     "再生中の負荷を軽減：プレーヤーの再描画を1秒に2回から、時間表示が変わる瞬間の1秒に1回に減らしました。"
                 ],
@@ -83,6 +101,9 @@
             "name": "Odtwarzacz muzyki",
             "description": "Mały odtwarzacz muzyki nad twoim profilem w lewym dolnym rogu: utwór, okładka, odtwarzanie i pauza, poprzedni i następny oraz miejsce w utworze. Działa ze Spotify na połączonym koncie (sterowanie wymaga Spotify Premium) i z Evi, odtwarzaczem muzyki na evi.wtf.",
             "changelog": {
+                "1.0.2": [
+                    "Znów uruchamia się za każdym razem: nie zawodzi już, gdy dane Spotify lub aktywności Discorda nie są jeszcze wczytane."
+                ],
                 "1.0.1": [
                     "Lżejszy podczas odtwarzania: odtwarzacz odświeża się raz na sekundę, dokładnie gdy zmienia się czas, zamiast dwa razy na sekundę."
                 ],
@@ -95,6 +116,9 @@
             "name": "Player de música",
             "description": "Um pequeno player de música acima do seu perfil, no canto inferior esquerdo: a música, a capa, tocar e pausar, anterior e próxima, e em que ponto você está. Funciona com o Spotify na sua conta conectada (controlar exige Spotify Premium) e com o Evi, o player de música do evi.wtf.",
             "changelog": {
+                "1.0.2": [
+                    "Volta a iniciar sempre: não falha mais quando os dados do Spotify ou de atividade do Discord ainda não carregaram."
+                ],
                 "1.0.1": [
                     "Mais leve enquanto a música toca: o player se redesenha uma vez por segundo, bem quando o tempo muda, em vez de duas vezes por segundo."
                 ],
@@ -107,6 +131,9 @@
             "name": "Музыкальный плеер",
             "description": "Небольшой музыкальный плеер над вашим профилем в левом нижнем углу: трек, обложка, воспроизведение и пауза, предыдущий и следующий, и позиция в треке. Работает со Spotify на подключённом аккаунте (для управления нужен Spotify Premium) и с Evi, музыкальным плеером на evi.wtf.",
             "changelog": {
+                "1.0.2": [
+                    "Снова запускается каждый раз: больше не падает, если данные Spotify или активности Discord ещё не загрузились."
+                ],
                 "1.0.1": [
                     "Меньше нагрузки во время воспроизведения: плеер перерисовывается раз в секунду, ровно когда меняется время, а не два раза в секунду."
                 ],
@@ -119,6 +146,9 @@
             "name": "Müzik Oynatıcı",
             "description": "Sol altta profilinin üstünde küçük bir müzik oynatıcı: şarkı, kapağı, oynat ve duraklat, önceki ve sonraki, ve şarkıda nerede olduğun. Bağlı hesabındaki Spotify (kontrol için Spotify Premium gerekir) ve evi.wtf'deki müzik oynatıcı Evi ile çalışır.",
             "changelog": {
+                "1.0.2": [
+                    "Yeniden her seferinde başlıyor: Discord'un Spotify veya etkinlik verileri henüz yüklenmemişken artık başarısız olmuyor."
+                ],
                 "1.0.1": [
                     "Müzik çalarken daha hafif: oynatıcı saniyede iki kez yerine, süre değiştiği anda saniyede bir kez yeniden çiziliyor."
                 ],

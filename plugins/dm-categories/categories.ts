@@ -291,6 +291,12 @@ export const LIST_PATCH: SourcePatch = {
             with: "getSectionHeight=$1=>$self?.sectionHeight?.($1)??$2",
         },
         {
+            // In the list's own code: render reads rowHeight before it calls sections, so a height
+            // swapped in from there missed the first render, the one when Discord starts
+            match: /getRowHeight=\((\i),(\i)\)=>\{/,
+            with: "$&{let eviHeight=$self?.rowHeight?.($1,$2);if(eviHeight!==void 0)return eviHeight}",
+        },
+        {
             match: /scrollToChannel\((\i)\)\{/,
             with: "$&if($self?.scrollToChannel?.(this,$1))return;",
         },

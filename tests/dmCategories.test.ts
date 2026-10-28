@@ -17,7 +17,7 @@ const LIST_SOURCE = "class q{"
     + 'renderRow=e=>{let{section:t,row:n}=e,{privateChannelIds:r}=this.props;return 0===t?this.renderChild(n):0===n&&0===r.length?(0,i.jsx)(X,{},"no-private-channels"):this.renderDM(t,n)};'
     + 'renderSection=e=>{let{section:t}=e;return 0===t?null:(0,i.jsxs)(S.A,{className:z._e,children:"Direct Messages"},t)};'
     + "renderChild=e=>({child:e});"
-    + "getRowHeight=(e,t)=>0===e?40:44;"
+    + 'getRowHeight=(e,t)=>{let{privateChannelIds:n,density:i}=this.props,{nonNullChildren:a}=this.state,s=44;if(0===e){let e=a[t];r.isValidElement(e)&&(s=e.key?.startsWith("section-divider")?25:"dm-quick-launcher"===e.key?67:40)}else s="compact"===i?40:"default"===i?44:50;return 1===e&&0===t&&0===n.length?428:s};'
     + "render(){let{privateChannelIds:e,padding:t}=this.props,{preRenderedChildren:n}=this.state;return{sections:[n,Math.max(e.length,1)]}}"
     + "}";
 
@@ -198,14 +198,14 @@ describe("dm categories: DM list patch", () => {
     });
 
     const jsx = (type: unknown, props: any, key?: string) => ({ type, props, key });
-    const deps = { i: { jsx, jsxs: jsx }, K: { Ay: "DMRow" }, X: "Empty", S: { A: "Header" }, z: {} };
+    const deps = { i: { jsx, jsxs: jsx }, K: { Ay: "DMRow" }, X: "Empty", S: { A: "Header" }, z: {}, r: { isValidElement: (e: unknown) => !!e } };
 
     function mount(P: unknown, ids: string[]) {
-        const Cls = new Function("i", "K", "X", "S", "z", "P", `return ${patch(LIST_SOURCE)}`)(deps.i, deps.K, deps.X, deps.S, deps.z, P);
+        const Cls = new Function("i", "K", "X", "S", "z", "r", "P", `return ${patch(LIST_SOURCE)}`)(deps.i, deps.K, deps.X, deps.S, deps.z, deps.r, P);
         const list = new Cls();
         const scrolled: unknown[] = [];
-        list.props = { privateChannelIds: ids, channels: Object.fromEntries(ids.map(id => [id, { id }])), padding: 8, selectedChannelId: null };
-        list.state = { preRenderedChildren: 2, totalRowCount: ids.length + 2 };
+        list.props = { privateChannelIds: ids, channels: Object.fromEntries(ids.map(id => [id, { id }])), padding: 8, selectedChannelId: null, density: "default" };
+        list.state = { preRenderedChildren: 2, totalRowCount: ids.length + 2, nonNullChildren: [{ key: "friends" }, { key: "nitro" }] };
         list._list = { scrollTo: (x: unknown) => scrolled.push(["top", x]), scrollIntoViewRect: (x: unknown) => scrolled.push(x) };
         return { list, scrolled };
     }
@@ -223,6 +223,7 @@ describe("dm categories: DM list patch", () => {
             },
             rowIndex: (s: number, r: number) => rowIndex(current, s, r),
             renderSection: (s: number) => sectionCategory(current, s) ? { header: sectionCategory(current, s)!.category.name } : undefined,
+            rowHeight: (s: number, r: number) => isPlaceholder(current, s, r) ? 0 : undefined,
             sectionHeight: (s: number) => sectionCategory(current, s) ? 32 : undefined,
             scrollToChannel(list: any, id: string) {
                 const where = rowOffset(current, ids, id, sizes, list.props.padding, s => list.getSectionHeight(s), (s, r) => list.getRowHeight(s, r));
@@ -250,6 +251,16 @@ describe("dm categories: DM list patch", () => {
         list.scrollToChannel("11");
         // padding 8 + 2 rows of 40 + header 32 + row 44 + DM header 24 + row 44
         expect(scrolled.pop()).toEqual({ start: 8 + 80 + 32 + 44 + 24 + 44 - 8, end: 8 + 80 + 32 + 44 + 24 + 44 + 44 + 8 });
+    });
+
+    test("an empty category's placeholder row has no height from the first render on", () => {
+        // Discord's start up: no render has run yet, and render reads rowHeight before sections
+        const state = setCollapsed(withCategories("Work"), "c0", true);
+        const { list } = mount(plugin(state), ["10", "11"]);
+        list.render();
+        expect(list.getRowHeight(1, 0)).toBe(0);
+        expect(list.getRowHeight(2, 0)).toBe(44);
+        expect(list.getRowHeight(0, 1)).toBe(40);
     });
 
     test("with the plugin off the list is exactly Discord's", () => {

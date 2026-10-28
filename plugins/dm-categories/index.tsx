@@ -61,15 +61,6 @@ interface DmList {
     getSectionHeight(section: number): number;
     getRowHeight(section: number, row: number): number;
     forceUpdate(): void;
-    eviDmcRowHeight?: true;
-}
-
-/** Gives a category's placeholder row (see sectionSizes) no height; every other row keeps Discord's */
-function wrapRowHeight(instance: DmList | undefined) {
-    if (!instance || instance.eviDmcRowHeight || typeof instance.getRowHeight !== "function") return;
-    const own = instance.getRowHeight;
-    instance.getRowHeight = (section, row) => ctx && isPlaceholder(current, section, row) ? 0 : own.call(instance, section, row);
-    instance.eviDmcRowHeight = true;
 }
 
 /** The mounted DM list and what it last rendered */
@@ -85,7 +76,6 @@ const listeners = new Set<() => void>();
 /** Re-renders the DM list, and the category headers with it */
 function refresh() {
     list ??= findMountedList();
-    wrapRowHeight(list);
     for (const listener of listeners) listener();
     try {
         list?.forceUpdate();
@@ -422,7 +412,6 @@ export default definePlugin({
     /** Patched in: the list's section sizes, or undefined for Discord's own */
     sections(instance: DmList, ids: string[], pinnedRows: number) {
         list = instance;
-        wrapRowHeight(instance);
         try {
             if (!ctx || !Array.isArray(ids)) return void (current = PLAIN);
             current = laidOut(ids, instance.props.selectedChannelId);
@@ -446,6 +435,11 @@ export default definePlugin({
         const entry = ctx && sectionCategory(current, section);
         if (!entry) return;
         return <CategoryHeader key={`evi-dmc-${entry.category.id}`} entry={entry} />;
+    },
+
+    /** Patched in: no height for a category's placeholder row (see sectionSizes), undefined for Discord's rows */
+    rowHeight(section: number, row: number) {
+        return ctx && isPlaceholder(current, section, row) ? 0 : undefined;
     },
 
     sectionHeight(section: number) {

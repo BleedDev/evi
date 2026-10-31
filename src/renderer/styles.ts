@@ -2,7 +2,7 @@ import { Native } from "./native";
 import { SafeMode } from "./safeMode";
 import { Settings } from "./settings";
 
-function whenDomReady(cb: () => void) {
+export function whenDomReady(cb: () => void) {
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", cb, { once: true });
     else cb();
 }

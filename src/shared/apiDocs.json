@@ -450,7 +450,7 @@
         "name": "findExport",
         "kind": "function",
         "signature": "findExport<T = any>(filter: Filter): FoundExport<T> | undefined",
-        "doc": "First loaded export matching the filter, with where it lives"
+        "doc": ""
     },
     {
         "name": "findLazy",

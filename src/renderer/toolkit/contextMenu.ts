@@ -12,7 +12,7 @@
 import type { ComponentType, ReactElement, ReactNode } from "react";
 
 import { Logger } from "../logger";
-import { registerPatches, SourcePatch } from "../patching/source";
+import { CORE_PATCH_SLOTS, registerPatches, SourcePatch } from "../patching/source";
 import { React } from "../webpack/common";
 import { filters, findExport, functionSource, requireModule } from "../webpack/find";
 import { getOriginalFactory, wreq } from "../webpack/runtime";
@@ -51,7 +51,7 @@ let menuArgsRegistered = false;
 export function ensureMenuArgsPatch() {
     if (menuArgsRegistered) return;
     menuArgsRegistered = true;
-    registerPatches("evi", [menuArgsPatch]);
+    registerPatches("evi", [menuArgsPatch], CORE_PATCH_SLOTS.contextMenu);
 }
 
 /**

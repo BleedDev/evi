@@ -18,7 +18,7 @@ import { Logger } from "../logger";
 import { Dispatcher, React } from "../webpack/common";
 import { getOriginalFactory, Module, wreq } from "../webpack/runtime";
 import { rebaseHooks } from "./hooks";
-import { applySourcePatches, getPatchRecords, matchesFind, SourcePatch } from "./source";
+import { applySourcePatches, getPatchRecords, matchesFind, refixCorePatches, SourcePatch } from "./source";
 
 export interface LiveOutcome {
     id: string;
@@ -175,6 +175,18 @@ export function replaceLive(ids: Iterable<string>, removed: SourcePatch[] = []):
         refreshReactTree();
     }
     return outcomes;
+}
+
+/**
+ * Evi's hotfix for itself changed (coreHotfix.ts): its patches whose fix changed are registered again,
+ * and the loaded modules the old or new ones touch re-run with them. Anything not ok gets the fix
+ * when Discord next starts.
+ */
+export function applyCorePatchFixes(): LiveOutcome[] {
+    const { replaced, patches } = refixCorePatches();
+    if (!wreq || !replaced.length) return [];
+    const affected = new Set([...replaced.flatMap(r => r.modules).filter(m => wreq!.c[m]), ...loadedModulesMatching(patches)]);
+    return affected.size ? replaceLive(affected, replaced.map(r => r.patch)) : [];
 }
 
 /**

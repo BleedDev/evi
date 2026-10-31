@@ -10,7 +10,7 @@
  */
 import { Logger } from "./logger";
 import type { SourcePatch } from "./patching/source";
-import { getPatchRecords, registerPatches } from "./patching/source";
+import { CORE_PATCH_SLOTS, getPatchRecords, registerPatches } from "./patching/source";
 import { SafeMode } from "./safeMode";
 import { Settings } from "./settings";
 import { filters, waitFor } from "./webpack/find";
@@ -64,7 +64,7 @@ export const GameMode = {
     held: inCall,
     /** Whether Discord's store took the patch, so the switch can do anything */
     get available() {
-        return getPatchRecords("evi").some(r => r.patch === gameModePatch && r.state === "applied");
+        return getPatchRecords("evi").some(r => r.index === CORE_PATCH_SLOTS.gameMode && r.state === "applied");
     },
     set(on: boolean) {
         Settings.update(d => void (d.gameMode = on));
@@ -73,7 +73,7 @@ export const GameMode = {
 
 /** From boot, before Discord's modules run */
 export function installGameMode() {
-    registerPatches("evi", [gameModePatch]);
+    registerPatches("evi", [gameModePatch], CORE_PATCH_SLOTS.gameMode);
 }
 
 /** Tells GameModeStore when Evi's answers change: Game Mode applies itself when its store changes */

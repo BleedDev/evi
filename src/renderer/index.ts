@@ -3,9 +3,11 @@
  */
 import * as api from "@evi/api";
 import { type BootData, isPluginEnabled } from "@shared/ipc";
+import { hotfixTag } from "@shared/hotfixes";
 import { pullFor } from "@shared/pulls";
 
 import { Backup } from "./backup";
+import { CoreHotfix } from "./coreHotfix";
 import { CrashDetective } from "./crashDetective";
 import { Developer } from "./developer";
 import { GameMode, installGameMode, startGameMode } from "./gameMode";
@@ -17,6 +19,7 @@ import { Logger } from "./logger";
 import { Native } from "./native";
 import { diagnosePatches } from "./patching/diagnose";
 import { startFindCache } from "./patching/findIndex";
+import { applyCorePatchFixes } from "./patching/live";
 import { Perf } from "./perf";
 import { diagnoseLookups } from "./plugins/lookups";
 import { PluginManager, PublicPlugins } from "./plugins/manager";
@@ -39,6 +42,7 @@ import { startAccountSync } from "./accountSync";
 import { startBadges } from "./ui/badges";
 import { startPluginShare } from "./ui/pluginShare";
 import { startUpdateChecks } from "./ui/UpdatesTab";
+import { installHotfixCss } from "./ui/stylesheet";
 import { Inbox } from "./inbox";
 import { startPluginChangelogs } from "./ui/PluginChangelog";
 import { showCrashDetective } from "./ui/CrashDetective";
@@ -125,6 +129,20 @@ function boot() {
     I18n.subscribe(() => Native.setLocale?.(I18n.locale));
     // Before anything that applies plugins or CSS, they all check it
     SafeMode.init(data.safeMode);
+    // Evi's hotfix for itself, before Evi registers its own patches and looks for anything
+    CoreHotfix.init(data.hotfixes, !SafeMode.active);
+    const logCoreHotfix = () => {
+        const fix = CoreHotfix.get();
+        logger.info(fix ? `Evi runs with its hotfix ${hotfixTag(fix)}: ${fix.note}` : "Evi's hotfix for itself was withdrawn");
+    };
+    if (CoreHotfix.get()) logCoreHotfix();
+    Native.onHotfixesChange?.(next => void (CoreHotfix.set(next) && logCoreHotfix()));
+    // Evi's own patches take a changed fix at once, in the modules that can run twice
+    CoreHotfix.subscribe(() => {
+        const later = applyCorePatchFixes().filter(o => !o.ok);
+        if (later.length) logger.warn("Evi's hotfix applies to some of Discord's code after a restart", later);
+    });
+    installHotfixCss();
     // Lets anything that hides content from rendering (Fast Lists) stand down for a screen reader
     // Evi starts before the page has its <html>: the mark goes on once there is one
     let assistive = !!data.assistive;

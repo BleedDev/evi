@@ -5,8 +5,13 @@
  * A hotfix is for one plugin and a range of its versions, and swaps out the pieces Discord broke:
  * a source patch's find and/or replacements (by its place in `patches`, guarded by the find it has
  * now so a version that moved its patches around isn't touched), and lookups the plugin waits for
- * through its context (by the target the Patches tab shows, e.g. `component "CHAT_INPUT"`). At most
- * one is active per plugin version; changing it publishes a new revision.
+ * through its context (by the target the Patches tab shows, e.g. `component "CHAT_INPUT"`), and can
+ * add CSS after the plugin's own. At most one is active per plugin version; changing it publishes a new revision.
+ *
+ * Evi itself takes hotfixes the same way, as the plugin id CORE_HOTFIX_ID with Evi's versions as the
+ * range: its own patches by their slot (renderer/patching/source.ts CORE_PATCH_SLOTS), its own lookups
+ * by target, and CSS after Evi's stylesheet (renderer/coreHotfix.ts). Evis before 3.2.0 have no plugin
+ * with that id and ignore it.
  *
  * Hotfixes put code into Discord's modules, like the plugin code the store serves, so the same
  * people can publish them: Evi's admins, on evi.rest (server/src/hotfixes.ts). Installs fetch the
@@ -60,7 +65,15 @@ export interface HotfixInput {
     note: string;
     patches: HotfixPatch[];
     lookups: HotfixLookup[];
+    /**
+     * Added after the plugin's CSS, or Evi's stylesheet for CORE_HOTFIX_ID. Evis before 3.2.0 drop a
+     * hotfix that only has CSS (their check wants a patch or a lookup), and ignore it on one that has both.
+     */
+    css?: string;
 }
+
+/** The plugin id a hotfix for Evi itself has. No plugin can have it: the store refuses it */
+export const CORE_HOTFIX_ID = "evi";
 
 /** A published hotfix, as GET /v1/hotfixes hands them out */
 export interface Hotfix extends HotfixInput {
@@ -81,6 +94,7 @@ export const HOTFIX_LIMITS = {
     pattern: 2000,
     with: 4000,
     target: 500,
+    css: 20_000,
     /** Active hotfixes a client takes */
     active: 500,
 } as const;
@@ -178,7 +192,7 @@ function validateLookup(raw: unknown, at: string): { lookup: HotfixLookup; } | {
 }
 
 export function validateHotfixInput(raw: unknown): { hotfix: HotfixInput; } | { error: string; } {
-    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return { error: "Send { plugin, from?, to?, note, patches?, lookups? }" };
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return { error: "Send { plugin, from?, to?, note, patches?, lookups?, css? }" };
     const e = raw as Record<string, unknown>;
     if (!isPluginId(e.plugin)) return { error: "plugin must be a plugin id" };
     for (const key of ["from", "to"] as const) {
@@ -193,12 +207,16 @@ export function validateHotfixInput(raw: unknown): { hotfix: HotfixInput; } | { 
     const lookupsIn = e.lookups ?? [];
     if (!Array.isArray(patchesIn) || patchesIn.length > HOTFIX_LIMITS.patches) return { error: `patches must be a list of at most ${HOTFIX_LIMITS.patches}` };
     if (!Array.isArray(lookupsIn) || lookupsIn.length > HOTFIX_LIMITS.lookups) return { error: `lookups must be a list of at most ${HOTFIX_LIMITS.lookups}` };
-    if (!patchesIn.length && !lookupsIn.length) return { error: "A hotfix must fix at least one patch or lookup" };
+    if (e.css !== undefined && (typeof e.css !== "string" || e.css.length > HOTFIX_LIMITS.css || !clean(e.css))) return { error: `css must be text, at most ${HOTFIX_LIMITS.css} characters` };
+    const css = typeof e.css === "string" && e.css.trim() ? e.css : undefined;
+    if (!patchesIn.length && !lookupsIn.length && !css) return { error: "A hotfix must fix at least one patch or lookup, or add CSS" };
 
     const patches: HotfixPatch[] = [];
     for (const [i, p] of patchesIn.entries()) {
         const checked = validatePatch(p, `patches[${i}]`);
         if ("error" in checked) return checked;
+        // Evi's patches are told apart by their slot and their find together
+        if (e.plugin === CORE_HOTFIX_ID && !checked.patch.was) return { error: `patches[${i}].was must be the find the patch has now: Evi's own patches need it` };
         if (patches.some(q => q.index === checked.patch.index)) return { error: `patches[${i}]: patch ${checked.patch.index} is already fixed above` };
         patches.push(checked.patch);
     }
@@ -209,7 +227,7 @@ export function validateHotfixInput(raw: unknown): { hotfix: HotfixInput; } | { 
         if (lookups.some(q => q.target === checked.lookup.target)) return { error: `lookups[${i}]: that target is already fixed above` };
         lookups.push(checked.lookup);
     }
-    return { hotfix: { plugin: e.plugin, ...(from && { from }), ...(to && { to }), note: e.note.trim(), patches, lookups } };
+    return { hotfix: { plugin: e.plugin, ...(from && { from }), ...(to && { to }), note: e.note.trim(), patches, lookups, ...(css && { css }) } };
 }
 
 /** GET /v1/hotfixes (or its copy on disk), cleaned. Anything malformed is left out. */

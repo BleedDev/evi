@@ -106,6 +106,8 @@ const boot: BootData = {
         version: "1.0.0",
         css: ":root { --dl-test-theme: on; }",
     } satisfies ThemePayload],
+    // Evi's hotfix for itself (renderer/coreHotfix.ts): its CSS paints a marker the test reads
+    hotfixes: [{ id: 900, revision: 1, at: 1, plugin: "evi", note: "Web test", patches: [], lookups: [], css: ":root { --dl-test-core-hotfix: one; }" }],
 };
 
 const renderer = readFileSync(join(DIST, "core", "renderer.js"), "utf8");
@@ -351,6 +353,12 @@ function fakeNative(bootData: BootData) {
         reportHealth: async (input: unknown) => {
             (window as any).__test.healthReports.push(input);
             return { ok: true };
+        },
+        // Main pushes Evi's hotfixes when evi.rest changes them; the plugin manager and Evi itself both listen
+        onHotfixesChange: (cb: (hotfixes: unknown) => void) => {
+            const listeners: ((hotfixes: unknown) => void)[] = (window as any).__test.hotfixListeners ??= [];
+            listeners.push(cb);
+            (window as any).__test.setHotfixes = (next: unknown) => listeners.forEach(listener => listener(next));
         },
         // Main pushes pulls when evi.rest's health answer changes them
         onPullsChange: (cb: (pulled: unknown) => void) => {
@@ -601,6 +609,19 @@ check("What's new opens with the release's cover, edge to edge across the top", 
 await page.screenshot({ path: join(OUT, "ui-whats-new.png") });
 const whatsNewExit = await closesWithExit(".dl-whats-new", () => page.locator(".dl-whats-new").getByRole("button", { name: "Close", exact: true }).click());
 check("What's new closes with Discord's modal exit (shrinks and fades), then leaves the page", whatsNewExit.closing && whatsNewExit.running.includes("evi-modal-out") && whatsNewExit.gone, whatsNewExit);
+
+// Evi's hotfix for itself: its CSS from boot, after Evi's stylesheet (What's new put that in), swapped live
+const coreFix = await page.evaluate(() => {
+    const marker = () => getComputedStyle(document.documentElement).getPropertyValue("--dl-test-core-hotfix").trim();
+    const atBoot = { marker: marker(), afterUi: document.getElementById("evi-ui")?.nextElementSibling?.id ?? null };
+    const revision = (css: string) => ({ id: 900, revision: 2, at: 2, plugin: "evi", note: "Web test", patches: [], lookups: [], css });
+    (window as any).__test.setHotfixes([revision(":root { --dl-test-core-hotfix: two; }")]);
+    const changed = marker();
+    (window as any).__test.setHotfixes([]);
+    return { atBoot, changed, withdrawn: marker(), left: !!document.getElementById("evi-hotfix") };
+});
+check("Evi's hotfix for itself adds its CSS at boot, right after Evi's stylesheet", coreFix.atBoot.marker === "one" && coreFix.atBoot.afterUi === "evi-hotfix", coreFix);
+check("a new revision swaps that CSS at once, and withdrawing it takes the CSS out", coreFix.changed === "two" && coreFix.withdrawn === "" && !coreFix.left, coreFix);
 
 // Plugins that updated since they were last seen follow, in one popup
 const versionOf = (id: string): string => JSON.parse(readFileSync(join(ROOT, "plugins", id, "manifest.json"), "utf8")).version;
@@ -3698,6 +3719,8 @@ await safePage.addInitScript(fakeNative, safeBoot);
 await safePage.addInitScript(renderer);
 await safePage.goto("https://discord.com/login", { waitUntil: "domcontentloaded" });
 await safePage.waitForFunction(() => (window as any).Evi?.safeMode.reportedOk && document.querySelector(".dl-safe-float"), null, { timeout: 60_000 });
+const safeHotfix = await safePage.evaluate(() => ({ style: !!document.getElementById("evi-hotfix"), marker: getComputedStyle(document.documentElement).getPropertyValue("--dl-test-core-hotfix").trim() }));
+check("safe mode leaves Evi's hotfix for itself out", !safeHotfix.style && safeHotfix.marker === "", safeHotfix);
 await safePage.waitForTimeout(300);
 await safePage.screenshot({ path: join(OUT, "safe-mode-notice.png") });
 

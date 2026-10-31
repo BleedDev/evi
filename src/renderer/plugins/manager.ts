@@ -1,6 +1,6 @@
 import * as api from "@evi/api";
 import { BootPlugin, EviSettings, isPluginEnabled, PluginChange, PluginManifest, PluginPayload } from "@shared/ipc";
-import { applyPatchFixes, Hotfix, hotfixFor, hotfixTag } from "@shared/hotfixes";
+import { applyPatchFixes, CORE_HOTFIX_ID, Hotfix, hotfixFor, hotfixTag } from "@shared/hotfixes";
 import { localizePlugin } from "@shared/pluginLocales";
 import { PulledPlugin, PulledPlugins, pullFor } from "@shared/pulls";
 
@@ -238,9 +238,12 @@ function pullOf({ manifest, source }: Pick<PluginState, "manifest" | "source">) 
     return source === "dev" ? undefined : pullFor(pulls, manifest.id, manifest.version);
 }
 
-/** Evi's fix for this plugin's version, if any. Dev builds are the developer's own, like with pulls. */
+/**
+ * Evi's fix for this plugin's version, if any. Dev builds are the developer's own, like with pulls.
+ * Evi's hotfix for itself (CORE_HOTFIX_ID) is never a plugin's, whatever a local plugin calls itself.
+ */
 function hotfixOf({ manifest, source }: Pick<PluginState, "manifest" | "source">) {
-    return source === "dev" ? undefined : hotfixFor(hotfixes, manifest.id, manifest.version);
+    return source === "dev" || manifest.id === CORE_HOTFIX_ID ? undefined : hotfixFor(hotfixes, manifest.id, manifest.version);
 }
 
 const tagOf = (hotfix: Hotfix | undefined) => hotfix ? hotfixTag(hotfix) : "";
@@ -279,6 +282,8 @@ async function start(state: PluginState) {
 
     try {
         if (definition.css) ctx.addStyle(definition.css);
+        // After the plugin's own, so it wins; a changed hotfix restarts the plugin
+        if (state.hotfix?.css) ctx.addStyle(state.hotfix.css);
         for (const [type, handler] of Object.entries(definition.flux ?? {})) ctx.flux.subscribe(type, handler.bind(definition));
         // Only until start() returns: an async start's awaits don't hold up Discord
         const startSite = Perf.site(state.manifest.id, "start", "start()");

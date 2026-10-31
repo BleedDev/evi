@@ -13,7 +13,7 @@ import { t, useLocale } from "../i18n";
 import { Logger } from "../logger";
 import { loadedModulesMatching, replaceLive } from "../patching/live";
 import type { SourcePatch } from "../patching/source";
-import { registerPatches } from "../patching/source";
+import { CORE_PATCH_SLOTS, registerPatches } from "../patching/source";
 import { createStyle } from "../styles";
 import { DiscordUI } from "../ui/discord";
 import { Dispatcher, React } from "../webpack/common";
@@ -82,7 +82,7 @@ let reloadReason: string | undefined;
 export function ensurePanelPatch(): string | undefined {
     if (patched) return reloadReason;
     patched = true;
-    registerPatches("evi", [panelPatch]);
+    registerPatches("evi", [panelPatch], CORE_PATCH_SLOTS.panel);
     if (!wreq) return;
     const failures = replaceLive(loadedModulesMatching([panelPatch])).filter(o => !o.ok);
     if (failures.length) {

@@ -2,13 +2,13 @@
  * Develop a source patch live against Discord's real code: see which modules the find hits, what the
  * match catches, the code before and after, and whether the patched module still compiles.
  */
-import { hotfixDraft } from "@shared/hotfixes";
+import { CORE_HOTFIX_ID, hotfixDraft } from "@shared/hotfixes";
 import type { ReactNode } from "react";
 
 import { t, tNodes, useLocale } from "../i18n";
 import { moduleSources } from "../patching/diagnose";
 import { evaluatePatch, Excerpt, parsePatchValue, PatchDraft, PatchHelperResult } from "../patching/helper";
-import { getPatchRecords } from "../patching/source";
+import { coreOriginalPatch, getPatchRecords, SourcePatch } from "../patching/source";
 import { PluginManager } from "../plugins/manager";
 import { React } from "../webpack/common";
 import { ApiText } from "./ApiText";
@@ -187,11 +187,28 @@ let fixing = "";
 const asField = (value: string | RegExp) => typeof value === "string" ? value : `/${value.source}/${value.flags}`;
 
 /** Every patch a plugin registered, as the plugin wrote it (not with a hotfix already in place) */
-function fixablePatches() {
+interface FixablePatch {
+    value: string;
+    label: string;
+    /** The plugin id, or CORE_HOTFIX_ID for Evi's own */
+    plugin: string;
+    /** The plugin's version, or Evi's: the range a hotfix drafted from it gets */
+    version?: string;
+    original: SourcePatch;
+    index: number;
+}
+
+/** Every registered patch a hotfix can fix, plugins' and Evi's own, as written */
+function fixablePatches(): FixablePatch[] {
     return getPatchRecords().flatMap(r => {
+        const value = `${r.plugin}:${r.index}`;
+        if (r.plugin === CORE_HOTFIX_ID) {
+            const original = coreOriginalPatch(r.index);
+            return original ? [{ value, label: t("patchHelper.target.patch", { plugin: "Evi", number: r.index + 1 }), plugin: r.plugin, version: EVI_VERSION, original, index: r.index }] : [];
+        }
         const state = PluginManager.get(r.plugin);
         const original = state?.definition?.patches?.[r.index];
-        return state && original ? [{ value: `${r.plugin}:${r.index}`, label: t("patchHelper.target.patch", { plugin: state.manifest.name, number: r.index + 1 }), state, original, index: r.index }] : [];
+        return state && original ? [{ value, label: t("patchHelper.target.patch", { plugin: state.manifest.name, number: r.index + 1 }), plugin: r.plugin, version: state.manifest.version, original, index: r.index }] : [];
     });
 }
 
@@ -201,8 +218,8 @@ function hotfixJson(draft: PatchDraft): string | undefined {
     if (!target || !draft.find || !draft.match) return;
     try {
         return JSON.stringify(hotfixDraft({
-            plugin: target.state.manifest.id,
-            version: target.state.manifest.version,
+            plugin: target.plugin,
+            version: target.version,
             index: target.index,
             was: target.original.find,
             find: parsePatchValue(draft.find),

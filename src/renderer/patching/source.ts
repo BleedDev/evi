@@ -6,6 +6,9 @@
  *   \i      in a RegExp (find or match) matches any identifier (minified names change every build)
  *   $self   in a replacement refers to the plugin's definition object at runtime
  */
+import { applyPatchFixes, CORE_HOTFIX_ID } from "@shared/hotfixes";
+
+import { CoreHotfix } from "../coreHotfix";
 import { Logger } from "../logger";
 import type { ModuleFactory } from "../webpack/runtime";
 import { FindCache, findKey } from "./findCache";
@@ -110,11 +113,62 @@ export function tryCompile(code: string, moduleId: string): CompileResult {
     }
 }
 
-export function registerPatches(plugin: string, patches: SourcePatch[]) {
-    patches.forEach((patch, index) => {
+/**
+ * Evi's own patches, all registered as "evi" from different places: each has a fixed slot, its index,
+ * so the Patches tab tells them apart and a hotfix for Evi (coreHotfix.ts) can name one. Never reuse a slot.
+ */
+export const CORE_PATCH_SLOTS = { gameMode: 0, contextMenu: 1, panel: 2, typingDots: 3 } as const;
+
+/** A patch as text, RegExps and functions included: equal for the same find and replacements */
+const signature = (patch: SourcePatch) => JSON.stringify(patch, (_, v) => v instanceof RegExp || typeof v === "function" ? String(v) : v);
+
+/** Evi's own patches as written, by slot: what a changed hotfix for Evi starts from again */
+const coreOriginals = new Map<number, SourcePatch>();
+
+/** Evi's own patch in this slot as written, before any fix: what the Patch Helper starts from */
+export const coreOriginalPatch = (slot: number) => coreOriginals.get(slot);
+
+/** Evi's patch in this slot with the fix Evi's hotfix for itself has for it, if any */
+function corePatch(slot: number, patch: SourcePatch): SourcePatch {
+    const placed: SourcePatch[] = Array(slot).fill({ find: "", replace: [] });
+    // applyPatchFixes goes by place in the list
+    return applyPatchFixes([...placed, patch], CoreHotfix.get())![slot];
+}
+
+/** `firstIndex`: the first patch's index, for Evi's own (CORE_PATCH_SLOTS) */
+export function registerPatches(plugin: string, patches: SourcePatch[], firstIndex = 0) {
+    patches.forEach((original, i) => {
+        const index = firstIndex + i;
+        // A fix for one of Evi's own patches goes in here; plugins get theirs from the plugin manager
+        let patch = original;
+        if (plugin === CORE_HOTFIX_ID) {
+            coreOriginals.set(index, original);
+            patch = corePatch(index, original);
+        }
         records.push({ plugin, index, patch, state: "pending", modules: [], errors: [] });
         findKeys.push(findKey(patch.find));
     });
+}
+
+/**
+ * Evi's hotfix for itself changed: each of Evi's patches whose fix changed is registered again, as a
+ * new record in its old place. Returns the records it replaced and the patches that replaced them,
+ * for live.ts to re-run the modules either touches.
+ */
+export function refixCorePatches(): { replaced: PatchRecord[]; patches: SourcePatch[]; } {
+    const replaced: PatchRecord[] = [];
+    const patches: SourcePatch[] = [];
+    records.forEach((record, i) => {
+        const original = record.plugin === CORE_HOTFIX_ID ? coreOriginals.get(record.index) : undefined;
+        if (!original) return;
+        const patch = corePatch(record.index, original);
+        if (signature(patch) === signature(record.patch)) return;
+        replaced.push(record);
+        patches.push(patch);
+        records[i] = { plugin: record.plugin, index: record.index, patch, state: "pending", modules: [], errors: [] };
+        findKeys[i] = findKey(patch.find);
+    });
+    return { replaced, patches };
 }
 
 export function unregisterPatches(plugin: string) {

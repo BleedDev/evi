@@ -1,3 +1,6 @@
+import { fromPattern, HotfixLookupKind, hotfixTag, lookupFixFor } from "@shared/hotfixes";
+
+import { CoreHotfix } from "../coreHotfix";
 import { getUnhooked } from "../patching/hooks";
 import { lazy } from "../utils/lazy";
 import { getOriginalFactory, moduleListeners, stats, WebpackRequire, wreq } from "./runtime";
@@ -183,7 +186,38 @@ function mayContain(wreq: WebpackRequire, id: string, filter: Filter) {
 }
 
 /** First loaded export matching the filter, with where it lives */
+/** The filter a hotfix's lookup fix asks for (shared/hotfixes.ts HotfixLookup) */
+export function hotfixFilter(kind: HotfixLookupKind, args: (string | RegExp)[]): Filter {
+    switch (kind) {
+        case "props": return filters.byProps(...args as string[]);
+        case "code": return filters.byCode(...args);
+        case "component": return filters.componentByCode(...args);
+        case "store": return filters.byStoreName(args[0] as string);
+    }
+}
+
+/** Each filter's fix from Evi's hotfix for itself, worked out once per revision of it */
+const coreFixes = new WeakMap<Filter, { tag: string; filter: Filter; }>();
+
+/**
+ * What a lookup should look for: the fix Evi's hotfix for itself has for its target (coreHotfix.ts),
+ * else the filter as it is. Every lookup goes through it, a plugin's too: a target Discord moved has
+ * moved for everyone who looks for it.
+ */
+function fixedFilter(filter: Filter): Filter {
+    const hotfix = CoreHotfix.get();
+    if (!hotfix?.lookups.length) return filter;
+    const tag = hotfixTag(hotfix);
+    const seen = coreFixes.get(filter);
+    if (seen?.tag === tag) return seen.filter;
+    const fix = lookupFixFor(hotfix, describeFilter(filter));
+    const fixed = fix ? hotfixFilter(fix.kind, fix.args.map(fromPattern)) : filter;
+    coreFixes.set(filter, { tag, filter: fixed });
+    return fixed;
+}
+
 export function findExport<T = any>(filter: Filter): FoundExport<T> | undefined {
+    filter = fixedFilter(filter);
     const wreq = requireWreq();
     const { c } = wreq;
     for (const id in c) {
@@ -194,6 +228,7 @@ export function findExport<T = any>(filter: Filter): FoundExport<T> | undefined 
 }
 
 export function findAllExports<T = any>(filter: Filter): FoundExport<T>[] {
+    filter = fixedFilter(filter);
     const wreq = requireWreq();
     const { c } = wreq;
     const results: FoundExport<T>[] = [];
@@ -282,7 +317,9 @@ export function listStores(): string[] {
 }
 
 interface Waiter {
+    /** What it waits for: `asked`, or Evi's fix for it */
     filter: Filter;
+    asked: Filter;
     callback: (value: any, found: FoundExport) => void;
     /** See filterKey */
     key: unknown;
@@ -348,15 +385,34 @@ export function waitFor<T = any>(filter: Filter, callback: (value: T, found: Fou
         return () => { };
     }
 
-    const waiter: Waiter = {
-        filter,
-        callback,
-        key: filterKey(filter),
-        codeKey: filter.$code && (argsKey(filter.$code) ?? null),
-    };
+    const waiter: Waiter = { asked: filter, callback, ...waiterKeys(fixedFilter(filter)) };
     waiters.add(waiter);
     return () => void waiters.delete(waiter);
 }
+
+const waiterKeys = (filter: Filter) => ({ filter, key: filterKey(filter), codeKey: filter.$code && (argsKey(filter.$code) ?? null) });
+
+// A fix for something still waited for applies at once: the waiter looks for the new target from
+// now on, and is answered right away when that's already loaded
+CoreHotfix.subscribe(() => {
+    const changed: Waiter[] = [];
+    for (const waiter of waiters) {
+        const next = fixedFilter(waiter.asked);
+        if (next === waiter.filter) continue;
+        Object.assign(waiter, waiterKeys(next));
+        changed.push(waiter);
+    }
+    if (!wreq) return;
+    for (const waiter of changed) {
+        const found = findExport(waiter.asked);
+        if (!found || !waiters.delete(waiter)) continue;
+        try {
+            waiter.callback(found.value, found);
+        } catch (err) {
+            console.error("[Evi] waitFor callback threw", err);
+        }
+    }
+});
 
 export function waitForExport<T = any>(filter: Filter): Promise<FoundExport<T>> {
     return new Promise(resolve => waitFor<T>(filter, (_, found) => resolve(found)));

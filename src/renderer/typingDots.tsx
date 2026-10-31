@@ -12,7 +12,7 @@
 import type { ComponentType } from "react";
 
 import type { SourcePatch } from "./patching/source";
-import { registerPatches } from "./patching/source";
+import { CORE_PATCH_SLOTS, registerPatches } from "./patching/source";
 import { createStyle } from "./styles";
 
 /** What react-spring's interpolations need: `dotPosition.to([0, 1], [from, to])` */
@@ -92,5 +92,5 @@ export function installTypingDots() {
     if (installed) return;
     installed = true;
     createStyle(STYLE, "evi-typing-dots");
-    registerPatches("evi", [typingDotsPatch]);
+    registerPatches("evi", [typingDotsPatch], CORE_PATCH_SLOTS.typingDots);
 }

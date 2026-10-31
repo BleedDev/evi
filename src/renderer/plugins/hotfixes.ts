@@ -3,9 +3,9 @@
  * running: its context swaps a lookup Evi fixed for the new target before waiting for it. The manager
  * decides which hotfix a plugin gets and when; this only remembers it.
  */
-import { fromPattern, Hotfix, HotfixLookupKind, lookupFixFor } from "@shared/hotfixes";
+import { fromPattern, Hotfix, lookupFixFor } from "@shared/hotfixes";
 
-import { describeFilter, Filter, filters } from "../webpack/find";
+import { describeFilter, Filter, hotfixFilter } from "../webpack/find";
 
 const applied = new Map<string, Hotfix>();
 
@@ -17,13 +17,6 @@ export const AppliedHotfixes = {
     get: (plugin: string) => applied.get(plugin),
 };
 
-const build: Record<HotfixLookupKind, (args: (string | RegExp)[]) => Filter> = {
-    props: args => filters.byProps(...args as string[]),
-    code: args => filters.byCode(...args),
-    component: args => filters.componentByCode(...args),
-    store: args => filters.byStoreName(args[0] as string),
-};
-
 /**
  * What a plugin's lookup should look for: Evi's fix for it when its hotfix has one (matched by the
  * target the Patches tab shows), else what the plugin asked for.
@@ -33,5 +26,5 @@ export function fixedLookup(plugin: string, filter: Filter, method?: string): { 
     if (!hotfix?.lookups.length) return { filter, method };
     const fix = lookupFixFor(hotfix, describeFilter(filter) + (method ? `, method ${method}` : ""));
     if (!fix) return { filter, method };
-    return { filter: build[fix.kind](fix.args.map(fromPattern)), method: fix.method ?? method };
+    return { filter: hotfixFilter(fix.kind, fix.args.map(fromPattern)), method: fix.method ?? method };
 }

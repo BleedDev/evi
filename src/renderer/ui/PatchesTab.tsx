@@ -1,5 +1,7 @@
+import { CORE_HOTFIX_ID } from "@shared/hotfixes";
 import type { EviKey } from "@shared/locales";
 
+import { CoreHotfix } from "../coreHotfix";
 import { t } from "../i18n";
 import { diagnosePatches, PatchDiagnosis, PatchHealth } from "../patching/diagnose";
 import { diagnoseLookups, LookupDiagnosis, LookupHealth } from "../plugins/lookups";
@@ -20,7 +22,8 @@ function PatchRow({ d }: { d: PatchDiagnosis; }) {
     const info = health[d.health];
     const titleId = `dl-patch-${d.plugin}-${d.index}`;
     // Registered with Evi's fix in place (shared/hotfixes.ts), so what's checked here is the fix
-    const fixed = !!PluginManager.get(d.plugin)?.hotfix?.patches.some(p => p.index === d.index);
+    const hotfix = d.plugin === CORE_HOTFIX_ID ? CoreHotfix.get() : PluginManager.get(d.plugin)?.hotfix;
+    const fixed = !!hotfix?.patches.some(p => p.index === d.index);
     return (
         <li className="dl-row" aria-labelledby={titleId}>
             <div className="dl-row-head">

@@ -1,8 +1,8 @@
 import { definePlugin, filters, find, findMenuGroup, getStore, Menu, React, useLocale } from "@evi/api";
 import type { Filter, PluginContext } from "@evi/api";
-import type { ComponentType, ReactElement, ReactNode } from "react";
+import type { ComponentType, ReactNode } from "react";
 
-import { canPopOut, channelOfKey, chatTitle, DM, mainWindowOnly, windowKey } from "./chat";
+import { CALL_CHAT_PATCH, canPopOut, channelOfKey, chatTitle, DM, mainWindowOnly, windowKey } from "./chat";
 import type { ChatChannel } from "./chat";
 import { t } from "./strings";
 
@@ -16,8 +16,10 @@ import { t } from "./strings";
  * Discord only copies <link> stylesheets into its windows, and Evi's themes, Quick CSS and plugin
  * CSS are <style> elements, so each window mirrors those from the main window while it's open.
  *
- * The header button comes from export hooks: HeaderBarContainer (the main chat header, which gets
- * the channel id) and CallChatSidebar (a call's chat, the X in its header). Checked October 2026.
+ * The header button comes from an export hook on HeaderBarContainer (the main chat header, which gets
+ * the channel id) and a source patch on a call's chat (CallChatSidebar, the X in its header). That
+ * one is code Discord fetches only when a call's chat first opens: as a lookup it counted as missing
+ * until then, while a patch waiting for its module is normal. Checked October 2026.
  */
 
 /** Discord's PopoutWindow, which asserts the window exists */
@@ -30,8 +32,6 @@ const inputTypesFilter = filters.byProps("SIDEBAR", "OVERLAY_INLINE_REPLY");
 const uploadAreaFilter = filters.componentByCode(/\{className:[\w$]+,style:[\w$]+,channel:[\w$]+,draftType:[\w$]+\}=/, "ATTACH_FILES");
 /** The page header: { channelId, guildId, toolbar, ... }, with Icon, ChannelIcon and Title as statics */
 const headerFilter = filters.componentByCode("isAuthenticated", "HEADER_BAR");
-/** A call's chat panel, { channel, guild, maxWidth } */
-const callChatFilter = filters.componentByCode("CallChatSidebar", "updateChatOpen");
 
 const WINDOW_SIZE = { defaultWidth: 440, defaultHeight: 720 };
 /** DraftType.ChannelMessage */
@@ -235,6 +235,14 @@ function addMenuItem(children: ReactNode[], channel: ChatChannel) {
 export default definePlugin({
     settings,
 
+    patches: [CALL_CHAT_PATCH],
+
+    /** Called by the patched call chat: its header's toolbar, with the button first */
+    callChatToolbar(channel: unknown, toolbar: ReactNode) {
+        if (!context?.settings.get("headerButton") || !canPopOut(channel as ChatChannel | undefined)) return toolbar;
+        return <><PopOutButton channel={channel as ChatChannel} />{toolbar}</>;
+    },
+
     css: `
         .evi-pop-out-chat { display: flex; flex: 1 1 auto; flex-direction: column; height: 100%; min-height: 0; min-width: 0; position: relative;
             background: var(--background-gradient-chat, var(--background-base-lowest)); }
@@ -261,19 +269,6 @@ export default definePlugin({
             const channel = getChannel(props.channelId);
             if (!canPopOut(channel)) return;
             call.args[0] = { ...props, toolbar: <>{props.toolbar}<PopOutButton channel={channel} /></> };
-        });
-
-        // A call's chat: before its close button. It renders [upload area, header, chat]
-        ctx.hookExport("after", callChatFilter, ({ args, result }) => {
-            const channel = args[0]?.channel;
-            const children = (result as ReactElement<any> | null)?.props?.children;
-            if (!ctx.settings.get("headerButton") || !canPopOut(channel) || !Array.isArray(children)) return;
-            const index = children.findIndex(child => child?.props?.toolbar !== undefined);
-            if (index < 0) return;
-            const bar = children[index];
-            const next = [...children];
-            next[index] = React.cloneElement(bar, { toolbar: <><PopOutButton channel={channel} />{bar.props.toolbar}</> });
-            return React.cloneElement(result, undefined, ...next);
         });
 
         ctx.contextMenu(["channel-context", "thread-context", "gdm-context"], (children, props) => {

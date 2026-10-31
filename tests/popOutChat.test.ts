@@ -1,6 +1,18 @@
 import { describe, expect, test } from "bun:test";
 
-import { canPopOut, channelOfKey, chatTitle, windowKey } from "../plugins/pop-out-chat/chat";
+import { CALL_CHAT_PATCH, canPopOut, channelOfKey, chatTitle, windowKey } from "../plugins/pop-out-chat/chat";
+import { canonicalizeMatch, matchesFind } from "../src/renderer/patching/source";
+
+describe("the call chat patch", () => {
+    // Verbatim from Discord's web build of 2026-10-31 (module 518530), up to the header's props
+    const source = 'let I=function(e){let{channel:n,guild:t,maxWidth:I}=e,N=(0,u.Ay)(n);l.useEffect(()=>{(0,m.Dr)(s.M.CALL_CHAT_BUTTON_TEXT_IN_VOICE_COACH_MARK,{dismissAction:E.i.AUTO})},[]);let T=l.useCallback(()=>{o.A.updateChatOpen(n.id,!1),C._.safeDispatch(p.jej.FOCUS_CHAT_BUTTON)},[n.id]),_=(0,i.jsx)(g.Ay.Icon,{icon:a.P,tooltip:j.intl.string(j.t.cpT0Cq),onClick:T});return(0,i.jsxs)(A.A,{sidebarType:A.X.CallChatSidebar,maxWidth:I,floatingLayer:f.Ay,children:[(0,i.jsx)(c.A,{channel:n,draftType:x.C.ChannelMessage}),(0,i.jsxs)(g.Ay,{toolbar:_,"aria-label"';
+
+    test("finds the call chat and hands the plugin its channel and toolbar", () => {
+        expect(matchesFind(source, CALL_CHAT_PATCH.find)).toBe(true);
+        const patched = source.replace(canonicalizeMatch(CALL_CHAT_PATCH.replace.match) as RegExp, CALL_CHAT_PATCH.replace.with.replaceAll("$self", "S"));
+        expect(patched).toEndWith('(0,i.jsxs)(g.Ay,{toolbar:S.callChatToolbar(n,_),"aria-label"');
+    });
+});
 
 const users: Record<string, { username: string; globalName?: string | null; }> = {
     "1": { username: "mell", globalName: "Mell" },

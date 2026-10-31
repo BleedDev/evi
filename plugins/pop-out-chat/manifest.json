@@ -2,7 +2,7 @@
     "id": "pop-out-chat",
     "name": "Pop Out Chat",
     "description": "Open any chat in its own window, like a popped-out call: a channel, a DM, a group, a thread or a call's chat. Use the button in the chat header or a call's chat, or right-click the chat. Each window remembers its size and place, and has your theme.",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "authors": [
         "Evi"
     ],
@@ -13,6 +13,12 @@
     "minEviVersion": "1.0.0",
     "permissions": {},
     "changelog": [
+        {
+            "version": "1.0.2",
+            "notes": [
+                "Evi no longer says Pop Out Chat isn't working before you've opened a call's chat: its button there now goes in when Discord loads that chat."
+            ]
+        },
         {
             "version": "1.0.1",
             "notes": [
@@ -32,6 +38,9 @@
             "name": "Chat auslagern",
             "description": "Öffne jeden Chat in einem eigenen Fenster, wie einen ausgelagerten Anruf: einen Kanal, eine DM, eine Gruppe, einen Thread oder den Chat eines Anrufs. Nutze den Button in der Chat-Kopfzeile oder im Chat eines Anrufs, oder klicke den Chat mit der rechten Maustaste an. Jedes Fenster merkt sich Größe und Position und hat dein Design.",
             "changelog": {
+                "1.0.2": [
+                    "Evi meldet Pop Out Chat nicht mehr als defekt, bevor du den Chat eines Anrufs geöffnet hast: Der Button dort kommt jetzt dazu, wenn Discord diesen Chat lädt."
+                ],
                 "1.0.1": [
                     "Der Hintergrund erscheint nur im Hauptfenster von Discord."
                 ],
@@ -44,6 +53,9 @@
             "name": "Chat en ventana",
             "description": "Abre cualquier chat en su propia ventana, como una llamada en ventana: un canal, un MD, un grupo, un hilo o el chat de una llamada. Usa el botón de la cabecera del chat o del chat de una llamada, o haz clic derecho en el chat. Cada ventana recuerda su tamaño y posición, y lleva tu tema.",
             "changelog": {
+                "1.0.2": [
+                    "Evi ya no dice que Pop Out Chat no funciona antes de que abras el chat de una llamada: su botón ahí aparece cuando Discord carga ese chat."
+                ],
                 "1.0.1": [
                     "El fondo de pantalla solo se muestra en la ventana principal de Discord."
                 ],
@@ -56,6 +68,9 @@
             "name": "Chat dans une fenêtre",
             "description": "Ouvre n'importe quel chat dans sa propre fenêtre, comme un appel détaché : un salon, un MP, un groupe, un fil ou le chat d'un appel. Utilise le bouton de l'en-tête du chat ou du chat d'un appel, ou fais un clic droit sur le chat. Chaque fenêtre retient sa taille et sa position, et garde ton thème.",
             "changelog": {
+                "1.0.2": [
+                    "Evi ne dit plus que Pop Out Chat ne fonctionne pas avant que tu aies ouvert le chat d'un appel : son bouton s'y ajoute maintenant quand Discord charge ce chat."
+                ],
                 "1.0.1": [
                     "Le fond d’écran ne s’affiche que dans la fenêtre principale de Discord."
                 ],
@@ -68,6 +83,9 @@
             "name": "チャットのポップアウト",
             "description": "ポップアウトした通話のように、どのチャットも専用のウィンドウで開けます。チャンネル、DM、グループ、スレッド、通話のチャットに対応しています。チャットのヘッダーや通話のチャットのボタンを使うか、チャットを右クリックしてください。各ウィンドウはサイズと位置を記憶し、テーマもそのまま適用されます。",
             "changelog": {
+                "1.0.2": [
+                    "通話のチャットを開く前に、Evi が Pop Out Chat を動作していないと表示しなくなりました。そこのボタンは Discord がそのチャットを読み込んだときに追加されます。"
+                ],
                 "1.0.1": [
                     "壁紙はDiscordのメインウィンドウにのみ表示されます。"
                 ],
@@ -80,6 +98,9 @@
             "name": "Czat w oknie",
             "description": "Otwórz dowolny czat w osobnym oknie, jak wyskakujące okno rozmowy: kanał, wiadomość prywatną, grupę, wątek lub czat rozmowy. Użyj przycisku w nagłówku czatu lub w czacie rozmowy albo kliknij czat prawym przyciskiem. Każde okno pamięta swój rozmiar i położenie oraz ma Twój motyw.",
             "changelog": {
+                "1.0.2": [
+                    "Evi nie mówi już, że Pop Out Chat nie działa, zanim otworzysz czat rozmowy: jego przycisk pojawia się tam, gdy Discord wczyta ten czat."
+                ],
                 "1.0.1": [
                     "Tapeta jest widoczna tylko w głównym oknie Discorda."
                 ],
@@ -92,6 +113,9 @@
             "name": "Chat em janela",
             "description": "Abra qualquer chat em uma janela própria, como uma chamada em janela: um canal, uma DM, um grupo, um tópico ou o chat de uma chamada. Use o botão no cabeçalho do chat ou no chat de uma chamada, ou clique com o botão direito no chat. Cada janela lembra o tamanho e a posição, e usa o seu tema.",
             "changelog": {
+                "1.0.2": [
+                    "O Evi não diz mais que o Pop Out Chat não está funcionando antes de você abrir o chat de uma chamada: o botão dele ali entra quando o Discord carrega esse chat."
+                ],
                 "1.0.1": [
                     "O papel de parede só aparece na janela principal do Discord."
                 ],
@@ -104,6 +128,9 @@
             "name": "Чат в окне",
             "description": "Открывайте любой чат в отдельном окне, как звонок во всплывающем окне: канал, личные сообщения, группу, ветку или чат звонка. Нажмите кнопку в шапке чата или в чате звонка либо щёлкните по чату правой кнопкой. Каждое окно запоминает свой размер и положение и использует вашу тему.",
             "changelog": {
+                "1.0.2": [
+                    "Evi больше не сообщает, что Pop Out Chat не работает, пока вы не открыли чат звонка: его кнопка там появляется, когда Discord загружает этот чат."
+                ],
                 "1.0.1": [
                     "Обои показываются только в главном окне Discord."
                 ],
@@ -116,6 +143,9 @@
             "name": "Sohbeti Pencerede Aç",
             "description": "Herhangi bir sohbeti, ayrı pencereye alınmış bir arama gibi kendi penceresinde aç: bir kanal, DM, grup, alt başlık ya da bir aramanın sohbeti. Sohbet başlığındaki ya da aramanın sohbetindeki düğmeyi kullan veya sohbete sağ tıkla. Her pencere boyutunu ve yerini hatırlar ve temanı kullanır.",
             "changelog": {
+                "1.0.2": [
+                    "Evi, bir aramanın sohbetini açmadan önce artık Pop Out Chat'in çalışmadığını söylemiyor: oradaki düğmesi, Discord o sohbeti yüklediğinde ekleniyor."
+                ],
                 "1.0.1": [
                     "Duvar kâğıdı yalnızca Discord'un ana penceresinde görünür."
                 ],

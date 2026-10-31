@@ -1,7 +1,9 @@
 /**
  * What a chat window is about, without Discord or the DOM: which channels have a chat to pop out,
- * the window key Discord's popout manager gets, the title it shows, and which styles it leaves out.
+ * the window key Discord's popout manager gets, the title it shows, which styles it leaves out, and
+ * the source patch on a call's chat.
  */
+import type { SourcePatch } from "@evi/api";
 
 /** Channel types whose page is Discord's chat: text, DMs, voice and stage text chat, announcements, threads */
 const CHAT_TYPES = new Set([
@@ -72,3 +74,17 @@ export function chatTitle(channel: ChatChannel, getUser: (id: string) => ChatUse
  * these after them, as in the main window, so a theme rule as specific as Discord's still wins.
  */
 export const mainWindowOnly = (id: string) => id === "evi-wallpaper-style";
+
+/**
+ * A call's chat panel, which Discord fetches only when one first opens:
+ *     let I=function(e){let{channel:n,guild:t,maxWidth:I}=e,...;return(0,i.jsxs)(A.A,{sidebarType:A.X.CallChatSidebar,...
+ *         children:[...,(0,i.jsxs)(g.Ay,{toolbar:_,"aria-label":...})
+ * Its header's toolbar is the close button; the plugin's button goes before it (callChatToolbar).
+ */
+export const CALL_CHAT_PATCH = {
+    find: "CALL_CHAT_BUTTON_TEXT_IN_VOICE_COACH_MARK,{dismissAction",
+    replace: {
+        match: /(let\{channel:(\i),guild:\i,maxWidth:\i\}=\i.{0,900}?CallChatSidebar.{0,400}?toolbar:)(\i)(?=,"aria-label")/,
+        with: "$1$self.callChatToolbar($2,$3)",
+    },
+} satisfies SourcePatch;

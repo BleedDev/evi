@@ -232,7 +232,9 @@ export default definePlugin({
     readAll,
 
     css: `
-        .dl-read-all { display: flex; justify-content: center; width: 100%; margin-bottom: 8px;
+        /* As wide as Discord's server items (listItem: width var(--custom-guild-list-width), centred), not the
+           scroller, which is wider (scrollbar, collapsed sidebar), so the button lines up with the servers */
+        .dl-read-all { display: flex; justify-content: center; width: var(--custom-guild-list-width, 100%); margin-bottom: 8px;
             animation: dl-read-all-in 0.2s ease-out; }
         .dl-read-all-button { display: flex; align-items: center; justify-content: center;
             width: var(--guildbar-avatar-size, 40px); height: var(--guildbar-avatar-size, 40px);

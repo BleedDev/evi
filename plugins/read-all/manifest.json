@@ -2,7 +2,7 @@
     "id": "read-all",
     "name": "Read All",
     "description": "Mark every server as read in one click, with a button above the server list, /readall, or the server right-click menu. DMs too if you want.",
-    "version": "1.1.2",
+    "version": "1.1.3",
     "authors": [
         "Evi"
     ],
@@ -11,6 +11,12 @@
     ],
     "permissions": {},
     "changelog": [
+        {
+            "version": "1.1.3",
+            "notes": [
+                "The button above the server list works again after Discord's latest update."
+            ]
+        },
         {
             "version": "1.1.2",
             "notes": [
@@ -60,6 +66,9 @@
             "name": "Alles gelesen",
             "description": "Markiere alle Server mit einem Klick als gelesen: mit einem Button über der Serverliste, mit /readall oder über das Rechtsklickmenü eines Servers. Auf Wunsch auch Direktnachrichten.",
             "changelog": {
+                "1.1.3": [
+                    "Der Button über der Serverliste funktioniert nach Discords neuestem Update wieder."
+                ],
                 "1.1.2": [
                     "Der Button erscheint direkt beim Start von Discord, ohne das Plugin aus- und wieder einzuschalten."
                 ],
@@ -87,6 +96,9 @@
             "name": "Leer todo",
             "description": "Marca todos los servidores como leídos con un clic: con un botón sobre la lista de servidores, con /readall o desde el menú del clic derecho de un servidor. También los MD, si quieres.",
             "changelog": {
+                "1.1.3": [
+                    "El botón sobre la lista de servidores vuelve a funcionar tras la última actualización de Discord."
+                ],
                 "1.1.2": [
                     "El botón aparece en cuanto se inicia Discord, sin tener que desactivar y volver a activar el plugin."
                 ],
@@ -114,6 +126,9 @@
             "name": "Tout lire",
             "description": "Marque tous les serveurs comme lus en un clic : avec un bouton au-dessus de la liste des serveurs, avec /readall ou depuis le menu du clic droit d'un serveur. Les MP aussi, si tu veux.",
             "changelog": {
+                "1.1.3": [
+                    "Le bouton au-dessus de la liste des serveurs fonctionne de nouveau après la dernière mise à jour de Discord."
+                ],
                 "1.1.2": [
                     "Le bouton apparaît dès le démarrage de Discord, sans désactiver puis réactiver le plugin."
                 ],
@@ -141,6 +156,9 @@
             "name": "すべて既読",
             "description": "ワンクリックですべてのサーバーを既読にします。サーバーリストの上のボタン、/readall、サーバーの右クリックメニューから使えます。お好みで DM も対象にできます。",
             "changelog": {
+                "1.1.3": [
+                    "Discordの最新アップデート後も、サーバーリストの上のボタンが再び動作します。"
+                ],
                 "1.1.2": [
                     "Discordの起動直後からボタンが表示されます。プラグインをオフにしてオンに戻す必要はありません。"
                 ],
@@ -168,6 +186,9 @@
             "name": "Przeczytaj wszystko",
             "description": "Oznacz wszystkie serwery jako przeczytane jednym kliknięciem: przyciskiem nad listą serwerów, poleceniem /readall albo z menu prawego przycisku myszy na serwerze. Jeśli chcesz, także wiadomości prywatne.",
             "changelog": {
+                "1.1.3": [
+                    "Przycisk nad listą serwerów znowu działa po najnowszej aktualizacji Discorda."
+                ],
                 "1.1.2": [
                     "Przycisk pojawia się od razu po uruchomieniu Discorda, bez wyłączania i ponownego włączania pluginu."
                 ],
@@ -195,6 +216,9 @@
             "name": "Ler tudo",
             "description": "Marque todos os servidores como lidos com um clique: por um botão acima da lista de servidores, pelo /readall ou pelo menu de clique direito de um servidor. As DMs também, se você quiser.",
             "changelog": {
+                "1.1.3": [
+                    "O botão acima da lista de servidores volta a funcionar depois da última atualização do Discord."
+                ],
                 "1.1.2": [
                     "O botão aparece assim que o Discord abre, sem precisar desligar e ligar o plugin de novo."
                 ],
@@ -222,6 +246,9 @@
             "name": "Всё прочитано",
             "description": "Отмечайте все серверы прочитанными одним щелчком: кнопкой над списком серверов, командой /readall или через меню правой кнопки мыши на сервере. По желанию и личные сообщения.",
             "changelog": {
+                "1.1.3": [
+                    "Кнопка над списком серверов снова работает после последнего обновления Discord."
+                ],
                 "1.1.2": [
                     "Кнопка появляется сразу при запуске Discord, без выключения и повторного включения плагина."
                 ],
@@ -249,6 +276,9 @@
             "name": "Tümünü Oku",
             "description": "Tüm sunucuları tek tıkla okundu olarak işaretle: sunucu listesinin üstündeki bir düğmeyle, /readall ile ya da bir sunucunun sağ tık menüsüyle. İstersen DM'ler de dahil.",
             "changelog": {
+                "1.1.3": [
+                    "Sunucu listesinin üstündeki düğme, Discord'un son güncellemesinden sonra yeniden çalışıyor."
+                ],
                 "1.1.2": [
                     "Düğme Discord açılır açılmaz görünüyor, eklentiyi kapatıp yeniden açmana gerek yok."
                 ],

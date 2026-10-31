@@ -214,8 +214,9 @@ export default definePlugin({
     patches: [{
         find: "\"guildsnav\"",
         replace: {
-            // children:[<Home .../>,<Separator/>,<Guilds guildDiscoveryButton=... />]: ours goes before the servers
-            match: /(?<=lurkingGuildIds:\i\}\),\(0,\i\.jsx\)\(\i,\{\}\),)(?=\(0,\i\.jsx\)\(\i,\{guildDiscoveryButton:)/,
+            // children:[<Home lurkingGuildIds=... />,<Separator/>,<Guilds guildDiscoveryButton=... />]: ours goes
+            // before the servers. Home's props after lurkingGuildIds vary (isConjureVisible since Discord's build of 2026-10-30)
+            match: /(?<=lurkingGuildIds:\i(?:,\i:\i)*\}\),\(0,\i\.jsx\)\(\i,\{\}\),)(?=\(0,\i\.jsx\)\(\i,\{guildDiscoveryButton:)/,
             with: "$self.renderButton(),",
         },
     }],

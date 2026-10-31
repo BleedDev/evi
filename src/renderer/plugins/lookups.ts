@@ -10,8 +10,8 @@ import { wreq } from "../webpack/runtime";
 export type LookupHealth =
     | "found"    // its export exists, the callback ran
     | "waiting"  // not yet, but its module exists and hasn't loaded, or Discord is still starting
-    | "broken"   // no module's code matches the lookup, or its module ran without a matching export
-    | "missing"; // nothing Discord has loaded so far matches, and no module still to load looks like it
+    | "broken"   // every module with the lookup's code ran without a matching export
+    | "missing"; // nothing Discord has registered so far has it: changed, or in a chunk not fetched yet
 
 export interface LookupRecord {
     plugin: string;
@@ -94,11 +94,15 @@ export function diagnoseLookups(plugin?: string, now = performance.now(), maxAge
 
 /**
  * An unanswered lookup past its grace period, by what its filter says about its module's code and the
- * modules whose code matches it. A candidate that already ran and still didn't match is no better than
- * none. A hint (byProps' property names) only tells "its module hasn't loaded yet", like the search
- * actions Discord loads when search first opens; without that it says no more than having no hint.
+ * modules whose code matches it. A hint (byProps' property names) only tells "its module hasn't loaded
+ * yet", like the search actions Discord loads when search first opens.
+ * Broken only when its code is known and every module with that code ran without the export. No module
+ * with the code at all is missing, like a patch whose find matches nothing yet: Discord registers a
+ * chunk's modules only once it fetches the chunk, so code it loads on first use (a call's chat, for
+ * Pop Out Chat) looks exactly like code Discord changed, and every install that hadn't opened one
+ * reported the plugin broken.
  */
 export function lookupHealth(code: "code" | "hint" | "none", candidates: string[], loaded: (id: string) => boolean): LookupHealth {
     if (candidates.some(id => !loaded(id))) return "waiting";
-    return code === "code" ? "broken" : "missing";
+    return code === "code" && candidates.length ? "broken" : "missing";
 }

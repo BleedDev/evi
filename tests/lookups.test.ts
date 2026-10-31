@@ -26,10 +26,12 @@ describe("lookup code scans", () => {
 
 describe("what an unanswered lookup is", () => {
     const loaded = (id: string) => id === "1";
-    test("a lookup with code: waiting while a module with that code hasn't loaded, broken otherwise", () => {
+    test("a lookup with code: waiting while a module with that code hasn't loaded, broken once they all ran without it", () => {
         expect(lookupHealth("code", ["1", "2"], loaded)).toBe("waiting");
         expect(lookupHealth("code", ["1"], loaded)).toBe("broken");
-        expect(lookupHealth("code", [], loaded)).toBe("broken");
+    });
+    test("no module with the code yet is missing, not broken: it may be in a chunk Discord hasn't fetched (Pop Out Chat's call chat)", () => {
+        expect(lookupHealth("code", [], loaded)).toBe("missing");
     });
     test("byProps in a module Discord loads later (search's actions) waits instead of counting as missing", () => {
         expect(lookupHealth("hint", ["2"], loaded)).toBe("waiting");

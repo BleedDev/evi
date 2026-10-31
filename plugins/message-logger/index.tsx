@@ -36,7 +36,8 @@ const CACHE_BYTES = 25 * 1024 * 1024;
 const SAVE_FROM_LOADED = 50;
 
 const accessoriesFilter = filters.byCode("channelMessageProps:{message:", "isAutomodBlockedMessage:");
-const renderedContentFilter = filters.byCode('"useMessageRenderedContent"', "hideSimpleEmbedContent");
+/** Discord's useMessageRenderedContent(message, options). Its options (hideSimpleEmbedContent) are read by a helper since Discord's build of 2026-10-30 */
+const renderedContentFilter = filters.byCode('"useMessageRenderedContent"', "hasBailedAst:");
 /**
  * The CSS module with Discord's `markup` class, which styles rendered message content. Its code hint
  * is plain strings: a regex tested against every module's source costs far more.

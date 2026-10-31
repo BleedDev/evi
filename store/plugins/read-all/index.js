@@ -116,6 +116,12 @@ function chunk(items, size = BULK_ACK_LIMIT) {
 }
 var toAck = ({ channelId, messageId, readStateType }) => ({ channelId, messageId, readStateType });
 var countGuilds = (entries) => new Set(entries.map((e) => e.guildId).filter((id) => id != null)).size;
+function summary(count, guilds, t) {
+  if (count === 0)
+    return t("summary.none");
+  const channels = t("summary.channels", { count });
+  return guilds > 0 ? t("summary.doneInServers", { channels, servers: t("summary.servers", { count: guilds }) }) : t("summary.done", { channels });
+}
 
 // plugins/read-all/strings.ts
 var import_api = require("@evi/api");
@@ -138,149 +144,165 @@ var t = import_api.defineStrings({
     "command.description": "Mark every server as read",
     "menu.markAll": "Mark All Servers as Read"
   },
-  de: {
-    "settings.includeDms": "Direktnachrichten einbeziehen",
-    "settings.includeDms.description": "Markiert auch Direktnachrichten und Gruppenchats als gelesen.",
-    "settings.showButton": "Button in der Serverliste",
-    "settings.showButton.description": "Ein Button über deinen Servern, der erscheint, solange etwas ungelesen ist.",
-    "settings.contextMenu": "Eintrag im Servermenü",
-    "settings.contextMenu.description": "„Alle Server als gelesen markieren“, wenn du einen Server mit der rechten Maustaste anklickst.",
-    "error.stores": "Discords Lesestatus-Speicher wurden nicht gefunden",
-    "error.failed": "Es konnte nicht alles als gelesen markiert werden",
-    "summary.none": "Nichts zu markieren: Alles ist bereits gelesen",
-    "summary.channels": { one: "{count} Kanal", other: "{count} Kanäle" },
-    "summary.servers": { one: "{count} Server", other: "{count} Servern" },
-    "summary.done": "{channels} als gelesen markiert",
-    "summary.doneInServers": "{channels} auf {servers} als gelesen markiert",
-    "button.label": { one: "{count} Kanal als gelesen markieren", other: "{count} Kanäle als gelesen markieren" },
-    "command.description": "Alle Server als gelesen markieren",
-    "menu.markAll": "Alle Server als gelesen markieren"
+  get de() {
+    return Object.defineProperty(this, "de", { value: {
+      "settings.includeDms": "Direktnachrichten einbeziehen",
+      "settings.includeDms.description": "Markiert auch Direktnachrichten und Gruppenchats als gelesen.",
+      "settings.showButton": "Button in der Serverliste",
+      "settings.showButton.description": "Ein Button über deinen Servern, der erscheint, solange etwas ungelesen ist.",
+      "settings.contextMenu": "Eintrag im Servermenü",
+      "settings.contextMenu.description": "„Alle Server als gelesen markieren“, wenn du einen Server mit der rechten Maustaste anklickst.",
+      "error.stores": "Discords Lesestatus-Speicher wurden nicht gefunden",
+      "error.failed": "Es konnte nicht alles als gelesen markiert werden",
+      "summary.none": "Nichts zu markieren: Alles ist bereits gelesen",
+      "summary.channels": { one: "{count} Kanal", other: "{count} Kanäle" },
+      "summary.servers": { one: "{count} Server", other: "{count} Servern" },
+      "summary.done": "{channels} als gelesen markiert",
+      "summary.doneInServers": "{channels} auf {servers} als gelesen markiert",
+      "button.label": { one: "{count} Kanal als gelesen markieren", other: "{count} Kanäle als gelesen markieren" },
+      "command.description": "Alle Server als gelesen markieren",
+      "menu.markAll": "Alle Server als gelesen markieren"
+    } })["de"];
   },
-  es: {
-    "settings.includeDms": "Incluir MD",
-    "settings.includeDms.description": "También marca como leídos los mensajes directos y los grupos de MD.",
-    "settings.showButton": "Botón en la lista de servidores",
-    "settings.showButton.description": "Un botón sobre tus servidores, visible mientras haya algo sin leer.",
-    "settings.contextMenu": "Opción en el menú del servidor",
-    "settings.contextMenu.description": "«Marcar todos los servidores como leídos» al hacer clic derecho en un servidor.",
-    "error.stores": "No se encontraron los almacenes de estado de lectura de Discord",
-    "error.failed": "No se pudo marcar todo como leído",
-    "summary.none": "Nada que marcar: todo ya está leído",
-    "summary.channels": { one: "{count} canal", other: "{count} canales" },
-    "summary.servers": { one: "{count} servidor", other: "{count} servidores" },
-    "summary.done": "Se marcaron como leídos {channels}",
-    "summary.doneInServers": "Se marcaron como leídos {channels} en {servers}",
-    "button.label": { one: "Marcar {count} canal como leído", other: "Marcar {count} canales como leídos" },
-    "command.description": "Marcar todos los servidores como leídos",
-    "menu.markAll": "Marcar todos los servidores como leídos"
+  get es() {
+    return Object.defineProperty(this, "es", { value: {
+      "settings.includeDms": "Incluir MD",
+      "settings.includeDms.description": "También marca como leídos los mensajes directos y los grupos de MD.",
+      "settings.showButton": "Botón en la lista de servidores",
+      "settings.showButton.description": "Un botón sobre tus servidores, visible mientras haya algo sin leer.",
+      "settings.contextMenu": "Opción en el menú del servidor",
+      "settings.contextMenu.description": "«Marcar todos los servidores como leídos» al hacer clic derecho en un servidor.",
+      "error.stores": "No se encontraron los almacenes de estado de lectura de Discord",
+      "error.failed": "No se pudo marcar todo como leído",
+      "summary.none": "Nada que marcar: todo ya está leído",
+      "summary.channels": { one: "{count} canal", other: "{count} canales" },
+      "summary.servers": { one: "{count} servidor", other: "{count} servidores" },
+      "summary.done": "Se marcaron como leídos {channels}",
+      "summary.doneInServers": "Se marcaron como leídos {channels} en {servers}",
+      "button.label": { one: "Marcar {count} canal como leído", other: "Marcar {count} canales como leídos" },
+      "command.description": "Marcar todos los servidores como leídos",
+      "menu.markAll": "Marcar todos los servidores como leídos"
+    } })["es"];
   },
-  fr: {
-    "settings.includeDms": "Inclure les MP",
-    "settings.includeDms.description": "Marque aussi comme lus les messages privés et les groupes privés.",
-    "settings.showButton": "Bouton dans la liste des serveurs",
-    "settings.showButton.description": "Un bouton au-dessus de tes serveurs, affiché tant qu'il reste des messages non lus.",
-    "settings.contextMenu": "Option du menu du serveur",
-    "settings.contextMenu.description": "« Marquer tous les serveurs comme lus » quand tu fais un clic droit sur un serveur.",
-    "error.stores": "Impossible de trouver les stores d'état de lecture de Discord",
-    "error.failed": "Impossible de tout marquer comme lu",
-    "summary.none": "Rien à marquer : tout est déjà lu",
-    "summary.channels": { one: "{count} salon", other: "{count} salons" },
-    "summary.servers": { one: "{count} serveur", other: "{count} serveurs" },
-    "summary.done": "Marquage terminé : {channels}",
-    "summary.doneInServers": "Marquage terminé : {channels} sur {servers}",
-    "button.label": { one: "Marquer {count} salon comme lu", other: "Marquer {count} salons comme lus" },
-    "command.description": "Marquer tous les serveurs comme lus",
-    "menu.markAll": "Marquer tous les serveurs comme lus"
+  get fr() {
+    return Object.defineProperty(this, "fr", { value: {
+      "settings.includeDms": "Inclure les MP",
+      "settings.includeDms.description": "Marque aussi comme lus les messages privés et les groupes privés.",
+      "settings.showButton": "Bouton dans la liste des serveurs",
+      "settings.showButton.description": "Un bouton au-dessus de tes serveurs, affiché tant qu'il reste des messages non lus.",
+      "settings.contextMenu": "Option du menu du serveur",
+      "settings.contextMenu.description": "« Marquer tous les serveurs comme lus » quand tu fais un clic droit sur un serveur.",
+      "error.stores": "Impossible de trouver les stores d'état de lecture de Discord",
+      "error.failed": "Impossible de tout marquer comme lu",
+      "summary.none": "Rien à marquer : tout est déjà lu",
+      "summary.channels": { one: "{count} salon", other: "{count} salons" },
+      "summary.servers": { one: "{count} serveur", other: "{count} serveurs" },
+      "summary.done": "Marquage terminé : {channels}",
+      "summary.doneInServers": "Marquage terminé : {channels} sur {servers}",
+      "button.label": { one: "Marquer {count} salon comme lu", other: "Marquer {count} salons comme lus" },
+      "command.description": "Marquer tous les serveurs comme lus",
+      "menu.markAll": "Marquer tous les serveurs comme lus"
+    } })["fr"];
   },
-  ja: {
-    "settings.includeDms": "DM も含める",
-    "settings.includeDms.description": "ダイレクトメッセージとグループ DM も既読にします。",
-    "settings.showButton": "サーバーリストのボタン",
-    "settings.showButton.description": "未読があるあいだ、サーバーの上にボタンを表示します。",
-    "settings.contextMenu": "サーバーメニューの項目",
-    "settings.contextMenu.description": "サーバーを右クリックしたときに「すべてのサーバーを既読にする」を表示します。",
-    "error.stores": "Discord の既読状態ストアが見つかりませんでした",
-    "error.failed": "すべてを既読にできませんでした",
-    "summary.none": "既読にするものはありません。すべて既読です",
-    "summary.channels": { other: "{count} 件のチャンネル" },
-    "summary.servers": { other: "{count} 個のサーバー" },
-    "summary.done": "{channels}を既読にしました",
-    "summary.doneInServers": "{servers}の{channels}を既読にしました",
-    "button.label": { other: "{count} 件のチャンネルを既読にする" },
-    "command.description": "すべてのサーバーを既読にする",
-    "menu.markAll": "すべてのサーバーを既読にする"
+  get ja() {
+    return Object.defineProperty(this, "ja", { value: {
+      "settings.includeDms": "DM も含める",
+      "settings.includeDms.description": "ダイレクトメッセージとグループ DM も既読にします。",
+      "settings.showButton": "サーバーリストのボタン",
+      "settings.showButton.description": "未読があるあいだ、サーバーの上にボタンを表示します。",
+      "settings.contextMenu": "サーバーメニューの項目",
+      "settings.contextMenu.description": "サーバーを右クリックしたときに「すべてのサーバーを既読にする」を表示します。",
+      "error.stores": "Discord の既読状態ストアが見つかりませんでした",
+      "error.failed": "すべてを既読にできませんでした",
+      "summary.none": "既読にするものはありません。すべて既読です",
+      "summary.channels": { other: "{count} 件のチャンネル" },
+      "summary.servers": { other: "{count} 個のサーバー" },
+      "summary.done": "{channels}を既読にしました",
+      "summary.doneInServers": "{servers}の{channels}を既読にしました",
+      "button.label": { other: "{count} 件のチャンネルを既読にする" },
+      "command.description": "すべてのサーバーを既読にする",
+      "menu.markAll": "すべてのサーバーを既読にする"
+    } })["ja"];
   },
-  pl: {
-    "settings.includeDms": "Uwzględnij wiadomości prywatne",
-    "settings.includeDms.description": "Oznacza jako przeczytane także wiadomości prywatne i grupy prywatne.",
-    "settings.showButton": "Przycisk na liście serwerów",
-    "settings.showButton.description": "Przycisk nad serwerami, widoczny, dopóki coś jest nieprzeczytane.",
-    "settings.contextMenu": "Pozycja w menu serwera",
-    "settings.contextMenu.description": "„Oznacz wszystkie serwery jako przeczytane” po kliknięciu serwera prawym przyciskiem myszy.",
-    "error.stores": "Nie znaleziono magazynów stanu odczytu Discorda",
-    "error.failed": "Nie udało się oznaczyć wszystkiego jako przeczytane",
-    "summary.none": "Nie ma czego oznaczać: wszystko jest już przeczytane",
-    "summary.channels": { one: "{count} kanał", few: "{count} kanały", many: "{count} kanałów", other: "{count} kanału" },
-    "summary.servers": { one: "{count} serwer", few: "{count} serwery", many: "{count} serwerów", other: "{count} serwera" },
-    "summary.done": "Oznaczono jako przeczytane: {channels}",
-    "summary.doneInServers": "Oznaczono jako przeczytane: {channels} ({servers})",
-    "button.label": { one: "Oznacz {count} kanał jako przeczytany", few: "Oznacz {count} kanały jako przeczytane", many: "Oznacz {count} kanałów jako przeczytane", other: "Oznacz {count} kanału jako przeczytane" },
-    "command.description": "Oznacz wszystkie serwery jako przeczytane",
-    "menu.markAll": "Oznacz wszystkie serwery jako przeczytane"
+  get pl() {
+    return Object.defineProperty(this, "pl", { value: {
+      "settings.includeDms": "Uwzględnij wiadomości prywatne",
+      "settings.includeDms.description": "Oznacza jako przeczytane także wiadomości prywatne i grupy prywatne.",
+      "settings.showButton": "Przycisk na liście serwerów",
+      "settings.showButton.description": "Przycisk nad serwerami, widoczny, dopóki coś jest nieprzeczytane.",
+      "settings.contextMenu": "Pozycja w menu serwera",
+      "settings.contextMenu.description": "„Oznacz wszystkie serwery jako przeczytane” po kliknięciu serwera prawym przyciskiem myszy.",
+      "error.stores": "Nie znaleziono magazynów stanu odczytu Discorda",
+      "error.failed": "Nie udało się oznaczyć wszystkiego jako przeczytane",
+      "summary.none": "Nie ma czego oznaczać: wszystko jest już przeczytane",
+      "summary.channels": { one: "{count} kanał", few: "{count} kanały", many: "{count} kanałów", other: "{count} kanału" },
+      "summary.servers": { one: "{count} serwer", few: "{count} serwery", many: "{count} serwerów", other: "{count} serwera" },
+      "summary.done": "Oznaczono jako przeczytane: {channels}",
+      "summary.doneInServers": "Oznaczono jako przeczytane: {channels} ({servers})",
+      "button.label": { one: "Oznacz {count} kanał jako przeczytany", few: "Oznacz {count} kanały jako przeczytane", many: "Oznacz {count} kanałów jako przeczytane", other: "Oznacz {count} kanału jako przeczytane" },
+      "command.description": "Oznacz wszystkie serwery jako przeczytane",
+      "menu.markAll": "Oznacz wszystkie serwery jako przeczytane"
+    } })["pl"];
   },
-  "pt-BR": {
-    "settings.includeDms": "Incluir DMs",
-    "settings.includeDms.description": "Também marca como lidas as mensagens diretas e os grupos de DM.",
-    "settings.showButton": "Botão na lista de servidores",
-    "settings.showButton.description": "Um botão acima dos seus servidores, exibido enquanto houver algo não lido.",
-    "settings.contextMenu": "Item no menu do servidor",
-    "settings.contextMenu.description": "“Marcar todos os servidores como lidos” ao clicar com o botão direito em um servidor.",
-    "error.stores": "Não foi possível encontrar os armazenamentos de leitura do Discord",
-    "error.failed": "Não foi possível marcar tudo como lido",
-    "summary.none": "Nada para marcar: tudo já foi lido",
-    "summary.channels": { one: "{count} canal", other: "{count} canais" },
-    "summary.servers": { one: "{count} servidor", other: "{count} servidores" },
-    "summary.done": "Marcados como lidos: {channels}",
-    "summary.doneInServers": "Marcados como lidos: {channels} em {servers}",
-    "button.label": { one: "Marcar {count} canal como lido", other: "Marcar {count} canais como lidos" },
-    "command.description": "Marcar todos os servidores como lidos",
-    "menu.markAll": "Marcar todos os servidores como lidos"
+  get "pt-BR"() {
+    return Object.defineProperty(this, "pt-BR", { value: {
+      "settings.includeDms": "Incluir DMs",
+      "settings.includeDms.description": "Também marca como lidas as mensagens diretas e os grupos de DM.",
+      "settings.showButton": "Botão na lista de servidores",
+      "settings.showButton.description": "Um botão acima dos seus servidores, exibido enquanto houver algo não lido.",
+      "settings.contextMenu": "Item no menu do servidor",
+      "settings.contextMenu.description": "“Marcar todos os servidores como lidos” ao clicar com o botão direito em um servidor.",
+      "error.stores": "Não foi possível encontrar os armazenamentos de leitura do Discord",
+      "error.failed": "Não foi possível marcar tudo como lido",
+      "summary.none": "Nada para marcar: tudo já foi lido",
+      "summary.channels": { one: "{count} canal", other: "{count} canais" },
+      "summary.servers": { one: "{count} servidor", other: "{count} servidores" },
+      "summary.done": "Marcados como lidos: {channels}",
+      "summary.doneInServers": "Marcados como lidos: {channels} em {servers}",
+      "button.label": { one: "Marcar {count} canal como lido", other: "Marcar {count} canais como lidos" },
+      "command.description": "Marcar todos os servidores como lidos",
+      "menu.markAll": "Marcar todos os servidores como lidos"
+    } })["pt-BR"];
   },
-  ru: {
-    "settings.includeDms": "Включить личные сообщения",
-    "settings.includeDms.description": "Также отмечать прочитанными личные сообщения и групповые чаты.",
-    "settings.showButton": "Кнопка в списке серверов",
-    "settings.showButton.description": "Кнопка над серверами, которая появляется, пока есть непрочитанное.",
-    "settings.contextMenu": "Пункт в меню сервера",
-    "settings.contextMenu.description": "«Отметить все серверы прочитанными» при щелчке правой кнопкой мыши по серверу.",
-    "error.stores": "Не удалось найти хранилища состояния прочтения Discord",
-    "error.failed": "Не удалось отметить всё прочитанным",
-    "summary.none": "Отмечать нечего: всё уже прочитано",
-    "summary.channels": { one: "{count} канал", few: "{count} канала", many: "{count} каналов", other: "{count} канала" },
-    "summary.servers": { one: "{count} сервер", few: "{count} сервера", many: "{count} серверов", other: "{count} сервера" },
-    "summary.done": "Отмечено прочитанным: {channels}",
-    "summary.doneInServers": "Отмечено прочитанным: {channels} ({servers})",
-    "button.label": { one: "Отметить {count} канал прочитанным", few: "Отметить {count} канала прочитанными", many: "Отметить {count} каналов прочитанными", other: "Отметить {count} канала прочитанными" },
-    "command.description": "Отметить все серверы прочитанными",
-    "menu.markAll": "Отметить все серверы прочитанными"
+  get ru() {
+    return Object.defineProperty(this, "ru", { value: {
+      "settings.includeDms": "Включить личные сообщения",
+      "settings.includeDms.description": "Также отмечать прочитанными личные сообщения и групповые чаты.",
+      "settings.showButton": "Кнопка в списке серверов",
+      "settings.showButton.description": "Кнопка над серверами, которая появляется, пока есть непрочитанное.",
+      "settings.contextMenu": "Пункт в меню сервера",
+      "settings.contextMenu.description": "«Отметить все серверы прочитанными» при щелчке правой кнопкой мыши по серверу.",
+      "error.stores": "Не удалось найти хранилища состояния прочтения Discord",
+      "error.failed": "Не удалось отметить всё прочитанным",
+      "summary.none": "Отмечать нечего: всё уже прочитано",
+      "summary.channels": { one: "{count} канал", few: "{count} канала", many: "{count} каналов", other: "{count} канала" },
+      "summary.servers": { one: "{count} сервер", few: "{count} сервера", many: "{count} серверов", other: "{count} сервера" },
+      "summary.done": "Отмечено прочитанным: {channels}",
+      "summary.doneInServers": "Отмечено прочитанным: {channels} ({servers})",
+      "button.label": { one: "Отметить {count} канал прочитанным", few: "Отметить {count} канала прочитанными", many: "Отметить {count} каналов прочитанными", other: "Отметить {count} канала прочитанными" },
+      "command.description": "Отметить все серверы прочитанными",
+      "menu.markAll": "Отметить все серверы прочитанными"
+    } })["ru"];
   },
-  tr: {
-    "settings.includeDms": "DM'leri de dahil et",
-    "settings.includeDms.description": "Direkt mesajları ve grup DM'lerini de okundu olarak işaretler.",
-    "settings.showButton": "Sunucu listesi düğmesi",
-    "settings.showButton.description": "Okunmamış bir şey olduğu sürece sunucularının üstünde görünen bir düğme.",
-    "settings.contextMenu": "Sunucu menüsü öğesi",
-    "settings.contextMenu.description": 'Bir sunucuya sağ tıkladığında "Tüm Sunucuları Okundu Olarak İşaretle".',
-    "error.stores": "Discord'un okuma durumu depoları bulunamadı",
-    "error.failed": "Her şey okundu olarak işaretlenemedi",
-    "summary.none": "İşaretlenecek bir şey yok: her şey zaten okundu",
-    "summary.channels": { one: "{count} kanal", other: "{count} kanal" },
-    "summary.servers": { one: "{count} sunucu", other: "{count} sunucu" },
-    "summary.done": "{channels} okundu olarak işaretlendi",
-    "summary.doneInServers": "{servers} içindeki {channels} okundu olarak işaretlendi",
-    "button.label": { one: "{count} kanalı okundu olarak işaretle", other: "{count} kanalı okundu olarak işaretle" },
-    "command.description": "Tüm sunucuları okundu olarak işaretle",
-    "menu.markAll": "Tüm Sunucuları Okundu Olarak İşaretle"
+  get tr() {
+    return Object.defineProperty(this, "tr", { value: {
+      "settings.includeDms": "DM'leri de dahil et",
+      "settings.includeDms.description": "Direkt mesajları ve grup DM'lerini de okundu olarak işaretler.",
+      "settings.showButton": "Sunucu listesi düğmesi",
+      "settings.showButton.description": "Okunmamış bir şey olduğu sürece sunucularının üstünde görünen bir düğme.",
+      "settings.contextMenu": "Sunucu menüsü öğesi",
+      "settings.contextMenu.description": 'Bir sunucuya sağ tıkladığında "Tüm Sunucuları Okundu Olarak İşaretle".',
+      "error.stores": "Discord'un okuma durumu depoları bulunamadı",
+      "error.failed": "Her şey okundu olarak işaretlenemedi",
+      "summary.none": "İşaretlenecek bir şey yok: her şey zaten okundu",
+      "summary.channels": { one: "{count} kanal", other: "{count} kanal" },
+      "summary.servers": { one: "{count} sunucu", other: "{count} sunucu" },
+      "summary.done": "{channels} okundu olarak işaretlendi",
+      "summary.doneInServers": "{servers} içindeki {channels} okundu olarak işaretlendi",
+      "button.label": { one: "{count} kanalı okundu olarak işaretle", other: "{count} kanalı okundu olarak işaretle" },
+      "command.description": "Tüm sunucuları okundu olarak işaretle",
+      "menu.markAll": "Tüm Sunucuları Okundu Olarak İşaretle"
+    } })["tr"];
   }
 });
 
@@ -328,7 +350,7 @@ function stores() {
   const ReadStateStore = import_api2.findStore("ReadStateStore");
   if (!GuildStore || !GuildChannelStore || !ReadStateStore)
     return;
-  return cachedStores = {
+  const found = {
     GuildStore,
     GuildChannelStore,
     ReadStateStore,
@@ -336,12 +358,9 @@ function stores() {
     ChannelStore: import_api2.findStore("ChannelStore"),
     GuildReadStateStore: import_api2.findStore("GuildReadStateStore")
   };
-}
-function summarize(count, guilds) {
-  if (count === 0)
-    return t("summary.none");
-  const channels = t("summary.channels", { count });
-  return guilds > 0 ? t("summary.doneInServers", { channels, servers: t("summary.servers", { count: guilds }) }) : t("summary.done", { channels });
+  if (found.ActiveJoinedThreadsStore && found.ChannelStore && found.GuildReadStateStore)
+    cachedStores = found;
+  return found;
 }
 async function readAll() {
   const s = stores();
@@ -351,7 +370,7 @@ async function readAll() {
   for (const batch of chunk(unread.map(toAck))) {
     await import_api2.Dispatcher.dispatch({ type: "BULK_ACK", context: "APP", channels: batch });
   }
-  return { message: summarize(unread.length, countGuilds(unread)), ok: true };
+  return { message: summary(unread.length, countGuilds(unread), t), ok: true };
 }
 var busy = false;
 async function readAllWithToast() {
@@ -376,11 +395,12 @@ var cancelIdle;
 var counting;
 var countAgain = false;
 var SLICE_MS = 5;
+var notify = () => listeners.forEach((l) => l());
 function setUnreadCount(next) {
   if (next === unreadCount)
     return;
   unreadCount = next;
-  listeners.forEach((l) => l());
+  notify();
 }
 function recount(deadline) {
   cancelIdle = undefined;
@@ -480,13 +500,11 @@ var read_all_default = import_api2.definePlugin({
   patches: [{
     find: '"guildsnav"',
     replace: {
-      match: /(?<=lurkingGuildIds:\i\}\),\(0,\i\.jsx\)\(\i,\{\}\),)(?=\(0,\i\.jsx\)\(\i,\{guildDiscoveryButton:)/,
+      match: /(?<=lurkingGuildIds:\i(?:,\i:\i)*\}\),\(0,\i\.jsx\)\(\i,\{\}\),)(?=\(0,\i\.jsx\)\(\i,\{guildDiscoveryButton:)/,
       with: "$self.renderButton(),"
     }
   }],
   renderButton() {
-    if (!context)
-      return null;
     return /* @__PURE__ */ jsx_runtime.jsx(ReadAllButton, {}, "evi-read-all");
   },
   readAll,
@@ -516,17 +534,27 @@ var read_all_default = import_api2.definePlugin({
       countAgain = false;
       cachedStores = undefined;
       unreadCount = 0;
-      listeners.forEach((l) => l());
+      notify();
     });
-    const watched = ["ReadStateStore", "GuildStore"].map((name) => import_api2.findStore(name)).filter(Boolean);
-    for (const store of watched)
-      store.addChangeListener?.(scheduleRecount);
+    const watched = [];
+    for (const name of ["ReadStateStore", "GuildStore"]) {
+      const listen = (store2) => {
+        store2.addChangeListener?.(scheduleRecount);
+        watched.push(store2);
+        scheduleRecount();
+      };
+      const store = import_api2.findStore(name);
+      if (store)
+        listen(store);
+      else
+        ctx.waitFor(import_api2.filters.byStoreName(name), listen);
+    }
     ctx.onDispose(() => watched.forEach((store) => store.removeChangeListener?.(scheduleRecount)));
     showButton = ctx.settings.get("showButton");
     ctx.settings.onChange((values) => {
       if (values.showButton !== showButton) {
         showButton = values.showButton;
-        listeners.forEach((l) => l());
+        notify();
       }
       scheduleRecount();
     });

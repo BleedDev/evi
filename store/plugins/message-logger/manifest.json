@@ -2,7 +2,7 @@
     "id": "message-logger",
     "name": "Message Logger",
     "description": "Deleted messages stay in the chat, marked as deleted, with their pictures, videos and files, and edited messages show what they said before. Kept in memory only: nothing is saved, and it's all gone when Discord restarts.",
-    "version": "1.3.0",
+    "version": "1.3.4",
     "authors": [
         "Evi"
     ],
@@ -17,6 +17,30 @@
         "readMessages": true
     },
     "changelog": [
+        {
+            "version": "1.3.4",
+            "notes": [
+                "Old versions of edited messages show with their formatting, mentions and emoji again after Discord's latest update."
+            ]
+        },
+        {
+            "version": "1.3.3",
+            "notes": [
+                "Uses far less memory and data: pictures are kept as a smaller copy, and videos and files over 5 MB are only downloaded once their message is deleted, so they're kept only if Discord still has them then."
+            ]
+        },
+        {
+            "version": "1.3.2",
+            "notes": [
+                "Deleted messages always show in red with a highlight and a \"deleted\" label, however Discord draws the chat. Before, they could turn dark and blend into the background."
+            ]
+        },
+        {
+            "version": "1.3.1",
+            "notes": [
+                "Works again: Discord changed how it hands out message events, so deleted and edited messages weren't being kept."
+            ]
+        },
         {
             "version": "1.3.0",
             "notes": [
@@ -61,6 +85,18 @@
             "name": "Message Logger",
             "description": "Gelöschte Nachrichten bleiben im Chat, als gelöscht markiert, samt Bildern, Videos und Dateien, und bearbeitete Nachrichten zeigen, was vorher dort stand. Nur im Arbeitsspeicher gehalten: Nichts wird gespeichert, und beim Neustart von Discord ist alles weg.",
             "changelog": {
+                "1.3.4": [
+                    "Alte Versionen bearbeiteter Nachrichten werden nach Discords neuestem Update wieder mit Formatierung, Erwähnungen und Emojis angezeigt."
+                ],
+                "1.3.3": [
+                    "Braucht viel weniger Arbeitsspeicher und Daten: Bilder werden als kleinere Kopie behalten, und Videos und Dateien über 5 MB werden erst geladen, wenn ihre Nachricht gelöscht wird. Sie bleiben also nur, wenn Discord sie dann noch hat."
+                ],
+                "1.3.2": [
+                    "Gelöschte Nachrichten erscheinen immer rot, hervorgehoben und mit dem Hinweis „gelöscht“, egal wie Discord den Chat zeichnet. Vorher konnten sie dunkel werden und im Hintergrund verschwinden."
+                ],
+                "1.3.1": [
+                    "Funktioniert wieder: Discord hat geändert, wie es Nachrichten-Ereignisse verteilt, daher wurden gelöschte und bearbeitete Nachrichten nicht mehr behalten."
+                ],
                 "1.3.0": [
                     "Folgt der Sprache von Discord: Deutsch, Spanisch, Französisch, Japanisch, Polnisch, Portugiesisch, Russisch und Türkisch, dazu Englisch."
                 ],
@@ -86,6 +122,18 @@
             "name": "Registro de mensajes",
             "description": "Los mensajes eliminados se quedan en el chat, marcados como eliminados, con sus imágenes, vídeos y archivos, y los mensajes editados muestran lo que decían antes. Solo se guardan en la memoria: no se almacena nada y todo desaparece al reiniciar Discord.",
             "changelog": {
+                "1.3.4": [
+                    "Las versiones anteriores de los mensajes editados vuelven a mostrarse con su formato, menciones y emojis tras la última actualización de Discord."
+                ],
+                "1.3.3": [
+                    "Usa mucha menos memoria y datos: las imágenes se guardan como una copia más pequeña, y los vídeos y archivos de más de 5 MB solo se descargan cuando se elimina su mensaje, así que se conservan solo si Discord aún los tiene."
+                ],
+                "1.3.2": [
+                    "Los mensajes eliminados siempre se ven en rojo, resaltados y con la etiqueta «eliminado», dibuje Discord el chat como lo dibuje. Antes podían oscurecerse y perderse en el fondo."
+                ],
+                "1.3.1": [
+                    "Vuelve a funcionar: Discord cambió cómo reparte los eventos de mensajes, así que los mensajes eliminados y editados no se guardaban."
+                ],
                 "1.3.0": [
                     "Sigue el idioma de Discord: alemán, español, francés, japonés, polaco, portugués, ruso y turco, además de inglés."
                 ],
@@ -111,6 +159,18 @@
             "name": "Journal des messages",
             "description": "Les messages supprimés restent dans la discussion, marqués comme supprimés, avec leurs images, vidéos et fichiers, et les messages modifiés affichent ce qu'ils disaient avant. Conservé uniquement en mémoire : rien n'est enregistré, et tout disparaît au redémarrage de Discord.",
             "changelog": {
+                "1.3.4": [
+                    "Les anciennes versions des messages modifiés s'affichent de nouveau avec leur mise en forme, leurs mentions et leurs emojis après la dernière mise à jour de Discord."
+                ],
+                "1.3.3": [
+                    "Utilise beaucoup moins de mémoire et de données : les images sont gardées en copie réduite, et les vidéos et fichiers de plus de 5 Mo ne sont téléchargés qu'une fois leur message supprimé, donc ils ne sont gardés que si Discord les a encore."
+                ],
+                "1.3.2": [
+                    "Les messages supprimés s'affichent toujours en rouge, surlignés et avec la mention « supprimé », quelle que soit la façon dont Discord dessine le chat. Avant, ils pouvaient s'assombrir et se fondre dans le fond."
+                ],
+                "1.3.1": [
+                    "Fonctionne de nouveau : Discord a changé la façon dont il distribue les événements de messages, donc les messages supprimés et modifiés n'étaient plus conservés."
+                ],
                 "1.3.0": [
                     "Suit la langue de Discord : allemand, espagnol, français, japonais, polonais, portugais, russe et turc, en plus de l'anglais."
                 ],
@@ -136,6 +196,18 @@
             "name": "メッセージログ",
             "description": "削除されたメッセージは、画像・動画・ファイルとともに「削除済み」の表示でチャットに残り、編集されたメッセージは編集前の内容を表示します。メモリ上にのみ保持され、何も保存されません。Discord を再起動するとすべて消えます。",
             "changelog": {
+                "1.3.4": [
+                    "Discordの最新アップデート後も、編集されたメッセージの以前の内容が書式・メンション・絵文字付きで再び表示されます。"
+                ],
+                "1.3.3": [
+                    "メモリと通信量を大幅に減らしました。画像は縮小コピーで保存し、5 MB を超える動画やファイルはメッセージが削除されたときにダウンロードします。そのため、その時点で Discord に残っている場合のみ保存されます。"
+                ],
+                "1.3.2": [
+                    "削除されたメッセージは、Discordのチャットの描き方に関係なく、常に赤色・ハイライト・「削除済み」の表示で示されます。以前は暗くなって背景に溶け込むことがありました。"
+                ],
+                "1.3.1": [
+                    "再び動作するようになりました。Discordがメッセージイベントの渡し方を変更したため、削除・編集されたメッセージが保持されていませんでした。"
+                ],
                 "1.3.0": [
                     "Discordの言語設定に合わせて表示されます。英語のほか、ドイツ語、スペイン語、フランス語、日本語、ポーランド語、ポルトガル語、ロシア語、トルコ語に対応しています。"
                 ],
@@ -161,6 +233,18 @@
             "name": "Dziennik wiadomości",
             "description": "Usunięte wiadomości zostają na czacie, oznaczone jako usunięte, razem ze zdjęciami, filmami i plikami, a edytowane wiadomości pokazują, co było w nich wcześniej. Trzymane tylko w pamięci: nic nie jest zapisywane, a po ponownym uruchomieniu Discorda wszystko znika.",
             "changelog": {
+                "1.3.4": [
+                    "Poprzednie wersje edytowanych wiadomości znowu wyświetlają się z formatowaniem, wzmiankami i emoji po najnowszej aktualizacji Discorda."
+                ],
+                "1.3.3": [
+                    "Zużywa znacznie mniej pamięci i danych: zdjęcia są zachowywane jako mniejsza kopia, a filmy i pliki powyżej 5 MB są pobierane dopiero po usunięciu wiadomości, więc zostają tylko wtedy, gdy Discord wciąż je ma."
+                ],
+                "1.3.2": [
+                    "Usunięte wiadomości zawsze są czerwone, podświetlone i oznaczone jako „usunięte”, niezależnie od tego, jak Discord rysuje czat. Wcześniej mogły ściemnieć i zlewać się z tłem."
+                ],
+                "1.3.1": [
+                    "Znowu działa: Discord zmienił sposób przekazywania zdarzeń wiadomości, więc usunięte i edytowane wiadomości nie były zachowywane."
+                ],
                 "1.3.0": [
                     "Mówi w języku Discorda: po niemiecku, hiszpańsku, francusku, japońsku, polsku, portugalsku, rosyjsku i turecku, oprócz angielskiego."
                 ],
@@ -186,6 +270,18 @@
             "name": "Registro de Mensagens",
             "description": "As mensagens excluídas continuam no chat, marcadas como excluídas, com suas imagens, vídeos e arquivos, e as mensagens editadas mostram o que diziam antes. Mantido apenas na memória: nada é salvo, e tudo some quando o Discord é reiniciado.",
             "changelog": {
+                "1.3.4": [
+                    "As versões antigas de mensagens editadas voltam a aparecer com formatação, menções e emojis depois da última atualização do Discord."
+                ],
+                "1.3.3": [
+                    "Usa bem menos memória e dados: as imagens são guardadas como uma cópia menor, e vídeos e arquivos acima de 5 MB só são baixados quando a mensagem é excluída, então só ficam se o Discord ainda os tiver."
+                ],
+                "1.3.2": [
+                    "Mensagens apagadas sempre aparecem em vermelho, destacadas e com a etiqueta \"apagada\", não importa como o Discord desenhe o chat. Antes, elas podiam escurecer e sumir no fundo."
+                ],
+                "1.3.1": [
+                    "Voltou a funcionar: o Discord mudou como distribui os eventos de mensagens, então mensagens apagadas e editadas não estavam sendo guardadas."
+                ],
                 "1.3.0": [
                     "Segue o idioma do Discord: alemão, espanhol, francês, japonês, polonês, português, russo e turco, além do inglês."
                 ],
@@ -211,6 +307,18 @@
             "name": "Журнал сообщений",
             "description": "Удалённые сообщения остаются в чате с пометкой об удалении, вместе с картинками, видео и файлами, а изменённые сообщения показывают, что в них было раньше. Хранится только в памяти: ничего не сохраняется, а после перезапуска Discord всё исчезает.",
             "changelog": {
+                "1.3.4": [
+                    "Старые версии изменённых сообщений снова показываются с форматированием, упоминаниями и эмодзи после последнего обновления Discord."
+                ],
+                "1.3.3": [
+                    "Расходует гораздо меньше памяти и трафика: картинки сохраняются уменьшенной копией, а видео и файлы больше 5 МБ скачиваются только после удаления сообщения, поэтому сохраняются, лишь если Discord их ещё не удалил."
+                ],
+                "1.3.2": [
+                    "Удалённые сообщения всегда показываются красным, с подсветкой и пометкой «удалено», как бы Discord ни рисовал чат. Раньше они могли темнеть и сливаться с фоном."
+                ],
+                "1.3.1": [
+                    "Снова работает: Discord изменил то, как раздаёт события сообщений, поэтому удалённые и изменённые сообщения не сохранялись."
+                ],
                 "1.3.0": [
                     "Говорит на языке Discord: немецком, испанском, французском, японском, польском, португальском, русском и турецком, а также на английском."
                 ],
@@ -236,6 +344,18 @@
             "name": "Mesaj Günlüğü",
             "description": "Silinen mesajlar; resimleri, videoları ve dosyalarıyla birlikte silindi olarak işaretlenmiş şekilde sohbette kalır, düzenlenen mesajlar ise daha önce ne yazdığını gösterir. Yalnızca bellekte tutulur: hiçbir şey kaydedilmez ve Discord yeniden başlatıldığında her şey silinir.",
             "changelog": {
+                "1.3.4": [
+                    "Düzenlenen mesajların eski hâlleri, Discord'un son güncellemesinden sonra yeniden biçimlendirme, bahsetmeler ve emojilerle görünüyor."
+                ],
+                "1.3.3": [
+                    "Çok daha az bellek ve veri kullanır: resimler küçültülmüş bir kopya olarak tutulur, 5 MB'tan büyük video ve dosyalar ise yalnızca mesajları silindiğinde indirilir; bu yüzden ancak Discord'da hâlâ duruyorlarsa saklanırlar."
+                ],
+                "1.3.2": [
+                    "Silinen mesajlar, Discord sohbeti nasıl çizerse çizsin her zaman kırmızı, vurgulu ve \"silindi\" etiketiyle görünüyor. Önceden kararıp arka plana karışabiliyorlardı."
+                ],
+                "1.3.1": [
+                    "Yeniden çalışıyor: Discord mesaj olaylarını dağıtma şeklini değiştirdiği için silinen ve düzenlenen mesajlar saklanmıyordu."
+                ],
                 "1.3.0": [
                     "Discord'un dilini kullanır: İngilizcenin yanı sıra Almanca, İspanyolca, Fransızca, Japonca, Lehçe, Portekizce, Rusça ve Türkçe."
                 ],

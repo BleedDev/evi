@@ -3602,7 +3602,7 @@
             "authorIds": [
                 "evi"
             ],
-            "version": "1.3.0",
+            "version": "1.3.4",
             "tags": [
                 "messages"
             ],
@@ -3610,18 +3610,42 @@
             "minEviVersion": "1.1.0",
             "files": {
                 "manifest.json": {
-                    "url": "https://evi.rest/store/plugins/message-logger/manifest.json?v=5e8d8bc7bc93",
-                    "sha256": "5e8d8bc7bc93b4c803ad24a5e178ea68992c76634aa5d55ecd24e227f79417e3"
+                    "url": "https://evi.rest/store/plugins/message-logger/manifest.json?v=33d39330ba05",
+                    "sha256": "33d39330ba05cf9b2110b50e063e939e11004fe3464670366c2a2b9fa50bdeaa"
                 },
                 "index.js": {
-                    "url": "https://evi.rest/store/plugins/message-logger/index.js?v=a217d41c1097",
-                    "sha256": "a217d41c1097294d2b8007660df5be87fdde71ed4f9ff36fc8ff2a80442b7bc2"
+                    "url": "https://evi.rest/store/plugins/message-logger/index.js?v=7740a9bb8999",
+                    "sha256": "7740a9bb89993be3b04f1322040f937697496cd19adc807ad0a5ba43446aaf82"
                 }
             },
-            "updatedAt": "2026-09-28",
+            "updatedAt": "2026-10-31",
             "source": "https://github.com/BleedDev/evi/tree/main/plugins/message-logger",
             "screenshots": [],
             "changelog": [
+                {
+                    "version": "1.3.4",
+                    "notes": [
+                        "Old versions of edited messages show with their formatting, mentions and emoji again after Discord's latest update."
+                    ]
+                },
+                {
+                    "version": "1.3.3",
+                    "notes": [
+                        "Uses far less memory and data: pictures are kept as a smaller copy, and videos and files over 5 MB are only downloaded once their message is deleted, so they're kept only if Discord still has them then."
+                    ]
+                },
+                {
+                    "version": "1.3.2",
+                    "notes": [
+                        "Deleted messages always show in red with a highlight and a \"deleted\" label, however Discord draws the chat. Before, they could turn dark and blend into the background."
+                    ]
+                },
+                {
+                    "version": "1.3.1",
+                    "notes": [
+                        "Works again: Discord changed how it hands out message events, so deleted and edited messages weren't being kept."
+                    ]
+                },
                 {
                     "version": "1.3.0",
                     "notes": [
@@ -3665,6 +3689,18 @@
                     "name": "Message Logger",
                     "description": "Gelöschte Nachrichten bleiben im Chat, als gelöscht markiert, samt Bildern, Videos und Dateien, und bearbeitete Nachrichten zeigen, was vorher dort stand. Nur im Arbeitsspeicher gehalten: Nichts wird gespeichert, und beim Neustart von Discord ist alles weg.",
                     "changelog": {
+                        "1.3.4": [
+                            "Alte Versionen bearbeiteter Nachrichten werden nach Discords neuestem Update wieder mit Formatierung, Erwähnungen und Emojis angezeigt."
+                        ],
+                        "1.3.3": [
+                            "Braucht viel weniger Arbeitsspeicher und Daten: Bilder werden als kleinere Kopie behalten, und Videos und Dateien über 5 MB werden erst geladen, wenn ihre Nachricht gelöscht wird. Sie bleiben also nur, wenn Discord sie dann noch hat."
+                        ],
+                        "1.3.2": [
+                            "Gelöschte Nachrichten erscheinen immer rot, hervorgehoben und mit dem Hinweis „gelöscht“, egal wie Discord den Chat zeichnet. Vorher konnten sie dunkel werden und im Hintergrund verschwinden."
+                        ],
+                        "1.3.1": [
+                            "Funktioniert wieder: Discord hat geändert, wie es Nachrichten-Ereignisse verteilt, daher wurden gelöschte und bearbeitete Nachrichten nicht mehr behalten."
+                        ],
                         "1.3.0": [
                             "Folgt der Sprache von Discord: Deutsch, Spanisch, Französisch, Japanisch, Polnisch, Portugiesisch, Russisch und Türkisch, dazu Englisch."
                         ],
@@ -3690,6 +3726,18 @@
                     "name": "Registro de mensajes",
                     "description": "Los mensajes eliminados se quedan en el chat, marcados como eliminados, con sus imágenes, vídeos y archivos, y los mensajes editados muestran lo que decían antes. Solo se guardan en la memoria: no se almacena nada y todo desaparece al reiniciar Discord.",
                     "changelog": {
+                        "1.3.4": [
+                            "Las versiones anteriores de los mensajes editados vuelven a mostrarse con su formato, menciones y emojis tras la última actualización de Discord."
+                        ],
+                        "1.3.3": [
+                            "Usa mucha menos memoria y datos: las imágenes se guardan como una copia más pequeña, y los vídeos y archivos de más de 5 MB solo se descargan cuando se elimina su mensaje, así que se conservan solo si Discord aún los tiene."
+                        ],
+                        "1.3.2": [
+                            "Los mensajes eliminados siempre se ven en rojo, resaltados y con la etiqueta «eliminado», dibuje Discord el chat como lo dibuje. Antes podían oscurecerse y perderse en el fondo."
+                        ],
+                        "1.3.1": [
+                            "Vuelve a funcionar: Discord cambió cómo reparte los eventos de mensajes, así que los mensajes eliminados y editados no se guardaban."
+                        ],
                         "1.3.0": [
                             "Sigue el idioma de Discord: alemán, español, francés, japonés, polaco, portugués, ruso y turco, además de inglés."
                         ],
@@ -3715,6 +3763,18 @@
                     "name": "Journal des messages",
                     "description": "Les messages supprimés restent dans la discussion, marqués comme supprimés, avec leurs images, vidéos et fichiers, et les messages modifiés affichent ce qu'ils disaient avant. Conservé uniquement en mémoire : rien n'est enregistré, et tout disparaît au redémarrage de Discord.",
                     "changelog": {
+                        "1.3.4": [
+                            "Les anciennes versions des messages modifiés s'affichent de nouveau avec leur mise en forme, leurs mentions et leurs emojis après la dernière mise à jour de Discord."
+                        ],
+                        "1.3.3": [
+                            "Utilise beaucoup moins de mémoire et de données : les images sont gardées en copie réduite, et les vidéos et fichiers de plus de 5 Mo ne sont téléchargés qu'une fois leur message supprimé, donc ils ne sont gardés que si Discord les a encore."
+                        ],
+                        "1.3.2": [
+                            "Les messages supprimés s'affichent toujours en rouge, surlignés et avec la mention « supprimé », quelle que soit la façon dont Discord dessine le chat. Avant, ils pouvaient s'assombrir et se fondre dans le fond."
+                        ],
+                        "1.3.1": [
+                            "Fonctionne de nouveau : Discord a changé la façon dont il distribue les événements de messages, donc les messages supprimés et modifiés n'étaient plus conservés."
+                        ],
                         "1.3.0": [
                             "Suit la langue de Discord : allemand, espagnol, français, japonais, polonais, portugais, russe et turc, en plus de l'anglais."
                         ],
@@ -3740,6 +3800,18 @@
                     "name": "メッセージログ",
                     "description": "削除されたメッセージは、画像・動画・ファイルとともに「削除済み」の表示でチャットに残り、編集されたメッセージは編集前の内容を表示します。メモリ上にのみ保持され、何も保存されません。Discord を再起動するとすべて消えます。",
                     "changelog": {
+                        "1.3.4": [
+                            "Discordの最新アップデート後も、編集されたメッセージの以前の内容が書式・メンション・絵文字付きで再び表示されます。"
+                        ],
+                        "1.3.3": [
+                            "メモリと通信量を大幅に減らしました。画像は縮小コピーで保存し、5 MB を超える動画やファイルはメッセージが削除されたときにダウンロードします。そのため、その時点で Discord に残っている場合のみ保存されます。"
+                        ],
+                        "1.3.2": [
+                            "削除されたメッセージは、Discordのチャットの描き方に関係なく、常に赤色・ハイライト・「削除済み」の表示で示されます。以前は暗くなって背景に溶け込むことがありました。"
+                        ],
+                        "1.3.1": [
+                            "再び動作するようになりました。Discordがメッセージイベントの渡し方を変更したため、削除・編集されたメッセージが保持されていませんでした。"
+                        ],
                         "1.3.0": [
                             "Discordの言語設定に合わせて表示されます。英語のほか、ドイツ語、スペイン語、フランス語、日本語、ポーランド語、ポルトガル語、ロシア語、トルコ語に対応しています。"
                         ],
@@ -3765,6 +3837,18 @@
                     "name": "Dziennik wiadomości",
                     "description": "Usunięte wiadomości zostają na czacie, oznaczone jako usunięte, razem ze zdjęciami, filmami i plikami, a edytowane wiadomości pokazują, co było w nich wcześniej. Trzymane tylko w pamięci: nic nie jest zapisywane, a po ponownym uruchomieniu Discorda wszystko znika.",
                     "changelog": {
+                        "1.3.4": [
+                            "Poprzednie wersje edytowanych wiadomości znowu wyświetlają się z formatowaniem, wzmiankami i emoji po najnowszej aktualizacji Discorda."
+                        ],
+                        "1.3.3": [
+                            "Zużywa znacznie mniej pamięci i danych: zdjęcia są zachowywane jako mniejsza kopia, a filmy i pliki powyżej 5 MB są pobierane dopiero po usunięciu wiadomości, więc zostają tylko wtedy, gdy Discord wciąż je ma."
+                        ],
+                        "1.3.2": [
+                            "Usunięte wiadomości zawsze są czerwone, podświetlone i oznaczone jako „usunięte”, niezależnie od tego, jak Discord rysuje czat. Wcześniej mogły ściemnieć i zlewać się z tłem."
+                        ],
+                        "1.3.1": [
+                            "Znowu działa: Discord zmienił sposób przekazywania zdarzeń wiadomości, więc usunięte i edytowane wiadomości nie były zachowywane."
+                        ],
                         "1.3.0": [
                             "Mówi w języku Discorda: po niemiecku, hiszpańsku, francusku, japońsku, polsku, portugalsku, rosyjsku i turecku, oprócz angielskiego."
                         ],
@@ -3790,6 +3874,18 @@
                     "name": "Registro de Mensagens",
                     "description": "As mensagens excluídas continuam no chat, marcadas como excluídas, com suas imagens, vídeos e arquivos, e as mensagens editadas mostram o que diziam antes. Mantido apenas na memória: nada é salvo, e tudo some quando o Discord é reiniciado.",
                     "changelog": {
+                        "1.3.4": [
+                            "As versões antigas de mensagens editadas voltam a aparecer com formatação, menções e emojis depois da última atualização do Discord."
+                        ],
+                        "1.3.3": [
+                            "Usa bem menos memória e dados: as imagens são guardadas como uma cópia menor, e vídeos e arquivos acima de 5 MB só são baixados quando a mensagem é excluída, então só ficam se o Discord ainda os tiver."
+                        ],
+                        "1.3.2": [
+                            "Mensagens apagadas sempre aparecem em vermelho, destacadas e com a etiqueta \"apagada\", não importa como o Discord desenhe o chat. Antes, elas podiam escurecer e sumir no fundo."
+                        ],
+                        "1.3.1": [
+                            "Voltou a funcionar: o Discord mudou como distribui os eventos de mensagens, então mensagens apagadas e editadas não estavam sendo guardadas."
+                        ],
                         "1.3.0": [
                             "Segue o idioma do Discord: alemão, espanhol, francês, japonês, polonês, português, russo e turco, além do inglês."
                         ],
@@ -3815,6 +3911,18 @@
                     "name": "Журнал сообщений",
                     "description": "Удалённые сообщения остаются в чате с пометкой об удалении, вместе с картинками, видео и файлами, а изменённые сообщения показывают, что в них было раньше. Хранится только в памяти: ничего не сохраняется, а после перезапуска Discord всё исчезает.",
                     "changelog": {
+                        "1.3.4": [
+                            "Старые версии изменённых сообщений снова показываются с форматированием, упоминаниями и эмодзи после последнего обновления Discord."
+                        ],
+                        "1.3.3": [
+                            "Расходует гораздо меньше памяти и трафика: картинки сохраняются уменьшенной копией, а видео и файлы больше 5 МБ скачиваются только после удаления сообщения, поэтому сохраняются, лишь если Discord их ещё не удалил."
+                        ],
+                        "1.3.2": [
+                            "Удалённые сообщения всегда показываются красным, с подсветкой и пометкой «удалено», как бы Discord ни рисовал чат. Раньше они могли темнеть и сливаться с фоном."
+                        ],
+                        "1.3.1": [
+                            "Снова работает: Discord изменил то, как раздаёт события сообщений, поэтому удалённые и изменённые сообщения не сохранялись."
+                        ],
                         "1.3.0": [
                             "Говорит на языке Discord: немецком, испанском, французском, японском, польском, португальском, русском и турецком, а также на английском."
                         ],
@@ -3840,6 +3948,18 @@
                     "name": "Mesaj Günlüğü",
                     "description": "Silinen mesajlar; resimleri, videoları ve dosyalarıyla birlikte silindi olarak işaretlenmiş şekilde sohbette kalır, düzenlenen mesajlar ise daha önce ne yazdığını gösterir. Yalnızca bellekte tutulur: hiçbir şey kaydedilmez ve Discord yeniden başlatıldığında her şey silinir.",
                     "changelog": {
+                        "1.3.4": [
+                            "Düzenlenen mesajların eski hâlleri, Discord'un son güncellemesinden sonra yeniden biçimlendirme, bahsetmeler ve emojilerle görünüyor."
+                        ],
+                        "1.3.3": [
+                            "Çok daha az bellek ve veri kullanır: resimler küçültülmüş bir kopya olarak tutulur, 5 MB'tan büyük video ve dosyalar ise yalnızca mesajları silindiğinde indirilir; bu yüzden ancak Discord'da hâlâ duruyorlarsa saklanırlar."
+                        ],
+                        "1.3.2": [
+                            "Silinen mesajlar, Discord sohbeti nasıl çizerse çizsin her zaman kırmızı, vurgulu ve \"silindi\" etiketiyle görünüyor. Önceden kararıp arka plana karışabiliyorlardı."
+                        ],
+                        "1.3.1": [
+                            "Yeniden çalışıyor: Discord mesaj olaylarını dağıtma şeklini değiştirdiği için silinen ve düzenlenen mesajlar saklanmıyordu."
+                        ],
                         "1.3.0": [
                             "Discord'un dilini kullanır: İngilizcenin yanı sıra Almanca, İspanyolca, Fransızca, Japonca, Lehçe, Portekizce, Rusça ve Türkçe."
                         ],
@@ -4618,7 +4738,7 @@
             "authorIds": [
                 "evi"
             ],
-            "version": "1.1.0",
+            "version": "1.1.3",
             "tags": [
                 "utility"
             ],
@@ -4626,18 +4746,36 @@
             "minEviVersion": "1.1.0",
             "files": {
                 "manifest.json": {
-                    "url": "https://evi.rest/store/plugins/read-all/manifest.json?v=2b12d3a362e5",
-                    "sha256": "2b12d3a362e573e19194bdf6421a17e2b361fac34c3d5bba7b626a48a65e4754"
+                    "url": "https://evi.rest/store/plugins/read-all/manifest.json?v=6e235baf55a5",
+                    "sha256": "6e235baf55a59a512b927e7a9e0ef6f8fc465eeea459908c84128e43f1bcd20e"
                 },
                 "index.js": {
-                    "url": "https://evi.rest/store/plugins/read-all/index.js?v=3fd4371a5003",
-                    "sha256": "3fd4371a50036242497005f9df3a23a58fb3085fa76ef524d5ab9e7e4b823d32"
+                    "url": "https://evi.rest/store/plugins/read-all/index.js?v=97c060caa756",
+                    "sha256": "97c060caa756de8f47056947856f50631f367b5332e37554cbda5124e7f6d077"
                 }
             },
-            "updatedAt": "2026-09-28",
+            "updatedAt": "2026-10-31",
             "source": "https://github.com/BleedDev/evi/tree/main/plugins/read-all",
             "screenshots": [],
             "changelog": [
+                {
+                    "version": "1.1.3",
+                    "notes": [
+                        "The button above the server list works again after Discord's latest update."
+                    ]
+                },
+                {
+                    "version": "1.1.2",
+                    "notes": [
+                        "The button shows up as soon as Discord starts, without turning the plugin off and on again."
+                    ]
+                },
+                {
+                    "version": "1.1.1",
+                    "notes": [
+                        "Tidier code, with tests for the message you see after marking everything read. Nothing changes in use."
+                    ]
+                },
                 {
                     "version": "1.1.0",
                     "notes": [
@@ -4674,6 +4812,15 @@
                     "name": "Alles gelesen",
                     "description": "Markiere alle Server mit einem Klick als gelesen: mit einem Button über der Serverliste, mit /readall oder über das Rechtsklickmenü eines Servers. Auf Wunsch auch Direktnachrichten.",
                     "changelog": {
+                        "1.1.3": [
+                            "Der Button über der Serverliste funktioniert nach Discords neuestem Update wieder."
+                        ],
+                        "1.1.2": [
+                            "Der Button erscheint direkt beim Start von Discord, ohne das Plugin aus- und wieder einzuschalten."
+                        ],
+                        "1.1.1": [
+                            "Aufgeräumterer Code, mit Tests für die Meldung, die du nach dem Als-gelesen-Markieren siehst. Im Gebrauch ändert sich nichts."
+                        ],
                         "1.1.0": [
                             "Folgt der Sprache von Discord: Deutsch, Spanisch, Französisch, Japanisch, Polnisch, Portugiesisch, Russisch und Türkisch, dazu Englisch."
                         ],
@@ -4695,6 +4842,15 @@
                     "name": "Leer todo",
                     "description": "Marca todos los servidores como leídos con un clic: con un botón sobre la lista de servidores, con /readall o desde el menú del clic derecho de un servidor. También los MD, si quieres.",
                     "changelog": {
+                        "1.1.3": [
+                            "El botón sobre la lista de servidores vuelve a funcionar tras la última actualización de Discord."
+                        ],
+                        "1.1.2": [
+                            "El botón aparece en cuanto se inicia Discord, sin tener que desactivar y volver a activar el plugin."
+                        ],
+                        "1.1.1": [
+                            "Código más ordenado, con pruebas para el mensaje que ves después de marcar todo como leído. Nada cambia al usarlo."
+                        ],
                         "1.1.0": [
                             "Sigue el idioma de Discord: alemán, español, francés, japonés, polaco, portugués, ruso y turco, además de inglés."
                         ],
@@ -4716,6 +4872,15 @@
                     "name": "Tout lire",
                     "description": "Marque tous les serveurs comme lus en un clic : avec un bouton au-dessus de la liste des serveurs, avec /readall ou depuis le menu du clic droit d'un serveur. Les MP aussi, si tu veux.",
                     "changelog": {
+                        "1.1.3": [
+                            "Le bouton au-dessus de la liste des serveurs fonctionne de nouveau après la dernière mise à jour de Discord."
+                        ],
+                        "1.1.2": [
+                            "Le bouton apparaît dès le démarrage de Discord, sans désactiver puis réactiver le plugin."
+                        ],
+                        "1.1.1": [
+                            "Code plus propre, avec des tests pour le message affiché après avoir tout marqué comme lu. Rien ne change à l'usage."
+                        ],
                         "1.1.0": [
                             "Suit la langue de Discord : allemand, espagnol, français, japonais, polonais, portugais, russe et turc, en plus de l'anglais."
                         ],
@@ -4737,6 +4902,15 @@
                     "name": "すべて既読",
                     "description": "ワンクリックですべてのサーバーを既読にします。サーバーリストの上のボタン、/readall、サーバーの右クリックメニューから使えます。お好みで DM も対象にできます。",
                     "changelog": {
+                        "1.1.3": [
+                            "Discordの最新アップデート後も、サーバーリストの上のボタンが再び動作します。"
+                        ],
+                        "1.1.2": [
+                            "Discordの起動直後からボタンが表示されます。プラグインをオフにしてオンに戻す必要はありません。"
+                        ],
+                        "1.1.1": [
+                            "コードを整理し、すべてを既読にした後に表示されるメッセージのテストを追加しました。使い方は変わりません。"
+                        ],
                         "1.1.0": [
                             "Discordの言語設定に合わせて表示されます。英語のほか、ドイツ語、スペイン語、フランス語、日本語、ポーランド語、ポルトガル語、ロシア語、トルコ語に対応しています。"
                         ],
@@ -4758,6 +4932,15 @@
                     "name": "Przeczytaj wszystko",
                     "description": "Oznacz wszystkie serwery jako przeczytane jednym kliknięciem: przyciskiem nad listą serwerów, poleceniem /readall albo z menu prawego przycisku myszy na serwerze. Jeśli chcesz, także wiadomości prywatne.",
                     "changelog": {
+                        "1.1.3": [
+                            "Przycisk nad listą serwerów znowu działa po najnowszej aktualizacji Discorda."
+                        ],
+                        "1.1.2": [
+                            "Przycisk pojawia się od razu po uruchomieniu Discorda, bez wyłączania i ponownego włączania pluginu."
+                        ],
+                        "1.1.1": [
+                            "Uporządkowany kod, z testami komunikatu, który widzisz po oznaczeniu wszystkiego jako przeczytane. W użyciu nic się nie zmienia."
+                        ],
                         "1.1.0": [
                             "Mówi w języku Discorda: po niemiecku, hiszpańsku, francusku, japońsku, polsku, portugalsku, rosyjsku i turecku, oprócz angielskiego."
                         ],
@@ -4779,6 +4962,15 @@
                     "name": "Ler tudo",
                     "description": "Marque todos os servidores como lidos com um clique: por um botão acima da lista de servidores, pelo /readall ou pelo menu de clique direito de um servidor. As DMs também, se você quiser.",
                     "changelog": {
+                        "1.1.3": [
+                            "O botão acima da lista de servidores volta a funcionar depois da última atualização do Discord."
+                        ],
+                        "1.1.2": [
+                            "O botão aparece assim que o Discord abre, sem precisar desligar e ligar o plugin de novo."
+                        ],
+                        "1.1.1": [
+                            "Código mais organizado, com testes para a mensagem que aparece depois de marcar tudo como lido. Nada muda no uso."
+                        ],
                         "1.1.0": [
                             "Segue o idioma do Discord: alemão, espanhol, francês, japonês, polonês, português, russo e turco, além do inglês."
                         ],
@@ -4800,6 +4992,15 @@
                     "name": "Всё прочитано",
                     "description": "Отмечайте все серверы прочитанными одним щелчком: кнопкой над списком серверов, командой /readall или через меню правой кнопки мыши на сервере. По желанию и личные сообщения.",
                     "changelog": {
+                        "1.1.3": [
+                            "Кнопка над списком серверов снова работает после последнего обновления Discord."
+                        ],
+                        "1.1.2": [
+                            "Кнопка появляется сразу при запуске Discord, без выключения и повторного включения плагина."
+                        ],
+                        "1.1.1": [
+                            "Код стал аккуратнее, а сообщение, которое вы видите после отметки всего прочитанным, теперь проверяется тестами. В работе ничего не меняется."
+                        ],
                         "1.1.0": [
                             "Говорит на языке Discord: немецком, испанском, французском, японском, польском, португальском, русском и турецком, а также на английском."
                         ],
@@ -4821,6 +5022,15 @@
                     "name": "Tümünü Oku",
                     "description": "Tüm sunucuları tek tıkla okundu olarak işaretle: sunucu listesinin üstündeki bir düğmeyle, /readall ile ya da bir sunucunun sağ tık menüsüyle. İstersen DM'ler de dahil.",
                     "changelog": {
+                        "1.1.3": [
+                            "Sunucu listesinin üstündeki düğme, Discord'un son güncellemesinden sonra yeniden çalışıyor."
+                        ],
+                        "1.1.2": [
+                            "Düğme Discord açılır açılmaz görünüyor, eklentiyi kapatıp yeniden açmana gerek yok."
+                        ],
+                        "1.1.1": [
+                            "Daha düzenli kod ve her şeyi okundu olarak işaretledikten sonra gördüğün mesaj için testler. Kullanımda hiçbir şey değişmiyor."
+                        ],
                         "1.1.0": [
                             "Discord'un dilini kullanır: İngilizcenin yanı sıra Almanca, İspanyolca, Fransızca, Japonca, Lehçe, Portekizce, Rusça ve Türkçe."
                         ],

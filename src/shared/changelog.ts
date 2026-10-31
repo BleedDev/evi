@@ -12,6 +12,21 @@ export type { Release, SectionKind } from "./changelogNotes";
  */
 export const RELEASES: Release[] = [
     {
+        version: "3.1.0",
+        date: "2026-10-31",
+        sections: {
+            added: [
+                "**Know when Discord breaks your plugin.** If you publish plugins, your Inbox now tells you the first time a version of one has trouble on people's Discord, with what failed: which patch and why, what it couldn't find, or the error it stopped with. The Author page lists the same, with how many installs report each.",
+                "**All your plugins side by side.** The Author page opens on every plugin you publish, with active installs, growth, rating and crash rate, sorted the way you pick. Pick one to see its own numbers.",
+                "**Download a plugin's source** from the Author page into a folder you pick: Evi's own plugins from Evi's repository, others as the store has them.",
+            ],
+            improved: [
+                "**Fewer plugins wrongly marked broken.** Some parts of Discord only load the first time you use them, like search. A plugin waiting for one of those is no longer reported as broken.",
+                "**The Inbox has pages,** so a long list of notifications isn't one long scroll.",
+            ],
+        },
+    },
+    {
         version: "3.0.1",
         date: "2026-10-28",
         sections: {

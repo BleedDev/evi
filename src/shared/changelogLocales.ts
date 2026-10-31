@@ -11,6 +11,17 @@ export type ReleaseNotes = Partial<Record<SectionKind, string[]>>;
 /** Language -> version -> section -> lines */
 export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
     de: {
+        "3.1.0": {
+            added: [
+                "**Erfahre, wenn Discord dein Plugin kaputt macht.** Wenn du Plugins veröffentlichst, sagt dir dein Posteingang jetzt beim ersten Mal, dass eine Version davon bei anderen Probleme macht, und was fehlschlug: welcher Patch und warum, was es nicht gefunden hat oder mit welchem Fehler es gestoppt ist. Die Autorenseite zeigt dasselbe, mit der Zahl der Installationen, die es melden.",
+                "**Alle deine Plugins nebeneinander.** Die Autorenseite zeigt zuerst jedes Plugin, das du veröffentlichst, mit aktiven Installationen, Wachstum, Bewertung und Absturzrate, sortiert, wie du willst. Wähle eins, um seine eigenen Zahlen zu sehen.",
+                "**Lade den Quellcode eines Plugins herunter**, von der Autorenseite in einen Ordner deiner Wahl: Evis eigene Plugins aus Evis Repository, andere so, wie der Store sie hat.",
+            ],
+            improved: [
+                "**Weniger Plugins fälschlich als defekt markiert.** Manche Teile von Discord laden erst, wenn du sie zum ersten Mal benutzt, wie die Suche. Ein Plugin, das auf so einen Teil wartet, wird nicht mehr als defekt gemeldet.",
+                "**Der Posteingang hat Seiten,** damit eine lange Liste von Benachrichtigungen kein endloses Scrollen ist.",
+            ],
+        },
         "3.0.1": {
             added: [
                 "**Evi in Discords Einstellungssuche.** Die Suche in Discords Einstellungen findet jetzt Evis Seiten, deine Plugins und jede Plugin-Einstellung und bringt dich direkt dorthin.",
@@ -397,6 +408,17 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     es: {
+        "3.1.0": {
+            added: [
+                "**Entérate cuando Discord rompe tu plugin.** Si publicas plugins, tu bandeja de entrada ahora te avisa la primera vez que una versión de uno da problemas en el Discord de otros, con lo que falló: qué parche y por qué, qué no encontró o el error con el que se detuvo. La página de autor muestra lo mismo, con cuántas instalaciones lo reportan.",
+                "**Todos tus plugins lado a lado.** La página de autor abre con todos los plugins que publicas, con instalaciones activas, crecimiento, valoración y tasa de fallos, ordenados como elijas. Elige uno para ver sus propias cifras.",
+                "**Descarga el código fuente de un plugin** desde la página de autor a una carpeta que elijas: los plugins de Evi desde su repositorio, los demás tal como los tiene la tienda.",
+            ],
+            improved: [
+                "**Menos plugins marcados como rotos por error.** Algunas partes de Discord solo se cargan la primera vez que las usas, como la búsqueda. Un plugin que espera una de ellas ya no se reporta como roto.",
+                "**La bandeja de entrada tiene páginas,** así una lista larga de notificaciones no es un desplazamiento interminable.",
+            ],
+        },
         "3.0.1": {
             added: [
                 "**Encuentra Evi en la búsqueda de ajustes de Discord.** Buscar en los ajustes de Discord ahora encuentra las páginas de Evi, tus plugins y cada ajuste de plugin, y te lleva directamente al que elijas.",
@@ -783,6 +805,17 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     fr: {
+        "3.1.0": {
+            added: [
+                "**Sache quand Discord casse ton plugin.** Si tu publies des plugins, ta boîte de réception te prévient maintenant la première fois qu'une de leurs versions pose problème chez les autres, avec ce qui a échoué : quel patch et pourquoi, ce qu'il n'a pas trouvé ou l'erreur sur laquelle il s'est arrêté. La page auteur montre la même chose, avec le nombre d'installations qui le signalent.",
+                "**Tous tes plugins côte à côte.** La page auteur s'ouvre sur tous les plugins que tu publies, avec installations actives, croissance, note et taux de plantage, triés comme tu veux. Choisis-en un pour voir ses propres chiffres.",
+                "**Télécharge le code source d'un plugin** depuis la page auteur dans un dossier de ton choix : les plugins d'Evi depuis son dépôt, les autres tels que le store les a.",
+            ],
+            improved: [
+                "**Moins de plugins marqués cassés à tort.** Certaines parties de Discord ne se chargent qu'à leur première utilisation, comme la recherche. Un plugin qui en attend une n'est plus signalé comme cassé.",
+                "**La boîte de réception a des pages,** pour qu'une longue liste de notifications ne soit pas un défilement sans fin.",
+            ],
+        },
         "3.0.1": {
             added: [
                 "**Retrouve Evi dans la recherche des paramètres de Discord.** La recherche dans les paramètres de Discord trouve maintenant les pages d'Evi, tes plugins et chaque paramètre de plugin, et t'y emmène directement.",
@@ -1169,6 +1202,17 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ja: {
+        "3.1.0": {
+            added: [
+                "**Discord でプラグインが壊れたらわかります。** プラグインを公開していると、そのバージョンが他の人の Discord で初めて問題を起こしたときに受信箱でお知らせします。どのパッチがなぜ失敗したか、何が見つからなかったか、どのエラーで止まったかもわかります。作者ページにも、報告したインストール数とともに同じ内容が表示されます。",
+                "**すべてのプラグインを並べて比較。** 作者ページは公開中のすべてのプラグインから始まり、アクティブなインストール数、増加率、評価、クラッシュ率を好きな順に並べられます。1 つ選ぶとそのプラグインの数値が見られます。",
+                "**プラグインのソースをダウンロード**して、作者ページから好きなフォルダーに保存できます。Evi のプラグインは Evi のリポジトリから、その他はストアにある形で保存されます。",
+            ],
+            improved: [
+                "**誤って壊れていると表示されるプラグインが減りました。** 検索のように、Discord には初めて使うときに読み込まれる部分があります。それを待っているプラグインは壊れていると報告されなくなりました。",
+                "**受信箱にページができました。** 通知が多くても長々とスクロールせずに済みます。",
+            ],
+        },
         "3.0.1": {
             added: [
                 "**Discord の設定検索で Evi が見つかります。** Discord の設定を検索すると、Evi のページ、プラグイン、各プラグインの設定が見つかり、選んだ場所にそのまま移動できます。",
@@ -1555,6 +1599,17 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     pl: {
+        "3.1.0": {
+            added: [
+                "**Dowiedz się, kiedy Discord psuje Twój plugin.** Jeśli publikujesz pluginy, skrzynka odbiorcza powie Ci teraz, gdy któraś wersja po raz pierwszy sprawia problemy u innych, razem z tym, co zawiodło: który patch i dlaczego, czego nie znalazł albo z jakim błędem się zatrzymał. Strona autora pokazuje to samo, z liczbą instalacji, które to zgłaszają.",
+                "**Wszystkie Twoje pluginy obok siebie.** Strona autora otwiera się na wszystkich pluginach, które publikujesz, z aktywnymi instalacjami, wzrostem, oceną i odsetkiem awarii, posortowanymi tak, jak wybierzesz. Wybierz jeden, by zobaczyć jego liczby.",
+                "**Pobierz kod źródłowy pluginu** ze strony autora do wybranego folderu: pluginy Evi z repozytorium Evi, inne tak, jak ma je sklep.",
+            ],
+            improved: [
+                "**Mniej pluginów błędnie oznaczonych jako zepsute.** Niektóre części Discorda ładują się dopiero przy pierwszym użyciu, jak wyszukiwanie. Plugin, który na taką czeka, nie jest już zgłaszany jako zepsuty.",
+                "**Skrzynka odbiorcza ma strony,** więc długa lista powiadomień to nie jedno długie przewijanie.",
+            ],
+        },
         "3.0.1": {
             added: [
                 "**Evi w wyszukiwarce ustawień Discorda.** Wyszukiwanie w ustawieniach Discorda znajduje teraz strony Evi, twoje pluginy i każde ustawienie pluginu, i od razu tam przenosi.",
@@ -1941,6 +1996,17 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     "pt-BR": {
+        "3.1.0": {
+            added: [
+                "**Saiba quando o Discord quebra seu plugin.** Se você publica plugins, sua caixa de entrada agora avisa na primeira vez que uma versão de um deles dá problema no Discord das pessoas, com o que falhou: qual patch e por quê, o que ele não encontrou ou o erro com que parou. A página de autor mostra o mesmo, com quantas instalações relatam cada um.",
+                "**Todos os seus plugins lado a lado.** A página de autor abre com todos os plugins que você publica, com instalações ativas, crescimento, avaliação e taxa de falhas, ordenados como você escolher. Escolha um para ver os números dele.",
+                "**Baixe o código-fonte de um plugin** pela página de autor para uma pasta que você escolher: os plugins do Evi do repositório do Evi, os outros como a loja os tem.",
+            ],
+            improved: [
+                "**Menos plugins marcados como quebrados por engano.** Algumas partes do Discord só carregam na primeira vez que você as usa, como a busca. Um plugin esperando uma delas não é mais relatado como quebrado.",
+                "**A caixa de entrada tem páginas,** então uma lista longa de notificações não vira uma rolagem sem fim.",
+            ],
+        },
         "3.0.1": {
             added: [
                 "**Encontre o Evi na busca das configurações do Discord.** Buscar nas configurações do Discord agora encontra as páginas do Evi, seus plugins e cada configuração de plugin, e leva você direto para a que escolher.",
@@ -2327,6 +2393,17 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ru: {
+        "3.1.0": {
+            added: [
+                "**Узнавайте, когда Discord ломает ваш плагин.** Если вы публикуете плагины, во «Входящих» теперь появится уведомление, когда версия одного из них впервые даёт сбой у других, с тем, что не сработало: какой патч и почему, что не удалось найти или с какой ошибкой он остановился. На странице автора то же самое, с числом установок, сообщивших об этом.",
+                "**Все ваши плагины рядом.** Страница автора открывается со всеми вашими плагинами: активные установки, рост, оценка и частота сбоев, в том порядке, который вы выберете. Выберите один, чтобы увидеть его цифры.",
+                "**Скачайте исходный код плагина** со страницы автора в выбранную папку: плагины Evi из репозитория Evi, остальные в том виде, в каком они есть в магазине.",
+            ],
+            improved: [
+                "**Меньше плагинов ошибочно помечаются сломанными.** Некоторые части Discord загружаются только при первом использовании, например поиск. Плагин, который ждёт такую часть, больше не считается сломанным.",
+                "**У «Входящих» появились страницы,** и длинный список уведомлений больше не нужно долго прокручивать.",
+            ],
+        },
         "3.0.1": {
             added: [
                 "**Evi в поиске по настройкам Discord.** Поиск в настройках Discord теперь находит страницы Evi, ваши плагины и каждую настройку плагинов и сразу открывает нужное место.",
@@ -2713,6 +2790,17 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     tr: {
+        "3.1.0": {
+            added: [
+                "**Discord eklentini bozduğunda haberin olsun.** Eklenti yayınlıyorsan, bir sürümü başkalarının Discord'unda ilk kez sorun çıkardığında Gelen Kutun artık sana neyin başarısız olduğuyla birlikte haber veriyor: hangi yama ve neden, neyi bulamadığı ya da hangi hatayla durduğu. Yazar sayfası da aynısını, her birini kaç kurulumun bildirdiğiyle gösteriyor.",
+                "**Tüm eklentilerin yan yana.** Yazar sayfası yayınladığın her eklentiyle açılıyor: aktif kurulumlar, büyüme, puan ve çökme oranı, seçtiğin sırayla. Kendi rakamlarını görmek için birini seç.",
+                "**Bir eklentinin kaynak kodunu indir**: Yazar sayfasından seçtiğin bir klasöre. Evi'nin kendi eklentileri Evi'nin deposundan, diğerleri mağazadaki hâliyle.",
+            ],
+            improved: [
+                "**Yanlışlıkla bozuk görünen eklentiler azaldı.** Discord'un bazı kısımları, arama gibi, yalnızca ilk kullandığında yükleniyor. Bunlardan birini bekleyen bir eklenti artık bozuk olarak bildirilmiyor.",
+                "**Gelen Kutusu'nda sayfalar var,** böylece uzun bir bildirim listesi bitmeyen bir kaydırma olmuyor.",
+            ],
+        },
         "3.0.1": {
             added: [
                 "**Evi, Discord'un ayar aramasında.** Discord'un ayarlarında arama artık Evi'nin sayfalarını, eklentilerini ve her eklenti ayarını bulur ve seni doğrudan seçtiğin yere götürür.",

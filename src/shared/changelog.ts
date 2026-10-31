@@ -12,6 +12,15 @@ export type { Release, SectionKind } from "./changelogNotes";
  */
 export const RELEASES: Release[] = [
     {
+        version: "3.1.1",
+        date: "2026-10-31",
+        sections: {
+            fixed: [
+                "**Plugins aren't called broken just because you haven't opened something yet.** Some parts of Discord only load the first time you open them, like a call's chat, and Pop Out Chat said it was broken until you did.",
+            ],
+        },
+    },
+    {
         version: "3.1.0",
         date: "2026-10-31",
         sections: {

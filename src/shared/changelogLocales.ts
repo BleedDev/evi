@@ -11,6 +11,11 @@ export type ReleaseNotes = Partial<Record<SectionKind, string[]>>;
 /** Language -> version -> section -> lines */
 export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
     de: {
+        "3.1.1": {
+            fixed: [
+                "**Plugins gelten nicht mehr als defekt, nur weil du etwas noch nicht geöffnet hast.** Manche Teile von Discord laden erst, wenn du sie zum ersten Mal öffnest, wie der Chat eines Anrufs, und Pop Out Chat meldete sich bis dahin als defekt.",
+            ],
+        },
         "3.1.0": {
             added: [
                 "**Erfahre, wenn Discord dein Plugin kaputt macht.** Wenn du Plugins veröffentlichst, sagt dir dein Posteingang jetzt beim ersten Mal, dass eine Version davon bei anderen Probleme macht, und was fehlschlug: welcher Patch und warum, was es nicht gefunden hat oder mit welchem Fehler es gestoppt ist. Die Autorenseite zeigt dasselbe, mit der Zahl der Installationen, die es melden.",
@@ -408,6 +413,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     es: {
+        "3.1.1": {
+            fixed: [
+                "**Los plugins ya no aparecen como rotos solo porque aún no abriste algo.** Algunas partes de Discord solo se cargan la primera vez que las abres, como el chat de una llamada, y Pop Out Chat decía estar roto hasta entonces.",
+            ],
+        },
         "3.1.0": {
             added: [
                 "**Entérate cuando Discord rompe tu plugin.** Si publicas plugins, tu bandeja de entrada ahora te avisa la primera vez que una versión de uno da problemas en el Discord de otros, con lo que falló: qué parche y por qué, qué no encontró o el error con el que se detuvo. La página de autor muestra lo mismo, con cuántas instalaciones lo reportan.",
@@ -805,6 +815,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     fr: {
+        "3.1.1": {
+            fixed: [
+                "**Les plugins ne sont plus dits cassés juste parce que tu n'as pas encore ouvert quelque chose.** Certaines parties de Discord ne se chargent qu'à leur première ouverture, comme le chat d'un appel, et Pop Out Chat se disait cassé jusque-là.",
+            ],
+        },
         "3.1.0": {
             added: [
                 "**Sache quand Discord casse ton plugin.** Si tu publies des plugins, ta boîte de réception te prévient maintenant la première fois qu'une de leurs versions pose problème chez les autres, avec ce qui a échoué : quel patch et pourquoi, ce qu'il n'a pas trouvé ou l'erreur sur laquelle il s'est arrêté. La page auteur montre la même chose, avec le nombre d'installations qui le signalent.",
@@ -1202,6 +1217,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ja: {
+        "3.1.1": {
+            fixed: [
+                "**まだ開いていない部分があるだけで、プラグインが壊れていると表示されなくなりました。** 通話のチャットのように、Discord には初めて開いたときに読み込まれる部分があり、Pop Out Chat はそれまで壊れていると表示されていました。",
+            ],
+        },
         "3.1.0": {
             added: [
                 "**Discord でプラグインが壊れたらわかります。** プラグインを公開していると、そのバージョンが他の人の Discord で初めて問題を起こしたときに受信箱でお知らせします。どのパッチがなぜ失敗したか、何が見つからなかったか、どのエラーで止まったかもわかります。作者ページにも、報告したインストール数とともに同じ内容が表示されます。",
@@ -1599,6 +1619,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     pl: {
+        "3.1.1": {
+            fixed: [
+                "**Pluginy nie są już oznaczane jako zepsute tylko dlatego, że czegoś jeszcze nie otworzyłeś.** Niektóre części Discorda ładują się dopiero przy pierwszym otwarciu, jak czat rozmowy, a Pop Out Chat do tego czasu zgłaszał, że jest zepsuty.",
+            ],
+        },
         "3.1.0": {
             added: [
                 "**Dowiedz się, kiedy Discord psuje Twój plugin.** Jeśli publikujesz pluginy, skrzynka odbiorcza powie Ci teraz, gdy któraś wersja po raz pierwszy sprawia problemy u innych, razem z tym, co zawiodło: który patch i dlaczego, czego nie znalazł albo z jakim błędem się zatrzymał. Strona autora pokazuje to samo, z liczbą instalacji, które to zgłaszają.",
@@ -1996,6 +2021,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     "pt-BR": {
+        "3.1.1": {
+            fixed: [
+                "**Plugins não aparecem mais como quebrados só porque você ainda não abriu algo.** Algumas partes do Discord só carregam na primeira vez que você as abre, como o chat de uma chamada, e o Pop Out Chat dizia estar quebrado até lá.",
+            ],
+        },
         "3.1.0": {
             added: [
                 "**Saiba quando o Discord quebra seu plugin.** Se você publica plugins, sua caixa de entrada agora avisa na primeira vez que uma versão de um deles dá problema no Discord das pessoas, com o que falhou: qual patch e por quê, o que ele não encontrou ou o erro com que parou. A página de autor mostra o mesmo, com quantas instalações relatam cada um.",
@@ -2393,6 +2423,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ru: {
+        "3.1.1": {
+            fixed: [
+                "**Плагины больше не считаются сломанными только потому, что вы ещё что-то не открывали.** Некоторые части Discord загружаются только при первом открытии, например чат звонка, и Pop Out Chat до этого сообщал, что сломан.",
+            ],
+        },
         "3.1.0": {
             added: [
                 "**Узнавайте, когда Discord ломает ваш плагин.** Если вы публикуете плагины, во «Входящих» теперь появится уведомление, когда версия одного из них впервые даёт сбой у других, с тем, что не сработало: какой патч и почему, что не удалось найти или с какой ошибкой он остановился. На странице автора то же самое, с числом установок, сообщивших об этом.",
@@ -2790,6 +2825,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     tr: {
+        "3.1.1": {
+            fixed: [
+                "**Eklentiler, bir şeyi henüz açmadın diye artık bozuk sayılmıyor.** Discord'un bazı kısımları, bir aramanın sohbeti gibi, yalnızca ilk açtığında yükleniyor ve Pop Out Chat o zamana kadar bozuk olduğunu söylüyordu.",
+            ],
+        },
         "3.1.0": {
             added: [
                 "**Discord eklentini bozduğunda haberin olsun.** Eklenti yayınlıyorsan, bir sürümü başkalarının Discord'unda ilk kez sorun çıkardığında Gelen Kutun artık sana neyin başarısız olduğuyla birlikte haber veriyor: hangi yama ve neden, neyi bulamadığı ya da hangi hatayla durduğu. Yazar sayfası da aynısını, her birini kaç kurulumun bildirdiğiyle gösteriyor.",

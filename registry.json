@@ -4738,7 +4738,7 @@
             "authorIds": [
                 "evi"
             ],
-            "version": "1.1.3",
+            "version": "1.1.4",
             "tags": [
                 "utility"
             ],
@@ -4746,18 +4746,24 @@
             "minEviVersion": "1.1.0",
             "files": {
                 "manifest.json": {
-                    "url": "https://evi.rest/store/plugins/read-all/manifest.json?v=6e235baf55a5",
-                    "sha256": "6e235baf55a59a512b927e7a9e0ef6f8fc465eeea459908c84128e43f1bcd20e"
+                    "url": "https://evi.rest/store/plugins/read-all/manifest.json?v=59bf624533cb",
+                    "sha256": "59bf624533cb6a9a570aa8f5a973c30d88cecfe8ab3750734cfd7d00d7f7f8f3"
                 },
                 "index.js": {
-                    "url": "https://evi.rest/store/plugins/read-all/index.js?v=97c060caa756",
-                    "sha256": "97c060caa756de8f47056947856f50631f367b5332e37554cbda5124e7f6d077"
+                    "url": "https://evi.rest/store/plugins/read-all/index.js?v=3fd01850176f",
+                    "sha256": "3fd01850176fa5fe24ba6ebb6175e063eb8cc0d3520e6b1582492742d1f43967"
                 }
             },
             "updatedAt": "2026-10-31",
             "source": "https://github.com/BleedDev/evi/tree/main/plugins/read-all",
             "screenshots": [],
             "changelog": [
+                {
+                    "version": "1.1.4",
+                    "notes": [
+                        "The button is centred over your servers again with Discord's new server list."
+                    ]
+                },
                 {
                     "version": "1.1.3",
                     "notes": [
@@ -4812,6 +4818,9 @@
                     "name": "Alles gelesen",
                     "description": "Markiere alle Server mit einem Klick als gelesen: mit einem Button über der Serverliste, mit /readall oder über das Rechtsklickmenü eines Servers. Auf Wunsch auch Direktnachrichten.",
                     "changelog": {
+                        "1.1.4": [
+                            "Der Button sitzt mit Discords neuer Serverliste wieder mittig über deinen Servern."
+                        ],
                         "1.1.3": [
                             "Der Button über der Serverliste funktioniert nach Discords neuestem Update wieder."
                         ],
@@ -4842,6 +4851,9 @@
                     "name": "Leer todo",
                     "description": "Marca todos los servidores como leídos con un clic: con un botón sobre la lista de servidores, con /readall o desde el menú del clic derecho de un servidor. También los MD, si quieres.",
                     "changelog": {
+                        "1.1.4": [
+                            "El botón vuelve a estar centrado sobre tus servidores con la nueva lista de servidores de Discord."
+                        ],
                         "1.1.3": [
                             "El botón sobre la lista de servidores vuelve a funcionar tras la última actualización de Discord."
                         ],
@@ -4872,6 +4884,9 @@
                     "name": "Tout lire",
                     "description": "Marque tous les serveurs comme lus en un clic : avec un bouton au-dessus de la liste des serveurs, avec /readall ou depuis le menu du clic droit d'un serveur. Les MP aussi, si tu veux.",
                     "changelog": {
+                        "1.1.4": [
+                            "Le bouton est de nouveau centré au-dessus de tes serveurs avec la nouvelle liste de serveurs de Discord."
+                        ],
                         "1.1.3": [
                             "Le bouton au-dessus de la liste des serveurs fonctionne de nouveau après la dernière mise à jour de Discord."
                         ],
@@ -4902,6 +4917,9 @@
                     "name": "すべて既読",
                     "description": "ワンクリックですべてのサーバーを既読にします。サーバーリストの上のボタン、/readall、サーバーの右クリックメニューから使えます。お好みで DM も対象にできます。",
                     "changelog": {
+                        "1.1.4": [
+                            "Discordの新しいサーバーリストでも、ボタンが再びサーバーの上の中央にそろいます。"
+                        ],
                         "1.1.3": [
                             "Discordの最新アップデート後も、サーバーリストの上のボタンが再び動作します。"
                         ],
@@ -4932,6 +4950,9 @@
                     "name": "Przeczytaj wszystko",
                     "description": "Oznacz wszystkie serwery jako przeczytane jednym kliknięciem: przyciskiem nad listą serwerów, poleceniem /readall albo z menu prawego przycisku myszy na serwerze. Jeśli chcesz, także wiadomości prywatne.",
                     "changelog": {
+                        "1.1.4": [
+                            "Przycisk znów jest wyśrodkowany nad Twoimi serwerami w nowej liście serwerów Discorda."
+                        ],
                         "1.1.3": [
                             "Przycisk nad listą serwerów znowu działa po najnowszej aktualizacji Discorda."
                         ],
@@ -4962,6 +4983,9 @@
                     "name": "Ler tudo",
                     "description": "Marque todos os servidores como lidos com um clique: por um botão acima da lista de servidores, pelo /readall ou pelo menu de clique direito de um servidor. As DMs também, se você quiser.",
                     "changelog": {
+                        "1.1.4": [
+                            "O botão volta a ficar centralizado acima dos seus servidores com a nova lista de servidores do Discord."
+                        ],
                         "1.1.3": [
                             "O botão acima da lista de servidores volta a funcionar depois da última atualização do Discord."
                         ],
@@ -4992,6 +5016,9 @@
                     "name": "Всё прочитано",
                     "description": "Отмечайте все серверы прочитанными одним щелчком: кнопкой над списком серверов, командой /readall или через меню правой кнопки мыши на сервере. По желанию и личные сообщения.",
                     "changelog": {
+                        "1.1.4": [
+                            "Кнопка снова по центру над вашими серверами в новом списке серверов Discord."
+                        ],
                         "1.1.3": [
                             "Кнопка над списком серверов снова работает после последнего обновления Discord."
                         ],
@@ -5022,6 +5049,9 @@
                     "name": "Tümünü Oku",
                     "description": "Tüm sunucuları tek tıkla okundu olarak işaretle: sunucu listesinin üstündeki bir düğmeyle, /readall ile ya da bir sunucunun sağ tık menüsüyle. İstersen DM'ler de dahil.",
                     "changelog": {
+                        "1.1.4": [
+                            "Düğme, Discord'un yeni sunucu listesinde yeniden sunucularının üstünde ortalanmış duruyor."
+                        ],
                         "1.1.3": [
                             "Sunucu listesinin üstündeki düğme, Discord'un son güncellemesinden sonra yeniden çalışıyor."
                         ],

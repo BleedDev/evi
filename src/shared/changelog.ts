@@ -12,6 +12,15 @@ export type { Release, SectionKind } from "./changelogNotes";
  */
 export const RELEASES: Release[] = [
     {
+        version: "3.1.2",
+        date: "2026-10-31",
+        sections: {
+            fixed: [
+                "**Plugin cards line up again.** Cards next to each other are the same height, with their buttons on one line, even when a badge wraps under a long name.",
+            ],
+        },
+    },
+    {
         version: "3.1.1",
         date: "2026-10-31",
         sections: {

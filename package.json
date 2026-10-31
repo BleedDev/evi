@@ -1,7 +1,7 @@
 {
     "name": "evi",
     "private": true,
-    "version": "3.1.1",
+    "version": "3.1.2",
     "license": "GPL-3.0-or-later",
     "description": "A Discord client mod with hot-reloadable runtime plugins",
     "type": "module",

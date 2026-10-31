@@ -11,6 +11,11 @@ export type ReleaseNotes = Partial<Record<SectionKind, string[]>>;
 /** Language -> version -> section -> lines */
 export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
     de: {
+        "3.1.2": {
+            fixed: [
+                "**Plugin-Karten sind wieder bündig.** Nebeneinanderliegende Karten sind gleich hoch und ihre Knöpfe auf einer Linie, auch wenn ein Abzeichen unter einen langen Namen rutscht.",
+            ],
+        },
         "3.1.1": {
             fixed: [
                 "**Plugins gelten nicht mehr als defekt, nur weil du etwas noch nicht geöffnet hast.** Manche Teile von Discord laden erst, wenn du sie zum ersten Mal öffnest, wie der Chat eines Anrufs, und Pop Out Chat meldete sich bis dahin als defekt.",
@@ -413,6 +418,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     es: {
+        "3.1.2": {
+            fixed: [
+                "**Las tarjetas de plugins vuelven a estar alineadas.** Las tarjetas contiguas tienen la misma altura y sus botones quedan en una línea, aunque una etiqueta baje bajo un nombre largo.",
+            ],
+        },
         "3.1.1": {
             fixed: [
                 "**Los plugins ya no aparecen como rotos solo porque aún no abriste algo.** Algunas partes de Discord solo se cargan la primera vez que las abres, como el chat de una llamada, y Pop Out Chat decía estar roto hasta entonces.",
@@ -815,6 +825,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     fr: {
+        "3.1.2": {
+            fixed: [
+                "**Les cartes de plugins sont de nouveau alignées.** Les cartes côte à côte ont la même hauteur et leurs boutons sur une même ligne, même quand un badge passe sous un nom long.",
+            ],
+        },
         "3.1.1": {
             fixed: [
                 "**Les plugins ne sont plus dits cassés juste parce que tu n'as pas encore ouvert quelque chose.** Certaines parties de Discord ne se chargent qu'à leur première ouverture, comme le chat d'un appel, et Pop Out Chat se disait cassé jusque-là.",
@@ -1217,6 +1232,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ja: {
+        "3.1.2": {
+            fixed: [
+                "**プラグインのカードが再びそろいました。** 長い名前の下にバッジが折り返されても、隣り合うカードは同じ高さで、ボタンも一列にそろいます。",
+            ],
+        },
         "3.1.1": {
             fixed: [
                 "**まだ開いていない部分があるだけで、プラグインが壊れていると表示されなくなりました。** 通話のチャットのように、Discord には初めて開いたときに読み込まれる部分があり、Pop Out Chat はそれまで壊れていると表示されていました。",
@@ -1619,6 +1639,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     pl: {
+        "3.1.2": {
+            fixed: [
+                "**Karty pluginów znów są wyrównane.** Karty obok siebie mają tę samą wysokość, a ich przyciski są w jednej linii, nawet gdy plakietka przechodzi pod długą nazwę.",
+            ],
+        },
         "3.1.1": {
             fixed: [
                 "**Pluginy nie są już oznaczane jako zepsute tylko dlatego, że czegoś jeszcze nie otworzyłeś.** Niektóre części Discorda ładują się dopiero przy pierwszym otwarciu, jak czat rozmowy, a Pop Out Chat do tego czasu zgłaszał, że jest zepsuty.",
@@ -2021,6 +2046,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     "pt-BR": {
+        "3.1.2": {
+            fixed: [
+                "**Os cartões de plugins voltaram a ficar alinhados.** Cartões lado a lado têm a mesma altura e os botões ficam na mesma linha, mesmo quando um selo quebra para baixo de um nome longo.",
+            ],
+        },
         "3.1.1": {
             fixed: [
                 "**Plugins não aparecem mais como quebrados só porque você ainda não abriu algo.** Algumas partes do Discord só carregam na primeira vez que você as abre, como o chat de uma chamada, e o Pop Out Chat dizia estar quebrado até lá.",
@@ -2423,6 +2453,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ru: {
+        "3.1.2": {
+            fixed: [
+                "**Карточки плагинов снова выровнены.** Соседние карточки одной высоты, а их кнопки на одной линии, даже если значок переносится под длинное название.",
+            ],
+        },
         "3.1.1": {
             fixed: [
                 "**Плагины больше не считаются сломанными только потому, что вы ещё что-то не открывали.** Некоторые части Discord загружаются только при первом открытии, например чат звонка, и Pop Out Chat до этого сообщал, что сломан.",
@@ -2825,6 +2860,11 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     tr: {
+        "3.1.2": {
+            fixed: [
+                "**Eklenti kartları yeniden hizalı.** Yan yana kartlar aynı yükseklikte ve düğmeleri aynı hizada, uzun bir adın altına bir rozet kaysa bile.",
+            ],
+        },
         "3.1.1": {
             fixed: [
                 "**Eklentiler, bir şeyi henüz açmadın diye artık bozuk sayılmıyor.** Discord'un bazı kısımları, bir aramanın sohbeti gibi, yalnızca ilk açtığında yükleniyor ve Pop Out Chat o zamana kadar bozuk olduğunu söylüyordu.",

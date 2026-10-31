@@ -2,7 +2,7 @@
     "id": "fake-deafen",
     "name": "Fake Deafen",
     "description": "Appear deafened and muted to everyone in voice while you still hear them. A ghost button next to deafen, a keyboard shortcut, or /fakedeafen.",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "authors": [
         "Evi"
     ],
@@ -12,6 +12,12 @@
     ],
     "permissions": {},
     "changelog": [
+        {
+            "version": "1.2.1",
+            "notes": [
+                "You now see yourself deafened and muted in voice channels too, just like everyone else sees you. Before, only others saw it."
+            ]
+        },
         {
             "version": "1.2.0",
             "notes": [
@@ -44,6 +50,9 @@
             "name": "Fake Deafen",
             "description": "Wirke im Sprachkanal taub und stummgeschaltet, während du alle weiter hörst. Ein Geist-Button neben Ton aus, ein Tastenkürzel oder /fakedeafen.",
             "changelog": {
+                "1.2.1": [
+                    "Du siehst dich jetzt auch selbst in Sprachkanälen als taub und stummgeschaltet, so wie alle anderen dich sehen. Vorher sahen das nur die anderen."
+                ],
                 "1.2.0": [
                     "Teilt sich einen Platz in der Benutzerleiste mit den Schaltern anderer Plugins: Sind es mehrere, landen sie in einem Evi-Button mit Menü, damit dein Name und Discords Einstellungen Platz behalten."
                 ],
@@ -62,6 +71,9 @@
             "name": "Ensordecido falso",
             "description": "Aparece ensordecido y silenciado ante todos en voz mientras los sigues oyendo. Un botón de fantasma junto a ensordecer, un atajo de teclado o /fakedeafen.",
             "changelog": {
+                "1.2.1": [
+                    "Ahora también te ves ensordecido y silenciado en los canales de voz, igual que te ven los demás. Antes solo lo veían los demás."
+                ],
                 "1.2.0": [
                     "Comparte un solo sitio del panel de usuario con los interruptores de otros plugins: si hay varios, se juntan en un botón de Evi con menú, así tu nombre y el engranaje de ajustes de Discord conservan su espacio."
                 ],
@@ -80,6 +92,9 @@
             "name": "Fausse sourdine",
             "description": "Apparais en sourdine et muet pour tout le monde en vocal tout en les entendant. Un bouton fantôme à côté de sourdine, un raccourci clavier ou /fakedeafen.",
             "changelog": {
+                "1.2.1": [
+                    "Tu te vois maintenant toi aussi en sourdine et muet dans les salons vocaux, comme tout le monde te voit. Avant, seuls les autres le voyaient."
+                ],
                 "1.2.0": [
                     "Partage une seule place du panneau utilisateur avec les interrupteurs des autres plugins : s’il y en a plusieurs, ils se regroupent dans un bouton Evi avec un menu, pour que ton nom et la roue des paramètres de Discord gardent leur place."
                 ],
@@ -98,6 +113,9 @@
             "name": "フェイクスピーカーミュート",
             "description": "全員の声を聞きながら、ボイスチャンネルではスピーカーミュートとマイクミュート中に見せます。スピーカーミュートの横のおばけボタン、キーボードショートカット、または /fakedeafen で操作できます。",
             "changelog": {
+                "1.2.1": [
+                    "ボイスチャンネルで、他の人から見えるのと同じように、自分にもスピーカーミュート・マイクミュート中と表示されるようになりました。以前は他の人にしか表示されませんでした。"
+                ],
                 "1.2.0": [
                     "ユーザーパネルの 1 か所を他のプラグインのスイッチと共有します。複数あるときはメニュー付きの Evi ボタン 1 つにまとまるので、名前と Discord の設定ボタンの場所が保たれます。"
                 ],
@@ -116,6 +134,9 @@
             "name": "Udawane wyciszenie",
             "description": "Wyglądaj na kanale głosowym, jakbyś miał wyciszony dźwięk i mikrofon, nadal wszystkich słysząc. Przycisk ducha obok wyciszenia dźwięku, skrót klawiszowy albo /fakedeafen.",
             "changelog": {
+                "1.2.1": [
+                    "Teraz także Ty widzisz siebie na kanałach głosowych z wyciszonym dźwiękiem i mikrofonem, tak jak widzą Cię inni. Wcześniej widzieli to tylko inni."
+                ],
                 "1.2.0": [
                     "Dzieli jedno miejsce w panelu użytkownika z przełącznikami innych pluginów: gdy jest ich kilka, trafiają do jednego przycisku Evi z menu, więc Twoja nazwa i zębatka ustawień Discorda zachowują miejsce."
                 ],
@@ -134,6 +155,9 @@
             "name": "Ensurdecer falso",
             "description": "Apareça ensurdecido e silenciado para todos na voz enquanto continua ouvindo. Um botão de fantasma ao lado de ensurdecer, um atalho de teclado ou /fakedeafen.",
             "changelog": {
+                "1.2.1": [
+                    "Agora você também se vê ensurdecido e silenciado nos canais de voz, como todo mundo te vê. Antes, só os outros viam."
+                ],
                 "1.2.0": [
                     "Divide um único espaço do painel de usuário com os interruptores de outros plugins: quando há mais de um, eles viram um botão do Evi com menu, e seu nome e a engrenagem de configurações do Discord mantêm o espaço."
                 ],
@@ -152,6 +176,9 @@
             "name": "Фальшивое отключение звука",
             "description": "Для всех в голосовом канале у вас выключены звук и микрофон, а вы продолжаете их слышать. Кнопка с призраком рядом с выключением звука, сочетание клавиш или /fakedeafen.",
             "changelog": {
+                "1.2.1": [
+                    "Теперь вы и сами видите у себя выключенные звук и микрофон в голосовых каналах, как видят все остальные. Раньше это видели только другие."
+                ],
                 "1.2.0": [
                     "Делит одно место в панели пользователя с переключателями других плагинов: если их несколько, они собираются в одну кнопку Evi с меню, и вашему имени и шестерёнке настроек Discord хватает места."
                 ],
@@ -170,6 +197,9 @@
             "name": "Sahte Ses Kapatma",
             "description": "Herkesi duymaya devam ederken seste sesin ve mikrofonun kapalı görünsün. Sesi kapatma düğmesinin yanında bir hayalet düğmesi, klavye kısayolu ya da /fakedeafen.",
             "changelog": {
+                "1.2.1": [
+                    "Artık ses kanallarında kendini de herkesin gördüğü gibi sesi ve mikrofonu kapalı görüyorsun. Önceden bunu yalnızca diğerleri görüyordu."
+                ],
                 "1.2.0": [
                     "Kullanıcı panelinde tek bir yeri diğer eklentilerin anahtarlarıyla paylaşır: birden fazlaysa menülü tek bir Evi düğmesinde toplanırlar, böylece adın ve Discord'un ayarlar çarkı yerinde kalır."
                 ],

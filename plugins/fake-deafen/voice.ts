@@ -33,10 +33,15 @@ export interface FakeOptions {
  */
 export function fakeState(real: VoiceState, options: FakeOptions): VoiceState {
     if (real.channelId == null) return real;
+    return fakeFlags(real, options);
+}
+
+/** `state` deafened and/or muted on top of what it says, never less: what the server gets, and what your own row shows */
+export function fakeFlags<T extends { selfMute?: boolean; selfDeaf?: boolean; }>(state: T, options: FakeOptions): T {
     return {
-        ...real,
-        selfDeaf: !!real.selfDeaf || options.deafen,
-        selfMute: !!real.selfMute || options.mute || options.deafen,
+        ...state,
+        selfDeaf: !!state.selfDeaf || options.deafen,
+        selfMute: !!state.selfMute || options.mute || options.deafen,
     };
 }
 
@@ -52,6 +57,19 @@ export const PATCHES = {
         replace: {
             match: /(constructor\((\i)\)\{super\(\),this\.socket=\2)(?=\}get guildId\(\))/,
             with: "$1,$self?.captureCommitter?.(this)",
+        },
+    },
+    /**
+     * Your own voice state, as your rows in voice channels show it, doesn't wait for the server:
+     * Discord merges in your local mute and deafen, read by
+     *     function s(){return{sessionId:l.default.getSessionId(),selfMute:r.Ay.isSelfMute()||r.Ay.isSelfMutedTemporarily(),selfDeaf:r.Ay.isSelfDeaf()}}
+     * Without this you'd see yourself undeafened while everyone else sees you deafened.
+     */
+    localState: {
+        find: "isSelfMutedTemporarily(),selfDeaf:",
+        replace: {
+            match: /(?<=function \i\(\)\{return)\{sessionId:\i\.\i\.getSessionId\(\),selfMute:[^}]+\}/,
+            with: " $self?.localState?.($&)??$&",
         },
     },
 } satisfies Record<string, SourcePatch>;

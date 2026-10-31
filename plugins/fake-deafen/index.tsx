@@ -1,9 +1,9 @@
-import { definePlugin, filters, getStore } from "@evi/api";
+import { definePlugin, filters, findStore, getStore } from "@evi/api";
 import type { PluginContext } from "@evi/api";
 
 import { t } from "./strings";
 
-import { fakeState, PATCHES } from "./voice";
+import { fakeFlags, fakeState, PATCHES } from "./voice";
 import type { ResendResult, VoiceState } from "./voice";
 
 /**
@@ -15,6 +15,8 @@ import type { ResendResult, VoiceState } from "./voice";
  *    state committer (captured by a source patch) when it has it, or by repeating the last call the
  *    hook saw. The committer's module runs at startup, so after turning the plugin on mid-session
  *    only the second works, and only once Discord has sent something (mute, deafen, join).
+ *  - Your own rows in voice channels show you faked too (a source patch on the local state Discord
+ *    merges into your voice state), so you see what everyone else sees.
  *  - Its switch sits in the user panel, while the showButton setting is on.
  *
  * Fake deafen itself isn't saved: it starts off with every Discord launch, so nobody stays
@@ -50,6 +52,12 @@ const listeners = new Set<() => void>();
 function setEnabled(value: boolean) {
     enabled = value;
     for (const listener of listeners) listener();
+    redrawOwnState();
+}
+
+/** Your rows in voice channels read your local state through MediaEngineStore: a change there redraws them */
+function redrawOwnState() {
+    findStore<{ emitChange?(): void; }>("MediaEngineStore")?.emitChange?.();
 }
 function subscribe(onChange: () => void) {
     listeners.add(onChange);
@@ -135,11 +143,17 @@ function panelSwitch(ctx: PluginContext<Settings>) {
 export default definePlugin({
     settings,
 
-    patches: [PATCHES.committer],
+    patches: [PATCHES.committer, PATCHES.localState],
 
     /** Called by the patched voice state committer's constructor */
     captureCommitter(value: unknown) {
         if (value && typeof (value as any).forceUpdate === "function") committer = value as VoiceCommitter;
+    },
+
+    /** Called by the patched local voice state: what your own rows show */
+    localState<T extends { selfMute?: boolean; selfDeaf?: boolean; }>(state: T): T {
+        if (!enabled || !context) return state;
+        return fakeFlags(state, { deafen: context.settings.get("deafen"), mute: context.settings.get("mute") });
     },
 
     toggle,
@@ -170,7 +184,9 @@ export default definePlugin({
 
         // Changing what to fake while it's on applies at once
         ctx.settings.onChange(() => {
-            if (enabled) resend();
+            if (!enabled) return;
+            resend();
+            redrawOwnState();
         });
 
         ctx.onDispose(() => {

@@ -2,11 +2,13 @@ import { describe, expect, test } from "bun:test";
 
 import type { Replacement } from "../src/renderer/patching/source";
 import { canonicalizeMatch, matchesFind } from "../src/renderer/patching/source";
-import { fakeState, PATCHES } from "../plugins/fake-deafen/voice";
+import { fakeFlags, fakeState, PATCHES } from "../plugins/fake-deafen/voice";
 
 // Verbatim from Discord's web build (test-results/chunks), trimmed to the patched spots
 const SOURCES = {
     committer: 'H=new class extends M{socket;constructor(e){super(),this.socket=e}get guildId(){return this.getState().guildId}get channelId(){return this.getState().channelId}computeVoiceFlags(){return 0}}(B);',
+    // Build of 2026-10-31
+    localState: 'function s(){return{sessionId:l.default.getSessionId(),selfMute:r.Ay.isSelfMute()||r.Ay.isSelfMutedTemporarily(),selfDeaf:r.Ay.isSelfDeaf()}}function i(e,n){let{sessionId:t,selfMute:u,selfDeaf:l}=n;return null!=e&&null!=t&&e.sessionId===t?e.merge({selfMute:u,selfDeaf:l}):e}',
 };
 
 type AnyPatch = { find: string; replace: Replacement | Replacement[]; };
@@ -55,5 +57,19 @@ describe("patches", () => {
         const H = new Function("M", "B", "S", `let ${out} return H;`)(class { }, "socket", S);
         expect(captured).toBe(H);
         expect(captured.socket).toBe("socket");
+    });
+
+    test("localState: your own rows show what fake deafen sends", () => {
+        const out = apply(PATCHES.localState, SOURCES.localState);
+        expect(out).toContain("function s(){return S?.localState?.({sessionId:");
+        const run = (S: unknown) => new Function("l", "r", "S", `${out} return s();`)(
+            { default: { getSessionId: () => "a" } },
+            { Ay: { isSelfMute: () => false, isSelfMutedTemporarily: () => false, isSelfDeaf: () => false } },
+            S,
+        );
+        expect(run({ localState: (v: any) => fakeFlags(v, { deafen: true, mute: false }) }))
+            .toEqual({ sessionId: "a", selfMute: true, selfDeaf: true });
+        // The plugin stopped: Discord's own state
+        expect(run(undefined)).toEqual({ sessionId: "a", selfMute: false, selfDeaf: false });
     });
 });

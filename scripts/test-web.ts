@@ -1369,7 +1369,8 @@ const codeTarget = 'code "evi-lookup-test-never-in-discord"';
 const propsTarget = "props eviLookupTestNeverInDiscord, method go";
 check("lookups: a hookExport target that exists is found", lookups.hook?.health === "found" && lookups.hook.target === "props startTyping, stopTyping, method startTyping", lookups.hook);
 check("lookups: an unfound target counts as waiting while Discord starts", lookups.early[codeTarget] === "waiting" && lookups.early[propsTarget] === "waiting", lookups.early);
-check("lookups: after that, code no module has is broken and unknown props are missing", lookups.afterGrace[codeTarget] === "broken" && lookups.afterGrace[propsTarget] === "missing", lookups.afterGrace);
+// No module with the code at all may be a chunk Discord hasn't fetched yet: missing, not broken (3.1.1)
+check("lookups: after that, code no module has and unknown props are missing, not broken", lookups.afterGrace[codeTarget] === "missing" && lookups.afterGrace[propsTarget] === "missing", lookups.afterGrace);
 check("lookups: stopping the plugin drops its lookups", lookups.afterStop === 0, lookups.afterStop);
 check("lookups: search's actions, loaded when search first opens, never count as broken before that", ["waiting", "missing", "found"].includes(lookups.afterGrace["props fetchTabMessages, clearSearchMessages"]), lookups.afterGrace);
 
@@ -3224,16 +3225,19 @@ await page.screenshot({ path: join(OUT, "ui-plugins-trouble.png") });
 // Back to every plugin for what follows: the tab starts on All when it opens again
 await page.click("#dl-tab-themes");
 await page.click("#dl-tab-plugins");
-// Its banner makes a card taller, never the working card beside it in the same row
+// Cards in a row are as tall as each other, a banner or wrapped badges or not, with their actions on one line (3.1.2)
 await page.fill("#dl-plugin-search", "store-");
 await page.waitForTimeout(150);
 const rows = await page.evaluate(() => {
     const cards = [...document.querySelectorAll<HTMLElement>("li.dl-plugin-card")];
     return cards.filter(c => c.dataset.trouble).flatMap(c => cards
         .filter(n => n !== c && !n.dataset.trouble && Math.abs(n.getBoundingClientRect().top - c.getBoundingClientRect().top) < 2)
-        .map(n => ({ trouble: Math.round(c.getBoundingClientRect().height), beside: Math.round(n.getBoundingClientRect().height) })));
+        .map(n => {
+            const foot = (card: HTMLElement) => Math.round(card.querySelector(".dl-plugin-card-foot")?.getBoundingClientRect().top ?? -1);
+            return { trouble: Math.round(c.getBoundingClientRect().height), beside: Math.round(n.getBoundingClientRect().height), troubleFoot: foot(c), besideFoot: foot(n) };
+        }));
 });
-check("a card that says it isn't working doesn't stretch the card beside it", rows.length > 0 && rows.every(r => r.beside < r.trouble), rows);
+check("cards in a row are as tall as each other, with their actions on one line", rows.length > 0 && rows.every(r => Math.abs(r.beside - r.trouble) <= 1 && Math.abs(r.besideFoot - r.troubleFoot) <= 1), rows);
 await page.screenshot({ path: join(OUT, "ui-plugins-trouble-row.png") });
 await findPlugin("store-lookup");
 

@@ -154,6 +154,7 @@ export const IPC = {
     AUTHOR_STATS: "evi:author-stats",
     /** The Author page's links to evi.rest: publishing, and the docs */
     AUTHOR_OPEN: "evi:author-open",
+    AUTHOR_SOURCE: "evi:author-source",
     COMMUNITY_INBOX_READ: "evi:community-inbox-read",
     /** main -> renderer: the account's inbox changed (evi.rest's stream said so) */
     COMMUNITY_INBOX_CHANGED: "evi:community-inbox-changed",

@@ -2,9 +2,9 @@
  * Live plugin health: which store plugins are known to be broken right now.
  *
  * Installs report a plugin when it can't find parts of Discord, its patches fail or it doesn't start
- * (POST /v1/health/reports: the plugin, its version, Discord's build and the kind of problem, nothing
- * else). Enough installs reporting the same version marks it broken automatically; its author or an
- * admin can also set a status with a message ("Fix coming in 1.0.2"), which always wins.
+ * (POST /v1/health/reports: the plugin, its version, Discord's build, the kind of problem and what
+ * failed in the plugin's own code, nothing else). Enough installs reporting the same version marks it
+ * broken automatically; its author or an admin can also set a status with a message ("Fix coming in 1.0.2"), which always wins.
  * GET /v1/health is the store-wide picture the app shows on store cards and the Plugins list.
  */
 import { isHotfixTag } from "./hotfixes";
@@ -46,7 +46,16 @@ export interface HealthReportInput {
     kind: HealthKind;
     /** The revision of Evi's hotfix this install runs for the plugin, if any: the problem is still there with it */
     hotfix?: string;
+    /**
+     * What failed, for its author: a patch's find and why it didn't apply, a lookup's target, or the
+     * first line of the error it stopped with (patchDetail, lookupDetail, scrubError). At most
+     * MAX_HEALTH_DETAILS lines; Evis before 3.1.0 send none.
+     */
+    detail?: string[];
 }
+
+export const MAX_HEALTH_DETAILS = 5;
+export const MAX_HEALTH_DETAIL = 240;
 
 /** A manual status (PUT /v1/plugins/:id/status) */
 export interface HealthStatusInput {
@@ -63,7 +72,21 @@ export function validateHealthReport(raw: unknown): { report: HealthReportInput;
     if (typeof e.discordBuild !== "string" || !BUILD_RE.test(e.discordBuild)) return { error: "discordBuild must be Discord's build id" };
     if (!HEALTH_KINDS.includes(e.kind as HealthKind)) return { error: `kind must be one of ${HEALTH_KINDS.join(", ")}` };
     if (e.hotfix !== undefined && !isHotfixTag(e.hotfix)) return { error: "hotfix must be a hotfix revision like 12.3" };
-    return { report: { plugin: e.plugin, version: e.version, discordBuild: e.discordBuild, kind: e.kind as HealthKind, ...(isHotfixTag(e.hotfix) && { hotfix: e.hotfix }) } };
+    const detail = e.detail;
+    if (detail !== undefined && (!Array.isArray(detail) || detail.length > MAX_HEALTH_DETAILS
+        || !detail.every(d => typeof d === "string" && d.length && d.length <= MAX_HEALTH_DETAIL && !CONTROL.test(d)))) {
+        return { error: `detail must be at most ${MAX_HEALTH_DETAILS} lines of at most ${MAX_HEALTH_DETAIL} characters` };
+    }
+    return {
+        report: {
+            plugin: e.plugin,
+            version: e.version,
+            discordBuild: e.discordBuild,
+            kind: e.kind as HealthKind,
+            ...(isHotfixTag(e.hotfix) && { hotfix: e.hotfix }),
+            ...(Array.isArray(detail) && detail.length && { detail: [...new Set(detail as string[])] }),
+        },
+    };
 }
 
 export function validateHealthStatus(raw: unknown): { status: HealthStatusInput; } | { error: string; } {
@@ -72,6 +95,52 @@ export function validateHealthStatus(raw: unknown): { status: HealthStatusInput;
     const message = e.message ?? "";
     if (typeof message !== "string" || message.length > 200 || /[\0-\x08\x0e-\x1f]/.test(message)) return { error: "The message must be at most 200 characters" };
     return { status: { state: e.state as HealthState, message: message.trim() } };
+}
+
+const CONTROL = /[\0-\x1f\x7f]/;
+/** On one line, and short enough to send */
+const line = (text: string) => {
+    const one = text.replace(/[\0-\x1f\x7f]+/g, " ").trim();
+    return one.length > MAX_HEALTH_DETAIL ? `${one.slice(0, MAX_HEALTH_DETAIL - 1)}…` : one;
+};
+
+/**
+ * An error message with nothing about the person in it: paths (which name their user folder), links,
+ * email addresses and long numbers (Discord ids) are blanked. First line only.
+ */
+export function scrubError(message: string): string {
+    return line((message.split("\n")[0] ?? "")
+        .replace(/\b[a-z][\w+.-]*:\/\/\S+/gi, "<url>")
+        .replace(/\b[a-z]:[\\/]\S*/gi, "<path>")
+        .replace(/\\\\\S+/g, "<path>")
+        .replace(/(?:~|\.{1,2})?\/(?:[\w.@$-]+\/)+[\w.@$-]*/g, "<path>")
+        .replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g, "<email>")
+        .replace(/\d{8,}/g, "<id>"));
+}
+
+/** One failing patch as a detail line: which one, what it looks for, and the first reason it gave */
+export function patchDetail(index: number, find: string | RegExp, errors: string[]): string {
+    const what = typeof find === "string" ? JSON.stringify(find) : String(find);
+    // "module 12345, replacement 1 matched nothing: …": the module id changes with every build
+    const why = errors[0]?.replace(/^module [\w$-]+(?:, |: )/, "");
+    return line(`patches[${index}] find ${what}${why ? `: ${why}` : ""}`);
+}
+
+/** One lookup that found nothing, as a detail line */
+export const lookupDetail = (target: string) => line(`lookup ${target}`);
+
+/** One thing that failed in a plugin, by how many installs reported it (admin and author dashboards) */
+export interface HealthProblem {
+    kind: string;
+    /** `patches[2] find "…": replacement 0 matched nothing: …`, `lookup props foo`, or a start error */
+    detail: string;
+    installs: number;
+}
+
+export function parseProblems(raw: unknown): HealthProblem[] {
+    return (Array.isArray(raw) ? raw : []).slice(0, 8)
+        .filter(p => p && typeof p === "object" && typeof p.detail === "string" && p.detail)
+        .map(p => ({ kind: typeof p.kind === "string" ? p.kind.slice(0, 20) : "", detail: p.detail.slice(0, 300), installs: typeof p.installs === "number" && p.installs > 0 ? Math.floor(p.installs) : 0 }));
 }
 
 /** GET /v1/health, cleaned: statuses by plugin id. Anything malformed is left out. */

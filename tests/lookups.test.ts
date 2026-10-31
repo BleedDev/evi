@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { scanFor, SCAN_TTL_MS, trackLookup, untrackLookup } from "../src/renderer/plugins/lookups";
+import { lookupHealth, scanFor, SCAN_TTL_MS, trackLookup, untrackLookup } from "../src/renderer/plugins/lookups";
 import { filters } from "../src/renderer/webpack/find";
 
 describe("lookup code scans", () => {
@@ -21,5 +21,25 @@ describe("lookup code scans", () => {
         scanFor(record, 1_000 + SCAN_TTL_MS, 0, scan);
         expect(scans).toBe(4);
         untrackLookup(record);
+    });
+});
+
+describe("what an unanswered lookup is", () => {
+    const loaded = (id: string) => id === "1";
+    test("a lookup with code: waiting while a module with that code hasn't loaded, broken otherwise", () => {
+        expect(lookupHealth("code", ["1", "2"], loaded)).toBe("waiting");
+        expect(lookupHealth("code", ["1"], loaded)).toBe("broken");
+        expect(lookupHealth("code", [], loaded)).toBe("broken");
+    });
+    test("byProps in a module Discord loads later (search's actions) waits instead of counting as missing", () => {
+        expect(lookupHealth("hint", ["2"], loaded)).toBe("waiting");
+        expect(lookupHealth("hint", ["1"], loaded)).toBe("missing");
+        expect(lookupHealth("hint", [], loaded)).toBe("missing");
+        expect(lookupHealth("none", [], loaded)).toBe("missing");
+    });
+    test("byProps and byStoreName carry what their module's code very likely has, as a hint only", () => {
+        expect(filters.byProps("fetchTabMessages", "clearSearchMessages").$hint).toEqual(["fetchTabMessages", "clearSearchMessages"]);
+        expect(filters.byProps("fetchTabMessages").$code).toBeUndefined();
+        expect(filters.byStoreName("SearchStore").$hint).toEqual(["SearchStore"]);
     });
 });

@@ -509,7 +509,7 @@
     {
         "name": "Filter",
         "kind": "type",
-        "signature": "type Filter = ((value: any) => boolean) & { $code?: CodeMatcher[]; $label?: string; };",
+        "signature": "type Filter = ((value: any) => boolean) & { $code?: CodeMatcher[]; $hint?: CodeMatcher[]; $label?: string; };",
         "doc": ""
     },
     {

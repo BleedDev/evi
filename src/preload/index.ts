@@ -16,6 +16,7 @@ import { AddThemeResult, AuthorsResult, BackupApplyResult, BackupExportResult, B
 import type { EviNotification } from "@shared/notifications";
 import type { StorePreviewResult } from "@shared/pluginPermissions";
 import type { PluginReportInput } from "@shared/pluginReports";
+import type { SourceResult } from "@shared/pluginSource";
 import type { PulledPlugins } from "@shared/pulls";
 import type { UpdateInstallResult, UpdateProgress, UpdateStatus } from "@shared/release";
 import type { RequiredUpdate } from "@shared/required";
@@ -143,6 +144,7 @@ const EviNative = {
     authorStats: (days: number): Promise<AuthorStatsResult> => ipcRenderer.invoke(IPC.AUTHOR_STATS, days),
     /** Opens publishing or the docs on evi.rest, in the browser */
     authorOpen: (link: AuthorLink): Promise<void> => ipcRenderer.invoke(IPC.AUTHOR_OPEN, link),
+    authorSource: (id: string): Promise<SourceResult> => ipcRenderer.invoke(IPC.AUTHOR_SOURCE, id),
     onAnnouncementsChange: (cb: () => void) => {
         ipcRenderer.on(IPC.ANNOUNCEMENTS_CHANGED, () => cb());
     },

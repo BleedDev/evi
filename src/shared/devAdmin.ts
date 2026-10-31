@@ -4,6 +4,7 @@
  * against this list, so nothing else in Discord's page can use the bridge for other routes.
  * Anything malformed in an answer is dropped or becomes empty.
  */
+import { HealthProblem, parseProblems } from "./health";
 
 export type AdminMethod = "GET" | "POST" | "PUT" | "DELETE";
 
@@ -358,6 +359,8 @@ export interface PluginHealth {
     /** Of them, how many have patches that don't find their place in Discord */
     brokenPatches: number;
     lastReportAt?: number;
+    /** What failed, by how many installs, most first (from Evis that say) */
+    problems: HealthProblem[];
 }
 
 export interface Pull {
@@ -394,6 +397,7 @@ export function parseHealth(raw: unknown): Health {
             installsReporting: n(p.installsReporting),
             brokenPatches: n(p.brokenPatches),
             lastReportAt: typeof p.lastReportAt === "number" ? p.lastReportAt : undefined,
+            problems: parseProblems(p.problems),
         })),
         pulls: pulls((raw as any)?.pulls),
     };

@@ -1,6 +1,6 @@
 /**
  * Store plugins as the developers watch them: how many installs use each, which ones Discord broke
- * (installs reporting patches that no longer find their place), and the kill switch, which turns
+ * (installs reporting patches that no longer find their place) and what failed, and the kill switch, which turns
  * a plugin off on every Evi. Turned-off plugins are listed first, with a way back.
  */
 import { parseHealth, PluginHealth, Pull } from "@shared/devAdmin";
@@ -8,7 +8,7 @@ import { parseHealth, PluginHealth, Pull } from "@shared/devAdmin";
 import { t, timeAgo } from "../../i18n";
 import { React } from "../../webpack/common";
 import { Badge, Button, EmptyState, List, SearchField, Section, Status, SwitchRow, Text } from "../components";
-import { Confirm, LoadError } from "./common";
+import { Confirm, LoadError, Problems } from "./common";
 import { admin, format, useAdmin, useLive } from "./data";
 
 type Ask = { kind: "pull"; plugin: PluginHealth; } | { kind: "lift"; pull: Pull; };
@@ -107,6 +107,7 @@ export function PluginsTab() {
                                             </div>
                                         )}
                                     </div>
+                                    <Problems problems={p.problems} />
                                 </li>
                             );
                         })}

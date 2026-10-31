@@ -4,6 +4,7 @@
  * plugins: counts per day, trouble per Discord build, ratings and reviews. Never which installs.
  * Anything malformed becomes zero or is left out.
  */
+import { HealthProblem, parseProblems } from "./health";
 
 export const AUTHOR_STATS_DAYS = { min: 7, max: 90, default: 30 } as const;
 
@@ -44,7 +45,8 @@ export interface AuthorPluginStats {
     reviews: AuthorReview[];
     openReports: number;
     crashes: { unresolved: number; /** Crash rate of the newest version seen, 0–1, null while too few installs */ latestRate: number | null; };
-    health: { installsReporting: number; lastReportAt: number | null; state: string | null; builds: AuthorBuildTrouble[]; };
+    /** problems: what failed in the store's version this week, by how many installs, most first */
+    health: { installsReporting: number; lastReportAt: number | null; state: string | null; builds: AuthorBuildTrouble[]; problems: HealthProblem[]; };
     pull: { versions: string[] | "all"; reason: string; at: number; removed: boolean; } | null;
     hotfixes: { id: number; note: string; at: number; }[];
 }
@@ -95,6 +97,7 @@ function parsePlugin(p: any): AuthorPluginStats {
             lastReportAt: typeof p?.health?.lastReportAt === "number" ? int(p.health.lastReportAt) : null,
             state: typeof p?.health?.state === "string" ? str(p.health.state, 20) : null,
             builds: list(p?.health?.builds, 8).map(b => ({ build: str(b?.build, 20) || "?", installs: int(b?.installs), lookups: int(b?.lookups), patches: int(b?.patches), start: int(b?.start) })),
+            problems: parseProblems(p?.health?.problems),
         },
         pull: p?.pull && typeof p.pull === "object"
             ? { versions: versions === "all" ? "all" : list(versions, 20).map(v => str(v, 40)), reason: str(p.pull.reason, 500), at: int(p.pull.at), removed: p.pull.removed === true }

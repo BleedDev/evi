@@ -9,6 +9,12 @@ export type Filter = ((value: any) => boolean) & {
      * stringifying each exported function.
      */
     $code?: CodeMatcher[];
+    /**
+     * Snippets its module's source very likely contains (the property names byProps looks for), for
+     * diagnosing a lookup only: a module that has them but hasn't loaded means "not yet", not "gone".
+     * Never used to skip modules, since a module can re-export what another one defines.
+     */
+    $hint?: CodeMatcher[];
     /** What the filter looks for, in words, for diagnostics */
     $label?: string;
 };
@@ -54,6 +60,7 @@ function unwrapComponent(value: any): Function | undefined {
 const showCode = (code: CodeMatcher[]) => code.map(c => typeof c === "string" ? JSON.stringify(c) : String(c)).join(", ");
 const withCode = (code: CodeMatcher[], filter: Filter): Filter => Object.assign(filter, { $code: code });
 const labeled = (label: string, filter: Filter): Filter => Object.assign(filter, { $label: label });
+const hinted = (hint: CodeMatcher[], filter: Filter): Filter => Object.assign(filter, { $hint: hint });
 
 /**
  * Filters built by `filters` from equal arguments look for the same thing: waiters holding them test
@@ -84,7 +91,7 @@ function argsKey(args: string | CodeMatcher[]) {
 
 export const filters = {
     /** Objects that have every one of these properties */
-    byProps: (...props: string[]): Filter => keyed("props", props, labeled(`props ${props.join(", ")}`, v => props.every(p => v[p] !== undefined))),
+    byProps: (...props: string[]): Filter => keyed("props", props, hinted(props, labeled(`props ${props.join(", ")}`, v => props.every(p => v[p] !== undefined)))),
     /** Functions whose source contains every snippet */
     byCode: (...code: CodeMatcher[]): Filter => keyed("code", code, labeled(`code ${showCode(code)}`, withCode(code, v => typeof v === "function" && matchesAll(functionSource(v), code)))),
     /** React components (including memo / forwardRef) whose render source contains every snippet */
@@ -93,8 +100,8 @@ export const filters = {
         return !!fn && matchesAll(functionSource(fn), code);
     }))),
     /** Flux stores by name, e.g. "UserStore" */
-    byStoreName: (name: string): Filter => keyed("store", name, labeled(`store ${name}`, v =>
-        v?.constructor?.displayName === name || (typeof v?.getName === "function" && "_dispatchToken" in v && v.getName() === name))),
+    byStoreName: (name: string): Filter => keyed("store", name, hinted([name], labeled(`store ${name}`, v =>
+        v?.constructor?.displayName === name || (typeof v?.getName === "function" && "_dispatchToken" in v && v.getName() === name)))),
 };
 
 /** What a filter looks for, in words. Hand-written filters without a label show their code hint or source. */

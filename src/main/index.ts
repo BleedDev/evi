@@ -8,6 +8,7 @@ import { dirname, join } from "path";
 import { initAccount } from "./account";
 import { initBackup } from "./backup";
 import { initBadges } from "./badges";
+import { initAuthorSource } from "./authorSource";
 import { initCommunity } from "./community";
 import { initFindCache, readFindCache } from "./findCache";
 import { guardIpc } from "./ipcGuard";
@@ -265,6 +266,7 @@ function setup() {
     initThemes();
     initStore();
     initCommunity();
+    initAuthorSource();
     initStars();
     initReports();
     initAccount();

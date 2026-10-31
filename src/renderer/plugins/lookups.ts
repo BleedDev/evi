@@ -11,7 +11,7 @@ export type LookupHealth =
     | "found"    // its export exists, the callback ran
     | "waiting"  // not yet, but its module exists and hasn't loaded, or Discord is still starting
     | "broken"   // no module's code matches the lookup, or its module ran without a matching export
-    | "missing"; // no code hint to check, and nothing Discord has loaded so far matches
+    | "missing"; // nothing Discord has loaded so far matches, and no module still to load looks like it
 
 export interface LookupRecord {
     plugin: string;
@@ -83,18 +83,22 @@ export function scanFor(record: LookupRecord, now: number, maxAge: number, scan:
  */
 export function diagnoseLookups(plugin?: string, now = performance.now(), maxAge = SCAN_TTL_MS): LookupDiagnosis[] {
     return getLookupRecords(plugin).map(record => {
-        const { $code } = record.filter;
-        let health: LookupHealth;
-        let candidates: string[] = [];
-
-        if (record.found) health = "found";
-        else if (!wreq || now - record.since < LOOKUP_GRACE_MS) health = "waiting";
-        else if ($code) {
-            candidates = scanFor(record, now, maxAge, () => findModuleIds(...$code));
-            // A candidate that already ran and still didn't match is no better than none
-            health = candidates.some(id => !wreq!.c[id]) ? "waiting" : "broken";
-        } else health = "missing";
-
-        return { ...record, health, candidates };
+        const { $code, $hint } = record.filter;
+        const code = $code ?? $hint;
+        if (record.found) return { ...record, health: "found" as const, candidates: [] };
+        if (!wreq || now - record.since < LOOKUP_GRACE_MS) return { ...record, health: "waiting" as const, candidates: [] };
+        const candidates = code ? scanFor(record, now, maxAge, () => findModuleIds(...code)) : [];
+        return { ...record, health: lookupHealth(code ? (!!$code ? "code" : "hint") : "none", candidates, id => !!wreq!.c[id]), candidates };
     });
+}
+
+/**
+ * An unanswered lookup past its grace period, by what its filter says about its module's code and the
+ * modules whose code matches it. A candidate that already ran and still didn't match is no better than
+ * none. A hint (byProps' property names) only tells "its module hasn't loaded yet", like the search
+ * actions Discord loads when search first opens; without that it says no more than having no hint.
+ */
+export function lookupHealth(code: "code" | "hint" | "none", candidates: string[], loaded: (id: string) => boolean): LookupHealth {
+    if (candidates.some(id => !loaded(id))) return "waiting";
+    return code === "code" ? "broken" : "missing";
 }

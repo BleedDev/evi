@@ -8,7 +8,7 @@ import { Inbox } from "../inbox";
 import { localeDate, t, timeAgo as ago } from "../i18n";
 import { Settings } from "../settings";
 import { React } from "../webpack/common";
-import { Button, EmptyState, Icon, IconName, IconButton, Notice, Status, SwitchRow, Text, useStore } from "./components";
+import { Button, EmptyState, Icon, IconName, IconButton, Notice, Pagination, scrollToTop, Status, SwitchRow, Text, usePages, useStore } from "./components";
 import { SettingsUI } from "./index";
 import { openStore } from "./nav";
 
@@ -21,6 +21,7 @@ export const kindIcon: Record<NotificationKind, IconName> = {
     api: "code",
     wishlist: "heart",
     fixed: "circleCheck",
+    broken: "circleError",
     update: "download",
 };
 
@@ -66,17 +67,23 @@ function Row({ n }: { n: EviNotification; }) {
     );
 }
 
+/** Notifications per page: up to 100 are kept, a long scroll on one */
+const PAGE_SIZE = 15;
+
 export function InboxTab() {
     const list = useStore(Inbox.subscribe, Inbox.getSnapshot);
     const state = Inbox.state();
+    const listRef = React.useRef<HTMLDivElement>(null);
+    // Stays on its page as notifications are read or arrive; back to the first when the list empties
+    const paged = usePages(list, PAGE_SIZE, list.length === 0);
     React.useEffect(() => {
         Inbox.start();
         void Inbox.refresh();
     }, []);
 
-    // Grouped by day, newest first
+    // This page's, grouped by day, newest first
     const days: { label: string; items: EviNotification[]; }[] = [];
-    for (const n of list) {
+    for (const n of paged.items) {
         const label = dayLabel(n.at);
         const last = days.at(-1);
         if (last?.label === label) last.items.push(n);
@@ -101,12 +108,23 @@ export function InboxTab() {
             </div>
             {state.error && <Status tone="danger">{state.error}</Status>}
             {list.length ? (
-                days.map(day => (
-                    <section key={day.label} className="dl-stack" aria-label={day.label}>
-                        <Text tag="h3" variant="text-xs/semibold" color="text-muted" className="dl-inbox-day">{day.label}</Text>
-                        <ul className="dl-inbox">{day.items.map(n => <Row key={n.id} n={n} />)}</ul>
-                    </section>
-                ))
+                <div className="dl-stack" ref={listRef}>
+                    {days.map(day => (
+                        <section key={day.label} className="dl-stack" aria-label={day.label}>
+                            <Text tag="h3" variant="text-xs/semibold" color="text-muted" className="dl-inbox-day">{day.label}</Text>
+                            <ul className="dl-inbox">{day.items.map(n => <Row key={n.id} n={n} />)}</ul>
+                        </section>
+                    ))}
+                    <Pagination
+                        label={t("inbox.pages")}
+                        page={paged.page}
+                        count={paged.count}
+                        onChange={n => {
+                            paged.setPage(n);
+                            scrollToTop(listRef.current);
+                        }}
+                    />
+                </div>
             ) : !state.loading && (
                 <EmptyState icon="bell" title={t("inbox.emptyTitle")}>{t("inbox.emptyBody")}</EmptyState>
             )}

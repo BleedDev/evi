@@ -1,7 +1,8 @@
 /**
- * Pieces the Developers tabs share: a confirm dialog for anything that changes evi.rest, and a
- * failed load's notice.
+ * Pieces the Developers tabs share: a confirm dialog for anything that changes evi.rest, a failed
+ * load's notice, and what failed in a plugin (also on the Author page).
  */
+import type { HealthProblem } from "@shared/health";
 import type { ReactNode } from "react";
 
 import { t } from "../../i18n";
@@ -64,4 +65,20 @@ export function Confirm({ id, title, body, confirmLabel, danger, noteLabel, note
 
 export function LoadError({ error, onRetry }: { error: string; onRetry(): void; }) {
     return <Notice tone="danger" action={<Button onClick={onRetry}>{t("common.tryAgain")}</Button>}>{t("dev.error", { error })}</Notice>;
+}
+
+/** What failed in a plugin as installs reported it: the line their Evi sent, and how many sent it */
+export function Problems({ problems }: { problems: HealthProblem[]; }) {
+    if (!problems.length) return null;
+    return (
+        <ul className="dl-dev-problems" aria-label={t("health.whatFailed")}>
+            {problems.map(p => (
+                <li key={`${p.kind}
+${p.detail}`}>
+                    <code className="dl-error">{p.detail}</code>
+                    <Text tag="span" variant="text-xs/normal" color="text-muted" tabular>{t("community.authorInstalls", { count: p.installs })}</Text>
+                </li>
+            ))}
+        </ul>
+    );
 }

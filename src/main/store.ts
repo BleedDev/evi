@@ -222,7 +222,7 @@ async function current() {
     return cache!;
 }
 
-async function getEntry(id: string) {
+export async function getEntry(id: string) {
     const entry = (await current()).entries.get(id);
     if (!entry) throw new Error(mt("main.store.notInStore", { id }));
     return entry;
@@ -239,7 +239,7 @@ function decodeText(name: string, data: Uint8Array) {
 }
 
 /** Downloads one file a registry entry lists and checks it against the registry's hash */
-async function downloadVerified(name: string, file: { url: string; sha256: string; }) {
+export async function downloadVerified(name: string, file: { url: string; sha256: string; }) {
     const download = await downloadHttps(file.url, MAX_FILE_BYTES, { what: name, cache: "no-store" });
     if (!download.ok) throw new Error(`${name}: ${download.error}`);
     const badHash = await whyNotHash(name, download.body, file.sha256);

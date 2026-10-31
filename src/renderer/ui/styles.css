@@ -1748,10 +1748,15 @@
 
 /* ---- installed lists ----------------------------------------------------------------------- */
 
-/* Plugins, as cards two to a row. Same build as the store's cards, so both tabs read alike */
+/*
+ * Plugins, as cards two to a row. Same build as the store's cards, so both tabs read alike. Each card
+ * is as tall as its own content: one that says it's broken doesn't stretch the card beside it. A
+ * description keeps two lines' room, so cards that only differ there still line up.
+ */
 .dl-plugin-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    align-items: start;
     gap: 10px;
     margin: 0;
     padding: 0;
@@ -1806,6 +1811,7 @@
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     line-clamp: 2;
+    min-block-size: 2lh;
     text-wrap: pretty;
 }
 
@@ -3713,6 +3719,7 @@ button.dl-inbox-link:focus-visible { outline: 2px solid var(--dl-focus-ring); ou
 .dl-inbox-icon[data-kind="review"], .dl-inbox-icon[data-kind="wishlist"] { color: #f0b232; }
 .dl-inbox-icon[data-kind="wishlist"] { color: #f23f78; }
 .dl-inbox-icon[data-kind="fixed"] { color: var(--dl-text-positive); }
+.dl-inbox-icon[data-kind="broken"] { color: var(--dl-text-critical); }
 .dl-inbox-icon[data-kind="update"], .dl-inbox-icon[data-kind="follow"] { color: var(--dl-text-brand); }
 
 .dl-inbox-text { display: flex; flex: 1; flex-direction: column; gap: 2px; min-inline-size: 0; }
@@ -4996,6 +5003,93 @@ button.dl-inbox-link:focus-visible { outline: 2px solid var(--dl-focus-ring); ou
 
 .dl-authorhub-stat[data-tone="warning"] > span:last-child { color: var(--dl-text-warning); }
 
+/* Every plugin side by side (AuthorDashboard Overview): one grid template for the head and each row */
+.dl-authorhub-table {
+    --dl-authorhub-cols: minmax(0, 1fr) 104px 88px 64px 80px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--dl-border-group);
+    border-radius: var(--dl-radius-group);
+    background: var(--dl-bg-group);
+    overflow: hidden;
+}
+
+.dl-authorhub-table-head,
+.dl-authorhub-table-row {
+    display: grid;
+    grid-template-columns: var(--dl-authorhub-cols);
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+}
+
+.dl-authorhub-table-head { padding-block: 8px; }
+
+/* Numbers line up on their right edge */
+.dl-authorhub-table-head > :not(:first-child),
+.dl-authorhub-table-row > :not(:first-child) { justify-self: end; text-align: end; white-space: nowrap; }
+
+.dl-authorhub-table-row {
+    inline-size: 100%;
+    border: 0;
+    border-block-start: 1px solid var(--dl-border-divider);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+}
+
+.dl-authorhub-table-row:focus-visible { outline: 2px solid var(--dl-focus-ring); outline-offset: -2px; }
+
+@media (hover: hover) {
+    .dl-authorhub-table-row:hover { background: var(--dl-bg-hover); }
+}
+
+.dl-authorhub-table-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-inline-size: 0;
+}
+
+.dl-authorhub-rank {
+    flex: none;
+    inline-size: 18px;
+    text-align: end;
+}
+
+.dl-authorhub-table-title {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 6px;
+    min-inline-size: 0;
+}
+
+.dl-authorhub-table-title > .dl-row-title { min-inline-size: 0; flex-wrap: nowrap; }
+
+.dl-authorhub-table-plugin {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dl-authorhub-table-title > .dl-authorhub-meter { max-inline-size: 240px; }
+
+/* Up or down by an arrow and a sign, not by colour alone */
+.dl-authorhub-growth {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--dl-text-muted);
+}
+
+.dl-authorhub-growth[data-tone="up"] { color: var(--dl-text-positive); }
+.dl-authorhub-growth[data-tone="down"] { color: var(--dl-text-critical); }
+
 .dl-authorhub-columns {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -5018,6 +5112,34 @@ button.dl-inbox-link:focus-visible { outline: 2px solid var(--dl-focus-ring); ou
     padding: 0;
     list-style: none;
 }
+
+/* What failed, as installs reported it (developers/common.tsx Problems): Developers > Plugins and the Author page */
+.dl-dev-problems {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.dl-dev-problems > li {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    min-inline-size: 0;
+}
+
+.dl-dev-problems > li > code { display: block; inline-size: 100%; }
+
+.dl-authorhub-failed {
+    display: flex;
+    flex-direction: column;
+    margin-block-start: 16px;
+}
+
+.dl-authorhub-failed > h4 { margin: 0; }
 
 .dl-authorhub-builds {
     display: flex;
@@ -5120,6 +5242,16 @@ button.dl-inbox-link:focus-visible { outline: 2px solid var(--dl-focus-ring); ou
     justify-content: flex-end;
     gap: 16px;
 }
+
+/* Where the source went, or why not: a long folder path wraps instead of pushing the buttons out */
+.dl-authorhub-source-status {
+    flex: 1;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+    text-align: end;
+}
+
+.dl-authorhub-source-status:empty { display: none; }
 
 .dl-authorhub-become,
 .dl-authorhub-link,

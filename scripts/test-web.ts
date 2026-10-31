@@ -231,7 +231,7 @@ function fakeNative(bootData: BootData) {
                     { id: 1, rating: 4, body: "Love it. Would be nice to pick the colour.", version: "2.0.0", user: { id: "323456789012345678", name: "kai", avatar: null }, createdAt: Date.now() - 86_400_000 * 3 },
                 ],
                 openReports: 1, crashes: { unresolved: 2, latestRate: 0.012 },
-                health: { installsReporting: 9, lastReportAt: Date.now() - 600_000, state: null, builds: [{ build: "412345", installs: 7, lookups: 1, patches: 5, start: 1 }, { build: "411902", installs: 2, lookups: 0, patches: 2, start: 0 }] },
+                health: { installsReporting: 9, lastReportAt: Date.now() - 600_000, state: null, builds: [{ build: "412345", installs: 7, lookups: 1, patches: 5, start: 1 }, { build: "411902", installs: 2, lookups: 0, patches: 2, start: 0 }], problems: [{ kind: "patches", detail: 'patches[1] find "guildsBar": replacement 0 matched nothing: /children:\i/', installs: 5 }, { kind: "start", detail: "TypeError: Cannot read properties of undefined (reading 'getGuilds')", installs: 1 }] },
                 pull: null, hotfixes: [], ...extra,
             });
             return {
@@ -243,6 +243,10 @@ function fakeNative(bootData: BootData) {
             };
         },
         authorOpen: async (link: string) => void (window as any).__test.nativeCalls.push(["authorOpen", link]),
+        authorSource: async (id: string) => {
+            (window as any).__test.nativeCalls.push(["authorSource", id]);
+            return { ok: true, folder: `C:/Users/kaz/Downloads/${id}-2.1.0`, version: "2.1.0", repo: false };
+        },
         devLive: async () => ({
             ok: true,
             value: {
@@ -270,7 +274,7 @@ function fakeNative(bootData: BootData) {
                 "/admin/reviews": { reviews: [] },
                 "/admin/health": {
                     plugins: [
-                        { id: "music-player", name: "Music Player", installsReporting: 1544, brokenPatches: 212, lastReportAt: now - 600_000 },
+                        { id: "music-player", name: "Music Player", installsReporting: 1544, brokenPatches: 212, lastReportAt: now - 600_000, problems: [{ kind: "patches", detail: 'patches[0] find "SpotifyStore": replacement 1 matched nothing: /isPremium/', installs: 212 }] },
                         { id: "view-icons", name: "View Icons", installsReporting: 2210, brokenPatches: 0, lastReportAt: now - 120_000 },
                         { id: "quest-blocker", name: "Quest Blocker", installsReporting: 990, brokenPatches: 0, lastReportAt: now - 300_000 },
                     ],
@@ -1022,7 +1026,7 @@ const toolkit = await page.evaluate(async () => {
     const toastModule = load(toolkit.filters.showToast, ".currentToastMap.has(", "surface");
     const toastBackend = toolkit.toastBackend();
     const shown = api.showToast("Evi toast test", { type: "success" });
-    const toast = await toastText("Evi toast test");
+    const toast = await toastText("Evi toast test") ?? { debug: [...document.querySelectorAll('.evi-toast, [class*="wrapper_"], [class*="toast"]')].map(e => `${e.className.toString().slice(0, 60)} | ${e.textContent?.slice(0, 80)}`).slice(0, 12) } as any;
 
     // Context menus: Discord's Menu, its item components, and the core navId patch
     const menu = load(toolkit.filters.menu, "Menu API only allows Items");
@@ -1330,6 +1334,8 @@ const lookups = await page.evaluate(async () => {
     // What a Discord update does to a lookup: its code or props are gone
     ctx?.waitFor(api.filters.byCode("evi-lookup-test-never-in-discord"), () => { });
     ctx?.hookExport("after", api.filters.byProps("eviLookupTestNeverInDiscord"), "go", () => { });
+    // Search Highlight's: search's actions, which Discord loads when search first opens
+    ctx?.waitFor(api.filters.byProps("fetchTabMessages", "clearSearchMessages"), () => { });
     const health = (at?: number) => Object.fromEntries(diagnoseLookups("silent-typing", at).map((d: any) => [d.target, d.health]));
     const early = health();
     const afterGrace = health(later());
@@ -1344,6 +1350,7 @@ check("lookups: a hookExport target that exists is found", lookups.hook?.health 
 check("lookups: an unfound target counts as waiting while Discord starts", lookups.early[codeTarget] === "waiting" && lookups.early[propsTarget] === "waiting", lookups.early);
 check("lookups: after that, code no module has is broken and unknown props are missing", lookups.afterGrace[codeTarget] === "broken" && lookups.afterGrace[propsTarget] === "missing", lookups.afterGrace);
 check("lookups: stopping the plugin drops its lookups", lookups.afterStop === 0, lookups.afterStop);
+check("lookups: search's actions, loaded when search first opens, never count as broken before that", ["waiting", "missing", "found"].includes(lookups.afterGrace["props fetchTabMessages, clearSearchMessages"]), lookups.afterGrace);
 
 // Logged out, MessageStore still works for a channel we "load" ourselves: dispatch Discord's own
 // actions for a fake channel and check what the plugin and the store make of them
@@ -1946,6 +1953,8 @@ check("Evi's panel shows no scrollbars", scrollbars.every(s => s.width === "none
     await body.getByText("Music Player", { exact: true }).first().waitFor({ timeout: 3000 });
     await page.waitForTimeout(300);
     await page.screenshot({ path: join(OUT, "ui-developers-plugins.png") });
+    const devFailed = await body.locator("li", { hasText: "Music Player" }).locator(".dl-dev-problems > li").allTextContents();
+    check("Developers > Plugins says what failed in a broken plugin", devFailed.length === 1 && devFailed[0].includes('find "SpotifyStore"') && devFailed[0].includes("212 installs"), devFailed);
 
     // Announcements: the preview follows what's typed, and sending asks first
     await page.click("#dl-subtab-developers-announcements");
@@ -2066,17 +2075,41 @@ check("Evi's panel shows no scrollbars", scrollbars.every(s => s.width === "none
     await page.evaluate(() => { (window as any).__test.authorMode = "author"; });
     await button.click();
     await page.waitForSelector(".dl-authorhub-stats", { timeout: 3000 });
+    // Several plugins: they start side by side, ranked, and a row opens one
+    await page.waitForTimeout(400);
+    const overview = await page.evaluate(() => ({
+        rows: [...document.querySelectorAll(".dl-authorhub-table-row")].map(r => r.getAttribute("aria-label")),
+        growth: [...document.querySelectorAll(".dl-authorhub-table-row .dl-authorhub-growth")].map(g => g.textContent),
+        stats: document.querySelectorAll(".dl-authorhub-stat").length,
+        chart: !!document.querySelector(".dl-authorhub-chart"),
+    }));
+    await page.screenshot({ path: join(OUT, "ui-author-overview.png") });
+    check("The Author page starts on all of an author's plugins, ranked, each opening its own numbers",
+        overview.rows.length === 2 && overview.rows.every(r => r?.startsWith("See the numbers for ")) && overview.growth.length === 2 && overview.stats === 5 && !overview.chart, overview);
+    await page.locator(".dl-authorhub-table-row", { hasText: "Stream DM Guard" }).click();
+    await page.waitForSelector(".dl-authorhub-chart", { timeout: 3000 });
     const shown = await page.evaluate(() => ({
         title: document.querySelector("#dl-author-title")?.textContent,
         stats: [...document.querySelectorAll(".dl-authorhub-stat")].map(s => s.textContent),
         bars: document.querySelectorAll(".dl-authorhub-chart .dl-dev-bar-hit").length,
         builds: document.querySelectorAll(".dl-authorhub-builds > li").length,
+        failed: [...document.querySelectorAll(".dl-authorhub-failed .dl-dev-problems > li")].map(li => li.textContent),
         reviews: document.querySelectorAll(".dl-authorhub-review").length,
         switcher: !!document.querySelector(".dl-authorhub-switcher"),
     }));
     // Past the dialog's open animation
     await page.waitForTimeout(400);
     await page.screenshot({ path: join(OUT, "ui-author.png") });
+    check("The Author page says what failed, by how many installs", shown.failed.length === 2 && shown.failed[0].includes('patches[1] find "guildsBar"') && shown.failed[0].includes("5 installs"), shown.failed);
+    await page.locator("#dl-author").getByRole("button", { name: "Download source" }).click();
+    await page.locator("#dl-author").getByText("Saved v2.1.0 to", { exact: false }).waitFor({ timeout: 3000 }).catch(() => { });
+    const source = await page.evaluate(() => ({
+        calls: (window as any).__test.nativeCalls.filter((c: unknown[]) => c[0] === "authorSource"),
+        status: document.querySelector(".dl-authorhub-source-status")?.textContent,
+    }));
+    await page.screenshot({ path: join(OUT, "ui-author-source.png") });
+    check("An author can download a plugin's source from its numbers, and hears where it went",
+        source.calls.length === 1 && source.calls[0][1] === "stream-dm-guard" && !!source.status?.includes("stream-dm-guard-2.1.0"), source);
     await page.locator("#dl-author").getByText("7 days").click();
     await page.waitForFunction(() => document.querySelectorAll(".dl-authorhub-chart .dl-dev-bar-hit").length === 7, null, { timeout: 3000 });
     const days = await page.evaluate(() => (window as any).__test.authorDays);
@@ -3170,6 +3203,17 @@ await page.screenshot({ path: join(OUT, "ui-plugins-trouble.png") });
 // Back to every plugin for what follows: the tab starts on All when it opens again
 await page.click("#dl-tab-themes");
 await page.click("#dl-tab-plugins");
+// Its banner makes a card taller, never the working card beside it in the same row
+await page.fill("#dl-plugin-search", "store-");
+await page.waitForTimeout(150);
+const rows = await page.evaluate(() => {
+    const cards = [...document.querySelectorAll<HTMLElement>("li.dl-plugin-card")];
+    return cards.filter(c => c.dataset.trouble).flatMap(c => cards
+        .filter(n => n !== c && !n.dataset.trouble && Math.abs(n.getBoundingClientRect().top - c.getBoundingClientRect().top) < 2)
+        .map(n => ({ trouble: Math.round(c.getBoundingClientRect().height), beside: Math.round(n.getBoundingClientRect().height) })));
+});
+check("a card that says it isn't working doesn't stretch the card beside it", rows.length > 0 && rows.every(r => r.beside < r.trouble), rows);
+await page.screenshot({ path: join(OUT, "ui-plugins-trouble-row.png") });
 await findPlugin("store-lookup");
 
 // Send to author: shows the report first, sends it once, then says so
@@ -3199,11 +3243,16 @@ check("Send report sends it once, then the button says Sent",
     && sentCrash.row.includes("Sent to Evi") && sentCrash.again && !sentCrash.dialog, { ...sentCrash, calls: sentCrash.calls.map((c: any) => ({ ...c, report: c.report.slice(0, 60) })) });
 await lookupRow.screenshot({ path: join(OUT, "ui-crash-sent.png") });
 
-// Plugin health: the store plugin that can't find a part of Discord was reported, once, and nothing else
-await page.waitForFunction(() => (window as any).__test.healthReports.length > 0, null, { timeout: 60_000 }).catch(() => { });
-const healthReports = await page.evaluate(() => (window as any).__test.healthReports);
-check("plugin health: a store plugin that can't find a part of Discord is reported to evi.rest, and only it",
-    healthReports.length === 1 && healthReports[0].plugin === "store-lookup" && healthReports[0].version === "1.0.0" && healthReports[0].kind === "lookups" && typeof healthReports[0].discordBuild === "string", healthReports);
+// Plugin health: a lookup that's only missing isn't reported. Nothing loaded has it, which is also what
+// code Discord fetches on first use looks like (search's actions, for Search Highlight)
+await page.evaluate(() => (window as any).Evi.checkHealth?.());
+await page.waitForTimeout(1500);
+const healthReports = await page.evaluate(() => ({
+    sent: (window as any).__test.healthReports,
+    lookup: (window as any).Evi.diagnoseLookups("store-lookup").map((d: any) => d.health),
+}));
+check("plugin health: a store plugin whose lookup is only missing isn't reported to evi.rest",
+    healthReports.sent.length === 0 && healthReports.lookup.includes("missing"), healthReports);
 
 await openTab("themes", "store");
 await page.waitForSelector('[data-store-id="midnight"]', { timeout: 5000 });

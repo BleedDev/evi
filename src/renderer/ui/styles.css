@@ -1749,14 +1749,14 @@
 /* ---- installed lists ----------------------------------------------------------------------- */
 
 /*
- * Plugins, as cards two to a row. Same build as the store's cards, so both tabs read alike. Each card
- * is as tall as its own content: one that says it's broken doesn't stretch the card beside it. A
- * description keeps two lines' room, so cards that only differ there still line up.
+ * Plugins, as cards two to a row. Same build as the store's cards, so both tabs read alike. Cards in
+ * a row are as tall as each other, with the foot at the bottom: their tops differ more than it looks
+ * (badges that wrap under a long name, a trouble banner), and cards each as tall as their own content
+ * left ragged rows and actions at different heights.
  */
 .dl-plugin-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    align-items: start;
     gap: 10px;
     margin: 0;
     padding: 0;

@@ -12,6 +12,18 @@ export type { Release, SectionKind } from "./changelogNotes";
  */
 export const RELEASES: Release[] = [
     {
+        version: "3.2.0",
+        date: "2026-10-31",
+        sections: {
+            added: [
+                "**Evi fixes itself without an update.** When a Discord update breaks part of Evi, Evi's team can now send the fix straight to your Evi, usually within minutes, with no new version to install and no restart.",
+            ],
+            improved: [
+                "**Fixes for plugins can fix how they look too,** not just what they do, so a plugin Discord's update made look wrong gets fixed the same way.",
+            ],
+        },
+    },
+    {
         version: "3.1.2",
         date: "2026-10-31",
         sections: {

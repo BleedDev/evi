@@ -11,6 +11,14 @@ export type ReleaseNotes = Partial<Record<SectionKind, string[]>>;
 /** Language -> version -> section -> lines */
 export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
     de: {
+        "3.2.0": {
+            added: [
+                "**Evi repariert sich ohne Update.** Wenn ein Discord-Update einen Teil von Evi kaputt macht, kann Evis Team die Korrektur jetzt direkt an dein Evi schicken, meist innerhalb von Minuten, ohne neue Version und ohne Neustart.",
+            ],
+            improved: [
+                "**Korrekturen für Plugins können jetzt auch ihr Aussehen reparieren,** nicht nur, was sie tun. Ein Plugin, das nach einem Discord-Update falsch aussieht, wird genauso repariert.",
+            ],
+        },
         "3.1.2": {
             fixed: [
                 "**Plugin-Karten sind wieder bündig.** Nebeneinanderliegende Karten sind gleich hoch und ihre Knöpfe auf einer Linie, auch wenn ein Abzeichen unter einen langen Namen rutscht.",
@@ -418,6 +426,14 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     es: {
+        "3.2.0": {
+            added: [
+                "**Evi se arregla sin actualizarse.** Cuando una actualización de Discord rompe una parte de Evi, el equipo de Evi ahora puede enviar el arreglo directamente a tu Evi, normalmente en minutos, sin instalar una versión nueva ni reiniciar.",
+            ],
+            improved: [
+                "**Los arreglos de plugins ahora también pueden arreglar cómo se ven,** no solo lo que hacen, así que un plugin que se ve mal tras una actualización de Discord se arregla igual.",
+            ],
+        },
         "3.1.2": {
             fixed: [
                 "**Las tarjetas de plugins vuelven a estar alineadas.** Las tarjetas contiguas tienen la misma altura y sus botones quedan en una línea, aunque una etiqueta baje bajo un nombre largo.",
@@ -825,6 +841,14 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     fr: {
+        "3.2.0": {
+            added: [
+                "**Evi se répare sans mise à jour.** Quand une mise à jour de Discord casse une partie d'Evi, l'équipe d'Evi peut maintenant envoyer la correction directement à ton Evi, en général en quelques minutes, sans nouvelle version ni redémarrage.",
+            ],
+            improved: [
+                "**Les corrections de plugins peuvent aussi réparer leur apparence,** pas seulement ce qu'ils font : un plugin qui s'affiche mal après une mise à jour de Discord est corrigé de la même façon.",
+            ],
+        },
         "3.1.2": {
             fixed: [
                 "**Les cartes de plugins sont de nouveau alignées.** Les cartes côte à côte ont la même hauteur et leurs boutons sur une même ligne, même quand un badge passe sous un nom long.",
@@ -1232,6 +1256,14 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ja: {
+        "3.2.0": {
+            added: [
+                "**Evi がアップデートなしで直ります。** Discord のアップデートで Evi の一部が壊れたとき、Evi チームが修正をあなたの Evi に直接届けられるようになりました。たいてい数分で、新しいバージョンのインストールも再起動も要りません。",
+            ],
+            improved: [
+                "**プラグインの修正で見た目も直せるようになりました。** 動作だけでなく、Discord のアップデートで表示が崩れたプラグインも同じように修正されます。",
+            ],
+        },
         "3.1.2": {
             fixed: [
                 "**プラグインのカードが再びそろいました。** 長い名前の下にバッジが折り返されても、隣り合うカードは同じ高さで、ボタンも一列にそろいます。",
@@ -1639,6 +1671,14 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     pl: {
+        "3.2.0": {
+            added: [
+                "**Evi naprawia się bez aktualizacji.** Gdy aktualizacja Discorda zepsuje część Evi, zespół Evi może teraz wysłać poprawkę prosto do Twojego Evi, zwykle w ciągu kilku minut, bez instalowania nowej wersji i bez restartu.",
+            ],
+            improved: [
+                "**Poprawki pluginów mogą też naprawić ich wygląd,** nie tylko działanie, więc plugin, który po aktualizacji Discorda wygląda źle, zostanie naprawiony tak samo.",
+            ],
+        },
         "3.1.2": {
             fixed: [
                 "**Karty pluginów znów są wyrównane.** Karty obok siebie mają tę samą wysokość, a ich przyciski są w jednej linii, nawet gdy plakietka przechodzi pod długą nazwę.",
@@ -2046,6 +2086,14 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     "pt-BR": {
+        "3.2.0": {
+            added: [
+                "**O Evi se corrige sem atualização.** Quando uma atualização do Discord quebra uma parte do Evi, a equipe do Evi agora pode mandar a correção direto para o seu Evi, geralmente em minutos, sem instalar uma versão nova e sem reiniciar.",
+            ],
+            improved: [
+                "**As correções de plugins também podem consertar a aparência deles,** não só o que fazem, então um plugin que ficou estranho depois de uma atualização do Discord é corrigido do mesmo jeito.",
+            ],
+        },
         "3.1.2": {
             fixed: [
                 "**Os cartões de plugins voltaram a ficar alinhados.** Cartões lado a lado têm a mesma altura e os botões ficam na mesma linha, mesmo quando um selo quebra para baixo de um nome longo.",
@@ -2453,6 +2501,14 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ru: {
+        "3.2.0": {
+            added: [
+                "**Evi исправляется без обновления.** Когда обновление Discord ломает часть Evi, команда Evi теперь может отправить исправление прямо в ваш Evi, обычно за несколько минут, без установки новой версии и без перезапуска.",
+            ],
+            improved: [
+                "**Исправления плагинов теперь могут чинить и их внешний вид,** а не только работу: плагин, который после обновления Discord выглядит неправильно, исправляется так же.",
+            ],
+        },
         "3.1.2": {
             fixed: [
                 "**Карточки плагинов снова выровнены.** Соседние карточки одной высоты, а их кнопки на одной линии, даже если значок переносится под длинное название.",
@@ -2860,6 +2916,14 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     tr: {
+        "3.2.0": {
+            added: [
+                "**Evi güncelleme olmadan kendini düzeltiyor.** Bir Discord güncellemesi Evi'nin bir kısmını bozduğunda, Evi ekibi düzeltmeyi artık doğrudan senin Evi'ne gönderebiliyor; genellikle dakikalar içinde, yeni sürüm kurmadan ve yeniden başlatmadan.",
+            ],
+            improved: [
+                "**Eklenti düzeltmeleri artık görünümlerini de düzeltebiliyor,** yalnızca ne yaptıklarını değil; Discord güncellemesinden sonra yanlış görünen bir eklenti de aynı şekilde düzeltiliyor.",
+            ],
+        },
         "3.1.2": {
             fixed: [
                 "**Eklenti kartları yeniden hizalı.** Yan yana kartlar aynı yükseklikte ve düğmeleri aynı hizada, uzun bir adın altına bir rozet kaysa bile.",

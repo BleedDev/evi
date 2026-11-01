@@ -1,8 +1,8 @@
 {
     "id": "show-hidden-channels",
     "name": "Show Hidden Channels",
-    "description": "Shows the channels you can't view in the channel list, with a lock. Opening one shows its topic, settings and who can see it, never its messages.",
-    "version": "1.1.1",
+    "description": "Shows the channels you can't view in the channel list, with a lock. Opening one shows only its name, topic, permissions and who can see it, never its messages. To do this it switches off Discord's own protection that scrambles hidden channels' details. Active Now can also list people in voice channels you can't see.",
+    "version": "1.1.2",
     "authors": [
         "Evi"
     ],
@@ -12,6 +12,12 @@
     ],
     "permissions": {},
     "changelog": [
+        {
+            "version": "1.1.2",
+            "notes": [
+                "Leaves Discord's integrity check alone: only the protection that scrambles hidden channels' details is switched off. The description now says so, and that Active Now can list people in voice channels you can't see."
+            ]
+        },
         {
             "version": "1.1.1",
             "notes": [
@@ -59,8 +65,11 @@
     "locales": {
         "de": {
             "name": "Versteckte Kanäle anzeigen",
-            "description": "Zeigt die Kanäle, die du nicht ansehen kannst, mit einem Schloss in der Kanalliste. Beim Öffnen siehst du Thema, Einstellungen und wer ihn sehen kann, nie aber die Nachrichten.",
+            "description": "Zeigt die Kanäle, die du nicht ansehen kannst, mit einem Schloss in der Kanalliste. Beim Öffnen siehst du nur Name, Thema, Berechtigungen und wer ihn sehen kann, nie aber die Nachrichten. Dafür schaltet es Discords eigenen Schutz ab, der die Angaben versteckter Kanäle unkenntlich macht, und „Jetzt aktiv“ kann Leute in Sprachkanälen zeigen, die du nicht sehen kannst.",
             "changelog": {
+                "1.1.2": [
+                    "Lässt Discords Integritätsprüfung in Ruhe: Abgeschaltet wird nur der Schutz, der die Angaben versteckter Kanäle unkenntlich macht. Die Beschreibung sagt das jetzt, und auch, dass „Jetzt aktiv“ Leute in Sprachkanälen zeigen kann, die du nicht sehen kannst."
+                ],
                 "1.1.1": [
                     "Funktioniert nach Discords Update wieder: versteckte Stage-Kanäle zeigen das Schloss statt der Stage."
                 ],
@@ -86,8 +95,11 @@
         },
         "es": {
             "name": "Mostrar canales ocultos",
-            "description": "Muestra en la lista de canales los que no puedes ver, con un candado. Al abrir uno verás su tema, sus ajustes y quién puede verlo, nunca sus mensajes.",
+            "description": "Muestra en la lista de canales los que no puedes ver, con un candado. Al abrir uno verás solo su nombre, su tema, sus permisos y quién puede verlo, nunca sus mensajes. Para ello desactiva la protección propia de Discord que oculta los datos de esos canales, y «Activo ahora» puede mostrar a gente en canales de voz que no puedes ver.",
             "changelog": {
+                "1.1.2": [
+                    "Deja en paz la comprobación de integridad de Discord: solo se desactiva la protección que oculta los datos de los canales ocultos. La descripción ahora lo dice, y también que «Activo ahora» puede mostrar a gente en canales de voz que no puedes ver."
+                ],
                 "1.1.1": [
                     "Vuelve a funcionar tras la actualización de Discord: los canales de escenario ocultos muestran el candado en lugar del escenario."
                 ],
@@ -113,8 +125,11 @@
         },
         "fr": {
             "name": "Afficher les salons masqués",
-            "description": "Affiche dans la liste les salons que tu ne peux pas voir, avec un cadenas. En ouvrir un montre son sujet, ses paramètres et qui peut le voir, jamais ses messages.",
+            "description": "Affiche dans la liste les salons que tu ne peux pas voir, avec un cadenas. En ouvrir un montre seulement son nom, son sujet, ses permissions et qui peut le voir, jamais ses messages. Pour cela, il désactive la protection de Discord qui brouille les infos de ces salons, et « Actif maintenant » peut lister des personnes dans des salons vocaux que tu ne peux pas voir.",
             "changelog": {
+                "1.1.2": [
+                    "Laisse tranquille la vérification d'intégrité de Discord : seule la protection qui brouille les infos des salons cachés est désactivée. La description le dit maintenant, ainsi que le fait qu'« Actif maintenant » peut lister des personnes dans des salons vocaux que tu ne peux pas voir."
+                ],
                 "1.1.1": [
                     "Fonctionne à nouveau après la mise à jour de Discord : les salons de conférence masqués affichent le cadenas au lieu de la conférence."
                 ],
@@ -140,8 +155,11 @@
         },
         "ja": {
             "name": "非表示チャンネルを表示",
-            "description": "見ることのできないチャンネルを、鍵付きでチャンネル一覧に表示します。開くとトピック、設定、閲覧できる人が表示され、メッセージは表示されません。",
+            "description": "見ることのできないチャンネルを、鍵付きでチャンネル一覧に表示します。開くと名前、トピック、権限、閲覧できる人だけが表示され、メッセージは表示されません。そのために、非表示チャンネルの情報を隠すDiscord自身の保護をオフにします。また、アクティブ・ナウに、見られないボイスチャンネルにいる人が表示されることがあります。",
             "changelog": {
+                "1.1.2": [
+                    "Discordの整合性チェックには手を付けなくなりました。オフにするのは非表示チャンネルの情報を隠す保護だけです。説明にもそのことと、アクティブ・ナウに見られないボイスチャンネルにいる人が表示されることがある点を書きました。"
+                ],
                 "1.1.1": [
                     "Discordのアップデート後も再び動作します。非表示のステージチャンネルでは、ステージの代わりに鍵の画面が表示されます。"
                 ],
@@ -167,8 +185,11 @@
         },
         "pl": {
             "name": "Pokaż ukryte kanały",
-            "description": "Pokazuje na liście kanałów te, których nie możesz zobaczyć, z kłódką. Po otwarciu zobaczysz jego temat, ustawienia i to, kto go widzi, ale nigdy wiadomości.",
+            "description": "Pokazuje na liście kanałów te, których nie możesz zobaczyć, z kłódką. Po otwarciu zobaczysz tylko jego nazwę, temat, uprawnienia i to, kto go widzi, ale nigdy wiadomości. Żeby to zrobić, wyłącza własną ochronę Discorda, która ukrywa dane takich kanałów, a „Aktywni teraz” może pokazywać osoby na kanałach głosowych, których nie widzisz.",
             "changelog": {
+                "1.1.2": [
+                    "Nie rusza już kontroli integralności Discorda: wyłączana jest tylko ochrona, która ukrywa dane ukrytych kanałów. Opis mówi to teraz wprost, a także to, że „Aktywni teraz” może pokazywać osoby na kanałach głosowych, których nie widzisz."
+                ],
                 "1.1.1": [
                     "Znów działa po aktualizacji Discorda: ukryte kanały sceny pokazują kłódkę zamiast sceny."
                 ],
@@ -194,8 +215,11 @@
         },
         "pt-BR": {
             "name": "Mostrar Canais Ocultos",
-            "description": "Mostra na lista de canais os que você não pode ver, com um cadeado. Ao abrir um, você vê o tópico, as configurações e quem pode vê-lo, nunca as mensagens.",
+            "description": "Mostra na lista de canais os que você não pode ver, com um cadeado. Ao abrir um, você vê só o nome, o tópico, as permissões e quem pode vê-lo, nunca as mensagens. Para isso, desliga a proteção do próprio Discord que esconde os dados desses canais, e o \"Ativo agora\" pode mostrar pessoas em canais de voz que você não pode ver.",
             "changelog": {
+                "1.1.2": [
+                    "Deixa a verificação de integridade do Discord em paz: só a proteção que esconde os dados dos canais ocultos é desligada. A descrição agora diz isso, e também que o \"Ativo agora\" pode mostrar pessoas em canais de voz que você não pode ver."
+                ],
                 "1.1.1": [
                     "Volta a funcionar após a atualização do Discord: canais de palco ocultos mostram o cadeado em vez do palco."
                 ],
@@ -221,8 +245,11 @@
         },
         "ru": {
             "name": "Показывать скрытые каналы",
-            "description": "Показывает в списке каналов те, которые вам недоступны, с замком. Открыв такой канал, вы увидите его тему, настройки и то, кто может его видеть, но никогда не сообщения.",
+            "description": "Показывает в списке каналов те, которые вам недоступны, с замком. Открыв такой канал, вы увидите только его название, тему, права и то, кто может его видеть, но никогда не сообщения. Для этого плагин отключает собственную защиту Discord, скрывающую данные таких каналов, а «Сейчас активны» может показывать людей в голосовых каналах, которые вам не видны.",
             "changelog": {
+                "1.1.2": [
+                    "Больше не трогает проверку целостности Discord: отключается только защита, скрывающая данные скрытых каналов. Теперь это сказано в описании, как и то, что «Сейчас активны» может показывать людей в голосовых каналах, которые вам не видны."
+                ],
                 "1.1.1": [
                     "Снова работает после обновления Discord: скрытые трибуны показывают замок вместо самой трибуны."
                 ],
@@ -248,8 +275,11 @@
         },
         "tr": {
             "name": "Gizli Kanalları Göster",
-            "description": "Görüntüleyemediğin kanalları kanal listesinde kilit simgesiyle gösterir. Birini açtığında konusunu, ayarlarını ve kimlerin görebildiğini görürsün, mesajlarını asla.",
+            "description": "Görüntüleyemediğin kanalları kanal listesinde kilit simgesiyle gösterir. Birini açtığında yalnızca adını, konusunu, izinlerini ve kimlerin görebildiğini görürsün, mesajlarını asla. Bunun için Discord'un bu kanalların bilgilerini gizleyen kendi korumasını kapatır; ayrıca Şimdi Aktif, göremediğin ses kanallarındaki kişileri gösterebilir.",
             "changelog": {
+                "1.1.2": [
+                    "Discord'un bütünlük denetimine artık dokunmuyor: yalnızca gizli kanalların bilgilerini gizleyen koruma kapatılıyor. Açıklama artık bunu söylüyor, ayrıca Şimdi Aktif'in göremediğin ses kanallarındaki kişileri gösterebileceğini de."
+                ],
                 "1.1.1": [
                     "Discord güncellemesinden sonra yeniden çalışıyor: gizli sahne kanalları sahne yerine kilit ekranını gösterir."
                 ],

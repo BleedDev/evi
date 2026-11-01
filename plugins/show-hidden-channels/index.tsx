@@ -514,10 +514,12 @@ export default definePlugin({
             },
         },
         {
-            // Discord's experiment that scrambles hidden channels' data
+            // Discord's experiment that scrambles hidden channels' data. enableObfuscation is what
+            // asks for it (a capability bit in the gateway's IDENTIFY); enableIntegrityCheck isn't
+            // read anywhere in Discord's client (build of 2026-10-31), so it stays as Discord set it
             find: "2026-02-private-channel-hiding",
             replace: {
-                match: /(?<=enableObfuscation|enableIntegrityCheck):!0/g,
+                match: /(?<=enableObfuscation):!0/g,
                 with: ":false",
             },
         },

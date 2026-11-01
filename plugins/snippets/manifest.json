@@ -2,7 +2,7 @@
     "id": "snippets",
     "name": "Snippets",
     "description": "Saved replies. Pick one from the chat bar or send it with /snip, with placeholders like {user} and {date}. Right-click a message to save it as a snippet.",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "authors": [
         "Evi"
     ],
@@ -15,6 +15,12 @@
         "sendMessages": true
     },
     "changelog": [
+        {
+            "version": "1.1.2",
+            "notes": [
+                "When you save someone's message as a snippet, placeholders in it like {clipboard} stay as plain text. And a snippet with {clipboard} always goes in your message box instead of being sent, so you can check what you copied before anyone sees it."
+            ]
+        },
         {
             "version": "1.1.1",
             "notes": [
@@ -58,6 +64,9 @@
             "name": "Textbausteine",
             "description": "Gespeicherte Antworten. Wähle eine in der Chatleiste aus oder sende sie mit /snip, mit Platzhaltern wie {user} und {date}. Klicke mit der rechten Maustaste auf eine Nachricht, um sie als Textbaustein zu speichern.",
             "changelog": {
+                "1.1.2": [
+                    "Wenn du die Nachricht von jemandem als Textbaustein speicherst, bleiben Platzhalter darin wie {clipboard} einfacher Text. Und ein Textbaustein mit {clipboard} kommt immer ins Nachrichtenfeld, statt gesendet zu werden, damit du prüfen kannst, was du kopiert hast, bevor es jemand sieht."
+                ],
                 "1.1.1": [
                     "Ausschalten oder Aktualisieren, während die Textbaustein-Auswahl offen ist, macht die Chatleiste nicht mehr kaputt."
                 ],
@@ -82,6 +91,9 @@
             "name": "Respuestas rápidas",
             "description": "Respuestas guardadas. Elige una en la barra de chat o envíala con /snip, con marcadores como {user} y {date}. Haz clic derecho en un mensaje para guardarlo como respuesta rápida.",
             "changelog": {
+                "1.1.2": [
+                    "Cuando guardas el mensaje de otra persona como respuesta rápida, los marcadores como {clipboard} se quedan como texto normal. Y una respuesta rápida con {clipboard} siempre va al cuadro de mensaje en lugar de enviarse, para que revises lo que copiaste antes de que nadie lo vea."
+                ],
                 "1.1.1": [
                     "Desactivarlo o actualizarlo con el selector de respuestas rápidas abierto ya no rompe la barra del chat."
                 ],
@@ -106,6 +118,9 @@
             "name": "Réponses rapides",
             "description": "Des réponses enregistrées. Choisis-en une dans la barre de discussion ou envoie-la avec /snip, avec des variables comme {user} et {date}. Fais un clic droit sur un message pour l'enregistrer comme réponse rapide.",
             "changelog": {
+                "1.1.2": [
+                    "Quand tu enregistres le message de quelqu'un comme réponse rapide, les variables comme {clipboard} restent du texte normal. Et une réponse rapide avec {clipboard} va toujours dans la zone de message au lieu d'être envoyée, pour que tu vérifies ce que tu as copié avant que quelqu'un le voie."
+                ],
                 "1.1.1": [
                     "Le désactiver ou le mettre à jour pendant que le sélecteur de réponses rapides est ouvert ne casse plus la barre de discussion."
                 ],
@@ -130,6 +145,9 @@
             "name": "スニペット",
             "description": "保存しておいた返信です。チャットバーから選ぶか、/snipで送信できます。{user}や{date}などのプレースホルダーも使えます。メッセージを右クリックすると、スニペットとして保存できます。",
             "changelog": {
+                "1.1.2": [
+                    "他の人のメッセージをスニペットとして保存すると、{clipboard} などのプレースホルダーはただの文字のまま残ります。また、{clipboard} を含むスニペットは送信されず、必ずメッセージ欄に入るので、コピーした内容を誰かに見られる前に確認できます。"
+                ],
                 "1.1.1": [
                     "スニペットの選択画面を開いている間にオフにしたり更新したりしても、チャットバーが壊れなくなりました。"
                 ],
@@ -154,6 +172,9 @@
             "name": "Szybkie odpowiedzi",
             "description": "Zapisane odpowiedzi. Wybierz jedną z paska czatu albo wyślij ją poleceniem /snip, z symbolami zastępczymi takimi jak {user} i {date}. Kliknij wiadomość prawym przyciskiem myszy, aby zapisać ją jako szybką odpowiedź.",
             "changelog": {
+                "1.1.2": [
+                    "Gdy zapisujesz czyjąś wiadomość jako szybką odpowiedź, symbole zastępcze w niej, takie jak {clipboard}, zostają zwykłym tekstem. A szybka odpowiedź z {clipboard} zawsze trafia do pola wiadomości zamiast zostać wysłana, więc możesz sprawdzić, co skopiowano, zanim ktokolwiek to zobaczy."
+                ],
                 "1.1.1": [
                     "Wyłączenie lub aktualizacja przy otwartym wyborze szybkich odpowiedzi nie psuje już paska czatu."
                 ],
@@ -178,6 +199,9 @@
             "name": "Respostas rápidas",
             "description": "Respostas salvas. Escolha uma na barra de chat ou envie com /snip, com marcadores como {user} e {date}. Clique com o botão direito em uma mensagem para salvá-la como resposta rápida.",
             "changelog": {
+                "1.1.2": [
+                    "Quando você salva a mensagem de outra pessoa como resposta rápida, marcadores nela como {clipboard} ficam como texto comum. E uma resposta rápida com {clipboard} sempre vai para a caixa de mensagem em vez de ser enviada, para você conferir o que copiou antes que alguém veja."
+                ],
                 "1.1.1": [
                     "Desativar ou atualizar com o seletor de respostas rápidas aberto não quebra mais a barra do chat."
                 ],
@@ -202,6 +226,9 @@
             "name": "Шаблоны",
             "description": "Сохранённые ответы. Выберите шаблон в панели чата или отправьте его командой /snip; поддерживаются подстановки вроде {user} и {date}. Нажмите на сообщение правой кнопкой мыши, чтобы сохранить его как шаблон.",
             "changelog": {
+                "1.1.2": [
+                    "Когда вы сохраняете чужое сообщение как шаблон, подстановки в нём вроде {clipboard} остаются обычным текстом. А шаблон с {clipboard} всегда вставляется в поле сообщения, а не отправляется, чтобы вы проверили скопированное, прежде чем его кто-то увидит."
+                ],
                 "1.1.1": [
                     "Если выключить или обновить его, пока открыт выбор шаблонов, панель чата больше не ломается."
                 ],
@@ -226,6 +253,9 @@
             "name": "Hazır Yanıtlar",
             "description": "Kayıtlı yanıtlar. Sohbet çubuğundan birini seç ya da /snip ile gönder; {user} ve {date} gibi yer tutucular kullanılabilir. Bir mesaja sağ tıklayıp hazır yanıt olarak kaydedebilirsin.",
             "changelog": {
+                "1.1.2": [
+                    "Birinin mesajını hazır yanıt olarak kaydettiğinde, içindeki {clipboard} gibi yer tutucular düz metin olarak kalır. {clipboard} içeren bir hazır yanıt da gönderilmek yerine her zaman mesaj kutusuna konur, böylece kopyaladığını kimse görmeden kontrol edebilirsin."
+                ],
                 "1.1.1": [
                     "Hazır yanıt seçici açıkken kapatmak ya da güncellemek artık sohbet çubuğunu bozmuyor."
                 ],

@@ -3,9 +3,9 @@ import type { CloseLayer, PluginContext } from "@evi/api";
 import type { ComponentType, KeyboardEvent as ReactKeyboardEvent, ReactNode } from "react";
 
 import {
-    addSnippet, BUTTON_PATCH, commandChoices, compareByName, dateValues, deleteSnippet, EMPTY, expandPlaceholders, getSnippet, MAX_NAME_LENGTH,
-    MAX_TEXT_LENGTH, nameError, parseState, PLACEHOLDERS, PlaceholderValues, recordUse, resolveSnippet, searchSnippets, Snippet,
-    SnippetInput, SnippetState, suggestName, textError, updateSnippet, usedPlaceholders,
+    addSnippet, BUTTON_PATCH, commandChoices, compareByName, dateValues, deleteSnippet, EMPTY, escapePlaceholders, expandPlaceholders, getSnippet,
+    MAX_NAME_LENGTH, MAX_TEXT_LENGTH, nameError, parseState, PLACEHOLDERS, PlaceholderValues, readsClipboard, recordUse, resolveSnippet,
+    searchSnippets, Snippet, SnippetInput, SnippetState, suggestName, textError, updateSnippet, usedPlaceholders,
 } from "./snippets";
 import type { SayKey } from "./snippets";
 import { t } from "./strings";
@@ -19,7 +19,10 @@ import { t } from "./strings";
  * - /snip name:<snippet> sends it, or puts it in the message box. Discord suggests the names as you
  *   type (they're the option's choices, re-registered whenever the snippets change) until there are
  *   more than Discord shows; then the name is matched and a miss lists the close ones.
- * - "Save as Snippet" on a message's right-click menu starts a snippet from its text.
+ *   A snippet with {clipboard} always goes in the message box, so what you copied is never sent
+ *   without you seeing it.
+ * - "Save as Snippet" on a message's right-click menu starts a snippet from its text, with its
+ *   placeholders escaped: someone else's {clipboard} stays as text, it never reads yours.
  *
  * Text goes into the message box through Discord's ComponentDispatch INSERT_TEXT event, the one its
  * own "Mention" menu item uses: the last mounted message box appends it and takes focus.
@@ -202,8 +205,10 @@ function syncCommand() {
             if ("error" in found) return { ephemeral: found.error };
             const text = await expand(found.snippet, command.channel);
             commit(recordUse(state, found.snippet.id));
-            const send = typeof args.send === "boolean" ? args.send : plugin.settings.get("commandAction") === "send";
+            const wantsSend = typeof args.send === "boolean" ? args.send : plugin.settings.get("commandAction") === "send";
+            const send = wantsSend && !readsClipboard(found.snippet.text);
             if (send) return { content: text };
+            if (wantsSend) plugin.toast(t("toast.checkClipboard"), { type: "info" });
             // After Discord has cleared the message box of the command
             setTimeout(() => {
                 if (!insertText(text)) plugin.toast(t("toast.noBox"), { type: "failure" });
@@ -814,7 +819,7 @@ export default definePlugin({
                     <Menu.Item
                         id="evi-snippets-save"
                         label={t("menu.save")}
-                        action={() => openEditorDialog({ name: suggestName(state, content), text: content })}
+                        action={() => openEditorDialog({ name: suggestName(state, content), text: escapePlaceholders(content) })}
                     />
                 </Menu.Group>,
             );

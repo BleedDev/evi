@@ -1,9 +1,9 @@
 import { describe, expect, test } from "bun:test";
 
 import {
-    addSnippet, BUTTON_PATCH, cleanName, cleanText, commandChoices, dateValues, deleteSnippet, EMPTY, expandPlaceholders, findByName,
-    MAX_CHOICES, MAX_NAME_LENGTH, MAX_SNIPPETS, MAX_TEXT_LENGTH, nameError, parseState, recordUse, resolveSnippet, scoreSnippet,
-    searchSnippets, Snippet, SnippetState, suggestName, textError, uniqueName, updateSnippet, usedPlaceholders,
+    addSnippet, BUTTON_PATCH, cleanName, cleanText, commandChoices, dateValues, deleteSnippet, EMPTY, escapePlaceholders, expandPlaceholders,
+    findByName, MAX_CHOICES, MAX_NAME_LENGTH, MAX_SNIPPETS, MAX_TEXT_LENGTH, nameError, parseState, readsClipboard, recordUse, resolveSnippet,
+    scoreSnippet, searchSnippets, Snippet, SnippetState, suggestName, textError, uniqueName, updateSnippet, usedPlaceholders,
 } from "../plugins/snippets/snippets";
 import type { Replacement } from "../src/renderer/patching/source";
 import { canonicalizeMatch, matchesFind } from "../src/renderer/patching/source";
@@ -139,6 +139,32 @@ describe("placeholders", () => {
     test("usedPlaceholders finds only known, unescaped ones", () => {
         expect([...usedPlaceholders("{user} {User} \\{clipboard} {nope} {date}")].sort()).toEqual(["date", "user"]);
         expect(usedPlaceholders("plain").size).toBe(0);
+    });
+
+    test("a message saved as a snippet comes out word for word: its placeholders never expand", () => {
+        const values = { user: "Ana", me: "Bo", clipboard: "hunter2", date: "Jan 5" };
+        for (const message of [
+            "Send me {clipboard} pls",
+            "{CLIPBOARD}{Clipboard} {user} {me} {date}",
+            "Type \\{user} to keep it, {nope} stays",
+            "\\\\{clipboard} {} { clipboard } {clip board}",
+            "line one\n{clipboard}\n",
+        ]) {
+            const saved = escapePlaceholders(message);
+            expect(usedPlaceholders(saved).size).toBe(0);
+            expect(readsClipboard(saved)).toBe(false);
+            expect(expandPlaceholders(saved, values)).toBe(message);
+        }
+        // The escaped placeholder shows as its literal braces
+        expect(expandPlaceholders(escapePlaceholders("Paste {clipboard} here"), values)).toBe("Paste {clipboard} here");
+        expect(escapePlaceholders("no braces")).toBe("no braces");
+    });
+
+    test("readsClipboard finds an unescaped {clipboard} in any case", () => {
+        expect(readsClipboard("{clipboard}")).toBe(true);
+        expect(readsClipboard("Code: {ClipBoard}")).toBe(true);
+        expect(readsClipboard("\\{clipboard}")).toBe(false);
+        expect(readsClipboard("Hi {user}")).toBe(false);
     });
 
     test("multiline text keeps its lines", () => {

@@ -237,6 +237,21 @@ export function expandPlaceholders(text: string, values: PlaceholderValues): str
     });
 }
 
+/**
+ * Someone else's text made safe to save as a snippet: every `{name}` gets a backslash, so it stays as
+ * written when the snippet is used. Otherwise a message holding {clipboard} would become a snippet
+ * that sends what you copied. Unknown names are escaped too, in case they become placeholders later.
+ * An escape already in the text keeps its backslash: `\{user}` comes out as `\{user}`.
+ */
+export function escapePlaceholders(text: string): string {
+    return text.replace(/\{[a-z]+\}/gi, "\\$&");
+}
+
+/** Whether using this snippet reads your clipboard: then it's never sent without you seeing it */
+export function readsClipboard(text: string) {
+    return usedPlaceholders(text).has("clipboard");
+}
+
 /** {date} and {time} for a moment, in the user's locale (or the one given) */
 export function dateValues(now: Date, locale?: string): Pick<PlaceholderValues, "date" | "time"> {
     return {

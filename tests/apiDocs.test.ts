@@ -1,14 +1,14 @@
 import { describe, expect, test } from "bun:test";
-import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
-import { API_DOCS_PATH, formatApiDocs, generateApiDocs, jsDocSummary } from "../scripts/api-docs";
+import { jsDocSummary } from "../scripts/api-docs";
 import { API_CHANGELOG } from "../src/shared/apiChangelog";
 import { apiDoc, ApiDoc, highlightApi, searchApiDocs } from "../src/shared/apiDocs";
 
 describe("api docs", () => {
-    test("apiDocs.json is up to date with the source (run bun scripts/api-docs.ts)", () => {
-        const current = readFileSync(API_DOCS_PATH, "utf8").replace(/\r\n/g, "\n");
-        expect(current).toBe(formatApiDocs(generateApiDocs()));
+    test("apiDocs.json is up to date with the source (run node scripts/api-docs.ts)", () => {
+        const run = Bun.spawnSync(["node", resolve(import.meta.dir, "../scripts/api-docs.ts"), "--check"], { stderr: "pipe" });
+        expect(run.exitCode, run.stderr.toString()).toBe(0);
     }, 30_000);
 
     test("the most used calls are there, with examples", () => {

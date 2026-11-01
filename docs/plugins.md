@@ -611,6 +611,6 @@ What to expect back, and what to check:
 
 ## 16. DevTools and API changes
 
-Evi's **DevTools** tab (Advanced) is for plugin authors: a live Flux log with every action as a tree, Discord's stores and what their getters return, how often your patched code calls into your plugin through `$self`, the plugins taking the most time, and a searchable reference of `@evi/api` and `ctx`. Patch Helper shows the same reference when you hover a name in its code. The reference is generated from Evi's source with `bun scripts/api-docs.ts` (into `src/shared/apiDocs.json`), and a test fails when it's out of date.
+Evi's **DevTools** tab (Advanced) is for plugin authors: a live Flux log with every action as a tree, Discord's stores and what their getters return, how often your patched code calls into your plugin through `$self`, the plugins taking the most time, and a searchable reference of `@evi/api` and `ctx`. Patch Helper shows the same reference when you hover a name in its code. The reference is generated from Evi's source with `node scripts/api-docs.ts` (into `src/shared/apiDocs.json`), and a test fails when it's out of date.
 
 The plugin API's changes, version by version, are in [`src/shared/apiChangelog.ts`](../src/shared/apiChangelog.ts) and on evi.rest. DevTools shows them under *What's new in the API*.

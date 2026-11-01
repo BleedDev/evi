@@ -62,6 +62,53 @@ export function classifyUrl(raw: unknown): Classified {
     return { kind: isDiscordHost(host) ? "discord" : "web", href: url.href, host };
 }
 
+/**
+ * Where a Discord link from the page goes. Most are Discord's to show (a channel, an invite, a
+ * gift), but authorizing an app (/oauth2/) and signing in by QR code (/ra/) would put a real
+ * Discord dialog over Discord for any page that asked: those go to the browser, where the address
+ * bar says who's asking.
+ */
+export function discordLinkTarget(href: string): "discord" | "browser" {
+    let path: string;
+    try {
+        path = new URL(href).pathname.toLowerCase();
+    } catch {
+        return "browser";
+    }
+    return /^\/(?:api\/(?:v\d+\/)?)?(?:oauth2|ra|login|register)(?:\/|$)/.test(path) ? "browser" : "discord";
+}
+
+/** How long after a click or key press in the page it may hand a link off, for redirects on the way */
+export const GESTURE_MS = 3000;
+/** Hand-offs at most this often, gesture or not */
+export const HANDOFF_GAP_MS = 1000;
+
+/**
+ * What the page may hand to Discord or the browser: one link per click or key press in it, while
+ * the panel is on screen, a second apart at most. Without it a page could open invite and app
+ * dialogs over Discord, or tab after tab in the browser, on its own.
+ */
+export class HandoffGate {
+    private gestureAt = -Infinity;
+    private lastHandoff = -Infinity;
+
+    constructor(private readonly now: () => number = Date.now) { }
+
+    /** The person clicked, tapped or pressed a key in the page */
+    gesture() {
+        this.gestureAt = this.now();
+    }
+
+    /** Whether a hand-off may happen now; using it spends the gesture */
+    take(visible: boolean): boolean {
+        const now = this.now();
+        if (!visible || now - this.gestureAt > GESTURE_MS || now - this.lastHandoff < HANDOFF_GAP_MS) return false;
+        this.gestureAt = -Infinity;
+        this.lastHandoff = now;
+        return true;
+    }
+}
+
 export interface SiteRules {
     /** Sites that open in the panel in "Only these sites" mode */
     open: string[];

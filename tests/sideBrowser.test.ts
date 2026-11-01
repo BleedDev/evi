@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import {
-    clampWidth, classifyUrl, DEFAULT_WIDTH, displayHost, hostMatches, intersects, MIN_CHAT, MIN_WIDTH, opensInPanel, parseSiteRules, ruleHost,
+    clampWidth, classifyUrl, DEFAULT_WIDTH, discordLinkTarget, displayHost, GESTURE_MS, HANDOFF_GAP_MS, HandoffGate, hostMatches, intersects, MIN_CHAT, MIN_WIDTH, opensInPanel, parseSiteRules, ruleHost,
     sameRect, samplePoints, toViewBounds,
 } from "../plugins/side-browser/links";
 import type { Gesture, Mode } from "../plugins/side-browser/links";
@@ -185,5 +185,44 @@ describe("geometry", () => {
         expect(toViewBounds({ x: 2000, y: 0, width: 100, height: 100, viewportWidth: 1600 }, content)).toBeNull();
         // An absurd zoom is held to 5x
         expect(toViewBounds({ x: 0, y: 0, width: 10, height: 10, viewportWidth: 1 }, content)).toEqual({ x: 0, y: 0, width: 50, height: 50 });
+    });
+});
+
+describe("what the page may hand off", () => {
+    test("app authorizations and QR sign-in go to the browser, the rest of Discord's links to Discord", () => {
+        expect(discordLinkTarget("https://discord.com/oauth2/authorize?client_id=1&scope=bot")).toBe("browser");
+        expect(discordLinkTarget("https://discord.com/api/v10/oauth2/authorize?client_id=1")).toBe("browser");
+        expect(discordLinkTarget("https://discord.com/ra/abc123")).toBe("browser");
+        expect(discordLinkTarget("https://discord.com/login")).toBe("browser");
+        expect(discordLinkTarget("https://discord.gg/abc")).toBe("discord");
+        expect(discordLinkTarget("https://discord.com/invite/abc")).toBe("discord");
+        expect(discordLinkTarget("https://discord.com/channels/1/2/3")).toBe("discord");
+        expect(discordLinkTarget("https://discord.com/oauth2-is-not-this")).toBe("discord");
+        expect(discordLinkTarget("not a link")).toBe("browser");
+    });
+
+    test("one hand-off per click, only while the panel shows, a second apart at most", () => {
+        let now = 10_000;
+        const gate = new HandoffGate(() => now);
+        // The page on its own: nothing
+        expect(gate.take(true)).toBe(false);
+
+        gate.gesture();
+        expect(gate.take(false)).toBe(false);
+        expect(gate.take(true)).toBe(true);
+        // The click is spent: a loop after it gets nothing more
+        expect(gate.take(true)).toBe(false);
+
+        // A second click right away still waits out the gap
+        gate.gesture();
+        now += HANDOFF_GAP_MS - 1;
+        expect(gate.take(true)).toBe(false);
+        now += 1;
+        expect(gate.take(true)).toBe(true);
+
+        // A click long ago doesn't count
+        gate.gesture();
+        now += GESTURE_MS + 1;
+        expect(gate.take(true)).toBe(false);
     });
 });

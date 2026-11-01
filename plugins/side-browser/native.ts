@@ -11,7 +11,9 @@
  * Discord's, so no token, all of it gone when Discord quits), a sandboxed renderer with context
  * isolation, no Node and no preload. Every permission is refused (camera, microphone, location,
  * notifications, fullscreen, opening other apps), popups load in the panel, downloads open in the
- * default browser, and only http(s) pages are loaded; Discord's own links go back to Discord.
+ * default browser, and only http(s) pages are loaded; Discord's own links go back to Discord. A
+ * download or a Discord link only leaves the page right after a click or key press in it, one per
+ * press (HandoffGate), and app authorizations go to the browser, never to a dialog over Discord.
  *
  * Closing the panel destroys the view and its renderer process: nothing is kept around.
  */
@@ -20,7 +22,7 @@ import * as electron from "electron";
 import { BrowserWindow, clipboard, Menu, session, shell } from "electron";
 import type { Event as ElectronEvent, Session, WebContents } from "electron";
 
-import { classifyUrl, toViewBounds } from "./links";
+import { classifyUrl, discordLinkTarget, HandoffGate, toViewBounds } from "./links";
 import type { Rect } from "./links";
 
 /** In-memory: no "persist:" prefix */
@@ -58,7 +60,8 @@ let labels: Labels = {
     copyLink: "Copy Link", openLink: "Open Link in Browser", openPage: "Open in Browser", failed: "This page couldn't be opened.",
 };
 let preparedSession: Session | null = null;
-let lastExternal = 0;
+/** What the page may hand to Discord or the browser, gesture by gesture */
+let gate = new HandoffGate();
 let unhookWindow: (() => void) | null = null;
 
 let events: SideEvent[] = [];
@@ -115,9 +118,8 @@ function cleanUserAgent(agent: string) {
 function onDownload(event: ElectronEvent, item: Electron.DownloadItem) {
     event.preventDefault();
     const link = classifyUrl(item.getURL());
-    // blob: and data: downloads exist only in the page: refused. One a second at most, so a page can't open tab after tab
-    if (link.kind !== "web" || Date.now() - lastExternal < 1000) return;
-    lastExternal = Date.now();
+    // blob: and data: downloads exist only in the page: refused. One per click, so a page can't open tab after tab
+    if (link.kind !== "web" || !gate.take(shown)) return;
     void shell.openExternal(link.href!).catch(() => { });
     push({ type: "download", url: link.href! });
 }
@@ -217,6 +219,13 @@ function errorPage(description: string) {
 <div><b>${escapeHtml(labels.failed)}</b>${escapeHtml(description)}</div>`);
 }
 
+/** A Discord link the page opened: to Discord, or the browser for app authorizations, if the person just clicked */
+function handOff(href: string) {
+    if (!gate.take(shown)) return;
+    if (discordLinkTarget(href) === "browser") void shell.openExternal(href).catch(() => { });
+    else push({ type: "discord", url: href });
+}
+
 /** Navigations the page starts: http(s) stays, Discord's own links go to Discord, the rest is refused */
 function guardNavigation(event: ElectronEvent & { url?: string; isMainFrame?: boolean; }, legacyUrl?: string) {
     if (event.isMainFrame === false) return;
@@ -224,7 +233,7 @@ function guardNavigation(event: ElectronEvent & { url?: string; isMainFrame?: bo
     const link = classifyUrl(target);
     if (link.kind === "web") return;
     event.preventDefault();
-    if (link.kind === "discord") push({ type: "discord", url: link.href! });
+    if (link.kind === "discord") handOff(link.href!);
 }
 
 function popupMenu(wc: WebContents, win: BrowserWindow, params: Electron.ContextMenuParams) {
@@ -267,7 +276,7 @@ function wire(h: Holder) {
     wc.setWindowOpenHandler(({ url }) => {
         const link = classifyUrl(url);
         if (link.kind === "web") setImmediate(() => holder === h && load(link.href!));
-        else if (link.kind === "discord") push({ type: "discord", url: link.href! });
+        else if (link.kind === "discord") handOff(link.href!);
         return { action: "deny" };
     });
     wc.on("will-navigate", guardNavigation as any);
@@ -291,6 +300,10 @@ function wire(h: Holder) {
         push({ type: "gone", url });
     });
     wc.on("context-menu", (_event, params) => popupMenu(wc, win, params));
+    // Real input only: a page's script can't make these
+    wc.on("input-event", (_event, input) => {
+        if (input.type === "mouseDown" || input.type === "rawKeyDown" || input.type === "keyDown" || input.type === "gestureTap") gate.gesture();
+    });
     wc.on("before-input-event", (event, input) => {
         if (input.type !== "keyDown") return;
         const mod = process.platform === "darwin" ? input.meta : input.control;
@@ -342,6 +355,7 @@ function destroyView() {
     wanted = false;
     bounds = null;
     failedUrl = null;
+    gate = new HandoffGate();
     unhookWindow?.();
     unhookWindow = null;
     if (!h) return;
@@ -355,7 +369,8 @@ function destroyView() {
 }
 
 function load(href: string) {
-    if (!holder) return;
+    // Every address it loads is checked, the failed one a reload retries included
+    if (!holder || classifyUrl(href).kind !== "web") return;
     failedUrl = null;
     // Rejects when the load fails or is replaced; did-fail-load handles what matters
     void holder.wc.loadURL(href).catch(() => { });

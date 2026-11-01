@@ -2,7 +2,7 @@
     "id": "who-reacted",
     "name": "Who Reacted",
     "description": "Small avatars of who reacted, right on each reaction next to its count, and how many more when there are lots.",
-    "version": "1.1.0",
+    "version": "1.1.2",
     "authors": [
         "Evi"
     ],
@@ -17,6 +17,18 @@
         "readMessages": true
     },
     "changelog": [
+        {
+            "version": "1.1.2",
+            "notes": [
+                "Only asks Discord who reacted for reactions on your screen, one at a time and no more than 20 a minute, so opening a busy channel no longer sends dozens of requests. When Discord says to slow down, it waits before asking again."
+            ]
+        },
+        {
+            "version": "1.1.1",
+            "notes": [
+                "Turning it off while reactions are on screen no longer breaks the message when someone reacts."
+            ]
+        },
         {
             "version": "1.1.0",
             "notes": [
@@ -37,6 +49,12 @@
             "name": "Wer hat reagiert",
             "description": "Kleine Avatare der Leute, die reagiert haben, direkt an jeder Reaktion neben der Anzahl, und wie viele weitere es sind, wenn es viele gibt.",
             "changelog": {
+                "1.1.2": [
+                    "Fragt Discord nur noch bei Reaktionen auf deinem Bildschirm, wer reagiert hat, eine nach der anderen und höchstens 20 pro Minute, damit ein voller Kanal nicht mehr Dutzende Anfragen auslöst. Wenn Discord sagt, dass es langsamer gehen soll, wartet es, bevor es wieder fragt."
+                ],
+                "1.1.1": [
+                    "Wenn du es ausschaltest, während Reaktionen zu sehen sind, geht die Nachricht nicht mehr kaputt, sobald jemand reagiert."
+                ],
                 "1.1.0": [
                     "Folgt der Sprache von Discord: Deutsch, Spanisch, Französisch, Japanisch, Polnisch, Portugiesisch, Russisch und Türkisch, dazu Englisch."
                 ],
@@ -49,6 +67,12 @@
             "name": "Quién reaccionó",
             "description": "Pequeños avatares de quienes reaccionaron, justo en cada reacción junto a su contador, y cuántas personas más hay cuando son muchas.",
             "changelog": {
+                "1.1.2": [
+                    "Solo pregunta a Discord quién reaccionó en las reacciones que tienes en pantalla, una a una y como mucho 20 por minuto, así que abrir un canal con mucha actividad ya no envía decenas de solicitudes. Cuando Discord pide ir más despacio, espera antes de volver a preguntar."
+                ],
+                "1.1.1": [
+                    "Desactivarlo con reacciones en pantalla ya no rompe el mensaje cuando alguien reacciona."
+                ],
                 "1.1.0": [
                     "Sigue el idioma de Discord: alemán, español, francés, japonés, polaco, portugués, ruso y turco, además de inglés."
                 ],
@@ -61,6 +85,12 @@
             "name": "Qui a réagi",
             "description": "De petits avatars de ceux qui ont réagi, directement sur chaque réaction à côté de son compteur, et combien d'autres quand ils sont nombreux.",
             "changelog": {
+                "1.1.2": [
+                    "Ne demande à Discord qui a réagi que pour les réactions à ton écran, une à la fois et pas plus de 20 par minute : ouvrir un salon très actif n'envoie plus des dizaines de requêtes. Quand Discord demande de ralentir, il attend avant de redemander."
+                ],
+                "1.1.1": [
+                    "Le désactiver pendant que des réactions sont à l'écran ne casse plus le message quand quelqu'un réagit."
+                ],
                 "1.1.0": [
                     "Suit la langue de Discord : allemand, espagnol, français, japonais, polonais, portugais, russe et turc, en plus de l'anglais."
                 ],
@@ -73,6 +103,12 @@
             "name": "リアクションした人",
             "description": "リアクションした人の小さなアバターを、各リアクションのカウントの横に表示します。人数が多いときは残りの人数も表示します。",
             "changelog": {
+                "1.1.2": [
+                    "画面に表示されているリアクションについてだけ、1件ずつ、1分間に最大20件まで、誰がリアクションしたかをDiscordに問い合わせるようになりました。にぎやかなチャンネルを開いても、何十件ものリクエストが送られることはありません。Discordから速度を落とすよう求められたときは、少し待ってから再度問い合わせます。"
+                ],
+                "1.1.1": [
+                    "リアクションが表示されている間にオフにしても、誰かがリアクションしたときにメッセージが壊れなくなりました。"
+                ],
                 "1.1.0": [
                     "Discordの言語設定に合わせて表示されます。英語のほか、ドイツ語、スペイン語、フランス語、日本語、ポーランド語、ポルトガル語、ロシア語、トルコ語に対応しています。"
                 ],
@@ -85,6 +121,12 @@
             "name": "Kto zareagował",
             "description": "Małe awatary osób, które zareagowały, tuż przy każdej reakcji obok licznika, a gdy jest ich dużo, także ile jeszcze osób zareagowało.",
             "changelog": {
+                "1.1.2": [
+                    "Pyta Discorda, kto zareagował, tylko o reakcje widoczne na ekranie, po jednej i nie więcej niż 20 na minutę, więc otwarcie ruchliwego kanału nie wysyła już dziesiątek zapytań. Gdy Discord prosi o zwolnienie, czeka, zanim zapyta ponownie."
+                ],
+                "1.1.1": [
+                    "Wyłączenie go, gdy reakcje są na ekranie, nie psuje już wiadomości, gdy ktoś zareaguje."
+                ],
                 "1.1.0": [
                     "Mówi w języku Discorda: po niemiecku, hiszpańsku, francusku, japońsku, polsku, portugalsku, rosyjsku i turecku, oprócz angielskiego."
                 ],
@@ -97,6 +139,12 @@
             "name": "Quem reagiu",
             "description": "Avatares pequenos de quem reagiu, direto em cada reação ao lado da contagem, e quantas pessoas a mais quando são muitas.",
             "changelog": {
+                "1.1.2": [
+                    "Só pergunta ao Discord quem reagiu nas reações que estão na sua tela, uma de cada vez e no máximo 20 por minuto, então abrir um canal movimentado não envia mais dezenas de solicitações. Quando o Discord pede para ir mais devagar, ele espera antes de perguntar de novo."
+                ],
+                "1.1.1": [
+                    "Desativar com reações na tela não quebra mais a mensagem quando alguém reage."
+                ],
                 "1.1.0": [
                     "Segue o idioma do Discord: alemão, espanhol, francês, japonês, polonês, português, russo e turco, além do inglês."
                 ],
@@ -109,6 +157,12 @@
             "name": "Кто отреагировал",
             "description": "Маленькие аватары тех, кто отреагировал, прямо на каждой реакции рядом со счётчиком, а если людей много — сколько ещё.",
             "changelog": {
+                "1.1.2": [
+                    "Спрашивает у Discord, кто отреагировал, только для реакций на вашем экране, по одной и не больше 20 в минуту, поэтому открытие оживлённого канала больше не отправляет десятки запросов. Если Discord просит притормозить, он ждёт, прежде чем спросить снова."
+                ],
+                "1.1.1": [
+                    "Если выключить его, пока на экране есть реакции, сообщение больше не ломается, когда кто-то реагирует."
+                ],
                 "1.1.0": [
                     "Говорит на языке Discord: немецком, испанском, французском, японском, польском, португальском, русском и турецком, а также на английском."
                 ],
@@ -121,6 +175,12 @@
             "name": "Kim Tepki Verdi",
             "description": "Tepki verenlerin küçük avatarları, her tepkinin üzerinde sayının yanında görünür; çok kişi olduğunda kaç kişi daha olduğu da gösterilir.",
             "changelog": {
+                "1.1.2": [
+                    "Kimin tepki verdiğini Discord'a yalnızca ekranındaki tepkiler için, tek tek ve dakikada en fazla 20 kez soruyor; böylece kalabalık bir kanalı açmak artık onlarca istek göndermiyor. Discord yavaşlamasını istediğinde, yeniden sormadan önce bekliyor."
+                ],
+                "1.1.1": [
+                    "Tepkiler ekrandayken kapatmak, biri tepki verdiğinde artık mesajı bozmuyor."
+                ],
                 "1.1.0": [
                     "Discord'un dilini kullanır: İngilizcenin yanı sıra Almanca, İspanyolca, Fransızca, Japonca, Lehçe, Portekizce, Rusça ve Türkçe."
                 ],

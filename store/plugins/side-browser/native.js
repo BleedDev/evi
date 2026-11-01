@@ -107,6 +107,37 @@ function classifyUrl(raw) {
     return { kind: "refused" };
   return { kind: isDiscordHost(host) ? "discord" : "web", href: url.href, host };
 }
+function discordLinkTarget(href) {
+  let path;
+  try {
+    path = new URL(href).pathname.toLowerCase();
+  } catch {
+    return "browser";
+  }
+  return /^\/(?:api\/(?:v\d+\/)?)?(?:oauth2|ra|login|register)(?:\/|$)/.test(path) ? "browser" : "discord";
+}
+var GESTURE_MS = 3000;
+var HANDOFF_GAP_MS = 1000;
+
+class HandoffGate {
+  now;
+  gestureAt = -Infinity;
+  lastHandoff = -Infinity;
+  constructor(now = Date.now) {
+    this.now = now;
+  }
+  gesture() {
+    this.gestureAt = this.now();
+  }
+  take(visible) {
+    const now = this.now();
+    if (!visible || now - this.gestureAt > GESTURE_MS || now - this.lastHandoff < HANDOFF_GAP_MS)
+      return false;
+    this.gestureAt = -Infinity;
+    this.lastHandoff = now;
+    return true;
+  }
+}
 function toViewBounds(raw, content, fallbackScale = 1) {
   if (!raw || typeof raw !== "object")
     return null;
@@ -152,7 +183,7 @@ var labels = {
   failed: "This page couldn't be opened."
 };
 var preparedSession = null;
-var lastExternal = 0;
+var gate = new HandoffGate;
 var unhookWindow = null;
 var events = [];
 var waiting = null;
@@ -202,9 +233,8 @@ function cleanUserAgent(agent) {
 function onDownload(event, item) {
   event.preventDefault();
   const link = classifyUrl(item.getURL());
-  if (link.kind !== "web" || Date.now() - lastExternal < 1000)
+  if (link.kind !== "web" || !gate.take(shown))
     return;
-  lastExternal = Date.now();
   import_electron.shell.openExternal(link.href).catch(() => {});
   push({ type: "download", url: link.href });
 }
@@ -303,6 +333,14 @@ function errorPage(description) {
 <style>html,body{height:100%;margin:0}body{display:grid;place-items:center;font:14px/1.4 system-ui,sans-serif;color:#80848e;text-align:center;padding:24px;box-sizing:border-box}b{display:block;margin-bottom:4px;color:CanvasText;font-size:16px}</style>
 <div><b>${escapeHtml(labels.failed)}</b>${escapeHtml(description)}</div>`);
 }
+function handOff(href) {
+  if (!gate.take(shown))
+    return;
+  if (discordLinkTarget(href) === "browser")
+    import_electron.shell.openExternal(href).catch(() => {});
+  else
+    push({ type: "discord", url: href });
+}
 function guardNavigation(event, legacyUrl) {
   if (event.isMainFrame === false)
     return;
@@ -312,7 +350,7 @@ function guardNavigation(event, legacyUrl) {
     return;
   event.preventDefault();
   if (link.kind === "discord")
-    push({ type: "discord", url: link.href });
+    handOff(link.href);
 }
 function popupMenu(wc, win, params) {
   const items = [];
@@ -342,7 +380,7 @@ function wire(h) {
     if (link.kind === "web")
       setImmediate(() => holder === h && load(link.href));
     else if (link.kind === "discord")
-      push({ type: "discord", url: link.href });
+      handOff(link.href);
     return { action: "deny" };
   });
   wc.on("will-navigate", guardNavigation);
@@ -367,6 +405,10 @@ function wire(h) {
     push({ type: "gone", url });
   });
   wc.on("context-menu", (_event, params) => popupMenu(wc, win, params));
+  wc.on("input-event", (_event, input) => {
+    if (input.type === "mouseDown" || input.type === "rawKeyDown" || input.type === "keyDown" || input.type === "gestureTap")
+      gate.gesture();
+  });
   wc.on("before-input-event", (event, input) => {
     if (input.type !== "keyDown")
       return;
@@ -414,6 +456,7 @@ function destroyView() {
   wanted = false;
   bounds = null;
   failedUrl = null;
+  gate = new HandoffGate;
   unhookWindow?.();
   unhookWindow = null;
   if (!h)
@@ -428,7 +471,7 @@ function destroyView() {
     h.win.webContents.focus();
 }
 function load(href) {
-  if (!holder)
+  if (!holder || classifyUrl(href).kind !== "web")
     return;
   failedUrl = null;
   holder.wc.loadURL(href).catch(() => {});

@@ -1,19 +1,51 @@
 {
     "id": "hide-blocked",
     "name": "Hide Blocked Completely",
-    "description": "Blocked users' messages disappear from chat instead of sitting behind \"N blocked messages\". Ignored users too, and optionally replies to them, the member list and voice channels. /hideblocked toggles it.",
-    "version": "1.1.0",
+    "description": "Blocked users disappear on your end. No messages or \"blocked messages\" rows, and optionally no replies to them, reactions, DMs, member list rows or rows in voice channels you're not in, and you don't hear their voice, stream or soundboard. In a call you're in they always show. Ignored users too. /hideblocked toggles it.",
+    "version": "2.0.4",
     "authors": [
-        "Evi"
+        "Evi",
+        "Lodestone"
     ],
     "tags": [
         "privacy",
         "messages"
     ],
+    "minEviVersion": "1.1.0",
     "permissions": {
         "readMessages": true
     },
     "changelog": [
+        {
+            "version": "2.0.4",
+            "notes": [
+                "Hiding from voice no longer hides anyone in a call you're in or joining: they can hear you there, so they show, and Discord warns you that someone you blocked is in the channel, like it does without this plugin. They stay hidden in voice channels you're not in."
+            ]
+        },
+        {
+            "version": "2.0.3",
+            "notes": [
+                "When someone hidden adds and then removes a reaction, it no longer takes one off everyone else's count."
+            ]
+        },
+        {
+            "version": "2.0.2",
+            "notes": [
+                "Works with Discord's latest update again: turning it on or off, or changing a setting, updates the open chat right away."
+            ]
+        },
+        {
+            "version": "2.0.1",
+            "notes": [
+                "Less work for the DM list: it no longer checks every DM again each time Discord redraws the list."
+            ]
+        },
+        {
+            "version": "2.0.0",
+            "notes": [
+                "Made together with Lodestone, from their Erase Blocked Users: blocked users' reactions, Mentions inbox entries and (if you want) DMs disappear too, \"Hide from voice channels\" now also takes them out of call tiles, speaking rings, join sounds and soundboard, and their audio can be muted locally."
+            ]
+        },
         {
             "version": "1.1.0",
             "notes": [
@@ -43,8 +75,23 @@
     "locales": {
         "de": {
             "name": "Blockierte komplett ausblenden",
-            "description": "Nachrichten blockierter Nutzer verschwinden aus dem Chat, statt hinter „N blockierte Nachrichten“ zu stehen. Ignorierte Nutzer auch, und auf Wunsch Antworten an sie, die Mitgliederliste und Sprachkanäle. /hideblocked schaltet es um.",
+            "description": "Blockierte Nutzer verschwinden bei dir. Keine Nachrichten und keine Zeilen „blockierte Nachrichten“, auf Wunsch auch keine Antworten an sie, Reaktionen, DMs, Mitgliederlisten-Zeilen oder Zeilen in Sprachkanälen, in denen du nicht bist, und du hörst weder ihre Stimme noch ihren Stream oder ihr Soundboard. In einem Anruf, in dem du bist, siehst du sie immer. Ignorierte Nutzer auch. /hideblocked schaltet es um.",
             "changelog": {
+                "2.0.4": [
+                    "Das Ausblenden in Sprachkanälen versteckt niemanden mehr in einem Anruf, in dem du bist oder dem du beitrittst: Dort können sie dich hören, also siehst du sie, und Discord warnt dich wie ohne das Plugin, dass jemand, den du blockiert hast, im Kanal ist. In Sprachkanälen, in denen du nicht bist, bleiben sie ausgeblendet."
+                ],
+                "2.0.3": [
+                    "Wenn eine ausgeblendete Person eine Reaktion hinzufügt und wieder entfernt, zählt die Reaktion der anderen nicht mehr eins weniger."
+                ],
+                "2.0.2": [
+                    "Funktioniert wieder mit Discords neuestem Update: Ein- und Ausschalten oder eine geänderte Einstellung aktualisiert den offenen Chat sofort."
+                ],
+                "2.0.1": [
+                    "Weniger Arbeit für die DM-Liste: Sie prüft nicht mehr jede DM erneut, wenn Discord die Liste neu zeichnet."
+                ],
+                "2.0.0": [
+                    "Zusammen mit Lodestone entstanden, aus deren Erase Blocked Users: Reaktionen blockierter Nutzer, Einträge im Erwähnungen-Posteingang und auf Wunsch DMs verschwinden auch, „In Sprachkanälen ausblenden“ entfernt sie jetzt auch aus Anrufkacheln, Sprechringen, Beitrittstönen und dem Soundboard, und ihr Ton lässt sich lokal stummschalten."
+                ],
                 "1.1.0": [
                     "Folgt der Sprache von Discord: Deutsch, Spanisch, Französisch, Japanisch, Polnisch, Portugiesisch, Russisch und Türkisch, dazu Englisch."
                 ],
@@ -61,8 +108,23 @@
         },
         "es": {
             "name": "Ocultar bloqueados por completo",
-            "description": "Los mensajes de usuarios bloqueados desaparecen del chat en lugar de quedar tras «N mensajes bloqueados». También los de usuarios ignorados y, si quieres, las respuestas a ellos, la lista de miembros y los canales de voz. /hideblocked lo activa o desactiva.",
+            "description": "Los usuarios bloqueados desaparecen para ti. Sin mensajes ni filas de «mensajes bloqueados» y, si quieres, sin respuestas a ellos, reacciones, MD, filas en la lista de miembros ni en canales de voz en los que no estás, y no oyes su voz, transmisión ni caja de sonidos. En una llamada en la que estás siempre aparecen. También los ignorados. /hideblocked lo activa o desactiva.",
             "changelog": {
+                "2.0.4": [
+                    "Ocultar en voz ya no oculta a nadie en una llamada en la que estás o a la que te unes: ahí pueden oírte, así que aparecen, y Discord te avisa de que hay alguien que bloqueaste en el canal, como sin este plugin. Siguen ocultos en los canales de voz en los que no estás."
+                ],
+                "2.0.3": [
+                    "Cuando alguien oculto añade y luego quita una reacción, ya no le resta uno al recuento de los demás."
+                ],
+                "2.0.2": [
+                    "Vuelve a funcionar con la última actualización de Discord: activarlo o desactivarlo, o cambiar un ajuste, actualiza el chat abierto al instante."
+                ],
+                "2.0.1": [
+                    "Menos trabajo para la lista de MD: ya no vuelve a revisar cada MD cada vez que Discord redibuja la lista."
+                ],
+                "2.0.0": [
+                    "Hecho junto con Lodestone, a partir de su Erase Blocked Users: también desaparecen las reacciones de usuarios bloqueados, sus entradas en la bandeja de menciones y, si quieres, los MD; «Ocultar de los canales de voz» ahora también los quita de los recuadros de llamada, los anillos al hablar, los sonidos de entrada y la caja de sonidos, y su audio se puede silenciar localmente."
+                ],
                 "1.1.0": [
                     "Sigue el idioma de Discord: alemán, español, francés, japonés, polaco, portugués, ruso y turco, además de inglés."
                 ],
@@ -79,8 +141,23 @@
         },
         "fr": {
             "name": "Masquer totalement les bloqués",
-            "description": "Les messages des utilisateurs bloqués disparaissent du chat au lieu de rester derrière « N messages bloqués ». Les utilisateurs ignorés aussi, et en option les réponses à ces utilisateurs, la liste des membres et les salons vocaux. /hideblocked l'active ou le désactive.",
+            "description": "Les utilisateurs bloqués disparaissent de ton côté. Plus de messages ni de lignes « messages bloqués » et, au choix, plus de réponses à eux, de réactions, de MP, de lignes dans la liste des membres ou dans les salons vocaux où tu n'es pas, et tu n'entends ni leur voix, ni leur stream, ni leur soundboard. Dans un appel où tu es, ils restent toujours visibles. Les utilisateurs ignorés aussi. /hideblocked l'active ou le désactive.",
             "changelog": {
+                "2.0.4": [
+                    "Le masquage en vocal ne cache plus personne dans un appel où tu es ou que tu rejoins : là, ils peuvent t'entendre, donc ils restent visibles, et Discord te prévient qu'une personne que tu as bloquée est dans le salon, comme sans ce plugin. Ils restent masqués dans les salons vocaux où tu n'es pas."
+                ],
+                "2.0.3": [
+                    "Quand une personne masquée ajoute puis retire une réaction, cela n'enlève plus un au compteur des autres."
+                ],
+                "2.0.2": [
+                    "Fonctionne à nouveau avec la dernière mise à jour de Discord : l'activer ou le désactiver, ou changer un paramètre, met à jour le chat ouvert tout de suite."
+                ],
+                "2.0.1": [
+                    "Moins de travail pour la liste des MP : elle ne revérifie plus chaque MP à chaque fois que Discord redessine la liste."
+                ],
+                "2.0.0": [
+                    "Fait avec Lodestone, à partir de leur Erase Blocked Users : les réactions des utilisateurs bloqués, leurs entrées dans la boîte des mentions et, au choix, les MP disparaissent aussi ; « Masquer des salons vocaux » les retire désormais aussi des tuiles d'appel, des anneaux de parole, des sons d'arrivée et de la soundboard, et leur son peut être coupé localement."
+                ],
                 "1.1.0": [
                     "Suit la langue de Discord : allemand, espagnol, français, japonais, polonais, portugais, russe et turc, en plus de l'anglais."
                 ],
@@ -97,8 +174,23 @@
         },
         "ja": {
             "name": "ブロックを完全に非表示",
-            "description": "ブロックしたユーザーのメッセージが「N 件のブロックしたメッセージ」に隠れるのではなく、チャットから完全に消えます。無視したユーザーも対象で、そのユーザーへの返信、メンバーリスト、ボイスチャンネルも選べます。/hideblocked で切り替えられます。",
+            "description": "ブロックしたユーザーがあなたの画面から消えます。メッセージや「ブロックしたメッセージ」の行がなくなり、設定次第で返信、リアクション、DM、メンバーリストの行、参加していないボイスチャンネルの行も消え、声や配信、サウンドボードも聞こえません。参加中の通話では常に表示されます。無視したユーザーにも対応。/hideblockedで切り替えられます。",
             "changelog": {
+                "2.0.4": [
+                    "ボイスでの非表示は、参加中または参加しようとしている通話では誰も隠さなくなりました。そこではあなたの声が聞こえるため表示され、プラグインがないときと同じく、ブロックした人がチャンネルにいることをDiscordが警告します。参加していないボイスチャンネルでは引き続き非表示です。"
+                ],
+                "2.0.3": [
+                    "非表示の人がリアクションを付けてから外しても、ほかの人のリアクション数が1つ減らなくなりました。"
+                ],
+                "2.0.2": [
+                    "Discordの最新アップデートで再び動作します。オン・オフの切り替えや設定の変更が、開いているチャットにすぐ反映されます。"
+                ],
+                "2.0.1": [
+                    "DMリストの負荷を軽減：Discordがリストを再描画するたびにすべてのDMを確認し直すことはなくなりました。"
+                ],
+                "2.0.0": [
+                    "LodestoneのErase Blocked Usersをもとに、共同で作りました:ブロックしたユーザーのリアクション、メンションの受信トレイ、必要ならDMも消えます。「ボイスチャンネルで非表示」で通話タイル、発言中の枠、参加音、サウンドボードからも消え、音声をローカルでミュートできます。"
+                ],
                 "1.1.0": [
                     "Discordの言語設定に合わせて表示されます。英語のほか、ドイツ語、スペイン語、フランス語、日本語、ポーランド語、ポルトガル語、ロシア語、トルコ語に対応しています。"
                 ],
@@ -115,8 +207,23 @@
         },
         "pl": {
             "name": "Całkowicie ukryj zablokowanych",
-            "description": "Wiadomości zablokowanych użytkowników znikają z czatu zamiast chować się za „N zablokowanych wiadomości”. Dotyczy też ignorowanych użytkowników, a opcjonalnie odpowiedzi do nich, listy członków i kanałów głosowych. Przełączysz to poleceniem /hideblocked.",
+            "description": "Zablokowani użytkownicy znikają u ciebie. Bez wiadomości i wierszy „zablokowane wiadomości”, a na życzenie bez odpowiedzi do nich, reakcji, DM, wierszy na liście członków i na kanałach głosowych, na których cię nie ma, i nie słyszysz ich głosu, transmisji ani soundboardu. W rozmowie, w której jesteś, zawsze są widoczni. Także ignorowani. /hideblocked to przełącza.",
             "changelog": {
+                "2.0.4": [
+                    "Ukrywanie na głosowych nie ukrywa już nikogo w rozmowie, w której jesteś lub do której dołączasz: tam mogą cię słyszeć, więc są widoczni, a Discord ostrzega, że na kanale jest ktoś, kogo zablokowałeś, tak jak bez tej wtyczki. Na kanałach głosowych, na których cię nie ma, dalej są ukryci."
+                ],
+                "2.0.3": [
+                    "Gdy ukryta osoba doda, a potem usunie reakcję, licznik reakcji innych nie spada już o jeden."
+                ],
+                "2.0.2": [
+                    "Znów działa z najnowszą aktualizacją Discorda: włączenie, wyłączenie lub zmiana ustawienia od razu odświeża otwarty czat."
+                ],
+                "2.0.1": [
+                    "Mniej pracy dla listy wiadomości prywatnych: nie sprawdza już każdej rozmowy od nowa przy każdym odświeżeniu listy przez Discorda."
+                ],
+                "2.0.0": [
+                    "Zrobione razem z Lodestone, na bazie ich Erase Blocked Users: znikają też reakcje zablokowanych, wpisy w skrzynce wzmianek i na życzenie DM; „Ukryj w kanałach głosowych” usuwa ich teraz także z kafelków rozmowy, pierścieni mówienia, dźwięków dołączania i soundboardu, a ich dźwięk można lokalnie wyciszyć."
+                ],
                 "1.1.0": [
                     "Mówi w języku Discorda: po niemiecku, hiszpańsku, francusku, japońsku, polsku, portugalsku, rosyjsku i turecku, oprócz angielskiego."
                 ],
@@ -133,8 +240,23 @@
         },
         "pt-BR": {
             "name": "Ocultar bloqueados por completo",
-            "description": "As mensagens de usuários bloqueados somem do chat em vez de ficarem atrás de “N mensagens bloqueadas”. Usuários ignorados também, e, se quiser, as respostas a eles, a lista de membros e os canais de voz. /hideblocked ativa ou desativa.",
+            "description": "Usuários bloqueados somem para você. Sem mensagens nem linhas de \"mensagens bloqueadas\" e, se quiser, sem respostas a eles, reações, DMs, linhas na lista de membros ou em canais de voz em que você não está, e você não ouve a voz, a transmissão nem o soundboard deles. Numa chamada em que você está, eles sempre aparecem. Usuários ignorados também. /hideblocked liga e desliga.",
             "changelog": {
+                "2.0.4": [
+                    "Ocultar na voz não esconde mais ninguém numa chamada em que você está ou em que vai entrar: lá eles podem ouvir você, então aparecem, e o Discord avisa que alguém que você bloqueou está no canal, como sem este plugin. Continuam ocultos nos canais de voz em que você não está."
+                ],
+                "2.0.3": [
+                    "Quando alguém oculto adiciona e depois remove uma reação, isso não tira mais um da contagem dos outros."
+                ],
+                "2.0.2": [
+                    "Volta a funcionar com a última atualização do Discord: ligar, desligar ou mudar uma configuração atualiza o chat aberto na hora."
+                ],
+                "2.0.1": [
+                    "Menos trabalho para a lista de DMs: ela não verifica mais cada DM de novo toda vez que o Discord redesenha a lista."
+                ],
+                "2.0.0": [
+                    "Feito junto com a Lodestone, a partir do Erase Blocked Users deles: somem também as reações de usuários bloqueados, as entradas na caixa de menções e, se quiser, as DMs; \"Ocultar dos canais de voz\" agora também os tira dos blocos de chamada, anéis de fala, sons de entrada e do soundboard, e o áudio deles pode ser silenciado localmente."
+                ],
                 "1.1.0": [
                     "Segue o idioma do Discord: alemão, espanhol, francês, japonês, polonês, português, russo e turco, além do inglês."
                 ],
@@ -151,8 +273,23 @@
         },
         "ru": {
             "name": "Полностью скрывать заблокированных",
-            "description": "Сообщения заблокированных пользователей исчезают из чата, а не прячутся за строкой «N заблокированных сообщений». То же для игнорируемых, а по желанию и для ответов им, списка участников и голосовых каналов. Команда /hideblocked переключает это.",
+            "description": "Заблокированные пользователи исчезают у вас. Никаких сообщений и строк «заблокированные сообщения», а по желанию и ответов им, реакций, ЛС, строк в списке участников и в голосовых каналах, где вас нет, и вы не слышите их голос, трансляцию и звуковую панель. В звонке, где вы есть, они видны всегда. Игнорируемые тоже. /hideblocked переключает.",
             "changelog": {
+                "2.0.4": [
+                    "Скрытие в голосовых больше никого не прячет в звонке, где вы есть или к которому подключаетесь: там вас слышно, поэтому они видны, и Discord, как и без плагина, предупреждает, что в канале тот, кого вы заблокировали. В голосовых каналах, где вас нет, они по-прежнему скрыты."
+                ],
+                "2.0.3": [
+                    "Когда скрытый человек ставит, а затем убирает реакцию, счётчик реакций остальных больше не уменьшается на один."
+                ],
+                "2.0.2": [
+                    "Снова работает с последним обновлением Discord: включение, выключение или изменение настройки сразу обновляет открытый чат."
+                ],
+                "2.0.1": [
+                    "Меньше работы для списка ЛС: он больше не проверяет каждую переписку заново при каждой перерисовке списка в Discord."
+                ],
+                "2.0.0": [
+                    "Сделано вместе с Lodestone на основе их Erase Blocked Users: исчезают и реакции заблокированных, записи во входящих упоминаниях и по желанию ЛС; «Скрывать в голосовых каналах» теперь убирает их и из плиток звонка, колец говорящего, звуков входа и звуковой панели, а их звук можно заглушить локально."
+                ],
                 "1.1.0": [
                     "Говорит на языке Discord: немецком, испанском, французском, японском, польском, португальском, русском и турецком, а также на английском."
                 ],
@@ -169,8 +306,23 @@
         },
         "tr": {
             "name": "Engellenenleri Tamamen Gizle",
-            "description": "Engellenen kullanıcıların mesajları \"N engellenen mesaj\" satırının arkasında durmak yerine sohbetten tamamen kaybolur. Yok sayılan kullanıcılar da, istersen onlara verilen yanıtlar, üye listesi ve ses kanalları da. /hideblocked bunu açıp kapatır.",
+            "description": "Engellediğin kullanıcılar senin tarafında yok olur. Mesajları ve \"engellenen mesajlar\" satırları kalmaz; istersen onlara yanıtlar, tepkiler, DM'ler, üye listesi satırları ve bulunmadığın ses kanallarındaki satırlar da gizlenir ve seslerini, yayınlarını ya da ses panellerini duymazsın. Bulunduğun bir aramada her zaman görünürler. Yok saydıkların da. /hideblocked açıp kapatır.",
             "changelog": {
+                "2.0.4": [
+                    "Seste gizleme artık bulunduğun ya da katıldığın bir aramada kimseyi gizlemiyor: orada seni duyabilirler, bu yüzden görünürler ve Discord, eklenti yokken olduğu gibi, engellediğin birinin kanalda olduğu konusunda seni uyarır. Bulunmadığın ses kanallarında gizli kalırlar."
+                ],
+                "2.0.3": [
+                    "Gizlenen biri bir tepki ekleyip sonra kaldırdığında, artık diğerlerinin tepki sayısından bir düşmüyor."
+                ],
+                "2.0.2": [
+                    "Discord'un son güncellemesiyle yeniden çalışıyor: açıp kapatmak ya da bir ayarı değiştirmek açık sohbeti hemen günceller."
+                ],
+                "2.0.1": [
+                    "DM listesi için daha az iş: Discord listeyi her yeniden çizdiğinde tüm DM’leri yeniden kontrol etmiyor."
+                ],
+                "2.0.0": [
+                    "Lodestone ile birlikte, onların Erase Blocked Users eklentisinden yapıldı: engellenenlerin tepkileri, Bahsedilenler kutusundaki girişleri ve istersen DM'leri de kaybolur; \"Ses kanallarında gizle\" artık onları arama kutularından, konuşma halkalarından, katılma seslerinden ve ses panelinden de çıkarır, sesleri de yerel olarak kapatılabilir."
+                ],
                 "1.1.0": [
                     "Discord'un dilini kullanır: İngilizcenin yanı sıra Almanca, İspanyolca, Fransızca, Japonca, Lehçe, Portekizce, Rusça ve Türkçe."
                 ],

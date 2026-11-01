@@ -49,39 +49,55 @@ var import_api = require("@evi/api");
 var t = import_api.defineStrings({
   en: {
     "settings.multiplier": "Volume limit",
-    "settings.multiplier.description": "How far past Discord's 200% the slider goes: 2 is 400%, 5 is 1000%. Very high volumes clip and distort."
+    "settings.multiplier.description": "How far past Discord's maximum the volume goes: 2 allows up to twice it, 5 up to five times (the slider then ends at 300% or 433%). Very high volumes clip and distort."
   },
-  de: {
-    "settings.multiplier": "Lautstärkegrenze",
-    "settings.multiplier.description": "Wie weit der Regler über die 200 % von Discord hinausgeht: 2 sind 400 %, 5 sind 1000 %. Sehr hohe Lautstärken übersteuern und verzerren."
+  get de() {
+    return Object.defineProperty(this, "de", { value: {
+      "settings.multiplier": "Lautstärkegrenze",
+      "settings.multiplier.description": "Wie weit die Lautstärke über Discords Maximum hinausgeht: 2 erlaubt bis zum Doppelten, 5 bis zum Fünffachen (der Regler endet dann bei 300 % bzw. 433 %). Sehr hohe Lautstärken übersteuern und verzerren."
+    } })["de"];
   },
-  es: {
-    "settings.multiplier": "Límite de volumen",
-    "settings.multiplier.description": "Cuánto pasa el control deslizante del 200 % de Discord: 2 es 400 %, 5 es 1000 %. Los volúmenes muy altos saturan y distorsionan."
+  get es() {
+    return Object.defineProperty(this, "es", { value: {
+      "settings.multiplier": "Límite de volumen",
+      "settings.multiplier.description": "Cuánto puede pasar el volumen del máximo de Discord: 2 permite hasta el doble y 5 hasta cinco veces más (el control deslizante llega entonces al 300 % o al 433 %). Los volúmenes muy altos saturan y distorsionan."
+    } })["es"];
   },
-  fr: {
-    "settings.multiplier": "Limite de volume",
-    "settings.multiplier.description": "Jusqu'où le curseur dépasse les 200 % de Discord : 2 donne 400 %, 5 donne 1000 %. Un volume très élevé sature et déforme le son."
+  get fr() {
+    return Object.defineProperty(this, "fr", { value: {
+      "settings.multiplier": "Limite de volume",
+      "settings.multiplier.description": "Jusqu'où le volume peut dépasser le maximum de Discord : 2 permet jusqu'au double, 5 jusqu'à cinq fois plus (le curseur s'arrête alors à 300 % ou 433 %). Un volume très élevé sature et déforme le son."
+    } })["fr"];
   },
-  ja: {
-    "settings.multiplier": "音量の上限",
-    "settings.multiplier.description": "スライダーをDiscordの200%からどこまで引き上げるか。2なら400%、5なら1000%。音量が大きすぎると音割れして歪みます。"
+  get ja() {
+    return Object.defineProperty(this, "ja", { value: {
+      "settings.multiplier": "音量の上限",
+      "settings.multiplier.description": "音量をDiscordの上限からどこまで上げられるか。2なら最大2倍、5なら最大5倍です(スライダーの上限はそれぞれ300%、433%になります)。音量が大きすぎると音割れして歪みます。"
+    } })["ja"];
   },
-  pl: {
-    "settings.multiplier": "Limit głośności",
-    "settings.multiplier.description": "O ile suwak wykracza poza 200% Discorda: 2 to 400%, 5 to 1000%. Bardzo wysoka głośność powoduje przesterowanie i zniekształcenia."
+  get pl() {
+    return Object.defineProperty(this, "pl", { value: {
+      "settings.multiplier": "Limit głośności",
+      "settings.multiplier.description": "O ile głośność może przekroczyć maksimum Discorda: 2 pozwala najwyżej na dwukrotność, 5 na pięciokrotność (suwak kończy się wtedy na 300% lub 433%). Bardzo wysoka głośność powoduje przesterowanie i zniekształcenia."
+    } })["pl"];
   },
-  "pt-BR": {
-    "settings.multiplier": "Limite de volume",
-    "settings.multiplier.description": "Até onde o controle passa dos 200% do Discord: 2 é 400%, 5 é 1000%. Volumes muito altos estouram e distorcem o som."
+  get "pt-BR"() {
+    return Object.defineProperty(this, "pt-BR", { value: {
+      "settings.multiplier": "Limite de volume",
+      "settings.multiplier.description": "Até onde o volume passa do máximo do Discord: 2 permite até o dobro, 5 até cinco vezes (o controle então termina em 300% ou 433%). Volumes muito altos estouram e distorcem o som."
+    } })["pt-BR"];
   },
-  ru: {
-    "settings.multiplier": "Предел громкости",
-    "settings.multiplier.description": "Насколько ползунок выходит за 200% в Discord: 2 — это 400%, 5 — 1000%. Очень высокая громкость приводит к искажениям и хрипам."
+  get ru() {
+    return Object.defineProperty(this, "ru", { value: {
+      "settings.multiplier": "Предел громкости",
+      "settings.multiplier.description": "Насколько громкость может превысить максимум Discord: 2 — не больше чем вдвое, 5 — не больше чем в пять раз (ползунок тогда заканчивается на 300% или 433%). Очень высокая громкость приводит к искажениям и хрипам."
+    } })["ru"];
   },
-  tr: {
-    "settings.multiplier": "Ses sınırı",
-    "settings.multiplier.description": "Kaydırıcının Discord'un %200 sınırının ne kadar ötesine geçeceği: 2, %400; 5, %1000 demektir. Çok yüksek sesler patlar ve bozulur."
+  get tr() {
+    return Object.defineProperty(this, "tr", { value: {
+      "settings.multiplier": "Ses sınırı",
+      "settings.multiplier.description": "Sesin Discord'un en yüksek seviyesini ne kadar aşabileceği: 2 en fazla iki katına, 5 en fazla beş katına izin verir (kaydırıcı o zaman %300 veya %433'te biter). Çok yüksek sesler patlar ve bozulur."
+    } })["tr"];
   }
 });
 
@@ -96,10 +112,12 @@ function clampMultiplier(value) {
     return DEFAULT_MULTIPLIER;
   return Math.min(MAX_MULTIPLIER, Math.max(MIN_MULTIPLIER, n));
 }
-function sliderMax(discordMax, multiplier) {
-  if (typeof discordMax !== "number" || !Number.isFinite(discordMax))
-    return discordMax;
-  return Math.round(discordMax * clampMultiplier(multiplier));
+function maxAmplitude(multiplier) {
+  return DISCORD_MAX * clampMultiplier(multiplier);
+}
+function capVolume(volume, multiplier) {
+  const max = maxAmplitude(multiplier);
+  return typeof volume === "number" && volume > max ? max : volume;
 }
 function sliderToAmplitude(slider, base = 100) {
   if (slider === 0)
@@ -107,7 +125,18 @@ function sliderToAmplitude(slider, base = 100) {
   const n = slider / base;
   return (n < 1 ? Math.pow(n, 2.8) : Math.pow(10, (n - 1) * 6 / 20)) * base;
 }
+function amplitudeToSlider(amplitude, base = 100) {
+  if (amplitude === 0)
+    return 0;
+  const n = amplitude / base;
+  return (n < 1 ? Math.pow(n, 1 / 2.8) : 20 * Math.log10(n) / 6 + 1) * base;
+}
 var DISCORD_MAX_AMPLITUDE = sliderToAmplitude(DISCORD_MAX);
+function sliderMax(discordMax, multiplier) {
+  if (typeof discordMax !== "number" || !Number.isFinite(discordMax))
+    return discordMax;
+  return Math.max(discordMax, Math.floor(amplitudeToSlider(discordMax * clampMultiplier(multiplier))));
+}
 function clampSynced(volume) {
   return typeof volume === "number" && volume > DISCORD_MAX ? DISCORD_MAX : volume;
 }
@@ -130,11 +159,18 @@ var PATCHES = {
       with: guard("sliderMax", "$1")
     }
   },
+  capLocalVolume: {
+    find: "AUDIO_SET_LOCAL_VOLUME:function",
+    replace: {
+      match: /(AUDIO_SET_LOCAL_VOLUME:function\((\i)\)\{let\{context:\i,userId:\i,volume:(\i)\}=\2;)/,
+      with: "$1$3=$self?.capVolume?.($3)??$3;"
+    }
+  },
   syncWrite: {
     find: "AudioContextSettingsMigrated",
     replace: [
       {
-        match: /(?<=localVolumes\)\)\i\[\i\]=\{[^}]*?volume:)\(0,\i\.\i\)\(\i,\i\)/,
+        match: /(?<=localVolumes\)\).{0,80}?volume:)\(0,\i\.\i\)\(\i,\i\)/,
         with: guard("clampSynced", "$&")
       },
       {
@@ -160,7 +196,7 @@ var PATCHES = {
 var audioActions = import_api2.filters.byProps("setLocalVolume", "toggleLocalMute", "toggleSelfDeaf");
 var running = false;
 var multiplier = DEFAULT_MULTIPLIER;
-function resetBoosted() {
+function lowerAbove(max) {
   try {
     const state = import_api2.getStore("MediaEngineStore")?.getState?.();
     const actions = import_api2.find(audioActions);
@@ -168,8 +204,8 @@ function resetBoosted() {
       return;
     for (const [context, settings] of Object.entries(state.settingsByContext)) {
       for (const [userId, volume] of Object.entries(settings?.localVolumes ?? {})) {
-        if (typeof volume === "number" && volume > DISCORD_MAX_AMPLITUDE)
-          actions.setLocalVolume(userId, DISCORD_MAX_AMPLITUDE, context);
+        if (typeof volume === "number" && volume > max)
+          actions.setLocalVolume(userId, max, context);
       }
     }
   } catch {}
@@ -190,17 +226,22 @@ var volume_booster_default = import_api2.definePlugin({
       step: 0.5
     }
   },
-  patches: [PATCHES.userVolumeMenu, PATCHES.streamTile, PATCHES.syncWrite, PATCHES.syncRead],
+  patches: [PATCHES.userVolumeMenu, PATCHES.streamTile, PATCHES.capLocalVolume, PATCHES.syncWrite, PATCHES.syncRead],
   sliderMax: (discordMax) => running ? sliderMax(discordMax, multiplier) : discordMax,
+  capVolume: (volume) => running ? capVolume(volume, multiplier) : volume,
   clampSynced,
   keepBoosted: (local, synced) => running && keepBoosted(local, synced),
   start(ctx) {
     multiplier = clampMultiplier(ctx.settings.get("multiplier"));
     running = true;
-    ctx.settings.onChange((values) => void (multiplier = clampMultiplier(values.multiplier)));
+    lowerAbove(maxAmplitude(multiplier));
+    ctx.settings.onChange((values) => {
+      multiplier = clampMultiplier(values.multiplier);
+      lowerAbove(maxAmplitude(multiplier));
+    });
     ctx.onDispose(() => {
       running = false;
-      resetBoosted();
+      lowerAbove(DISCORD_MAX_AMPLITUDE);
     });
   }
 });

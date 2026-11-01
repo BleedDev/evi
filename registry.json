@@ -2411,14 +2411,16 @@
         {
             "id": "hide-blocked",
             "name": "Hide Blocked Completely",
-            "description": "Blocked users' messages disappear from chat instead of sitting behind \"N blocked messages\". Ignored users too, and optionally replies to them, the member list and voice channels. /hideblocked toggles it.",
+            "description": "Blocked users disappear on your end. No messages or \"blocked messages\" rows, and optionally no replies to them, reactions, DMs, member list rows or rows in voice channels you're not in, and you don't hear their voice, stream or soundboard. In a call you're in they always show. Ignored users too. /hideblocked toggles it.",
             "authors": [
-                "Evi"
+                "Evi",
+                "Lodestone"
             ],
             "authorIds": [
-                "evi"
+                "evi",
+                "lodestone"
             ],
-            "version": "1.1.0",
+            "version": "2.0.4",
             "tags": [
                 "privacy",
                 "messages"
@@ -2427,18 +2429,48 @@
             "minEviVersion": "1.1.0",
             "files": {
                 "manifest.json": {
-                    "url": "https://evi.rest/store/plugins/hide-blocked/manifest.json?v=244d8f2c6409",
-                    "sha256": "244d8f2c6409d8177a24730459ff0d8fe4072ef26e6749500b18d2427dca0b41"
+                    "url": "https://evi.rest/store/plugins/hide-blocked/manifest.json?v=920c6b002053",
+                    "sha256": "920c6b0020535c8d2304ebf0f7025963f294114b07f7b46b5b631bf7cb5f2c89"
                 },
                 "index.js": {
-                    "url": "https://evi.rest/store/plugins/hide-blocked/index.js?v=b1799608db6a",
-                    "sha256": "b1799608db6a672512106909f5afb76564fde5a7d215a3e6f4dbace815821e87"
+                    "url": "https://evi.rest/store/plugins/hide-blocked/index.js?v=775176a1026c",
+                    "sha256": "775176a1026c7f5d0529033363be01ac6776bcc4e0c508a3e73a0ed37c7dafaf"
                 }
             },
-            "updatedAt": "2026-09-28",
+            "updatedAt": "2026-11-01",
             "source": "https://github.com/BleedDev/evi/tree/main/plugins/hide-blocked",
             "screenshots": [],
             "changelog": [
+                {
+                    "version": "2.0.4",
+                    "notes": [
+                        "Hiding from voice no longer hides anyone in a call you're in or joining: they can hear you there, so they show, and Discord warns you that someone you blocked is in the channel, like it does without this plugin. They stay hidden in voice channels you're not in."
+                    ]
+                },
+                {
+                    "version": "2.0.3",
+                    "notes": [
+                        "When someone hidden adds and then removes a reaction, it no longer takes one off everyone else's count."
+                    ]
+                },
+                {
+                    "version": "2.0.2",
+                    "notes": [
+                        "Works with Discord's latest update again: turning it on or off, or changing a setting, updates the open chat right away."
+                    ]
+                },
+                {
+                    "version": "2.0.1",
+                    "notes": [
+                        "Less work for the DM list: it no longer checks every DM again each time Discord redraws the list."
+                    ]
+                },
+                {
+                    "version": "2.0.0",
+                    "notes": [
+                        "Made together with Lodestone, from their Erase Blocked Users: blocked users' reactions, Mentions inbox entries and (if you want) DMs disappear too, \"Hide from voice channels\" now also takes them out of call tiles, speaking rings, join sounds and soundboard, and their audio can be muted locally."
+                    ]
+                },
                 {
                     "version": "1.1.0",
                     "notes": [
@@ -2467,8 +2499,23 @@
             "locales": {
                 "de": {
                     "name": "Blockierte komplett ausblenden",
-                    "description": "Nachrichten blockierter Nutzer verschwinden aus dem Chat, statt hinter „N blockierte Nachrichten“ zu stehen. Ignorierte Nutzer auch, und auf Wunsch Antworten an sie, die Mitgliederliste und Sprachkanäle. /hideblocked schaltet es um.",
+                    "description": "Blockierte Nutzer verschwinden bei dir. Keine Nachrichten und keine Zeilen „blockierte Nachrichten“, auf Wunsch auch keine Antworten an sie, Reaktionen, DMs, Mitgliederlisten-Zeilen oder Zeilen in Sprachkanälen, in denen du nicht bist, und du hörst weder ihre Stimme noch ihren Stream oder ihr Soundboard. In einem Anruf, in dem du bist, siehst du sie immer. Ignorierte Nutzer auch. /hideblocked schaltet es um.",
                     "changelog": {
+                        "2.0.4": [
+                            "Das Ausblenden in Sprachkanälen versteckt niemanden mehr in einem Anruf, in dem du bist oder dem du beitrittst: Dort können sie dich hören, also siehst du sie, und Discord warnt dich wie ohne das Plugin, dass jemand, den du blockiert hast, im Kanal ist. In Sprachkanälen, in denen du nicht bist, bleiben sie ausgeblendet."
+                        ],
+                        "2.0.3": [
+                            "Wenn eine ausgeblendete Person eine Reaktion hinzufügt und wieder entfernt, zählt die Reaktion der anderen nicht mehr eins weniger."
+                        ],
+                        "2.0.2": [
+                            "Funktioniert wieder mit Discords neuestem Update: Ein- und Ausschalten oder eine geänderte Einstellung aktualisiert den offenen Chat sofort."
+                        ],
+                        "2.0.1": [
+                            "Weniger Arbeit für die DM-Liste: Sie prüft nicht mehr jede DM erneut, wenn Discord die Liste neu zeichnet."
+                        ],
+                        "2.0.0": [
+                            "Zusammen mit Lodestone entstanden, aus deren Erase Blocked Users: Reaktionen blockierter Nutzer, Einträge im Erwähnungen-Posteingang und auf Wunsch DMs verschwinden auch, „In Sprachkanälen ausblenden“ entfernt sie jetzt auch aus Anrufkacheln, Sprechringen, Beitrittstönen und dem Soundboard, und ihr Ton lässt sich lokal stummschalten."
+                        ],
                         "1.1.0": [
                             "Folgt der Sprache von Discord: Deutsch, Spanisch, Französisch, Japanisch, Polnisch, Portugiesisch, Russisch und Türkisch, dazu Englisch."
                         ],
@@ -2485,8 +2532,23 @@
                 },
                 "es": {
                     "name": "Ocultar bloqueados por completo",
-                    "description": "Los mensajes de usuarios bloqueados desaparecen del chat en lugar de quedar tras «N mensajes bloqueados». También los de usuarios ignorados y, si quieres, las respuestas a ellos, la lista de miembros y los canales de voz. /hideblocked lo activa o desactiva.",
+                    "description": "Los usuarios bloqueados desaparecen para ti. Sin mensajes ni filas de «mensajes bloqueados» y, si quieres, sin respuestas a ellos, reacciones, MD, filas en la lista de miembros ni en canales de voz en los que no estás, y no oyes su voz, transmisión ni caja de sonidos. En una llamada en la que estás siempre aparecen. También los ignorados. /hideblocked lo activa o desactiva.",
                     "changelog": {
+                        "2.0.4": [
+                            "Ocultar en voz ya no oculta a nadie en una llamada en la que estás o a la que te unes: ahí pueden oírte, así que aparecen, y Discord te avisa de que hay alguien que bloqueaste en el canal, como sin este plugin. Siguen ocultos en los canales de voz en los que no estás."
+                        ],
+                        "2.0.3": [
+                            "Cuando alguien oculto añade y luego quita una reacción, ya no le resta uno al recuento de los demás."
+                        ],
+                        "2.0.2": [
+                            "Vuelve a funcionar con la última actualización de Discord: activarlo o desactivarlo, o cambiar un ajuste, actualiza el chat abierto al instante."
+                        ],
+                        "2.0.1": [
+                            "Menos trabajo para la lista de MD: ya no vuelve a revisar cada MD cada vez que Discord redibuja la lista."
+                        ],
+                        "2.0.0": [
+                            "Hecho junto con Lodestone, a partir de su Erase Blocked Users: también desaparecen las reacciones de usuarios bloqueados, sus entradas en la bandeja de menciones y, si quieres, los MD; «Ocultar de los canales de voz» ahora también los quita de los recuadros de llamada, los anillos al hablar, los sonidos de entrada y la caja de sonidos, y su audio se puede silenciar localmente."
+                        ],
                         "1.1.0": [
                             "Sigue el idioma de Discord: alemán, español, francés, japonés, polaco, portugués, ruso y turco, además de inglés."
                         ],
@@ -2503,8 +2565,23 @@
                 },
                 "fr": {
                     "name": "Masquer totalement les bloqués",
-                    "description": "Les messages des utilisateurs bloqués disparaissent du chat au lieu de rester derrière « N messages bloqués ». Les utilisateurs ignorés aussi, et en option les réponses à ces utilisateurs, la liste des membres et les salons vocaux. /hideblocked l'active ou le désactive.",
+                    "description": "Les utilisateurs bloqués disparaissent de ton côté. Plus de messages ni de lignes « messages bloqués » et, au choix, plus de réponses à eux, de réactions, de MP, de lignes dans la liste des membres ou dans les salons vocaux où tu n'es pas, et tu n'entends ni leur voix, ni leur stream, ni leur soundboard. Dans un appel où tu es, ils restent toujours visibles. Les utilisateurs ignorés aussi. /hideblocked l'active ou le désactive.",
                     "changelog": {
+                        "2.0.4": [
+                            "Le masquage en vocal ne cache plus personne dans un appel où tu es ou que tu rejoins : là, ils peuvent t'entendre, donc ils restent visibles, et Discord te prévient qu'une personne que tu as bloquée est dans le salon, comme sans ce plugin. Ils restent masqués dans les salons vocaux où tu n'es pas."
+                        ],
+                        "2.0.3": [
+                            "Quand une personne masquée ajoute puis retire une réaction, cela n'enlève plus un au compteur des autres."
+                        ],
+                        "2.0.2": [
+                            "Fonctionne à nouveau avec la dernière mise à jour de Discord : l'activer ou le désactiver, ou changer un paramètre, met à jour le chat ouvert tout de suite."
+                        ],
+                        "2.0.1": [
+                            "Moins de travail pour la liste des MP : elle ne revérifie plus chaque MP à chaque fois que Discord redessine la liste."
+                        ],
+                        "2.0.0": [
+                            "Fait avec Lodestone, à partir de leur Erase Blocked Users : les réactions des utilisateurs bloqués, leurs entrées dans la boîte des mentions et, au choix, les MP disparaissent aussi ; « Masquer des salons vocaux » les retire désormais aussi des tuiles d'appel, des anneaux de parole, des sons d'arrivée et de la soundboard, et leur son peut être coupé localement."
+                        ],
                         "1.1.0": [
                             "Suit la langue de Discord : allemand, espagnol, français, japonais, polonais, portugais, russe et turc, en plus de l'anglais."
                         ],
@@ -2521,8 +2598,23 @@
                 },
                 "ja": {
                     "name": "ブロックを完全に非表示",
-                    "description": "ブロックしたユーザーのメッセージが「N 件のブロックしたメッセージ」に隠れるのではなく、チャットから完全に消えます。無視したユーザーも対象で、そのユーザーへの返信、メンバーリスト、ボイスチャンネルも選べます。/hideblocked で切り替えられます。",
+                    "description": "ブロックしたユーザーがあなたの画面から消えます。メッセージや「ブロックしたメッセージ」の行がなくなり、設定次第で返信、リアクション、DM、メンバーリストの行、参加していないボイスチャンネルの行も消え、声や配信、サウンドボードも聞こえません。参加中の通話では常に表示されます。無視したユーザーにも対応。/hideblockedで切り替えられます。",
                     "changelog": {
+                        "2.0.4": [
+                            "ボイスでの非表示は、参加中または参加しようとしている通話では誰も隠さなくなりました。そこではあなたの声が聞こえるため表示され、プラグインがないときと同じく、ブロックした人がチャンネルにいることをDiscordが警告します。参加していないボイスチャンネルでは引き続き非表示です。"
+                        ],
+                        "2.0.3": [
+                            "非表示の人がリアクションを付けてから外しても、ほかの人のリアクション数が1つ減らなくなりました。"
+                        ],
+                        "2.0.2": [
+                            "Discordの最新アップデートで再び動作します。オン・オフの切り替えや設定の変更が、開いているチャットにすぐ反映されます。"
+                        ],
+                        "2.0.1": [
+                            "DMリストの負荷を軽減：Discordがリストを再描画するたびにすべてのDMを確認し直すことはなくなりました。"
+                        ],
+                        "2.0.0": [
+                            "LodestoneのErase Blocked Usersをもとに、共同で作りました:ブロックしたユーザーのリアクション、メンションの受信トレイ、必要ならDMも消えます。「ボイスチャンネルで非表示」で通話タイル、発言中の枠、参加音、サウンドボードからも消え、音声をローカルでミュートできます。"
+                        ],
                         "1.1.0": [
                             "Discordの言語設定に合わせて表示されます。英語のほか、ドイツ語、スペイン語、フランス語、日本語、ポーランド語、ポルトガル語、ロシア語、トルコ語に対応しています。"
                         ],
@@ -2539,8 +2631,23 @@
                 },
                 "pl": {
                     "name": "Całkowicie ukryj zablokowanych",
-                    "description": "Wiadomości zablokowanych użytkowników znikają z czatu zamiast chować się za „N zablokowanych wiadomości”. Dotyczy też ignorowanych użytkowników, a opcjonalnie odpowiedzi do nich, listy członków i kanałów głosowych. Przełączysz to poleceniem /hideblocked.",
+                    "description": "Zablokowani użytkownicy znikają u ciebie. Bez wiadomości i wierszy „zablokowane wiadomości”, a na życzenie bez odpowiedzi do nich, reakcji, DM, wierszy na liście członków i na kanałach głosowych, na których cię nie ma, i nie słyszysz ich głosu, transmisji ani soundboardu. W rozmowie, w której jesteś, zawsze są widoczni. Także ignorowani. /hideblocked to przełącza.",
                     "changelog": {
+                        "2.0.4": [
+                            "Ukrywanie na głosowych nie ukrywa już nikogo w rozmowie, w której jesteś lub do której dołączasz: tam mogą cię słyszeć, więc są widoczni, a Discord ostrzega, że na kanale jest ktoś, kogo zablokowałeś, tak jak bez tej wtyczki. Na kanałach głosowych, na których cię nie ma, dalej są ukryci."
+                        ],
+                        "2.0.3": [
+                            "Gdy ukryta osoba doda, a potem usunie reakcję, licznik reakcji innych nie spada już o jeden."
+                        ],
+                        "2.0.2": [
+                            "Znów działa z najnowszą aktualizacją Discorda: włączenie, wyłączenie lub zmiana ustawienia od razu odświeża otwarty czat."
+                        ],
+                        "2.0.1": [
+                            "Mniej pracy dla listy wiadomości prywatnych: nie sprawdza już każdej rozmowy od nowa przy każdym odświeżeniu listy przez Discorda."
+                        ],
+                        "2.0.0": [
+                            "Zrobione razem z Lodestone, na bazie ich Erase Blocked Users: znikają też reakcje zablokowanych, wpisy w skrzynce wzmianek i na życzenie DM; „Ukryj w kanałach głosowych” usuwa ich teraz także z kafelków rozmowy, pierścieni mówienia, dźwięków dołączania i soundboardu, a ich dźwięk można lokalnie wyciszyć."
+                        ],
                         "1.1.0": [
                             "Mówi w języku Discorda: po niemiecku, hiszpańsku, francusku, japońsku, polsku, portugalsku, rosyjsku i turecku, oprócz angielskiego."
                         ],
@@ -2557,8 +2664,23 @@
                 },
                 "pt-BR": {
                     "name": "Ocultar bloqueados por completo",
-                    "description": "As mensagens de usuários bloqueados somem do chat em vez de ficarem atrás de “N mensagens bloqueadas”. Usuários ignorados também, e, se quiser, as respostas a eles, a lista de membros e os canais de voz. /hideblocked ativa ou desativa.",
+                    "description": "Usuários bloqueados somem para você. Sem mensagens nem linhas de \"mensagens bloqueadas\" e, se quiser, sem respostas a eles, reações, DMs, linhas na lista de membros ou em canais de voz em que você não está, e você não ouve a voz, a transmissão nem o soundboard deles. Numa chamada em que você está, eles sempre aparecem. Usuários ignorados também. /hideblocked liga e desliga.",
                     "changelog": {
+                        "2.0.4": [
+                            "Ocultar na voz não esconde mais ninguém numa chamada em que você está ou em que vai entrar: lá eles podem ouvir você, então aparecem, e o Discord avisa que alguém que você bloqueou está no canal, como sem este plugin. Continuam ocultos nos canais de voz em que você não está."
+                        ],
+                        "2.0.3": [
+                            "Quando alguém oculto adiciona e depois remove uma reação, isso não tira mais um da contagem dos outros."
+                        ],
+                        "2.0.2": [
+                            "Volta a funcionar com a última atualização do Discord: ligar, desligar ou mudar uma configuração atualiza o chat aberto na hora."
+                        ],
+                        "2.0.1": [
+                            "Menos trabalho para a lista de DMs: ela não verifica mais cada DM de novo toda vez que o Discord redesenha a lista."
+                        ],
+                        "2.0.0": [
+                            "Feito junto com a Lodestone, a partir do Erase Blocked Users deles: somem também as reações de usuários bloqueados, as entradas na caixa de menções e, se quiser, as DMs; \"Ocultar dos canais de voz\" agora também os tira dos blocos de chamada, anéis de fala, sons de entrada e do soundboard, e o áudio deles pode ser silenciado localmente."
+                        ],
                         "1.1.0": [
                             "Segue o idioma do Discord: alemão, espanhol, francês, japonês, polonês, português, russo e turco, além do inglês."
                         ],
@@ -2575,8 +2697,23 @@
                 },
                 "ru": {
                     "name": "Полностью скрывать заблокированных",
-                    "description": "Сообщения заблокированных пользователей исчезают из чата, а не прячутся за строкой «N заблокированных сообщений». То же для игнорируемых, а по желанию и для ответов им, списка участников и голосовых каналов. Команда /hideblocked переключает это.",
+                    "description": "Заблокированные пользователи исчезают у вас. Никаких сообщений и строк «заблокированные сообщения», а по желанию и ответов им, реакций, ЛС, строк в списке участников и в голосовых каналах, где вас нет, и вы не слышите их голос, трансляцию и звуковую панель. В звонке, где вы есть, они видны всегда. Игнорируемые тоже. /hideblocked переключает.",
                     "changelog": {
+                        "2.0.4": [
+                            "Скрытие в голосовых больше никого не прячет в звонке, где вы есть или к которому подключаетесь: там вас слышно, поэтому они видны, и Discord, как и без плагина, предупреждает, что в канале тот, кого вы заблокировали. В голосовых каналах, где вас нет, они по-прежнему скрыты."
+                        ],
+                        "2.0.3": [
+                            "Когда скрытый человек ставит, а затем убирает реакцию, счётчик реакций остальных больше не уменьшается на один."
+                        ],
+                        "2.0.2": [
+                            "Снова работает с последним обновлением Discord: включение, выключение или изменение настройки сразу обновляет открытый чат."
+                        ],
+                        "2.0.1": [
+                            "Меньше работы для списка ЛС: он больше не проверяет каждую переписку заново при каждой перерисовке списка в Discord."
+                        ],
+                        "2.0.0": [
+                            "Сделано вместе с Lodestone на основе их Erase Blocked Users: исчезают и реакции заблокированных, записи во входящих упоминаниях и по желанию ЛС; «Скрывать в голосовых каналах» теперь убирает их и из плиток звонка, колец говорящего, звуков входа и звуковой панели, а их звук можно заглушить локально."
+                        ],
                         "1.1.0": [
                             "Говорит на языке Discord: немецком, испанском, французском, японском, польском, португальском, русском и турецком, а также на английском."
                         ],
@@ -2593,8 +2730,23 @@
                 },
                 "tr": {
                     "name": "Engellenenleri Tamamen Gizle",
-                    "description": "Engellenen kullanıcıların mesajları \"N engellenen mesaj\" satırının arkasında durmak yerine sohbetten tamamen kaybolur. Yok sayılan kullanıcılar da, istersen onlara verilen yanıtlar, üye listesi ve ses kanalları da. /hideblocked bunu açıp kapatır.",
+                    "description": "Engellediğin kullanıcılar senin tarafında yok olur. Mesajları ve \"engellenen mesajlar\" satırları kalmaz; istersen onlara yanıtlar, tepkiler, DM'ler, üye listesi satırları ve bulunmadığın ses kanallarındaki satırlar da gizlenir ve seslerini, yayınlarını ya da ses panellerini duymazsın. Bulunduğun bir aramada her zaman görünürler. Yok saydıkların da. /hideblocked açıp kapatır.",
                     "changelog": {
+                        "2.0.4": [
+                            "Seste gizleme artık bulunduğun ya da katıldığın bir aramada kimseyi gizlemiyor: orada seni duyabilirler, bu yüzden görünürler ve Discord, eklenti yokken olduğu gibi, engellediğin birinin kanalda olduğu konusunda seni uyarır. Bulunmadığın ses kanallarında gizli kalırlar."
+                        ],
+                        "2.0.3": [
+                            "Gizlenen biri bir tepki ekleyip sonra kaldırdığında, artık diğerlerinin tepki sayısından bir düşmüyor."
+                        ],
+                        "2.0.2": [
+                            "Discord'un son güncellemesiyle yeniden çalışıyor: açıp kapatmak ya da bir ayarı değiştirmek açık sohbeti hemen günceller."
+                        ],
+                        "2.0.1": [
+                            "DM listesi için daha az iş: Discord listeyi her yeniden çizdiğinde tüm DM’leri yeniden kontrol etmiyor."
+                        ],
+                        "2.0.0": [
+                            "Lodestone ile birlikte, onların Erase Blocked Users eklentisinden yapıldı: engellenenlerin tepkileri, Bahsedilenler kutusundaki girişleri ve istersen DM'leri de kaybolur; \"Ses kanallarında gizle\" artık onları arama kutularından, konuşma halkalarından, katılma seslerinden ve ses panelinden de çıkarır, sesleri de yerel olarak kapatılabilir."
+                        ],
                         "1.1.0": [
                             "Discord'un dilini kullanır: İngilizcenin yanı sıra Almanca, İspanyolca, Fransızca, Japonca, Lehçe, Portekizce, Rusça ve Türkçe."
                         ],
@@ -2627,7 +2779,7 @@
             "authorIds": [
                 "evi"
             ],
-            "version": "1.1.0",
+            "version": "1.1.3",
             "tags": [
                 "privacy"
             ],
@@ -2635,18 +2787,37 @@
             "minEviVersion": "1.1.0",
             "files": {
                 "manifest.json": {
-                    "url": "https://evi.rest/store/plugins/hide-personal-info/manifest.json?v=04f34f9112f9",
-                    "sha256": "04f34f9112f961f8159c9ef723382564cc50672b72950167a30c293d79ca3e68"
+                    "url": "https://evi.rest/store/plugins/hide-personal-info/manifest.json?v=7dc4d3bdfe37",
+                    "sha256": "7dc4d3bdfe37548944ec1b10a2e3841181fc865a9a5abdfb80f6d9739b98639f"
                 },
                 "index.js": {
-                    "url": "https://evi.rest/store/plugins/hide-personal-info/index.js?v=3713bbe58de5",
-                    "sha256": "3713bbe58de51349b7334e9c4410940bcf0c29eb04eb16928710d0b9cdcacbb0"
+                    "url": "https://evi.rest/store/plugins/hide-personal-info/index.js?v=e4018455a9fd",
+                    "sha256": "e4018455a9fd94e6e920c0d63d88728919e5ed7275eb56e6284d5379becf83d9"
                 }
             },
-            "updatedAt": "2026-09-28",
+            "updatedAt": "2026-11-01",
             "source": "https://github.com/BleedDev/evi/tree/main/plugins/hide-personal-info",
             "screenshots": [],
             "changelog": [
+                {
+                    "version": "1.1.3",
+                    "notes": [
+                        "Your details are blurred before they're shown, not a moment after: when User Settings open, when a section loads, and when you reveal your email or phone. Before, devices, billing address and connections could show for up to a second, enough to be seen on stream.",
+                        "Text boxes are blurred too when they hold your email, phone or other details, and so are the dialogs settings open, like changing your email."
+                    ]
+                },
+                {
+                    "version": "1.1.2",
+                    "notes": [
+                        "Less work in the background: while no settings screen is open, it no longer searches the whole page every second and a half."
+                    ]
+                },
+                {
+                    "version": "1.1.1",
+                    "notes": [
+                        "Opening User Settings is lighter: what it looks for is prepared once instead of for every line of text."
+                    ]
+                },
                 {
                     "version": "1.1.0",
                     "notes": [
@@ -2671,6 +2842,16 @@
                     "name": "Persönliche Infos verbergen",
                     "description": "Verwischt deine E-Mail, Telefonnummer, Rechnungsdaten, verknüpften Konten sowie Standorte und IPs deiner Sitzungen in den Nutzereinstellungen, für Streams und Screenshots. Zum Aufdecken darüberfahren oder klicken.",
                     "changelog": {
+                        "1.1.3": [
+                            "Deine Daten werden verwischt, bevor sie zu sehen sind, nicht einen Moment danach: beim Öffnen der Nutzereinstellungen, wenn ein Bereich lädt und wenn du deine E-Mail oder Telefonnummer aufdeckst. Vorher konnten Geräte, Rechnungsadresse und Verknüpfungen bis zu einer Sekunde lang sichtbar sein, genug, um im Stream gesehen zu werden.",
+                            "Textfelder werden ebenfalls verwischt, wenn sie deine E-Mail, Telefonnummer oder andere Daten enthalten, und auch die Dialoge, die die Einstellungen öffnen, etwa zum Ändern deiner E-Mail."
+                        ],
+                        "1.1.2": [
+                            "Weniger Arbeit im Hintergrund: Solange keine Einstellungen offen sind, durchsucht es nicht mehr alle anderthalb Sekunden die ganze Seite."
+                        ],
+                        "1.1.1": [
+                            "Das Öffnen der Nutzereinstellungen ist leichter: Wonach es sucht, wird einmal vorbereitet statt für jede Textzeile."
+                        ],
                         "1.1.0": [
                             "Folgt der Sprache von Discord: Deutsch, Spanisch, Französisch, Japanisch, Polnisch, Portugiesisch, Russisch und Türkisch, dazu Englisch."
                         ],
@@ -2686,6 +2867,16 @@
                     "name": "Ocultar información personal",
                     "description": "Difumina tu correo, teléfono, datos de facturación, cuentas conectadas y las ubicaciones e IP de tus sesiones en Ajustes de usuario, para streams y capturas. Pasa el ratón o haz clic para mostrarlos.",
                     "changelog": {
+                        "1.1.3": [
+                            "Tus datos se difuminan antes de mostrarse, no un momento después: al abrir Ajustes de usuario, al cargar una sección y al mostrar tu correo o tu teléfono. Antes, los dispositivos, la dirección de facturación y las conexiones podían verse hasta un segundo, suficiente para que se vieran en un directo.",
+                            "También se difuminan los cuadros de texto que contienen tu correo, tu teléfono u otros datos, y los diálogos que abren los ajustes, como el de cambiar tu correo."
+                        ],
+                        "1.1.2": [
+                            "Menos trabajo en segundo plano: mientras no hay ninguna pantalla de ajustes abierta, ya no revisa toda la página cada segundo y medio."
+                        ],
+                        "1.1.1": [
+                            "Abrir Ajustes de usuario es más ligero: lo que busca se prepara una sola vez en lugar de para cada línea de texto."
+                        ],
                         "1.1.0": [
                             "Sigue el idioma de Discord: alemán, español, francés, japonés, polaco, portugués, ruso y turco, además de inglés."
                         ],
@@ -2701,6 +2892,16 @@
                     "name": "Masquer les infos personnelles",
                     "description": "Floute ton e-mail, ton téléphone, tes informations de facturation, tes comptes connectés ainsi que les lieux et IP de tes sessions dans les paramètres utilisateur, pour les streams et les captures d'écran. Survole ou clique pour afficher.",
                     "changelog": {
+                        "1.1.3": [
+                            "Tes informations sont floutées avant d'être affichées, pas un instant après : à l'ouverture des paramètres utilisateur, quand une section se charge et quand tu affiches ton e-mail ou ton téléphone. Avant, les appareils, l'adresse de facturation et les connexions pouvaient rester visibles jusqu'à une seconde, assez pour être vus en stream.",
+                            "Les champs de texte sont floutés aussi quand ils contiennent ton e-mail, ton téléphone ou d'autres informations, tout comme les fenêtres que les paramètres ouvrent, comme celle pour changer ton e-mail."
+                        ],
+                        "1.1.2": [
+                            "Moins de travail en arrière-plan : tant qu'aucun écran de paramètres n'est ouvert, il ne parcourt plus toute la page toutes les secondes et demie."
+                        ],
+                        "1.1.1": [
+                            "Ouvrir les Paramètres utilisateur est plus léger : ce qu’il recherche est préparé une seule fois au lieu de pour chaque ligne de texte."
+                        ],
                         "1.1.0": [
                             "Suit la langue de Discord : allemand, espagnol, français, japonais, polonais, portugais, russe et turc, en plus de l'anglais."
                         ],
@@ -2716,6 +2917,16 @@
                     "name": "個人情報を隠す",
                     "description": "ユーザー設定内のメールアドレス、電話番号、請求情報、連携アカウント、セッションの場所や IP をぼかします。配信やスクリーンショットに便利です。カーソルを合わせるかクリックすると表示されます。",
                     "changelog": {
+                        "1.1.3": [
+                            "個人情報は表示された直後ではなく、表示される前にぼかされるようになりました。ユーザー設定を開いたとき、項目が読み込まれたとき、メールアドレスや電話番号を表示したときも同じです。以前はデバイス、請求先住所、連携アカウントが最大1秒ほど見えてしまい、配信に映ることがありました。",
+                            "メールアドレスや電話番号などが入ったテキスト欄も、設定から開くダイアログ(メールアドレスの変更など)もぼかされます。"
+                        ],
+                        "1.1.2": [
+                            "バックグラウンドでの処理を減らしました。設定画面が開いていない間は、1.5秒ごとにページ全体を検索しなくなりました。"
+                        ],
+                        "1.1.1": [
+                            "ユーザー設定を開くときの負荷が軽くなりました。検索する内容はテキストの行ごとではなく一度だけ準備されます。"
+                        ],
                         "1.1.0": [
                             "Discordの言語設定に合わせて表示されます。英語のほか、ドイツ語、スペイン語、フランス語、日本語、ポーランド語、ポルトガル語、ロシア語、トルコ語に対応しています。"
                         ],
@@ -2731,6 +2942,16 @@
                     "name": "Ukryj dane osobowe",
                     "description": "Rozmywa w Ustawieniach użytkownika Twój e-mail, telefon, dane rozliczeniowe, połączone konta oraz lokalizacje i adresy IP sesji, na potrzeby streamów i zrzutów ekranu. Najedź lub kliknij, aby odsłonić.",
                     "changelog": {
+                        "1.1.3": [
+                            "Twoje dane są rozmywane, zanim się pojawią, a nie chwilę później: po otwarciu Ustawień użytkownika, gdy wczytuje się sekcja i gdy odsłaniasz swój e-mail lub telefon. Wcześniej urządzenia, adres rozliczeniowy i połączenia mogły być widoczne nawet przez sekundę, wystarczająco, by ktoś je zobaczył na streamie.",
+                            "Rozmywane są też pola tekstowe z Twoim e-mailem, telefonem lub innymi danymi, a także okna otwierane z ustawień, np. zmiana adresu e-mail."
+                        ],
+                        "1.1.2": [
+                            "Mniej pracy w tle: gdy nie jest otwarty żaden ekran ustawień, nie przeszukuje już całej strony co półtorej sekundy."
+                        ],
+                        "1.1.1": [
+                            "Otwieranie Ustawień użytkownika jest lżejsze: to, czego szuka, jest przygotowywane raz, a nie dla każdej linijki tekstu."
+                        ],
                         "1.1.0": [
                             "Mówi w języku Discorda: po niemiecku, hiszpańsku, francusku, japońsku, polsku, portugalsku, rosyjsku i turecku, oprócz angielskiego."
                         ],
@@ -2746,6 +2967,16 @@
                     "name": "Ocultar informações pessoais",
                     "description": "Desfoca seu e-mail, telefone, dados de cobrança, contas conectadas e os locais e IPs das suas sessões nas Configurações de usuário, para transmissões e capturas de tela. Passe o mouse ou clique para revelar.",
                     "changelog": {
+                        "1.1.3": [
+                            "Seus dados são desfocados antes de aparecer, não um instante depois: ao abrir as Configurações de usuário, quando uma seção carrega e quando você revela seu e-mail ou telefone. Antes, dispositivos, endereço de cobrança e conexões podiam aparecer por até um segundo, o bastante para serem vistos numa live.",
+                            "Caixas de texto também são desfocadas quando têm seu e-mail, telefone ou outros dados, assim como as janelas que as configurações abrem, como a de mudar seu e-mail."
+                        ],
+                        "1.1.2": [
+                            "Menos trabalho em segundo plano: enquanto nenhuma tela de configurações está aberta, ele não vasculha mais a página inteira a cada segundo e meio."
+                        ],
+                        "1.1.1": [
+                            "Abrir as Configurações de usuário ficou mais leve: o que ele procura é preparado uma vez, em vez de para cada linha de texto."
+                        ],
                         "1.1.0": [
                             "Segue o idioma do Discord: alemão, espanhol, francês, japonês, polonês, português, russo e turco, além do inglês."
                         ],
@@ -2761,6 +2992,16 @@
                     "name": "Скрыть личные данные",
                     "description": "Размывает в настройках пользователя вашу почту, телефон, платёжные данные, подключённые аккаунты, а также местоположение и IP сессий, для стримов и скриншотов. Наведите курсор или щёлкните, чтобы показать.",
                     "changelog": {
+                        "1.1.3": [
+                            "Твои данные размываются до того, как появятся, а не мгновением позже: при открытии настроек пользователя, при загрузке раздела и когда ты показываешь свою почту или телефон. Раньше устройства, платёжный адрес и подключения могли быть видны до секунды, достаточно, чтобы их заметили на стриме.",
+                            "Текстовые поля с твоей почтой, телефоном или другими данными тоже размываются, как и окна, которые открываются из настроек, например смена почты."
+                        ],
+                        "1.1.2": [
+                            "Меньше работы в фоне: пока не открыт ни один экран настроек, плагин больше не просматривает всю страницу каждые полторы секунды."
+                        ],
+                        "1.1.1": [
+                            "Открытие настроек пользователя стало легче: то, что плагин ищет, готовится один раз, а не для каждой строки текста."
+                        ],
                         "1.1.0": [
                             "Говорит на языке Discord: немецком, испанском, французском, японском, польском, португальском, русском и турецком, а также на английском."
                         ],
@@ -2776,6 +3017,16 @@
                     "name": "Kişisel Bilgileri Gizle",
                     "description": "Kullanıcı Ayarları'nda e-postanı, telefonunu, fatura bilgilerini, bağlı hesaplarını ve oturumların konumlarını ile IP'lerini bulanıklaştırır; yayınlar ve ekran görüntüleri için. Göstermek için üzerine gel veya tıkla.",
                     "changelog": {
+                        "1.1.3": [
+                            "Bilgilerin artık göründükten bir an sonra değil, görünmeden önce bulanıklaştırılıyor: Kullanıcı Ayarları açıldığında, bir bölüm yüklendiğinde ve e-postanı ya da telefonunu gösterdiğinde. Önceden cihazlar, fatura adresi ve bağlantılar bir saniyeye kadar görünebiliyordu, yayında fark edilmeye yetecek kadar.",
+                            "E-postanı, telefonunu veya başka bilgilerini içeren metin kutuları da, ayarların açtığı pencereler de (e-postanı değiştirme gibi) bulanıklaştırılıyor."
+                        ],
+                        "1.1.2": [
+                            "Arka planda daha az iş: hiçbir ayarlar ekranı açık değilken artık her bir buçuk saniyede bir tüm sayfayı taramıyor."
+                        ],
+                        "1.1.1": [
+                            "Kullanıcı Ayarları’nı açmak daha hafif: aradığı şeyler her metin satırı için değil, bir kez hazırlanıyor."
+                        ],
                         "1.1.0": [
                             "Discord'un dilini kullanır: İngilizcenin yanı sıra Almanca, İspanyolca, Fransızca, Japonca, Lehçe, Portekizce, Rusça ve Türkçe."
                         ],
@@ -5335,14 +5586,14 @@
         {
             "id": "show-hidden-channels",
             "name": "Show Hidden Channels",
-            "description": "Shows the channels you can't view in the channel list, with a lock. Opening one shows its topic, settings and who can see it, never its messages.",
+            "description": "Shows the channels you can't view in the channel list, with a lock. Opening one shows only its name, topic, permissions and who can see it, never its messages. To do this it switches off Discord's own protection that scrambles hidden channels' details. Active Now can also list people in voice channels you can't see.",
             "authors": [
                 "Evi"
             ],
             "authorIds": [
                 "evi"
             ],
-            "version": "1.1.0",
+            "version": "1.1.2",
             "tags": [
                 "servers",
                 "utility"
@@ -5351,18 +5602,30 @@
             "minEviVersion": "1.1.0",
             "files": {
                 "manifest.json": {
-                    "url": "https://evi.rest/store/plugins/show-hidden-channels/manifest.json?v=6903b388f503",
-                    "sha256": "6903b388f5038dfe6fc2901672071ae5597f6c518f101ddbfb47bfd26a419afb"
+                    "url": "https://evi.rest/store/plugins/show-hidden-channels/manifest.json?v=3cd28867dabd",
+                    "sha256": "3cd28867dabdd3007fc54b58ee96c6701d8589c53e3400cb93d985cc9f060718"
                 },
                 "index.js": {
-                    "url": "https://evi.rest/store/plugins/show-hidden-channels/index.js?v=f9ded0fb8e03",
-                    "sha256": "f9ded0fb8e039e1f5019a61e98c32be70375290d564de56a0286508eb6f95f96"
+                    "url": "https://evi.rest/store/plugins/show-hidden-channels/index.js?v=f5754b7e22ae",
+                    "sha256": "f5754b7e22ae30c1a549567fcb15f49d47f30b99e16e391c371c92fd0d08174c"
                 }
             },
-            "updatedAt": "2026-09-28",
+            "updatedAt": "2026-11-01",
             "source": "https://github.com/BleedDev/evi/tree/main/plugins/show-hidden-channels",
             "screenshots": [],
             "changelog": [
+                {
+                    "version": "1.1.2",
+                    "notes": [
+                        "Leaves Discord's integrity check alone: only the protection that scrambles hidden channels' details is switched off. The description now says so, and that Active Now can list people in voice channels you can't see."
+                    ]
+                },
+                {
+                    "version": "1.1.1",
+                    "notes": [
+                        "Works again after Discord's update: hidden stage channels show the lock screen instead of the stage."
+                    ]
+                },
                 {
                     "version": "1.1.0",
                     "notes": [
@@ -5403,8 +5666,14 @@
             "locales": {
                 "de": {
                     "name": "Versteckte Kanäle anzeigen",
-                    "description": "Zeigt die Kanäle, die du nicht ansehen kannst, mit einem Schloss in der Kanalliste. Beim Öffnen siehst du Thema, Einstellungen und wer ihn sehen kann, nie aber die Nachrichten.",
+                    "description": "Zeigt die Kanäle, die du nicht ansehen kannst, mit einem Schloss in der Kanalliste. Beim Öffnen siehst du nur Name, Thema, Berechtigungen und wer ihn sehen kann, nie aber die Nachrichten. Dafür schaltet es Discords eigenen Schutz ab, der die Angaben versteckter Kanäle unkenntlich macht, und „Jetzt aktiv“ kann Leute in Sprachkanälen zeigen, die du nicht sehen kannst.",
                     "changelog": {
+                        "1.1.2": [
+                            "Lässt Discords Integritätsprüfung in Ruhe: Abgeschaltet wird nur der Schutz, der die Angaben versteckter Kanäle unkenntlich macht. Die Beschreibung sagt das jetzt, und auch, dass „Jetzt aktiv“ Leute in Sprachkanälen zeigen kann, die du nicht sehen kannst."
+                        ],
+                        "1.1.1": [
+                            "Funktioniert nach Discords Update wieder: versteckte Stage-Kanäle zeigen das Schloss statt der Stage."
+                        ],
                         "1.1.0": [
                             "Folgt der Sprache von Discord: Deutsch, Spanisch, Französisch, Japanisch, Polnisch, Portugiesisch, Russisch und Türkisch, dazu Englisch."
                         ],
@@ -5427,8 +5696,14 @@
                 },
                 "es": {
                     "name": "Mostrar canales ocultos",
-                    "description": "Muestra en la lista de canales los que no puedes ver, con un candado. Al abrir uno verás su tema, sus ajustes y quién puede verlo, nunca sus mensajes.",
+                    "description": "Muestra en la lista de canales los que no puedes ver, con un candado. Al abrir uno verás solo su nombre, su tema, sus permisos y quién puede verlo, nunca sus mensajes. Para ello desactiva la protección propia de Discord que oculta los datos de esos canales, y «Activo ahora» puede mostrar a gente en canales de voz que no puedes ver.",
                     "changelog": {
+                        "1.1.2": [
+                            "Deja en paz la comprobación de integridad de Discord: solo se desactiva la protección que oculta los datos de los canales ocultos. La descripción ahora lo dice, y también que «Activo ahora» puede mostrar a gente en canales de voz que no puedes ver."
+                        ],
+                        "1.1.1": [
+                            "Vuelve a funcionar tras la actualización de Discord: los canales de escenario ocultos muestran el candado en lugar del escenario."
+                        ],
                         "1.1.0": [
                             "Sigue el idioma de Discord: alemán, español, francés, japonés, polaco, portugués, ruso y turco, además de inglés."
                         ],
@@ -5451,8 +5726,14 @@
                 },
                 "fr": {
                     "name": "Afficher les salons masqués",
-                    "description": "Affiche dans la liste les salons que tu ne peux pas voir, avec un cadenas. En ouvrir un montre son sujet, ses paramètres et qui peut le voir, jamais ses messages.",
+                    "description": "Affiche dans la liste les salons que tu ne peux pas voir, avec un cadenas. En ouvrir un montre seulement son nom, son sujet, ses permissions et qui peut le voir, jamais ses messages. Pour cela, il désactive la protection de Discord qui brouille les infos de ces salons, et « Actif maintenant » peut lister des personnes dans des salons vocaux que tu ne peux pas voir.",
                     "changelog": {
+                        "1.1.2": [
+                            "Laisse tranquille la vérification d'intégrité de Discord : seule la protection qui brouille les infos des salons cachés est désactivée. La description le dit maintenant, ainsi que le fait qu'« Actif maintenant » peut lister des personnes dans des salons vocaux que tu ne peux pas voir."
+                        ],
+                        "1.1.1": [
+                            "Fonctionne à nouveau après la mise à jour de Discord : les salons de conférence masqués affichent le cadenas au lieu de la conférence."
+                        ],
                         "1.1.0": [
                             "Suit la langue de Discord : allemand, espagnol, français, japonais, polonais, portugais, russe et turc, en plus de l'anglais."
                         ],
@@ -5475,8 +5756,14 @@
                 },
                 "ja": {
                     "name": "非表示チャンネルを表示",
-                    "description": "見ることのできないチャンネルを、鍵付きでチャンネル一覧に表示します。開くとトピック、設定、閲覧できる人が表示され、メッセージは表示されません。",
+                    "description": "見ることのできないチャンネルを、鍵付きでチャンネル一覧に表示します。開くと名前、トピック、権限、閲覧できる人だけが表示され、メッセージは表示されません。そのために、非表示チャンネルの情報を隠すDiscord自身の保護をオフにします。また、アクティブ・ナウに、見られないボイスチャンネルにいる人が表示されることがあります。",
                     "changelog": {
+                        "1.1.2": [
+                            "Discordの整合性チェックには手を付けなくなりました。オフにするのは非表示チャンネルの情報を隠す保護だけです。説明にもそのことと、アクティブ・ナウに見られないボイスチャンネルにいる人が表示されることがある点を書きました。"
+                        ],
+                        "1.1.1": [
+                            "Discordのアップデート後も再び動作します。非表示のステージチャンネルでは、ステージの代わりに鍵の画面が表示されます。"
+                        ],
                         "1.1.0": [
                             "Discordの言語設定に合わせて表示されます。英語のほか、ドイツ語、スペイン語、フランス語、日本語、ポーランド語、ポルトガル語、ロシア語、トルコ語に対応しています。"
                         ],
@@ -5499,8 +5786,14 @@
                 },
                 "pl": {
                     "name": "Pokaż ukryte kanały",
-                    "description": "Pokazuje na liście kanałów te, których nie możesz zobaczyć, z kłódką. Po otwarciu zobaczysz jego temat, ustawienia i to, kto go widzi, ale nigdy wiadomości.",
+                    "description": "Pokazuje na liście kanałów te, których nie możesz zobaczyć, z kłódką. Po otwarciu zobaczysz tylko jego nazwę, temat, uprawnienia i to, kto go widzi, ale nigdy wiadomości. Żeby to zrobić, wyłącza własną ochronę Discorda, która ukrywa dane takich kanałów, a „Aktywni teraz” może pokazywać osoby na kanałach głosowych, których nie widzisz.",
                     "changelog": {
+                        "1.1.2": [
+                            "Nie rusza już kontroli integralności Discorda: wyłączana jest tylko ochrona, która ukrywa dane ukrytych kanałów. Opis mówi to teraz wprost, a także to, że „Aktywni teraz” może pokazywać osoby na kanałach głosowych, których nie widzisz."
+                        ],
+                        "1.1.1": [
+                            "Znów działa po aktualizacji Discorda: ukryte kanały sceny pokazują kłódkę zamiast sceny."
+                        ],
                         "1.1.0": [
                             "Mówi w języku Discorda: po niemiecku, hiszpańsku, francusku, japońsku, polsku, portugalsku, rosyjsku i turecku, oprócz angielskiego."
                         ],
@@ -5523,8 +5816,14 @@
                 },
                 "pt-BR": {
                     "name": "Mostrar Canais Ocultos",
-                    "description": "Mostra na lista de canais os que você não pode ver, com um cadeado. Ao abrir um, você vê o tópico, as configurações e quem pode vê-lo, nunca as mensagens.",
+                    "description": "Mostra na lista de canais os que você não pode ver, com um cadeado. Ao abrir um, você vê só o nome, o tópico, as permissões e quem pode vê-lo, nunca as mensagens. Para isso, desliga a proteção do próprio Discord que esconde os dados desses canais, e o \"Ativo agora\" pode mostrar pessoas em canais de voz que você não pode ver.",
                     "changelog": {
+                        "1.1.2": [
+                            "Deixa a verificação de integridade do Discord em paz: só a proteção que esconde os dados dos canais ocultos é desligada. A descrição agora diz isso, e também que o \"Ativo agora\" pode mostrar pessoas em canais de voz que você não pode ver."
+                        ],
+                        "1.1.1": [
+                            "Volta a funcionar após a atualização do Discord: canais de palco ocultos mostram o cadeado em vez do palco."
+                        ],
                         "1.1.0": [
                             "Segue o idioma do Discord: alemão, espanhol, francês, japonês, polonês, português, russo e turco, além do inglês."
                         ],
@@ -5547,8 +5846,14 @@
                 },
                 "ru": {
                     "name": "Показывать скрытые каналы",
-                    "description": "Показывает в списке каналов те, которые вам недоступны, с замком. Открыв такой канал, вы увидите его тему, настройки и то, кто может его видеть, но никогда не сообщения.",
+                    "description": "Показывает в списке каналов те, которые вам недоступны, с замком. Открыв такой канал, вы увидите только его название, тему, права и то, кто может его видеть, но никогда не сообщения. Для этого плагин отключает собственную защиту Discord, скрывающую данные таких каналов, а «Сейчас активны» может показывать людей в голосовых каналах, которые вам не видны.",
                     "changelog": {
+                        "1.1.2": [
+                            "Больше не трогает проверку целостности Discord: отключается только защита, скрывающая данные скрытых каналов. Теперь это сказано в описании, как и то, что «Сейчас активны» может показывать людей в голосовых каналах, которые вам не видны."
+                        ],
+                        "1.1.1": [
+                            "Снова работает после обновления Discord: скрытые трибуны показывают замок вместо самой трибуны."
+                        ],
                         "1.1.0": [
                             "Говорит на языке Discord: немецком, испанском, французском, японском, польском, португальском, русском и турецком, а также на английском."
                         ],
@@ -5571,8 +5876,14 @@
                 },
                 "tr": {
                     "name": "Gizli Kanalları Göster",
-                    "description": "Görüntüleyemediğin kanalları kanal listesinde kilit simgesiyle gösterir. Birini açtığında konusunu, ayarlarını ve kimlerin görebildiğini görürsün, mesajlarını asla.",
+                    "description": "Görüntüleyemediğin kanalları kanal listesinde kilit simgesiyle gösterir. Birini açtığında yalnızca adını, konusunu, izinlerini ve kimlerin görebildiğini görürsün, mesajlarını asla. Bunun için Discord'un bu kanalların bilgilerini gizleyen kendi korumasını kapatır; ayrıca Şimdi Aktif, göremediğin ses kanallarındaki kişileri gösterebilir.",
                     "changelog": {
+                        "1.1.2": [
+                            "Discord'un bütünlük denetimine artık dokunmuyor: yalnızca gizli kanalların bilgilerini gizleyen koruma kapatılıyor. Açıklama artık bunu söylüyor, ayrıca Şimdi Aktif'in göremediğin ses kanallarındaki kişileri gösterebileceğini de."
+                        ],
+                        "1.1.1": [
+                            "Discord güncellemesinden sonra yeniden çalışıyor: gizli sahne kanalları sahne yerine kilit ekranını gösterir."
+                        ],
                         "1.1.0": [
                             "Discord'un dilini kullanır: İngilizcenin yanı sıra Almanca, İspanyolca, Fransızca, Japonca, Lehçe, Portekizce, Rusça ve Türkçe."
                         ],
@@ -5611,7 +5922,7 @@
             "authorIds": [
                 "evi"
             ],
-            "version": "1.0.1",
+            "version": "1.0.2",
             "tags": [
                 "utility",
                 "messages"
@@ -5620,22 +5931,29 @@
             "minEviVersion": "3.0.0",
             "files": {
                 "manifest.json": {
-                    "url": "https://evi.rest/store/plugins/side-browser/manifest.json?v=9b8ac7ef3c28",
-                    "sha256": "9b8ac7ef3c28f938b359b177c141ff57d220e494149a032d1486d434e41f915a"
+                    "url": "https://evi.rest/store/plugins/side-browser/manifest.json?v=4157e4c11c7b",
+                    "sha256": "4157e4c11c7bcbd031fd1c794d9ce5a6e9819295601e82588b9edb0c4773c900"
                 },
                 "index.js": {
                     "url": "https://evi.rest/store/plugins/side-browser/index.js?v=ecbbc96fd117",
                     "sha256": "ecbbc96fd117c5ee32d04ebc6e62b804c15bbd8466e83bf7bd50a783b0fd4358"
                 },
                 "native.js": {
-                    "url": "https://evi.rest/store/plugins/side-browser/native.js?v=a46f887c3667",
-                    "sha256": "a46f887c36671f07bf96e30d7b092f52bcb0868029f3c9c8ac87ea8890d4517d"
+                    "url": "https://evi.rest/store/plugins/side-browser/native.js?v=4f1e9263f7ce",
+                    "sha256": "4f1e9263f7ce93455a6ed905e6d078d0575578054475710333bf71bd289e0ba9"
                 }
             },
-            "updatedAt": "2026-10-25",
+            "updatedAt": "2026-11-01",
             "source": "https://github.com/BleedDev/evi/tree/main/plugins/side-browser",
             "screenshots": [],
             "changelog": [
+                {
+                    "version": "1.0.2",
+                    "notes": [
+                        "A page in the panel can only open Discord links and downloads right after you click or press a key in it, one at a time, so it can't pop invites or app dialogs over Discord on its own.",
+                        "Links that authorize an app or sign you in open in your browser, where you can see who's asking."
+                    ]
+                },
                 {
                     "version": "1.0.1",
                     "notes": [
@@ -5656,6 +5974,10 @@
                     "name": "Seitenbrowser",
                     "description": "Links, die du im Chat anklickst, öffnen sich in einem Bereich daneben, damit du sie lesen kannst, ohne Discord zu verlassen. Geh vor und zurück, lade neu, kopiere den Link oder öffne ihn in deinem Browser, und zieh den Rand des Bereichs, um ihn breiter zu machen. Seiten laufen für sich, getrennt von deinem Discord-Konto, und der Bereich belegt keinen Speicher mehr, sobald er geschlossen ist.",
                     "changelog": {
+                        "1.0.2": [
+                            "Eine Seite im Panel kann Discord-Links und Downloads nur direkt nach deinem Klick oder Tastendruck darin öffnen, einen nach dem anderen. So öffnet sie nicht von selbst Einladungen oder App-Dialoge über Discord.",
+                            "Links, die eine App autorisieren oder dich anmelden, öffnen sich in deinem Browser, wo du siehst, wer fragt."
+                        ],
                         "1.0.1": [
                             "Öffnet sich neben dem Chat, ohne deine Direktnachrichten- oder Kanalliste zusammenzudrücken, und der Chat behält immer Platz.",
                             "Öffnet und schließt sich sanft über seine Breite, ohne über den Fensterrand zu rutschen oder eine Bildlaufleiste erscheinen zu lassen.",
@@ -5670,6 +5992,10 @@
                     "name": "Navegador lateral",
                     "description": "Los enlaces en los que haces clic en el chat se abren en un panel a su lado, para leerlos sin salir de Discord. Ve atrás y adelante, recarga, copia el enlace o ábrelo en tu navegador, y arrastra el borde del panel para ensancharlo. Las páginas se abren por su cuenta, separadas de tu cuenta de Discord, y el panel no ocupa memoria una vez cerrado.",
                     "changelog": {
+                        "1.0.2": [
+                            "Una página del panel solo puede abrir enlaces de Discord y descargas justo después de que hagas clic o pulses una tecla en ella, de uno en uno, así que no puede abrir invitaciones ni ventanas de apps sobre Discord por su cuenta.",
+                            "Los enlaces que autorizan una app o inician sesión se abren en tu navegador, donde ves quién lo pide."
+                        ],
                         "1.0.1": [
                             "Se abre junto al chat sin apretar tu lista de MD ni de canales, y el chat siempre conserva espacio.",
                             "Se abre y se cierra con suavidad cambiando su ancho, sin salirse por el borde de la ventana ni hacer aparecer una barra de desplazamiento.",
@@ -5684,6 +6010,10 @@
                     "name": "Navigateur latéral",
                     "description": "Les liens sur lesquels vous cliquez dans le chat s'ouvrent dans un panneau à côté, pour les lire sans quitter Discord. Revenez en arrière ou avancez, rechargez, copiez le lien ou ouvrez-le dans votre navigateur, et faites glisser le bord du panneau pour l'élargir. Les pages s'ouvrent à part, séparées de votre compte Discord, et le panneau ne prend plus de mémoire une fois fermé.",
                     "changelog": {
+                        "1.0.2": [
+                            "Une page du panneau ne peut ouvrir des liens Discord et des téléchargements que juste après un clic ou une touche de ta part, un à la fois : elle ne peut plus ouvrir d'elle-même des invitations ou des fenêtres d'applis par-dessus Discord.",
+                            "Les liens qui autorisent une appli ou te connectent s'ouvrent dans ton navigateur, où tu vois qui le demande."
+                        ],
                         "1.0.1": [
                             "S’ouvre à côté du chat sans écraser ta liste de MP ou de salons, et le chat garde toujours de la place.",
                             "S’ouvre et se ferme en douceur par sa largeur, sans glisser hors de la fenêtre ni faire apparaître de barre de défilement.",
@@ -5698,6 +6028,10 @@
                     "name": "サイドブラウザ",
                     "description": "チャットでクリックしたリンクが横のパネルで開き、Discordを離れずに読めます。戻る・進む、再読み込み、リンクのコピー、ブラウザで開くことができ、パネルの端をドラッグして幅を広げられます。ページはDiscordのアカウントとは切り離して開かれ、パネルを閉じるとメモリを使いません。",
                     "changelog": {
+                        "1.0.2": [
+                            "パネル内のページがDiscordのリンクやダウンロードを開けるのは、そのページをクリックしたりキーを押したりした直後に1つずつだけになりました。ページが勝手にDiscordの上に招待やアプリのダイアログを出すことはできません。",
+                            "アプリを認証するリンクやログインのリンクはブラウザで開くので、誰が求めているかを確認できます。"
+                        ],
                         "1.0.1": [
                             "DMリストやチャンネルリストを押しつぶさずにチャットの横に開き、チャットの幅も常に残ります。",
                             "幅を変えながらなめらかに開閉し、ウィンドウの端からはみ出したりスクロールバーが出たりしなくなりました。",
@@ -5712,6 +6046,10 @@
                     "name": "Boczna przeglądarka",
                     "description": "Linki klikane na czacie otwierają się w panelu obok, więc możesz je czytać bez wychodzenia z Discorda. Cofaj i przechodź dalej, odświeżaj, kopiuj link albo otwieraj go w przeglądarce, a przeciągnij krawędź panelu, żeby go poszerzyć. Strony otwierają się osobno, z dala od twojego konta Discord, a zamknięty panel nie zajmuje pamięci.",
                     "changelog": {
+                        "1.0.2": [
+                            "Strona w panelu może otwierać linki Discorda i pobierania tylko zaraz po twoim kliknięciu lub naciśnięciu klawisza, po jednym naraz, więc sama nie wyświetli zaproszeń ani okien aplikacji nad Discordem.",
+                            "Linki, które autoryzują aplikację lub cię logują, otwierają się w przeglądarce, gdzie widać, kto o to prosi."
+                        ],
                         "1.0.1": [
                             "Otwiera się obok czatu, nie ściskając listy wiadomości prywatnych ani kanałów, a czat zawsze zachowuje miejsce.",
                             "Otwiera się i zamyka płynnie, zmieniając szerokość, bez wysuwania się poza krawędź okna i bez pojawiania się paska przewijania.",
@@ -5726,6 +6064,10 @@
                     "name": "Navegador lateral",
                     "description": "Os links em que você clica no chat abrem em um painel ao lado, para ler sem sair do Discord. Volte e avance, recarregue, copie o link ou abra no seu navegador, e arraste a borda do painel para alargá-lo. As páginas abrem à parte, separadas da sua conta do Discord, e o painel não ocupa memória depois de fechado.",
                     "changelog": {
+                        "1.0.2": [
+                            "Uma página no painel só pode abrir links do Discord e downloads logo depois que você clica ou aperta uma tecla nela, um de cada vez, então ela não consegue abrir convites nem janelas de apps sobre o Discord sozinha.",
+                            "Links que autorizam um app ou fazem login abrem no seu navegador, onde você vê quem está pedindo."
+                        ],
                         "1.0.1": [
                             "Abre ao lado do chat sem apertar sua lista de DMs ou de canais, e o chat sempre mantém espaço.",
                             "Abre e fecha suavemente pela largura, sem passar da borda da janela nem fazer aparecer uma barra de rolagem.",
@@ -5740,6 +6082,10 @@
                     "name": "Боковой браузер",
                     "description": "Ссылки, по которым вы нажимаете в чате, открываются в панели рядом, чтобы читать их, не выходя из Discord. Переходите назад и вперёд, перезагружайте, копируйте ссылку или открывайте её в браузере, а край панели можно потянуть, чтобы сделать её шире. Страницы открываются отдельно от вашего аккаунта Discord, а закрытая панель не занимает память.",
                     "changelog": {
+                        "1.0.2": [
+                            "Страница в панели может открывать ссылки Discord и загрузки только сразу после твоего клика или нажатия клавиши в ней, по одной за раз, поэтому сама она не откроет приглашения или окна приложений поверх Discord.",
+                            "Ссылки, которые авторизуют приложение или выполняют вход, открываются в браузере, где видно, кто об этом просит."
+                        ],
                         "1.0.1": [
                             "Открывается рядом с чатом, не сжимая список личных сообщений или каналов, а у чата всегда остаётся место.",
                             "Плавно открывается и закрывается по ширине, не выезжая за край окна и без появления полосы прокрутки.",
@@ -5754,6 +6100,10 @@
                     "name": "Yan Tarayıcı",
                     "description": "Sohbette tıkladığın bağlantılar yanındaki bir panelde açılır, böylece Discord'dan çıkmadan okuyabilirsin. Geri ve ileri git, yenile, bağlantıyı kopyala ya da tarayıcında aç, paneli genişletmek için kenarını sürükle. Sayfalar Discord hesabından ayrı açılır ve panel kapandığında bellek kullanmaz.",
                     "changelog": {
+                        "1.0.2": [
+                            "Paneldeki bir sayfa, Discord bağlantılarını ve indirmeleri yalnızca ona tıkladıktan ya da bir tuşa bastıktan hemen sonra, teker teker açabilir; böylece kendi başına Discord'un üstünde davet ya da uygulama pencereleri açamaz.",
+                            "Bir uygulamayı yetkilendiren ya da giriş yaptıran bağlantılar tarayıcında açılır; orada kimin istediğini görürsün."
+                        ],
                         "1.0.1": [
                             "DM listeni veya kanal listeni sıkıştırmadan sohbetin yanında açılır ve sohbete her zaman yer kalır.",
                             "Genişliğiyle yumuşakça açılıp kapanır; pencerenin kenarından taşmaz ve kaydırma çubuğu çıkarmaz.",
@@ -6267,7 +6617,7 @@
             "authorIds": [
                 "evi"
             ],
-            "version": "1.1.0",
+            "version": "1.1.2",
             "tags": [
                 "messages",
                 "utility"
@@ -6276,18 +6626,30 @@
             "minEviVersion": "0.3.2",
             "files": {
                 "manifest.json": {
-                    "url": "https://evi.rest/store/plugins/snippets/manifest.json?v=79f246b084b3",
-                    "sha256": "79f246b084b33f1cb0bae10e8722e03ba8c03f82c4c9b6f12ea5952e331cd411"
+                    "url": "https://evi.rest/store/plugins/snippets/manifest.json?v=a0fc13ffce38",
+                    "sha256": "a0fc13ffce384852ea7ad513203595de6f6482719c7ea5b10472e96a26f1a84f"
                 },
                 "index.js": {
-                    "url": "https://evi.rest/store/plugins/snippets/index.js?v=358ea9ead415",
-                    "sha256": "358ea9ead415bd4bdbb1ae8985e033d7e64c618727e1724822b8aea8b2c62b87"
+                    "url": "https://evi.rest/store/plugins/snippets/index.js?v=3aa3cf260bfd",
+                    "sha256": "3aa3cf260bfdaeaa84f4da04ef33a64d661a690bd10c53e1b619d27f2a4d8ff0"
                 }
             },
-            "updatedAt": "2026-09-28",
+            "updatedAt": "2026-11-01",
             "source": "https://github.com/BleedDev/evi/tree/main/plugins/snippets",
             "screenshots": [],
             "changelog": [
+                {
+                    "version": "1.1.2",
+                    "notes": [
+                        "When you save someone's message as a snippet, placeholders in it like {clipboard} stay as plain text. And a snippet with {clipboard} always goes in your message box instead of being sent, so you can check what you copied before anyone sees it."
+                    ]
+                },
+                {
+                    "version": "1.1.1",
+                    "notes": [
+                        "Turning it off or updating it while the snippet picker is open no longer breaks the chat bar."
+                    ]
+                },
                 {
                     "version": "1.1.0",
                     "notes": [
@@ -6324,6 +6686,12 @@
                     "name": "Textbausteine",
                     "description": "Gespeicherte Antworten. Wähle eine in der Chatleiste aus oder sende sie mit /snip, mit Platzhaltern wie {user} und {date}. Klicke mit der rechten Maustaste auf eine Nachricht, um sie als Textbaustein zu speichern.",
                     "changelog": {
+                        "1.1.2": [
+                            "Wenn du die Nachricht von jemandem als Textbaustein speicherst, bleiben Platzhalter darin wie {clipboard} einfacher Text. Und ein Textbaustein mit {clipboard} kommt immer ins Nachrichtenfeld, statt gesendet zu werden, damit du prüfen kannst, was du kopiert hast, bevor es jemand sieht."
+                        ],
+                        "1.1.1": [
+                            "Ausschalten oder Aktualisieren, während die Textbaustein-Auswahl offen ist, macht die Chatleiste nicht mehr kaputt."
+                        ],
                         "1.1.0": [
                             "Folgt der Sprache von Discord: Deutsch, Spanisch, Französisch, Japanisch, Polnisch, Portugiesisch, Russisch und Türkisch, dazu Englisch."
                         ],
@@ -6345,6 +6713,12 @@
                     "name": "Respuestas rápidas",
                     "description": "Respuestas guardadas. Elige una en la barra de chat o envíala con /snip, con marcadores como {user} y {date}. Haz clic derecho en un mensaje para guardarlo como respuesta rápida.",
                     "changelog": {
+                        "1.1.2": [
+                            "Cuando guardas el mensaje de otra persona como respuesta rápida, los marcadores como {clipboard} se quedan como texto normal. Y una respuesta rápida con {clipboard} siempre va al cuadro de mensaje en lugar de enviarse, para que revises lo que copiaste antes de que nadie lo vea."
+                        ],
+                        "1.1.1": [
+                            "Desactivarlo o actualizarlo con el selector de respuestas rápidas abierto ya no rompe la barra del chat."
+                        ],
                         "1.1.0": [
                             "Sigue el idioma de Discord: alemán, español, francés, japonés, polaco, portugués, ruso y turco, además de inglés."
                         ],
@@ -6366,6 +6740,12 @@
                     "name": "Réponses rapides",
                     "description": "Des réponses enregistrées. Choisis-en une dans la barre de discussion ou envoie-la avec /snip, avec des variables comme {user} et {date}. Fais un clic droit sur un message pour l'enregistrer comme réponse rapide.",
                     "changelog": {
+                        "1.1.2": [
+                            "Quand tu enregistres le message de quelqu'un comme réponse rapide, les variables comme {clipboard} restent du texte normal. Et une réponse rapide avec {clipboard} va toujours dans la zone de message au lieu d'être envoyée, pour que tu vérifies ce que tu as copié avant que quelqu'un le voie."
+                        ],
+                        "1.1.1": [
+                            "Le désactiver ou le mettre à jour pendant que le sélecteur de réponses rapides est ouvert ne casse plus la barre de discussion."
+                        ],
                         "1.1.0": [
                             "Suit la langue de Discord : allemand, espagnol, français, japonais, polonais, portugais, russe et turc, en plus de l'anglais."
                         ],
@@ -6387,6 +6767,12 @@
                     "name": "スニペット",
                     "description": "保存しておいた返信です。チャットバーから選ぶか、/snipで送信できます。{user}や{date}などのプレースホルダーも使えます。メッセージを右クリックすると、スニペットとして保存できます。",
                     "changelog": {
+                        "1.1.2": [
+                            "他の人のメッセージをスニペットとして保存すると、{clipboard} などのプレースホルダーはただの文字のまま残ります。また、{clipboard} を含むスニペットは送信されず、必ずメッセージ欄に入るので、コピーした内容を誰かに見られる前に確認できます。"
+                        ],
+                        "1.1.1": [
+                            "スニペットの選択画面を開いている間にオフにしたり更新したりしても、チャットバーが壊れなくなりました。"
+                        ],
                         "1.1.0": [
                             "Discordの言語設定に合わせて表示されます。英語のほか、ドイツ語、スペイン語、フランス語、日本語、ポーランド語、ポルトガル語、ロシア語、トルコ語に対応しています。"
                         ],
@@ -6408,6 +6794,12 @@
                     "name": "Szybkie odpowiedzi",
                     "description": "Zapisane odpowiedzi. Wybierz jedną z paska czatu albo wyślij ją poleceniem /snip, z symbolami zastępczymi takimi jak {user} i {date}. Kliknij wiadomość prawym przyciskiem myszy, aby zapisać ją jako szybką odpowiedź.",
                     "changelog": {
+                        "1.1.2": [
+                            "Gdy zapisujesz czyjąś wiadomość jako szybką odpowiedź, symbole zastępcze w niej, takie jak {clipboard}, zostają zwykłym tekstem. A szybka odpowiedź z {clipboard} zawsze trafia do pola wiadomości zamiast zostać wysłana, więc możesz sprawdzić, co skopiowano, zanim ktokolwiek to zobaczy."
+                        ],
+                        "1.1.1": [
+                            "Wyłączenie lub aktualizacja przy otwartym wyborze szybkich odpowiedzi nie psuje już paska czatu."
+                        ],
                         "1.1.0": [
                             "Mówi w języku Discorda: po niemiecku, hiszpańsku, francusku, japońsku, polsku, portugalsku, rosyjsku i turecku, oprócz angielskiego."
                         ],
@@ -6429,6 +6821,12 @@
                     "name": "Respostas rápidas",
                     "description": "Respostas salvas. Escolha uma na barra de chat ou envie com /snip, com marcadores como {user} e {date}. Clique com o botão direito em uma mensagem para salvá-la como resposta rápida.",
                     "changelog": {
+                        "1.1.2": [
+                            "Quando você salva a mensagem de outra pessoa como resposta rápida, marcadores nela como {clipboard} ficam como texto comum. E uma resposta rápida com {clipboard} sempre vai para a caixa de mensagem em vez de ser enviada, para você conferir o que copiou antes que alguém veja."
+                        ],
+                        "1.1.1": [
+                            "Desativar ou atualizar com o seletor de respostas rápidas aberto não quebra mais a barra do chat."
+                        ],
                         "1.1.0": [
                             "Segue o idioma do Discord: alemão, espanhol, francês, japonês, polonês, português, russo e turco, além do inglês."
                         ],
@@ -6450,6 +6848,12 @@
                     "name": "Шаблоны",
                     "description": "Сохранённые ответы. Выберите шаблон в панели чата или отправьте его командой /snip; поддерживаются подстановки вроде {user} и {date}. Нажмите на сообщение правой кнопкой мыши, чтобы сохранить его как шаблон.",
                     "changelog": {
+                        "1.1.2": [
+                            "Когда вы сохраняете чужое сообщение как шаблон, подстановки в нём вроде {clipboard} остаются обычным текстом. А шаблон с {clipboard} всегда вставляется в поле сообщения, а не отправляется, чтобы вы проверили скопированное, прежде чем его кто-то увидит."
+                        ],
+                        "1.1.1": [
+                            "Если выключить или обновить его, пока открыт выбор шаблонов, панель чата больше не ломается."
+                        ],
                         "1.1.0": [
                             "Говорит на языке Discord: немецком, испанском, французском, японском, польском, португальском, русском и турецком, а также на английском."
                         ],
@@ -6471,6 +6875,12 @@
                     "name": "Hazır Yanıtlar",
                     "description": "Kayıtlı yanıtlar. Sohbet çubuğundan birini seç ya da /snip ile gönder; {user} ve {date} gibi yer tutucular kullanılabilir. Bir mesaja sağ tıklayıp hazır yanıt olarak kaydedebilirsin.",
                     "changelog": {
+                        "1.1.2": [
+                            "Birinin mesajını hazır yanıt olarak kaydettiğinde, içindeki {clipboard} gibi yer tutucular düz metin olarak kalır. {clipboard} içeren bir hazır yanıt da gönderilmek yerine her zaman mesaj kutusuna konur, böylece kopyaladığını kimse görmeden kontrol edebilirsin."
+                        ],
+                        "1.1.1": [
+                            "Hazır yanıt seçici açıkken kapatmak ya da güncellemek artık sohbet çubuğunu bozmuyor."
+                        ],
                         "1.1.0": [
                             "Discord'un dilini kullanır: İngilizcenin yanı sıra Almanca, İspanyolca, Fransızca, Japonca, Lehçe, Portekizce, Rusça ve Türkçe."
                         ],
@@ -6737,14 +7147,14 @@
         {
             "id": "strip-metadata",
             "name": "Strip Metadata",
-            "description": "Removes EXIF, GPS location and other hidden metadata from JPEG, PNG and WebP images before you upload them, without re-encoding. Can also give uploads random file names.",
+            "description": "Removes EXIF, GPS location and other hidden metadata from JPEG, PNG, WebP and GIF images before you upload them, without re-encoding, and asks before uploading one it can't clean. Can also give uploads random file names.",
             "authors": [
                 "Evi"
             ],
             "authorIds": [
                 "evi"
             ],
-            "version": "1.1.0",
+            "version": "1.1.2",
             "tags": [
                 "privacy"
             ],
@@ -6752,18 +7162,32 @@
             "minEviVersion": "0.3.2",
             "files": {
                 "manifest.json": {
-                    "url": "https://evi.rest/store/plugins/strip-metadata/manifest.json?v=01a80e87788b",
-                    "sha256": "01a80e87788b47095b8ecb0aba8a116552b43540a0fd6189aac7e02db63e9b99"
+                    "url": "https://evi.rest/store/plugins/strip-metadata/manifest.json?v=61a84d4ae2c6",
+                    "sha256": "61a84d4ae2c678598e7c4bd1dba7b615e7bd263b5d13f39f6ffe516a9a6d4ded"
                 },
                 "index.js": {
-                    "url": "https://evi.rest/store/plugins/strip-metadata/index.js?v=952bb08c7660",
-                    "sha256": "952bb08c7660d3e1c83f79edf121193bb7aa8c9cfecfe2c9f288fe19585276a2"
+                    "url": "https://evi.rest/store/plugins/strip-metadata/index.js?v=a37192a5f49f",
+                    "sha256": "a37192a5f49f8fc17ee2a92e0495bc98557b36ba6075f4d818815b54f79fcb18"
                 }
             },
-            "updatedAt": "2026-09-28",
+            "updatedAt": "2026-11-01",
             "source": "https://github.com/BleedDev/evi/tree/main/plugins/strip-metadata",
             "screenshots": [],
             "changelog": [
+                {
+                    "version": "1.1.2",
+                    "notes": [
+                        "An image it can't clean (HEIC and AVIF photos, TIFF, images over 100 MB, or one that doesn't read cleanly) no longer goes out with its location and camera details: you're asked first, and \"Don't upload\" leaves it out.",
+                        "GIFs are cleaned too, and C2PA data goes from PNG and WebP images.",
+                        "Files you add to a message while editing it with Upload Tools are cleaned too."
+                    ]
+                },
+                {
+                    "version": "1.1.1",
+                    "notes": [
+                        "JPEG photos lose everything stored after the picture too: the extra preview images phones add, each with its own EXIF and location, and motion photo videos."
+                    ]
+                },
                 {
                     "version": "1.1.0",
                     "notes": [
@@ -6792,8 +7216,16 @@
             "locales": {
                 "de": {
                     "name": "Metadaten entfernen",
-                    "description": "Entfernt EXIF, GPS-Standort und andere versteckte Metadaten aus JPEG-, PNG- und WebP-Bildern, bevor du sie hochlädst, ohne sie neu zu kodieren. Kann Uploads auch zufällige Dateinamen geben.",
+                    "description": "Entfernt EXIF, GPS-Standort und andere versteckte Metadaten aus JPEG-, PNG-, WebP- und GIF-Bildern, bevor du sie hochlädst, ohne sie neu zu kodieren, und fragt nach, bevor ein Bild hochgeladen wird, das es nicht bereinigen kann. Kann Uploads auch zufällige Dateinamen geben.",
                     "changelog": {
+                        "1.1.2": [
+                            "Ein Bild, das es nicht bereinigen kann (HEIC- und AVIF-Fotos, TIFF, Bilder über 100 MB oder eines, das sich nicht sauber lesen lässt), wird nicht mehr mit Standort und Kameradaten hochgeladen: Du wirst vorher gefragt, und mit „Nicht hochladen“ bleibt es weg.",
+                            "GIFs werden ebenfalls bereinigt, und C2PA-Daten verschwinden aus PNG- und WebP-Bildern.",
+                            "Dateien, die du mit Upload Tools beim Bearbeiten einer Nachricht hinzufügst, werden ebenfalls bereinigt."
+                        ],
+                        "1.1.1": [
+                            "JPEG-Fotos verlieren jetzt auch alles, was nach dem Bild gespeichert ist: die zusätzlichen Vorschaubilder, die Handys anhängen, jedes mit eigenen EXIF-Daten und eigenem Standort, und die Videos von Bewegungsfotos."
+                        ],
                         "1.1.0": [
                             "Folgt der Sprache von Discord: Deutsch, Spanisch, Französisch, Japanisch, Polnisch, Portugiesisch, Russisch und Türkisch, dazu Englisch."
                         ],
@@ -6810,8 +7242,16 @@
                 },
                 "es": {
                     "name": "Quitar metadatos",
-                    "description": "Elimina EXIF, ubicación GPS y otros metadatos ocultos de imágenes JPEG, PNG y WebP antes de subirlas, sin recodificarlas. También puede dar nombres de archivo aleatorios a las subidas.",
+                    "description": "Elimina EXIF, ubicación GPS y otros metadatos ocultos de imágenes JPEG, PNG, WebP y GIF antes de subirlas, sin recodificarlas, y pregunta antes de subir una que no puede limpiar. También puede dar nombres de archivo aleatorios a las subidas.",
                     "changelog": {
+                        "1.1.2": [
+                            "Una imagen que no puede limpiar (fotos HEIC y AVIF, TIFF, imágenes de más de 100 MB o una que no se lee bien) ya no se sube con su ubicación y los datos de la cámara: primero se te pregunta, y «No subir» la deja fuera.",
+                            "También se limpian los GIF, y los datos C2PA desaparecen de las imágenes PNG y WebP.",
+                            "También se limpian los archivos que añades a un mensaje al editarlo con Upload Tools."
+                        ],
+                        "1.1.1": [
+                            "Las fotos JPEG también pierden todo lo que se guarda después de la imagen: las vistas previas extra que añaden los móviles, cada una con su propio EXIF y ubicación, y los vídeos de las fotos en movimiento."
+                        ],
                         "1.1.0": [
                             "Sigue el idioma de Discord: alemán, español, francés, japonés, polaco, portugués, ruso y turco, además de inglés."
                         ],
@@ -6828,8 +7268,16 @@
                 },
                 "fr": {
                     "name": "Supprimer les métadonnées",
-                    "description": "Retire les données EXIF, la position GPS et d'autres métadonnées cachées des images JPEG, PNG et WebP avant l'envoi, sans les réencoder. Peut aussi donner des noms de fichiers aléatoires aux envois.",
+                    "description": "Retire les données EXIF, la position GPS et d'autres métadonnées cachées des images JPEG, PNG, WebP et GIF avant l'envoi, sans les réencoder, et demande avant d'envoyer une image qu'il ne peut pas nettoyer. Peut aussi donner des noms de fichiers aléatoires aux envois.",
                     "changelog": {
+                        "1.1.2": [
+                            "Une image qu'il ne peut pas nettoyer (photos HEIC et AVIF, TIFF, images de plus de 100 Mo ou une image qui ne se lit pas correctement) n'est plus envoyée avec sa position et les informations de l'appareil photo : on te demande d'abord, et « Ne pas envoyer » la laisse de côté.",
+                            "Les GIF sont nettoyés aussi, et les données C2PA disparaissent des images PNG et WebP.",
+                            "Les fichiers que tu ajoutes à un message en le modifiant avec Upload Tools sont nettoyés aussi."
+                        ],
+                        "1.1.1": [
+                            "Les photos JPEG perdent aussi tout ce qui est stocké après l'image : les aperçus supplémentaires ajoutés par les téléphones, chacun avec ses propres EXIF et sa position, et les vidéos des photos animées."
+                        ],
                         "1.1.0": [
                             "Suit la langue de Discord : allemand, espagnol, français, japonais, polonais, portugais, russe et turc, en plus de l'anglais."
                         ],
@@ -6846,8 +7294,16 @@
                 },
                 "ja": {
                     "name": "メタデータ削除",
-                    "description": "アップロード前に、JPEG、PNG、WebP画像からEXIF、GPS位置情報などの隠れたメタデータを再エンコードなしで取り除きます。アップロードするファイルにランダムな名前を付けることもできます。",
+                    "description": "アップロード前に、JPEG、PNG、WebP、GIF画像からEXIF、GPS位置情報などの隠れたメタデータを再エンコードなしで取り除き、削除できない画像はアップロード前に確認します。アップロードするファイルにランダムな名前を付けることもできます。",
                     "changelog": {
+                        "1.1.2": [
+                            "削除できない画像(HEICやAVIFの写真、TIFF、100 MBを超える画像、正しく読み取れない画像)が、位置情報やカメラ情報を残したままアップロードされることはなくなりました。先に確認され、「アップロードしない」を選ぶとその画像は除かれます。",
+                            "GIFも削除の対象になり、PNGとWebP画像からC2PAデータも取り除かれます。",
+                            "Upload Toolsでメッセージを編集中に追加したファイルも削除の対象になります。"
+                        ],
+                        "1.1.1": [
+                            "JPEG写真から、画像の後ろに保存されているものもすべて取り除くようになりました。スマートフォンが追加するプレビュー画像(それぞれにEXIFと位置情報があります)や、モーションフォトの動画も含まれます。"
+                        ],
                         "1.1.0": [
                             "Discordの言語設定に合わせて表示されます。英語のほか、ドイツ語、スペイン語、フランス語、日本語、ポーランド語、ポルトガル語、ロシア語、トルコ語に対応しています。"
                         ],
@@ -6864,8 +7320,16 @@
                 },
                 "pl": {
                     "name": "Usuwanie metadanych",
-                    "description": "Usuwa EXIF, lokalizację GPS i inne ukryte metadane z obrazów JPEG, PNG i WebP przed przesłaniem, bez ponownego kodowania. Może też nadawać przesyłanym plikom losowe nazwy.",
+                    "description": "Usuwa EXIF, lokalizację GPS i inne ukryte metadane z obrazów JPEG, PNG, WebP i GIF przed przesłaniem, bez ponownego kodowania, i pyta, zanim prześle obraz, którego nie da się wyczyścić. Może też nadawać przesyłanym plikom losowe nazwy.",
                     "changelog": {
+                        "1.1.2": [
+                            "Obraz, którego nie da się wyczyścić (zdjęcia HEIC i AVIF, TIFF, obrazy powyżej 100 MB lub taki, którego nie da się poprawnie odczytać), nie jest już przesyłany z lokalizacją i danymi aparatu: najpierw pojawia się pytanie, a „Nie przesyłaj” go pomija.",
+                            "Czyszczone są też GIF-y, a z obrazów PNG i WebP znikają dane C2PA.",
+                            "Pliki dodawane do wiadomości podczas jej edycji w Upload Tools też są czyszczone."
+                        ],
+                        "1.1.1": [
+                            "Zdjęcia JPEG tracą też wszystko, co jest zapisane za obrazem: dodatkowe podglądy dodawane przez telefony, każdy z własnym EXIF i lokalizacją, oraz filmy ze zdjęć ruchomych."
+                        ],
                         "1.1.0": [
                             "Mówi w języku Discorda: po niemiecku, hiszpańsku, francusku, japońsku, polsku, portugalsku, rosyjsku i turecku, oprócz angielskiego."
                         ],
@@ -6882,8 +7346,16 @@
                 },
                 "pt-BR": {
                     "name": "Remover metadados",
-                    "description": "Remove EXIF, localização GPS e outros metadados ocultos de imagens JPEG, PNG e WebP antes de você enviá-las, sem recodificar. Também pode dar nomes aleatórios aos arquivos enviados.",
+                    "description": "Remove EXIF, localização GPS e outros metadados ocultos de imagens JPEG, PNG, WebP e GIF antes de você enviá-las, sem recodificar, e pergunta antes de enviar uma que ele não consegue limpar. Também pode dar nomes aleatórios aos arquivos enviados.",
                     "changelog": {
+                        "1.1.2": [
+                            "Uma imagem que ele não consegue limpar (fotos HEIC e AVIF, TIFF, imagens com mais de 100 MB ou uma que não é lida direito) não é mais enviada com a localização e os dados da câmera: você é perguntado antes, e \"Não enviar\" a deixa de fora.",
+                            "GIFs também são limpos, e os dados C2PA saem das imagens PNG e WebP.",
+                            "Arquivos que você adiciona a uma mensagem ao editá-la com o Upload Tools também são limpos."
+                        ],
+                        "1.1.1": [
+                            "Fotos JPEG também perdem tudo o que fica salvo depois da imagem: as prévias extras que os celulares adicionam, cada uma com seu próprio EXIF e localização, e os vídeos de fotos com movimento."
+                        ],
                         "1.1.0": [
                             "Segue o idioma do Discord: alemão, espanhol, francês, japonês, polonês, português, russo e turco, além do inglês."
                         ],
@@ -6900,8 +7372,16 @@
                 },
                 "ru": {
                     "name": "Удаление метаданных",
-                    "description": "Убирает EXIF, GPS-координаты и другие скрытые метаданные из изображений JPEG, PNG и WebP перед загрузкой, не перекодируя их. Также может давать загружаемым файлам случайные имена.",
+                    "description": "Убирает EXIF, GPS-координаты и другие скрытые метаданные из изображений JPEG, PNG, WebP и GIF перед загрузкой, не перекодируя их, и спрашивает, прежде чем загрузить изображение, которое не удаётся очистить. Также может давать загружаемым файлам случайные имена.",
                     "changelog": {
+                        "1.1.2": [
+                            "Изображение, которое не удаётся очистить (фото HEIC и AVIF, TIFF, изображения больше 100 МБ или файл, который не читается как следует), больше не загружается с местоположением и данными камеры: сначала тебя спросят, а «Не загружать» оставит его в стороне.",
+                            "GIF теперь тоже очищаются, а из изображений PNG и WebP убираются данные C2PA.",
+                            "Файлы, которые ты добавляешь в сообщение при его редактировании через Upload Tools, тоже очищаются."
+                        ],
+                        "1.1.1": [
+                            "Из JPEG-фото теперь удаляется и всё, что записано после изображения: дополнительные превью, которые добавляют телефоны, каждое со своими EXIF и геоданными, и видео из живых фото."
+                        ],
                         "1.1.0": [
                             "Говорит на языке Discord: немецком, испанском, французском, японском, польском, португальском, русском и турецком, а также на английском."
                         ],
@@ -6918,8 +7398,16 @@
                 },
                 "tr": {
                     "name": "Meta Veri Temizleyici",
-                    "description": "JPEG, PNG ve WebP görsellerinden EXIF, GPS konumu ve diğer gizli meta verileri yeniden kodlamadan, yüklemeden önce kaldırır. Yüklemelere rastgele dosya adları da verebilir.",
+                    "description": "JPEG, PNG, WebP ve GIF görsellerinden EXIF, GPS konumu ve diğer gizli meta verileri yeniden kodlamadan, yüklemeden önce kaldırır; temizleyemediği bir görseli yüklemeden önce sorar. Yüklemelere rastgele dosya adları da verebilir.",
                     "changelog": {
+                        "1.1.2": [
+                            "Temizleyemediği bir görsel (HEIC ve AVIF fotoğraflar, TIFF, 100 MB'tan büyük görseller ya da düzgün okunamayan bir görsel) artık konum ve kamera bilgileriyle yüklenmiyor: önce sana sorulur, \"Yükleme\" dersen dışarıda bırakılır.",
+                            "GIF'ler de temizleniyor, PNG ve WebP görsellerinden C2PA verileri de kaldırılıyor.",
+                            "Upload Tools ile bir mesajı düzenlerken eklediğin dosyalar da temizleniyor."
+                        ],
+                        "1.1.1": [
+                            "JPEG fotoğraflar artık resmin arkasında saklanan her şeyi de kaybediyor: telefonların eklediği, her biri kendi EXIF'ini ve konumunu taşıyan ek önizleme resimleri ve hareketli fotoğraf videoları."
+                        ],
                         "1.1.0": [
                             "Discord'un dilini kullanır: İngilizcenin yanı sıra Almanca, İspanyolca, Fransızca, Japonca, Lehçe, Portekizce, Rusça ve Türkçe."
                         ],
@@ -8525,14 +9013,14 @@
         {
             "id": "volume-booster",
             "name": "Volume Booster",
-            "description": "Turn people up past Discord's 200% limit. The volume slider in a user's menu and on stream tiles goes up to 400% by default, or up to 1000% if you set it higher.",
+            "description": "Turn people up past Discord's 200% limit, from a user's menu and on stream tiles. By default they can get up to twice Discord's maximum volume, or up to five times if you set it higher.",
             "authors": [
                 "Evi"
             ],
             "authorIds": [
                 "evi"
             ],
-            "version": "1.1.0",
+            "version": "1.1.2",
             "tags": [
                 "voice"
             ],
@@ -8540,18 +9028,30 @@
             "minEviVersion": "1.1.0",
             "files": {
                 "manifest.json": {
-                    "url": "https://evi.rest/store/plugins/volume-booster/manifest.json?v=489384ac0daf",
-                    "sha256": "489384ac0dafc42cd2e913671581e4fd6217900aa47be8880c33557f38316b9b"
+                    "url": "https://evi.rest/store/plugins/volume-booster/manifest.json?v=53b5e8a50ea2",
+                    "sha256": "53b5e8a50ea2ccfe941c572c6a6be7d9c504c5932277862c8d7a71817d07f45c"
                 },
                 "index.js": {
-                    "url": "https://evi.rest/store/plugins/volume-booster/index.js?v=f9229d66f93c",
-                    "sha256": "f9229d66f93ce2b96c1a515a15b6620ee1778b9722dea4df7ce3044a951935a8"
+                    "url": "https://evi.rest/store/plugins/volume-booster/index.js?v=99582ce473b7",
+                    "sha256": "99582ce473b7e5a824ef261d15afbd818d58b66382c6fe054df8d1b1315dfe5a"
                 }
             },
-            "updatedAt": "2026-09-28",
+            "updatedAt": "2026-11-01",
             "source": "https://github.com/BleedDev/evi/tree/main/plugins/volume-booster",
             "screenshots": [],
             "changelog": [
+                {
+                    "version": "1.1.2",
+                    "notes": [
+                        "The volume limit now holds: at 2 nobody gets louder than twice Discord's maximum, at 5 five times. Before, the top of the slider went far past that, loud enough to hurt your hearing. Anyone you'd set louder is turned down to the limit."
+                    ]
+                },
+                {
+                    "version": "1.1.1",
+                    "notes": [
+                        "Works again after Discord's update: boosted volumes are kept under Discord's cap when your settings sync."
+                    ]
+                },
                 {
                     "version": "1.1.0",
                     "notes": [
@@ -8574,8 +9074,14 @@
             "locales": {
                 "de": {
                     "name": "Lautstärke-Booster",
-                    "description": "Dreh andere über Discords 200-%-Grenze hinaus auf. Der Lautstärkeregler im Nutzermenü und auf Stream-Kacheln geht standardmäßig bis 400 %, oder bis 1000 %, wenn du es höher einstellst.",
+                    "description": "Dreh andere über Discords 200-%-Grenze hinaus auf, im Nutzermenü und auf Stream-Kacheln. Standardmäßig bis zum Doppelten von Discords maximaler Lautstärke, oder bis zum Fünffachen, wenn du es höher einstellst.",
                     "changelog": {
+                        "1.1.2": [
+                            "Die Lautstärkegrenze gilt jetzt wirklich: bei 2 wird niemand lauter als das Doppelte von Discords Maximum, bei 5 als das Fünffache. Vorher ging das Ende des Reglers weit darüber hinaus, laut genug, um deinem Gehör zu schaden. Wen du lauter eingestellt hattest, der wird auf die Grenze zurückgedreht."
+                        ],
+                        "1.1.1": [
+                            "Funktioniert nach Discords Update wieder: verstärkte Lautstärken bleiben beim Synchronisieren deiner Einstellungen unter Discords Grenze."
+                        ],
                         "1.1.0": [
                             "Folgt der Sprache von Discord: Deutsch, Spanisch, Französisch, Japanisch, Polnisch, Portugiesisch, Russisch und Türkisch, dazu Englisch."
                         ],
@@ -8589,8 +9095,14 @@
                 },
                 "es": {
                     "name": "Potenciador de volumen",
-                    "description": "Sube el volumen de la gente por encima del límite del 200 % de Discord. El control de volumen del menú de un usuario y de los recuadros de stream llega hasta el 400 % por defecto, o hasta el 1000 % si lo configuras más alto.",
+                    "description": "Sube el volumen de la gente por encima del límite del 200 % de Discord, desde el menú de un usuario y en los recuadros de stream. Por defecto llega hasta el doble del volumen máximo de Discord, o hasta cinco veces si lo configuras más alto.",
                     "changelog": {
+                        "1.1.2": [
+                            "El límite de volumen ahora se cumple: con 2 nadie suena más fuerte que el doble del máximo de Discord, con 5 que cinco veces. Antes, el final del control iba mucho más allá, tan fuerte que podía dañar tu oído. A quien tuvieras más alto se le baja hasta el límite."
+                        ],
+                        "1.1.1": [
+                            "Vuelve a funcionar tras la actualización de Discord: los volúmenes potenciados se mantienen bajo el límite de Discord al sincronizar tus ajustes."
+                        ],
                         "1.1.0": [
                             "Sigue el idioma de Discord: alemán, español, francés, japonés, polaco, portugués, ruso y turco, además de inglés."
                         ],
@@ -8604,8 +9116,14 @@
                 },
                 "fr": {
                     "name": "Booster de volume",
-                    "description": "Monte le volume des gens au-delà de la limite de 200 % de Discord. Le curseur de volume du menu d'un utilisateur et des vignettes de stream va jusqu'à 400 % par défaut, ou jusqu'à 1000 % si tu le règles plus haut.",
+                    "description": "Monte le volume des gens au-delà de la limite de 200 % de Discord, depuis le menu d'un utilisateur et sur les vignettes de stream. Par défaut, jusqu'au double du volume maximal de Discord, ou jusqu'à cinq fois si tu le règles plus haut.",
                     "changelog": {
+                        "1.1.2": [
+                            "La limite de volume est maintenant respectée : à 2, personne ne dépasse le double du maximum de Discord, à 5, cinq fois. Avant, le haut du curseur allait bien au-delà, assez fort pour abîmer ton audition. Les personnes que tu avais réglées plus fort sont ramenées à la limite."
+                        ],
+                        "1.1.1": [
+                            "Fonctionne à nouveau après la mise à jour de Discord : les volumes boostés restent sous la limite de Discord quand tes paramètres se synchronisent."
+                        ],
                         "1.1.0": [
                             "Suit la langue de Discord : allemand, espagnol, français, japonais, polonais, portugais, russe et turc, en plus de l'anglais."
                         ],
@@ -8619,8 +9137,14 @@
                 },
                 "ja": {
                     "name": "音量ブースター",
-                    "description": "Discordの200%の上限を超えて、相手の音量を上げられます。ユーザーメニューと配信タイルの音量スライダーは、デフォルトで400%まで、設定を上げれば1000%まで調整できます。",
+                    "description": "Discordの200%の上限を超えて、ユーザーメニューや配信タイルから相手の音量を上げられます。デフォルトではDiscordの最大音量の2倍まで、設定を上げれば5倍まで上げられます。",
                     "changelog": {
+                        "1.1.2": [
+                            "音量の上限が守られるようになりました。2ならDiscordの最大の2倍、5なら5倍を超えることはありません。以前はスライダーの上端がそれをはるかに超え、聴力を傷めるほどの音量になっていました。上限より大きく設定していた相手は上限まで下げられます。"
+                        ],
+                        "1.1.1": [
+                            "Discordのアップデート後も再び動作します。設定の同期時、ブーストした音量はDiscordの上限内に収められます。"
+                        ],
                         "1.1.0": [
                             "Discordの言語設定に合わせて表示されます。英語のほか、ドイツ語、スペイン語、フランス語、日本語、ポーランド語、ポルトガル語、ロシア語、トルコ語に対応しています。"
                         ],
@@ -8634,8 +9158,14 @@
                 },
                 "pl": {
                     "name": "Wzmacniacz głośności",
-                    "description": "Podgłaśniaj ludzi ponad limit 200% w Discordzie. Suwak głośności w menu użytkownika i na kafelkach transmisji domyślnie sięga 400%, a po zmianie ustawienia nawet 1000%.",
+                    "description": "Podgłaśniaj ludzi ponad limit 200% w Discordzie, z menu użytkownika i na kafelkach transmisji. Domyślnie do dwukrotności maksymalnej głośności Discorda, a po zmianie ustawienia nawet do pięciokrotności.",
                     "changelog": {
+                        "1.1.2": [
+                            "Limit głośności teraz naprawdę obowiązuje: przy 2 nikt nie jest głośniejszy niż dwukrotność maksimum Discorda, przy 5 niż pięciokrotność. Wcześniej koniec suwaka sięgał dużo dalej, na tyle głośno, że mogło to uszkodzić Twój słuch. Osoby ustawione głośniej zostają ściszone do limitu."
+                        ],
+                        "1.1.1": [
+                            "Znów działa po aktualizacji Discorda: podbite głośności mieszczą się w limicie Discorda podczas synchronizacji ustawień."
+                        ],
                         "1.1.0": [
                             "Mówi w języku Discorda: po niemiecku, hiszpańsku, francusku, japońsku, polsku, portugalsku, rosyjsku i turecku, oprócz angielskiego."
                         ],
@@ -8649,8 +9179,14 @@
                 },
                 "pt-BR": {
                     "name": "Amplificador de volume",
-                    "description": "Aumente o volume das pessoas além do limite de 200% do Discord. O controle de volume no menu de um usuário e nos blocos de transmissão vai até 400% por padrão, ou até 1000% se você configurar mais alto.",
+                    "description": "Aumente o volume das pessoas além do limite de 200% do Discord, no menu de um usuário e nos blocos de transmissão. Por padrão vai até o dobro do volume máximo do Discord, ou até cinco vezes se você configurar mais alto.",
                     "changelog": {
+                        "1.1.2": [
+                            "O limite de volume agora vale de verdade: em 2 ninguém fica mais alto que o dobro do máximo do Discord, em 5 que cinco vezes. Antes, o fim do controle ia muito além disso, alto o bastante para machucar sua audição. Quem você tinha deixado mais alto é abaixado até o limite."
+                        ],
+                        "1.1.1": [
+                            "Volta a funcionar após a atualização do Discord: volumes amplificados ficam dentro do limite do Discord quando suas configurações sincronizam."
+                        ],
                         "1.1.0": [
                             "Segue o idioma do Discord: alemão, espanhol, francês, japonês, polonês, português, russo e turco, além do inglês."
                         ],
@@ -8664,8 +9200,14 @@
                 },
                 "ru": {
                     "name": "Усилитель громкости",
-                    "description": "Делайте собеседников громче, чем позволяет лимит Discord в 200%. Ползунок громкости в меню пользователя и на плитках трансляций по умолчанию доходит до 400%, а если поднять предел — до 1000%.",
+                    "description": "Делайте собеседников громче, чем позволяет лимит Discord в 200%, из меню пользователя и на плитках трансляций. По умолчанию — до двукратного максимума Discord, а если поднять предел — до пятикратного.",
                     "changelog": {
+                        "1.1.2": [
+                            "Предел громкости теперь соблюдается: при 2 никто не звучит громче двукратного максимума Discord, при 5 — пятикратного. Раньше конец ползунка уходил намного дальше, достаточно громко, чтобы повредить слух. Тех, кого вы сделали громче, приглушит до предела."
+                        ],
+                        "1.1.1": [
+                            "Снова работает после обновления Discord: усиленная громкость не выходит за предел Discord при синхронизации настроек."
+                        ],
                         "1.1.0": [
                             "Говорит на языке Discord: немецком, испанском, французском, японском, польском, португальском, русском и турецком, а также на английском."
                         ],
@@ -8679,8 +9221,14 @@
                 },
                 "tr": {
                     "name": "Ses Yükseltici",
-                    "description": "İnsanların sesini Discord'un %200 sınırının ötesine çıkar. Kullanıcı menüsündeki ve yayın kutucuklarındaki ses kaydırıcısı varsayılan olarak %400'e, daha yüksek ayarlarsan %1000'e kadar çıkar.",
+                    "description": "İnsanların sesini kullanıcı menüsünden ve yayın kutucuklarında Discord'un %200 sınırının ötesine çıkar. Varsayılan olarak Discord'un en yüksek sesinin iki katına, daha yüksek ayarlarsan beş katına kadar çıkar.",
                     "changelog": {
+                        "1.1.2": [
+                            "Ses sınırı artık gerçekten geçerli: 2'de kimse Discord'un en yüksek sesinin iki katından, 5'te beş katından yüksek olmaz. Önceden kaydırıcının sonu bunun çok ötesine gidiyordu, kulaklarına zarar verecek kadar yüksekti. Daha yükseğe ayarladığın kişilerin sesi sınıra indirilir."
+                        ],
+                        "1.1.1": [
+                            "Discord güncellemesinden sonra yeniden çalışıyor: ayarların eşitlenirken yükseltilmiş ses seviyeleri Discord'un sınırında tutulur."
+                        ],
                         "1.1.0": [
                             "Discord'un dilini kullanır: İngilizcenin yanı sıra Almanca, İspanyolca, Fransızca, Japonca, Lehçe, Portekizce, Rusça ve Türkçe."
                         ],
@@ -8710,7 +9258,7 @@
             "authorIds": [
                 "evi"
             ],
-            "version": "1.1.0",
+            "version": "1.1.2",
             "tags": [
                 "messages",
                 "social"
@@ -8719,18 +9267,30 @@
             "minEviVersion": "1.0.0",
             "files": {
                 "manifest.json": {
-                    "url": "https://evi.rest/store/plugins/who-reacted/manifest.json?v=9133fb3767c4",
-                    "sha256": "9133fb3767c431f0dd6c0f8401ad62d2d3087c138021d84d6cfd08a4f8d60d5d"
+                    "url": "https://evi.rest/store/plugins/who-reacted/manifest.json?v=410d8e9cee48",
+                    "sha256": "410d8e9cee48c7afebd362c734eac97c4408afce13f3bc190654b63729fd5327"
                 },
                 "index.js": {
-                    "url": "https://evi.rest/store/plugins/who-reacted/index.js?v=5af3b6942775",
-                    "sha256": "5af3b694277576f82c78ad015f9c2f0e0246f6ce749bc3dc80c86deeabbf877d"
+                    "url": "https://evi.rest/store/plugins/who-reacted/index.js?v=04a880652e56",
+                    "sha256": "04a880652e5619092ae128c9eba2d836f2186e21c29aa467d18a123eabfe3858"
                 }
             },
-            "updatedAt": "2026-09-28",
+            "updatedAt": "2026-11-01",
             "source": "https://github.com/BleedDev/evi/tree/main/plugins/who-reacted",
             "screenshots": [],
             "changelog": [
+                {
+                    "version": "1.1.2",
+                    "notes": [
+                        "Only asks Discord who reacted for reactions on your screen, one at a time and no more than 20 a minute, so opening a busy channel no longer sends dozens of requests. When Discord says to slow down, it waits before asking again."
+                    ]
+                },
+                {
+                    "version": "1.1.1",
+                    "notes": [
+                        "Turning it off while reactions are on screen no longer breaks the message when someone reacts."
+                    ]
+                },
                 {
                     "version": "1.1.0",
                     "notes": [
@@ -8749,6 +9309,12 @@
                     "name": "Wer hat reagiert",
                     "description": "Kleine Avatare der Leute, die reagiert haben, direkt an jeder Reaktion neben der Anzahl, und wie viele weitere es sind, wenn es viele gibt.",
                     "changelog": {
+                        "1.1.2": [
+                            "Fragt Discord nur noch bei Reaktionen auf deinem Bildschirm, wer reagiert hat, eine nach der anderen und höchstens 20 pro Minute, damit ein voller Kanal nicht mehr Dutzende Anfragen auslöst. Wenn Discord sagt, dass es langsamer gehen soll, wartet es, bevor es wieder fragt."
+                        ],
+                        "1.1.1": [
+                            "Wenn du es ausschaltest, während Reaktionen zu sehen sind, geht die Nachricht nicht mehr kaputt, sobald jemand reagiert."
+                        ],
                         "1.1.0": [
                             "Folgt der Sprache von Discord: Deutsch, Spanisch, Französisch, Japanisch, Polnisch, Portugiesisch, Russisch und Türkisch, dazu Englisch."
                         ],
@@ -8761,6 +9327,12 @@
                     "name": "Quién reaccionó",
                     "description": "Pequeños avatares de quienes reaccionaron, justo en cada reacción junto a su contador, y cuántas personas más hay cuando son muchas.",
                     "changelog": {
+                        "1.1.2": [
+                            "Solo pregunta a Discord quién reaccionó en las reacciones que tienes en pantalla, una a una y como mucho 20 por minuto, así que abrir un canal con mucha actividad ya no envía decenas de solicitudes. Cuando Discord pide ir más despacio, espera antes de volver a preguntar."
+                        ],
+                        "1.1.1": [
+                            "Desactivarlo con reacciones en pantalla ya no rompe el mensaje cuando alguien reacciona."
+                        ],
                         "1.1.0": [
                             "Sigue el idioma de Discord: alemán, español, francés, japonés, polaco, portugués, ruso y turco, además de inglés."
                         ],
@@ -8773,6 +9345,12 @@
                     "name": "Qui a réagi",
                     "description": "De petits avatars de ceux qui ont réagi, directement sur chaque réaction à côté de son compteur, et combien d'autres quand ils sont nombreux.",
                     "changelog": {
+                        "1.1.2": [
+                            "Ne demande à Discord qui a réagi que pour les réactions à ton écran, une à la fois et pas plus de 20 par minute : ouvrir un salon très actif n'envoie plus des dizaines de requêtes. Quand Discord demande de ralentir, il attend avant de redemander."
+                        ],
+                        "1.1.1": [
+                            "Le désactiver pendant que des réactions sont à l'écran ne casse plus le message quand quelqu'un réagit."
+                        ],
                         "1.1.0": [
                             "Suit la langue de Discord : allemand, espagnol, français, japonais, polonais, portugais, russe et turc, en plus de l'anglais."
                         ],
@@ -8785,6 +9363,12 @@
                     "name": "リアクションした人",
                     "description": "リアクションした人の小さなアバターを、各リアクションのカウントの横に表示します。人数が多いときは残りの人数も表示します。",
                     "changelog": {
+                        "1.1.2": [
+                            "画面に表示されているリアクションについてだけ、1件ずつ、1分間に最大20件まで、誰がリアクションしたかをDiscordに問い合わせるようになりました。にぎやかなチャンネルを開いても、何十件ものリクエストが送られることはありません。Discordから速度を落とすよう求められたときは、少し待ってから再度問い合わせます。"
+                        ],
+                        "1.1.1": [
+                            "リアクションが表示されている間にオフにしても、誰かがリアクションしたときにメッセージが壊れなくなりました。"
+                        ],
                         "1.1.0": [
                             "Discordの言語設定に合わせて表示されます。英語のほか、ドイツ語、スペイン語、フランス語、日本語、ポーランド語、ポルトガル語、ロシア語、トルコ語に対応しています。"
                         ],
@@ -8797,6 +9381,12 @@
                     "name": "Kto zareagował",
                     "description": "Małe awatary osób, które zareagowały, tuż przy każdej reakcji obok licznika, a gdy jest ich dużo, także ile jeszcze osób zareagowało.",
                     "changelog": {
+                        "1.1.2": [
+                            "Pyta Discorda, kto zareagował, tylko o reakcje widoczne na ekranie, po jednej i nie więcej niż 20 na minutę, więc otwarcie ruchliwego kanału nie wysyła już dziesiątek zapytań. Gdy Discord prosi o zwolnienie, czeka, zanim zapyta ponownie."
+                        ],
+                        "1.1.1": [
+                            "Wyłączenie go, gdy reakcje są na ekranie, nie psuje już wiadomości, gdy ktoś zareaguje."
+                        ],
                         "1.1.0": [
                             "Mówi w języku Discorda: po niemiecku, hiszpańsku, francusku, japońsku, polsku, portugalsku, rosyjsku i turecku, oprócz angielskiego."
                         ],
@@ -8809,6 +9399,12 @@
                     "name": "Quem reagiu",
                     "description": "Avatares pequenos de quem reagiu, direto em cada reação ao lado da contagem, e quantas pessoas a mais quando são muitas.",
                     "changelog": {
+                        "1.1.2": [
+                            "Só pergunta ao Discord quem reagiu nas reações que estão na sua tela, uma de cada vez e no máximo 20 por minuto, então abrir um canal movimentado não envia mais dezenas de solicitações. Quando o Discord pede para ir mais devagar, ele espera antes de perguntar de novo."
+                        ],
+                        "1.1.1": [
+                            "Desativar com reações na tela não quebra mais a mensagem quando alguém reage."
+                        ],
                         "1.1.0": [
                             "Segue o idioma do Discord: alemão, espanhol, francês, japonês, polonês, português, russo e turco, além do inglês."
                         ],
@@ -8821,6 +9417,12 @@
                     "name": "Кто отреагировал",
                     "description": "Маленькие аватары тех, кто отреагировал, прямо на каждой реакции рядом со счётчиком, а если людей много — сколько ещё.",
                     "changelog": {
+                        "1.1.2": [
+                            "Спрашивает у Discord, кто отреагировал, только для реакций на вашем экране, по одной и не больше 20 в минуту, поэтому открытие оживлённого канала больше не отправляет десятки запросов. Если Discord просит притормозить, он ждёт, прежде чем спросить снова."
+                        ],
+                        "1.1.1": [
+                            "Если выключить его, пока на экране есть реакции, сообщение больше не ломается, когда кто-то реагирует."
+                        ],
                         "1.1.0": [
                             "Говорит на языке Discord: немецком, испанском, французском, японском, польском, португальском, русском и турецком, а также на английском."
                         ],
@@ -8833,6 +9435,12 @@
                     "name": "Kim Tepki Verdi",
                     "description": "Tepki verenlerin küçük avatarları, her tepkinin üzerinde sayının yanında görünür; çok kişi olduğunda kaç kişi daha olduğu da gösterilir.",
                     "changelog": {
+                        "1.1.2": [
+                            "Kimin tepki verdiğini Discord'a yalnızca ekranındaki tepkiler için, tek tek ve dakikada en fazla 20 kez soruyor; böylece kalabalık bir kanalı açmak artık onlarca istek göndermiyor. Discord yavaşlamasını istediğinde, yeniden sormadan önce bekliyor."
+                        ],
+                        "1.1.1": [
+                            "Tepkiler ekrandayken kapatmak, biri tepki verdiğinde artık mesajı bozmuyor."
+                        ],
                         "1.1.0": [
                             "Discord'un dilini kullanır: İngilizcenin yanı sıra Almanca, İspanyolca, Fransızca, Japonca, Lehçe, Portekizce, Rusça ve Türkçe."
                         ],

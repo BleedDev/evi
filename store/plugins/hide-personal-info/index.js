@@ -88,11 +88,20 @@ function isPhone(raw) {
   return digits.length >= 10 && groups.length <= 5 && groups.every((g) => g.length >= 2 && g.length <= 5);
 }
 var escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-function containsWord(text, value) {
+var wordPatterns = new Map;
+function wordPattern(value) {
+  let pattern = wordPatterns.get(value);
+  if (pattern !== undefined)
+    return pattern;
   const v = value.trim();
-  if (v.length < 3)
-    return false;
-  return new RegExp(`(?<![\\p{L}\\p{N}_])${escapeRegex(v)}(?![\\p{L}\\p{N}_])`, "iu").test(text);
+  pattern = v.length < 3 ? null : new RegExp(`(?<![\\p{L}\\p{N}_])${escapeRegex(v)}(?![\\p{L}\\p{N}_])`, "iu");
+  if (wordPatterns.size >= 500)
+    wordPatterns.clear();
+  wordPatterns.set(value, pattern);
+  return pattern;
+}
+function containsWord(text, value) {
+  return wordPattern(value)?.test(text) ?? false;
 }
 function matchesKnown(text, known) {
   if (known.substrings.some((v) => containsWord(text, v)))
@@ -128,6 +137,11 @@ function detectSensitive(text, known = emptyKnown()) {
     if (isPhone(m[0]))
       return "phone";
   return null;
+}
+var FIELD_TYPES = new Set(["text", "email", "tel", "search", "url"]);
+function isTextField(tagName, type) {
+  const tag = tagName.toUpperCase();
+  return tag === "TEXTAREA" || tag === "INPUT" && FIELD_TYPES.has((type || "text").toLowerCase());
 }
 function collectKnown(src) {
   const known = emptyKnown();
@@ -178,117 +192,133 @@ var t = import_api.defineStrings({
     "toggle.off": "Personal info is no longer blurred.",
     "command.description": "Toggle blurring your personal info in User Settings"
   },
-  de: {
-    "settings.enabled": "Aktiviert",
-    "settings.enabled.description": "Verwischt persönliche Infos in den Nutzereinstellungen. Mit /hidepersonal schaltest du das um.",
-    "settings.onlyStreamerMode": "Nur im Streamer-Modus",
-    "settings.onlyStreamerMode.description": "Nur verwischen, solange der Streamer-Modus von Discord an ist, statt immer.",
-    "settings.reveal": "Aufdecken",
-    "settings.reveal.description": "Wie ein verwischter Wert sichtbar wird.",
-    "reveal.hover": "Zum Aufdecken darüberfahren",
-    "reveal.click": "Zum Aufdecken klicken",
-    "reveal.never": "Nie",
-    "toggle.on": "Persönliche Infos in den Nutzereinstellungen sind jetzt verwischt.",
-    "toggle.off": "Persönliche Infos werden nicht mehr verwischt.",
-    "command.description": "Verwischen deiner persönlichen Infos in den Nutzereinstellungen ein- oder ausschalten"
+  get de() {
+    return Object.defineProperty(this, "de", { value: {
+      "settings.enabled": "Aktiviert",
+      "settings.enabled.description": "Verwischt persönliche Infos in den Nutzereinstellungen. Mit /hidepersonal schaltest du das um.",
+      "settings.onlyStreamerMode": "Nur im Streamer-Modus",
+      "settings.onlyStreamerMode.description": "Nur verwischen, solange der Streamer-Modus von Discord an ist, statt immer.",
+      "settings.reveal": "Aufdecken",
+      "settings.reveal.description": "Wie ein verwischter Wert sichtbar wird.",
+      "reveal.hover": "Zum Aufdecken darüberfahren",
+      "reveal.click": "Zum Aufdecken klicken",
+      "reveal.never": "Nie",
+      "toggle.on": "Persönliche Infos in den Nutzereinstellungen sind jetzt verwischt.",
+      "toggle.off": "Persönliche Infos werden nicht mehr verwischt.",
+      "command.description": "Verwischen deiner persönlichen Infos in den Nutzereinstellungen ein- oder ausschalten"
+    } })["de"];
   },
-  es: {
-    "settings.enabled": "Activado",
-    "settings.enabled.description": "Difumina tu información personal en Ajustes de usuario. /hidepersonal lo activa o desactiva.",
-    "settings.onlyStreamerMode": "Solo en modo streamer",
-    "settings.onlyStreamerMode.description": "Difuminar solo mientras el modo streamer de Discord esté activado, en lugar de siempre.",
-    "settings.reveal": "Mostrar",
-    "settings.reveal.description": "Cómo ver un valor difuminado.",
-    "reveal.hover": "Pasar el ratón para mostrar",
-    "reveal.click": "Hacer clic para mostrar",
-    "reveal.never": "Nunca",
-    "toggle.on": "Tu información personal en Ajustes de usuario ahora está difuminada.",
-    "toggle.off": "Tu información personal ya no se difumina.",
-    "command.description": "Activa o desactiva el difuminado de tu información personal en Ajustes de usuario"
+  get es() {
+    return Object.defineProperty(this, "es", { value: {
+      "settings.enabled": "Activado",
+      "settings.enabled.description": "Difumina tu información personal en Ajustes de usuario. /hidepersonal lo activa o desactiva.",
+      "settings.onlyStreamerMode": "Solo en modo streamer",
+      "settings.onlyStreamerMode.description": "Difuminar solo mientras el modo streamer de Discord esté activado, en lugar de siempre.",
+      "settings.reveal": "Mostrar",
+      "settings.reveal.description": "Cómo ver un valor difuminado.",
+      "reveal.hover": "Pasar el ratón para mostrar",
+      "reveal.click": "Hacer clic para mostrar",
+      "reveal.never": "Nunca",
+      "toggle.on": "Tu información personal en Ajustes de usuario ahora está difuminada.",
+      "toggle.off": "Tu información personal ya no se difumina.",
+      "command.description": "Activa o desactiva el difuminado de tu información personal en Ajustes de usuario"
+    } })["es"];
   },
-  fr: {
-    "settings.enabled": "Activé",
-    "settings.enabled.description": "Floute tes informations personnelles dans les paramètres utilisateur. /hidepersonal l'active ou le désactive.",
-    "settings.onlyStreamerMode": "Uniquement en mode streamer",
-    "settings.onlyStreamerMode.description": "Ne flouter que lorsque le mode streamer de Discord est activé, au lieu de toujours.",
-    "settings.reveal": "Affichage",
-    "settings.reveal.description": "Comment voir une valeur floutée.",
-    "reveal.hover": "Survoler pour afficher",
-    "reveal.click": "Cliquer pour afficher",
-    "reveal.never": "Jamais",
-    "toggle.on": "Tes informations personnelles dans les paramètres utilisateur sont maintenant floutées.",
-    "toggle.off": "Tes informations personnelles ne sont plus floutées.",
-    "command.description": "Active ou désactive le floutage de tes informations personnelles dans les paramètres utilisateur"
+  get fr() {
+    return Object.defineProperty(this, "fr", { value: {
+      "settings.enabled": "Activé",
+      "settings.enabled.description": "Floute tes informations personnelles dans les paramètres utilisateur. /hidepersonal l'active ou le désactive.",
+      "settings.onlyStreamerMode": "Uniquement en mode streamer",
+      "settings.onlyStreamerMode.description": "Ne flouter que lorsque le mode streamer de Discord est activé, au lieu de toujours.",
+      "settings.reveal": "Affichage",
+      "settings.reveal.description": "Comment voir une valeur floutée.",
+      "reveal.hover": "Survoler pour afficher",
+      "reveal.click": "Cliquer pour afficher",
+      "reveal.never": "Jamais",
+      "toggle.on": "Tes informations personnelles dans les paramètres utilisateur sont maintenant floutées.",
+      "toggle.off": "Tes informations personnelles ne sont plus floutées.",
+      "command.description": "Active ou désactive le floutage de tes informations personnelles dans les paramètres utilisateur"
+    } })["fr"];
   },
-  ja: {
-    "settings.enabled": "有効",
-    "settings.enabled.description": "ユーザー設定内の個人情報をぼかします。/hidepersonal で切り替えられます。",
-    "settings.onlyStreamerMode": "配信者モードのときだけ",
-    "settings.onlyStreamerMode.description": "常にではなく、Discord の配信者モードがオンのときだけぼかします。",
-    "settings.reveal": "表示方法",
-    "settings.reveal.description": "ぼかした内容を見る方法です。",
-    "reveal.hover": "カーソルを合わせて表示",
-    "reveal.click": "クリックして表示",
-    "reveal.never": "表示しない",
-    "toggle.on": "ユーザー設定内の個人情報をぼかしました。",
-    "toggle.off": "個人情報のぼかしをオフにしました。",
-    "command.description": "ユーザー設定内の個人情報のぼかしを切り替える"
+  get ja() {
+    return Object.defineProperty(this, "ja", { value: {
+      "settings.enabled": "有効",
+      "settings.enabled.description": "ユーザー設定内の個人情報をぼかします。/hidepersonal で切り替えられます。",
+      "settings.onlyStreamerMode": "配信者モードのときだけ",
+      "settings.onlyStreamerMode.description": "常にではなく、Discord の配信者モードがオンのときだけぼかします。",
+      "settings.reveal": "表示方法",
+      "settings.reveal.description": "ぼかした内容を見る方法です。",
+      "reveal.hover": "カーソルを合わせて表示",
+      "reveal.click": "クリックして表示",
+      "reveal.never": "表示しない",
+      "toggle.on": "ユーザー設定内の個人情報をぼかしました。",
+      "toggle.off": "個人情報のぼかしをオフにしました。",
+      "command.description": "ユーザー設定内の個人情報のぼかしを切り替える"
+    } })["ja"];
   },
-  pl: {
-    "settings.enabled": "Włączone",
-    "settings.enabled.description": "Rozmywa dane osobowe w Ustawieniach użytkownika. Przełączysz to poleceniem /hidepersonal.",
-    "settings.onlyStreamerMode": "Tylko w trybie streamera",
-    "settings.onlyStreamerMode.description": "Rozmywaj tylko wtedy, gdy włączony jest tryb streamera Discorda, zamiast zawsze.",
-    "settings.reveal": "Odsłanianie",
-    "settings.reveal.description": "Jak zobaczyć rozmytą wartość.",
-    "reveal.hover": "Najedź, aby odsłonić",
-    "reveal.click": "Kliknij, aby odsłonić",
-    "reveal.never": "Nigdy",
-    "toggle.on": "Dane osobowe w Ustawieniach użytkownika są teraz rozmyte.",
-    "toggle.off": "Dane osobowe nie są już rozmywane.",
-    "command.description": "Włącz lub wyłącz rozmywanie danych osobowych w Ustawieniach użytkownika"
+  get pl() {
+    return Object.defineProperty(this, "pl", { value: {
+      "settings.enabled": "Włączone",
+      "settings.enabled.description": "Rozmywa dane osobowe w Ustawieniach użytkownika. Przełączysz to poleceniem /hidepersonal.",
+      "settings.onlyStreamerMode": "Tylko w trybie streamera",
+      "settings.onlyStreamerMode.description": "Rozmywaj tylko wtedy, gdy włączony jest tryb streamera Discorda, zamiast zawsze.",
+      "settings.reveal": "Odsłanianie",
+      "settings.reveal.description": "Jak zobaczyć rozmytą wartość.",
+      "reveal.hover": "Najedź, aby odsłonić",
+      "reveal.click": "Kliknij, aby odsłonić",
+      "reveal.never": "Nigdy",
+      "toggle.on": "Dane osobowe w Ustawieniach użytkownika są teraz rozmyte.",
+      "toggle.off": "Dane osobowe nie są już rozmywane.",
+      "command.description": "Włącz lub wyłącz rozmywanie danych osobowych w Ustawieniach użytkownika"
+    } })["pl"];
   },
-  "pt-BR": {
-    "settings.enabled": "Ativado",
-    "settings.enabled.description": "Desfoca suas informações pessoais nas Configurações de usuário. /hidepersonal ativa ou desativa.",
-    "settings.onlyStreamerMode": "Só no modo streamer",
-    "settings.onlyStreamerMode.description": "Desfocar só enquanto o modo streamer do Discord estiver ativado, em vez de sempre.",
-    "settings.reveal": "Revelar",
-    "settings.reveal.description": "Como ver um valor desfocado.",
-    "reveal.hover": "Passe o mouse para revelar",
-    "reveal.click": "Clique para revelar",
-    "reveal.never": "Nunca",
-    "toggle.on": "Suas informações pessoais nas Configurações de usuário agora estão desfocadas.",
-    "toggle.off": "Suas informações pessoais não são mais desfocadas.",
-    "command.description": "Ativa ou desativa o desfoque das suas informações pessoais nas Configurações de usuário"
+  get "pt-BR"() {
+    return Object.defineProperty(this, "pt-BR", { value: {
+      "settings.enabled": "Ativado",
+      "settings.enabled.description": "Desfoca suas informações pessoais nas Configurações de usuário. /hidepersonal ativa ou desativa.",
+      "settings.onlyStreamerMode": "Só no modo streamer",
+      "settings.onlyStreamerMode.description": "Desfocar só enquanto o modo streamer do Discord estiver ativado, em vez de sempre.",
+      "settings.reveal": "Revelar",
+      "settings.reveal.description": "Como ver um valor desfocado.",
+      "reveal.hover": "Passe o mouse para revelar",
+      "reveal.click": "Clique para revelar",
+      "reveal.never": "Nunca",
+      "toggle.on": "Suas informações pessoais nas Configurações de usuário agora estão desfocadas.",
+      "toggle.off": "Suas informações pessoais não são mais desfocadas.",
+      "command.description": "Ativa ou desativa o desfoque das suas informações pessoais nas Configurações de usuário"
+    } })["pt-BR"];
   },
-  ru: {
-    "settings.enabled": "Включено",
-    "settings.enabled.description": "Размывает личные данные в настройках пользователя. Команда /hidepersonal включает и выключает это.",
-    "settings.onlyStreamerMode": "Только в режиме стримера",
-    "settings.onlyStreamerMode.description": "Размывать только при включённом режиме стримера Discord, а не всегда.",
-    "settings.reveal": "Показ",
-    "settings.reveal.description": "Как увидеть размытое значение.",
-    "reveal.hover": "Показывать при наведении",
-    "reveal.click": "Показывать по клику",
-    "reveal.never": "Никогда",
-    "toggle.on": "Личные данные в настройках пользователя теперь размыты.",
-    "toggle.off": "Личные данные больше не размываются.",
-    "command.description": "Включить или выключить размытие личных данных в настройках пользователя"
+  get ru() {
+    return Object.defineProperty(this, "ru", { value: {
+      "settings.enabled": "Включено",
+      "settings.enabled.description": "Размывает личные данные в настройках пользователя. Команда /hidepersonal включает и выключает это.",
+      "settings.onlyStreamerMode": "Только в режиме стримера",
+      "settings.onlyStreamerMode.description": "Размывать только при включённом режиме стримера Discord, а не всегда.",
+      "settings.reveal": "Показ",
+      "settings.reveal.description": "Как увидеть размытое значение.",
+      "reveal.hover": "Показывать при наведении",
+      "reveal.click": "Показывать по клику",
+      "reveal.never": "Никогда",
+      "toggle.on": "Личные данные в настройках пользователя теперь размыты.",
+      "toggle.off": "Личные данные больше не размываются.",
+      "command.description": "Включить или выключить размытие личных данных в настройках пользователя"
+    } })["ru"];
   },
-  tr: {
-    "settings.enabled": "Etkin",
-    "settings.enabled.description": "Kullanıcı Ayarları'ndaki kişisel bilgileri bulanıklaştırır. /hidepersonal ile açıp kapatabilirsin.",
-    "settings.onlyStreamerMode": "Yalnızca Yayıncı Modu'nda",
-    "settings.onlyStreamerMode.description": "Her zaman yerine yalnızca Discord'un Yayıncı Modu açıkken bulanıklaştır.",
-    "settings.reveal": "Gösterme",
-    "settings.reveal.description": "Bulanık bir değerin nasıl görüleceği.",
-    "reveal.hover": "Göstermek için üzerine gel",
-    "reveal.click": "Göstermek için tıkla",
-    "reveal.never": "Asla",
-    "toggle.on": "Kullanıcı Ayarları'ndaki kişisel bilgiler artık bulanık.",
-    "toggle.off": "Kişisel bilgiler artık bulanıklaştırılmıyor.",
-    "command.description": "Kullanıcı Ayarları'ndaki kişisel bilgilerin bulanıklaştırılmasını aç veya kapat"
+  get tr() {
+    return Object.defineProperty(this, "tr", { value: {
+      "settings.enabled": "Etkin",
+      "settings.enabled.description": "Kullanıcı Ayarları'ndaki kişisel bilgileri bulanıklaştırır. /hidepersonal ile açıp kapatabilirsin.",
+      "settings.onlyStreamerMode": "Yalnızca Yayıncı Modu'nda",
+      "settings.onlyStreamerMode.description": "Her zaman yerine yalnızca Discord'un Yayıncı Modu açıkken bulanıklaştır.",
+      "settings.reveal": "Gösterme",
+      "settings.reveal.description": "Bulanık bir değerin nasıl görüleceği.",
+      "reveal.hover": "Göstermek için üzerine gel",
+      "reveal.click": "Göstermek için tıkla",
+      "reveal.never": "Asla",
+      "toggle.on": "Kullanıcı Ayarları'ndaki kişisel bilgiler artık bulanık.",
+      "toggle.off": "Kişisel bilgiler artık bulanıklaştırılmıyor.",
+      "command.description": "Kullanıcı Ayarları'ndaki kişisel bilgilerin bulanıklaştırılmasını aç veya kapat"
+    } })["tr"];
   }
 });
 
@@ -345,9 +375,8 @@ var settings = {
 var context;
 var modalOpen = false;
 var observer;
+var watcher;
 var observedRoots = [];
-var pending = new Set;
-var flushTimer;
 var tagged = new Set;
 function isActive() {
   if (!context?.settings.get("enabled"))
@@ -356,6 +385,9 @@ function isActive() {
     return true;
   return !!import_api2.findStore("StreamerModeStore")?.enabled;
 }
+function rootSelector() {
+  return modalOpen ? `${CLASSIC_ROOT}, ${DIALOG_ROOT}` : CLASSIC_ROOT;
+}
 function findRoots() {
   const roots = [...document.querySelectorAll(CLASSIC_ROOT)];
   if (modalOpen)
@@ -363,13 +395,6 @@ function findRoots() {
   return roots.filter((r) => !roots.some((o) => o !== r && o.contains(r)));
 }
 function known() {
-  const get = (name) => {
-    try {
-      return import_api2.findStore(name);
-    } catch {
-      return;
-    }
-  };
   const call = (fn) => {
     try {
       return fn();
@@ -378,11 +403,11 @@ function known() {
     }
   };
   return collectKnown({
-    user: call(() => get("UserStore")?.getCurrentUser?.()),
-    connectedAccounts: call(() => get("ConnectedAccountsStore")?.getAccounts?.()),
-    authorizedApps: call(() => get("AuthorizedAppsStore")?.getNewestTokens?.()),
-    sessions: call(() => get("AuthSessionsStore")?.getSessions?.()),
-    paymentSources: call(() => get("PaymentSourceStore")?.paymentSources)
+    user: call(() => import_api2.findStore("UserStore")?.getCurrentUser?.()),
+    connectedAccounts: call(() => import_api2.findStore("ConnectedAccountsStore")?.getAccounts?.()),
+    authorizedApps: call(() => import_api2.findStore("AuthorizedAppsStore")?.getNewestTokens?.()),
+    sessions: call(() => import_api2.findStore("AuthSessionsStore")?.getSessions?.()),
+    paymentSources: call(() => import_api2.findStore("PaymentSourceStore")?.paymentSources)
   });
 }
 function tag(el) {
@@ -394,6 +419,15 @@ function tag(el) {
 function untag(el) {
   el.classList.remove(BLUR, REVEALED);
   tagged.delete(el);
+}
+function isField(el) {
+  return isTextField(el.tagName, el.type);
+}
+function checkField(el, values) {
+  if (detectSensitive(el.value, values))
+    tag(el);
+  else if (tagged.has(el))
+    untag(el);
 }
 function checkText(node, values) {
   const el = node.parentElement;
@@ -408,42 +442,77 @@ function scan(node, values) {
   if (node.nodeType !== Node.ELEMENT_NODE && node.nodeType !== Node.DOCUMENT_FRAGMENT_NODE)
     return;
   const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
-  for (let t2 = walker.nextNode();t2; t2 = walker.nextNode())
-    checkText(t2, values);
-}
-function recheckTagged(values) {
-  for (const el of tagged) {
-    if (!el.isConnected)
-      tagged.delete(el);
-    else if (![...el.childNodes].some((n) => n.nodeType === Node.TEXT_NODE && detectSensitive(n.data, values)))
-      untag(el);
+  for (let text = walker.nextNode();text; text = walker.nextNode())
+    checkText(text, values);
+  if (node.nodeType === Node.ELEMENT_NODE && isField(node))
+    checkField(node, values);
+  for (const field of node.querySelectorAll("input, textarea")) {
+    if (isField(field))
+      checkField(field, values);
   }
 }
-function flush() {
-  flushTimer = undefined;
-  if (!observer)
-    return pending.clear();
-  if (!observedRoots.some((r) => r.isConnected)) {
-    pending.clear();
+function recheck(el, values) {
+  if (!el.isConnected)
+    return void tagged.delete(el);
+  if (isField(el))
+    return checkField(el, values);
+  if (![...el.childNodes].some((n) => n.nodeType === Node.TEXT_NODE && detectSensitive(n.data, values)))
+    untag(el);
+}
+function onMutations(records) {
+  let read;
+  const values = () => read ??= known();
+  for (const r of records) {
+    if (r.type === "characterData") {
+      const el = r.target.parentElement;
+      if (el && tagged.has(el))
+        recheck(el, values());
+      else
+        checkText(r.target, values());
+    } else if (r.type === "attributes") {
+      const el = r.target;
+      if (tagged.has(el) && !el.classList.contains(BLUR))
+        el.classList.add(BLUR);
+    } else {
+      r.addedNodes.forEach((n) => n.isConnected && scan(n, values()));
+      if (r.removedNodes.length && tagged.has(r.target))
+        recheck(r.target, values());
+    }
+  }
+  if (tagged.size > 50) {
+    for (const el of tagged)
+      if (!el.isConnected)
+        tagged.delete(el);
+  }
+}
+function onPageMutations(records) {
+  if (observedRoots.length && !observedRoots.some((r) => r.isConnected))
     return refresh();
+  const selector = rootSelector();
+  for (const r of records) {
+    for (const n of r.addedNodes) {
+      if (n.nodeType !== Node.ELEMENT_NODE || !n.isConnected)
+        continue;
+      const el = n;
+      if (observedRoots.some((root) => root.contains(el)))
+        continue;
+      if (el.matches(selector) || el.firstElementChild && el.querySelector(selector))
+        return refresh();
+    }
   }
-  const values = known();
-  recheckTagged(values);
-  for (const node of pending)
-    if (node.isConnected)
-      scan(node, values);
-  pending.clear();
 }
-function schedule() {
-  flushTimer ??= setTimeout(flush, 150);
+function onInput(e) {
+  const el = e.target;
+  if (!observer || !el || !isField(el) || !observedRoots.some((r) => r.contains(el)))
+    return;
+  checkField(el, known());
 }
 function disconnect() {
   observer?.disconnect();
   observer = undefined;
+  watcher?.disconnect();
+  watcher = undefined;
   observedRoots = [];
-  pending.clear();
-  clearTimeout(flushTimer);
-  flushTimer = undefined;
 }
 function cleanAll() {
   for (const el of document.querySelectorAll(`.${BLUR}, .${REVEALED}`))
@@ -457,28 +526,21 @@ function refresh() {
     return;
   }
   const roots = findRoots();
+  if (modalOpen || roots.length) {
+    watcher = new MutationObserver(onPageMutations);
+    watcher.observe(document.body, { childList: true, subtree: true });
+  }
   if (!roots.length)
     return;
-  observer = new MutationObserver((records) => {
-    for (const r of records) {
-      if (r.type === "characterData")
-        pending.add(r.target);
-      else if (r.type === "attributes") {
-        if (tagged.has(r.target) && !r.target.classList.contains(BLUR))
-          r.target.classList.add(BLUR);
-        continue;
-      } else
-        r.addedNodes.forEach((n) => pending.add(n));
-    }
-    if (pending.size)
-      schedule();
-  });
+  const current = known();
+  for (const el of tagged)
+    recheck(el, current);
+  observer = new MutationObserver(onMutations);
   for (const root of roots) {
     observer.observe(root, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["class"] });
-    pending.add(root);
+    scan(root, current);
   }
   observedRoots = roots;
-  schedule();
 }
 function applyMode() {
   const mode = context?.settings.get("reveal") ?? "hover";
@@ -510,7 +572,7 @@ var hide_personal_info_default = import_api2.definePlugin({
         html[${MODE_ATTR}="hover"] .${BLUR}:hover,
         html[${MODE_ATTR}="click"] .${BLUR}.${REVEALED} { filter: none; }
         html[${MODE_ATTR}="click"] .${BLUR} { cursor: pointer; }
-        html[${MODE_ATTR}="never"] .${BLUR} { user-select: none; }
+        html[${MODE_ATTR}="never"] .${BLUR}:not(input, textarea) { user-select: none; }
         @media (prefers-reduced-motion: reduce) { .${BLUR} { transition: none; } }
     `,
   start(ctx) {
@@ -518,22 +580,19 @@ var hide_personal_info_default = import_api2.definePlugin({
     modalOpen = false;
     applyMode();
     document.addEventListener("click", onClick, true);
+    document.addEventListener("input", onInput, true);
     ctx.onDispose(() => {
       document.removeEventListener("click", onClick, true);
+      document.removeEventListener("input", onInput, true);
       disconnect();
       cleanAll();
       document.documentElement.removeAttribute(MODE_ATTR);
       context = undefined;
       modalOpen = false;
     });
-    const openSoon = () => {
-      refresh();
-      ctx.setTimeout(() => !observer && refresh(), 300);
-      ctx.setTimeout(() => !observer && refresh(), 1000);
-    };
     ctx.flux.subscribe("USER_SETTINGS_MODAL_OPEN", () => {
       modalOpen = true;
-      openSoon();
+      refresh();
     });
     for (const type of ["USER_SETTINGS_MODAL_CLOSE", "LOGOUT"]) {
       ctx.flux.subscribe(type, () => {
@@ -542,7 +601,9 @@ var hide_personal_info_default = import_api2.definePlugin({
       });
     }
     ctx.setInterval(() => {
-      if (!observer && isActive() && document.querySelector(CLASSIC_ROOT))
+      if (observer || !isActive() || import_api2.findStore("LayerStore")?.hasLayers?.() === false)
+        return;
+      if (document.querySelector(CLASSIC_ROOT))
         refresh();
     }, 1500);
     ctx.settings.onChange(() => {

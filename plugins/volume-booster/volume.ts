@@ -7,6 +7,10 @@ import type { SourcePatch } from "@evi/api";
  * Discord stores a user's volume as an amplitude in percent (100 = unchanged) and shows it on a
  * perceptual slider. Up to 100 the curve is a power law, above 100 every 100 slider points add 6dB:
  * slider 200 is ~2x, slider 400 is ~7.9x. The desktop voice engine gets amplitude / 100.
+ *
+ * So the multiplier is a cap on amplitude, not on slider points: at N the loudest anyone gets is
+ * N x Discord's 200% (5: 10x, +20dB). Scaling the slider's cap by N instead would put its top at
+ * 10^(9 x 0.3) = ~500x (+54dB) for N = 5.
  */
 
 /** The slider's cap on desktop, and the most Discord's settings sync (and its RPC) accepts */
@@ -22,10 +26,15 @@ export function clampMultiplier(value: unknown) {
     return Math.min(MAX_MULTIPLIER, Math.max(MIN_MULTIPLIER, n));
 }
 
-/** The slider's new cap, from Discord's own cap for it */
-export function sliderMax(discordMax: number, multiplier: number) {
-    if (typeof discordMax !== "number" || !Number.isFinite(discordMax)) return discordMax;
-    return Math.round(discordMax * clampMultiplier(multiplier));
+/** The loudest amplitude allowed at this multiplier: N x Discord's 200% */
+export function maxAmplitude(multiplier: unknown) {
+    return DISCORD_MAX * clampMultiplier(multiplier);
+}
+
+/** A volume (amplitude) held to the multiplier's maximum; anything else is left as it is */
+export function capVolume(volume: unknown, multiplier: unknown) {
+    const max = maxAmplitude(multiplier);
+    return typeof volume === "number" && volume > max ? max : volume;
 }
 
 /** Discord's slider position -> stored amplitude (its perceptual curve, same constants) */
@@ -44,6 +53,16 @@ export function amplitudeToSlider(amplitude: number, base = 100) {
 
 /** The loudest amplitude plain Discord can set (its slider at 200) */
 export const DISCORD_MAX_AMPLITUDE = sliderToAmplitude(DISCORD_MAX);
+
+/**
+ * The slider's new cap, from Discord's own cap for it: the position whose amplitude is N times the
+ * cap's, rounded down so the top of the slider never goes past maxAmplitude. 200 at N = 1, 300 at 2,
+ * 433 at 5.
+ */
+export function sliderMax(discordMax: number, multiplier: number) {
+    if (typeof discordMax !== "number" || !Number.isFinite(discordMax)) return discordMax;
+    return Math.max(discordMax, Math.floor(amplitudeToSlider(discordMax * clampMultiplier(multiplier))));
+}
 
 /** What gets written to Discord's synced settings: never above what Discord accepts */
 export function clampSynced(volume: unknown) {
@@ -87,6 +106,18 @@ export const PATCHES = {
         replace: {
             match: /(?<=maxValue:\i\.isPlatformEmbedded\?)(200)(?=:100,onValueChange)/,
             with: guard("sliderMax", "$1"),
+        },
+    },
+    /**
+     * Every volume change reaches MediaEngineStore, which keeps it and hands it to the voice engine:
+     *     AUDIO_SET_LOCAL_VOLUME:function(e){let{context:t,userId:n,volume:i}=e;if(n===eF.default.getId())return;...
+     * It's held to the multiplier's maximum there, whatever set it (a slider, the RPC, a stored value).
+     */
+    capLocalVolume: {
+        find: "AUDIO_SET_LOCAL_VOLUME:function",
+        replace: {
+            match: /(AUDIO_SET_LOCAL_VOLUME:function\((\i)\)\{let\{context:\i,userId:\i,volume:(\i)\}=\2;)/,
+            with: "$1$3=$self?.capVolume?.($3)??$3;",
         },
     },
     /**

@@ -158,10 +158,13 @@ export function shouldHideMemberRow(row: unknown, rel: RelationshipLike | undefi
     return type === "MEMBER" && isHiddenUser(user?.id, rel, options);
 }
 
-/** Voice channel users ({ user, nick, voiceState }). Returns the same array when nobody is hidden. */
-export function filterVoiceStates<V extends { user?: { id?: string; } | null; }>(states: readonly V[], rel: RelationshipLike | undefined, options: Pick<HideOptions, "active" | "ignored">): readonly V[] {
+/**
+ * Voice channel users ({ user, nick, voiceState }). `mine` says whether a channel is one you're in or
+ * joining: nobody is hidden there. Returns the same array when nobody is hidden.
+ */
+export function filterVoiceStates<V extends { user?: { id?: string; } | null; voiceState?: { channelId?: string | null; } | null; }>(states: readonly V[], rel: RelationshipLike | undefined, options: Pick<HideOptions, "active" | "ignored">, mine?: (channelId: string | null | undefined) => boolean): readonly V[] {
     if (!options.active || !Array.isArray(states) || states.length === 0) return states;
-    const kept = states.filter(s => !isHiddenUser(s?.user?.id, rel, options));
+    const kept = states.filter(s => !isHiddenUser(s?.user?.id, rel, options) || mine?.(s?.voiceState?.channelId) === true);
     return kept.length === states.length ? states : kept;
 }
 
@@ -215,11 +218,27 @@ export const VOICE_FIELDS = ["channelId", "deaf", "mute", "requestToSpeakTimesta
     "selfVideo", "sessionId", "suppress", "userId", "discoverable", "connectedAt"] as const;
 
 export interface ExtraOptions extends HideOptions {
-    /** Leave them out of voice: channel rows, call tiles, speaking rings, join sounds and soundboard */
+    /** Leave them out of voice channels you're not in, and drop their soundboard */
     voice: boolean;
 }
 
-interface VoiceStateLike { userId?: string; channelId?: string | null; guildId?: string | null; }
+export interface VoiceStateLike { userId?: string; channelId?: string | null; guildId?: string | null; }
+
+/**
+ * What the voice filter asks about the voice channels. A hidden user is never hidden from a channel
+ * you're in or joining: they can hear you there, so they show, and Discord's own "someone you blocked
+ * is in this channel" warning (fed by these same voice states) keeps working.
+ */
+export interface VoiceHooks {
+    /** Whether a channel is one you're in or joining */
+    mine?(channelId: string | null | undefined): boolean;
+    /** Whether Discord's voice states have them now (they were in a channel of yours) */
+    shown?(userId: string): boolean;
+    /** Each hidden user's real state, so they can be put back (a null channelId: they left voice) */
+    onHidden?(state: VoiceStateLike, guildId: string | null): void;
+    /** A hidden user seen in a channel of yours, whose state now goes through */
+    onShown?(userId: string): void;
+}
 
 /** One person's one reaction on a message: the emoji, and whether it's a super reaction */
 const reactionKey = (a: any) => `${a.messageId}:${a.emoji?.id ?? a.emoji?.name}:${a.reactionType ?? (a.burst ? 1 : 0)}:${a.userId}`;
@@ -227,11 +246,11 @@ const MAX_DROPPED_REACTIONS = 2000;
 
 /**
  * Discord's events, before any store sees them: returns the event unchanged, a copy without what's
- * hidden, or null to drop it. `hidden` says whether a user is someone we hide; `onHiddenVoice` hears
- * each voice state dropped, so it can be put back when they're shown again. `droppedReactions`
- * remembers the reactions dropped, so only their removes are dropped too.
+ * hidden, or null to drop it. `hidden` says whether a user is someone we hide; `voice` tells which
+ * channels are yours and hears each voice state hidden, so it can be put back when they're shown
+ * again. `droppedReactions` remembers the reactions dropped, so only their removes are dropped too.
  */
-export function filterAction(action: any, hidden: (userId: string | undefined) => boolean, options: ExtraOptions, onHiddenVoice?: (state: VoiceStateLike, guildId: string | null) => void, droppedReactions?: Set<string>): any {
+export function filterAction(action: any, hidden: (userId: string | undefined) => boolean, options: ExtraOptions, voice?: VoiceHooks, droppedReactions?: Set<string>): any {
     if (!options.active || action == null || typeof action !== "object") return action;
     switch (action.type) {
         case "MESSAGE_REACTION_ADD":
@@ -257,18 +276,43 @@ export function filterAction(action: any, hidden: (userId: string | undefined) =
             if (!options.voice || !Array.isArray(states)) return action;
             let kept: VoiceStateLike[] | null = null;
             states.forEach((s: VoiceStateLike, i: number) => {
-                if (!hidden(s?.userId)) return void kept?.push(s);
-                onHiddenVoice?.(s, action.guildId ?? s.guildId ?? null);
+                let next: VoiceStateLike | null = s;
+                if (s?.userId != null && hidden(s.userId)) {
+                    if (voice?.mine?.(s.channelId)) {
+                        voice.onShown?.(s.userId);
+                    } else {
+                        voice?.onHidden?.(s, action.guildId ?? s.guildId ?? null);
+                        // Someone shown in your channel who moves on leaves it, instead of staying there
+                        next = voice?.shown?.(s.userId) ? s.channelId == null ? s : { ...s, channelId: null } : null;
+                    }
+                }
+                if (next === s) return void kept?.push(s);
                 kept ??= states.slice(0, i);
+                if (next) kept.push(next);
             });
             return kept == null ? action : { ...action, voiceStates: kept };
         }
-        case "SPEAKING":
+        // Soundboard sounds and effects only come from a call you're in: they stay visible there, only
+        // these are dropped. Speaking passes, so you see who's talking
         case "VOICE_CHANNEL_EFFECT_SEND":
             return options.voice && hidden(action.userId) ? null : action;
         default:
             return action;
     }
+}
+
+/**
+ * Discord's warning before you join a voice channel asks its store for the blocked (or ignored)
+ * users in it, a store fed by voice states we kept from it. This adds the hidden users in that
+ * channel to its answer, so the warning still shows. Same set back when there's no one to add.
+ */
+export function withHiddenIn(found: ReadonlySet<string> | null | undefined, channelId: string, hiddenStates: Iterable<[string, { channelId?: unknown; }]>, is: (userId: string) => boolean): ReadonlySet<string> | null | undefined {
+    let out: Set<string> | undefined;
+    for (const [userId, state] of hiddenStates) {
+        if (state?.channelId !== channelId || found?.has(userId) || !safe(() => is(userId))) continue;
+        (out ??= new Set(found ?? [])).add(userId);
+    }
+    return out ?? found;
 }
 
 /** DM list ids without DMs with someone hidden. Same array back when nothing is left out */

@@ -82,6 +82,10 @@ describe("hide blocked: decisions", () => {
         const clean = [{ user: { id: "a" } }];
         expect(filterVoiceStates(clean, r, ALL)).toBe(clean);
         expect(filterVoiceStates(states, r, { active: false, ignored: true })).toBe(states);
+        // Never from a channel you're in or joining
+        const call = [{ user: { id: "a" }, voiceState: { channelId: "mine" } }, { user: { id: "b" }, voiceState: { channelId: "mine" } }];
+        expect(filterVoiceStates(call, r, ALL, c => c === "mine")).toBe(call);
+        expect(filterVoiceStates(call, r, ALL, c => c === "other").map(s => s.user.id)).toEqual(["a"]);
     });
 
     test("replies: only real replies whose loaded target is hidden", () => {
@@ -345,7 +349,7 @@ describe.if(haveChunks)("hide blocked: cached Discord build", () => {
     }
 });
 
-import { filterAction, filterDmIds } from "../plugins/hide-blocked/filter";
+import { filterAction, filterDmIds, withHiddenIn } from "../plugins/hide-blocked/filter";
 
 describe("hide blocked: everything else (from Erase Blocked Users)", () => {
     const hidden = (id: string | undefined) => id === "b";
@@ -377,18 +381,62 @@ describe("hide blocked: everything else (from Erase Blocked Users)", () => {
         expect(filterAction(other, hidden, on, undefined, dropped)).toBe(other);
     });
 
-    test("voice: their states, speaking and soundboard go, and each dropped state is remembered", () => {
+    test("voice: their states in other channels and their soundboard go, and each hidden state is remembered", () => {
         const seen: unknown[] = [];
-        const out = filterAction({ type: "VOICE_STATE_UPDATES", guildId: "g", voiceStates: [{ userId: "a", channelId: "c" }, { userId: "b", channelId: "c" }] }, hidden, on, s => seen.push(s));
+        const out = filterAction({ type: "VOICE_STATE_UPDATES", guildId: "g", voiceStates: [{ userId: "a", channelId: "c" }, { userId: "b", channelId: "c" }] }, hidden, on, { onHidden: s => void seen.push(s) });
         expect(out.voiceStates).toEqual([{ userId: "a", channelId: "c" }]);
         expect(seen).toEqual([{ userId: "b", channelId: "c" }]);
-        expect(filterAction({ type: "SPEAKING", userId: "b" }, hidden, on)).toBeNull();
         expect(filterAction({ type: "VOICE_CHANNEL_EFFECT_SEND", userId: "b" }, hidden, on)).toBeNull();
+        // Speaking only comes from your own call, where they show
+        const speaking = { type: "SPEAKING", userId: "b" };
+        expect(filterAction(speaking, hidden, on)).toBe(speaking);
+    });
+
+    test("voice: never hidden from a channel you're in or joining, so Discord sees them and warns you", () => {
+        const shown: string[] = [];
+        const hidden2: unknown[] = [];
+        const hooks = { mine: (c: string | null | undefined) => c === "mine", onShown: (id: string) => void shown.push(id), onHidden: (s: unknown) => void hidden2.push(s) };
+        const action = { type: "VOICE_STATE_UPDATES", voiceStates: [{ userId: "a", channelId: "other" }, { userId: "b", channelId: "mine" }] };
+        expect(filterAction(action, hidden, on, hooks)).toBe(action);
+        expect(shown).toEqual(["b"]);
+        expect(hidden2).toEqual([]);
+        // Passive updates too
+        const passive = { type: "PASSIVE_UPDATE_V2", voiceStates: [{ userId: "b", channelId: "mine" }] };
+        expect(filterAction(passive, hidden, on, hooks)).toBe(passive);
+    });
+
+    test("voice: someone shown in your channel who moves elsewhere or leaves goes from it, not left behind", () => {
+        const seen: unknown[] = [];
+        const hooks = { mine: (c: string | null | undefined) => c === "mine", shown: (id: string) => id === "b", onHidden: (s: unknown) => void seen.push(s) };
+        const moved = filterAction({ type: "VOICE_STATE_UPDATES", voiceStates: [{ userId: "b", channelId: "other", selfMute: true }] }, hidden, on, hooks);
+        expect(moved.voiceStates).toEqual([{ userId: "b", channelId: null, selfMute: true }]);
+        // Their real state is remembered, so they come back when you join them
+        expect(seen).toEqual([{ userId: "b", channelId: "other", selfMute: true }]);
+        const left = { type: "VOICE_STATE_UPDATES", voiceStates: [{ userId: "b", channelId: null }] };
+        expect(filterAction(left, hidden, on, hooks)).toBe(left);
+        // Not shown anywhere: their leave is dropped like their joins
+        expect(filterAction(left, hidden, on, { ...hooks, shown: () => false }).voiceStates).toEqual([]);
+    });
+
+    test("voice: the warning before you join a channel hears about the users hidden in it", () => {
+        const states = new Map<string, { channelId?: unknown; }>([["b", { channelId: "c" }], ["i", { channelId: "c" }], ["x", { channelId: "d" }]]);
+        const blocked = (id: string) => id === "b" || id === "x";
+        const none: ReadonlySet<string> = new Set();
+        expect([...withHiddenIn(none, "c", states, blocked)!]).toEqual(["b"]);
+        expect([...withHiddenIn(new Set(["z"]), "c", states, blocked)!]).toEqual(["z", "b"]);
+        expect(withHiddenIn(none, "e", states, blocked)).toBe(none);
+        const already = new Set(["b"]);
+        expect(withHiddenIn(already, "c", states, blocked)).toBe(already);
+        expect([...withHiddenIn(undefined, "d", states, blocked)!]).toEqual(["x"]);
+        // A throwing store adds no one
+        expect(withHiddenIn(none, "c", states, () => { throw new Error("nope"); })).toBe(none);
     });
 
     test("with voice off, or the plugin off, events pass untouched", () => {
-        const speaking = { type: "SPEAKING", userId: "b" };
-        expect(filterAction(speaking, hidden, { ...on, voice: false })).toBe(speaking);
+        const effect = { type: "VOICE_CHANNEL_EFFECT_SEND", userId: "b" };
+        expect(filterAction(effect, hidden, { ...on, voice: false })).toBe(effect);
+        const states = { type: "VOICE_STATE_UPDATES", voiceStates: [{ userId: "b", channelId: "c" }] };
+        expect(filterAction(states, hidden, { ...on, voice: false })).toBe(states);
         const reaction = { type: "MESSAGE_REACTION_ADD", userId: "b" };
         expect(filterAction(reaction, hidden, { ...on, active: false })).toBe(reaction);
     });

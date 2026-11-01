@@ -1,7 +1,7 @@
-import { definePlugin, Dispatcher, findByProps, findStore, React } from "@evi/api";
+import { definePlugin, Dispatcher, filters, findByProps, findStore, React } from "@evi/api";
 
-import { createReplyTracker, filterAction, filterDmIds, filterVoiceStates, isHiddenUser, PATCHES, shouldHideMemberRow, shouldHideMessage, VOICE_FIELDS } from "./filter";
-import type { HideOptions, Lookups, MessageLike, RelationshipLike } from "./filter";
+import { createReplyTracker, filterAction, filterDmIds, filterVoiceStates, isHiddenUser, PATCHES, shouldHideMemberRow, shouldHideMessage, VOICE_FIELDS, withHiddenIn } from "./filter";
+import type { HideOptions, Lookups, MessageLike, RelationshipLike, VoiceHooks } from "./filter";
 import { t } from "./strings";
 
 /**
@@ -14,9 +14,14 @@ import { t } from "./strings";
  * (or "Ignored message") in place of the quote by itself.
  *
  * Beyond messages (from Lodestone's Erase Blocked Users): their reactions and Mentions-inbox entries
- * are dropped at Discord's dispatcher; with "voice" on, so are their voice states, speaking and
- * soundboard, so call tiles and join sounds never appear; their audio can be muted locally; and DMs
- * with them can leave the DM list. Everything comes back when they're unblocked or this is off.
+ * are dropped at Discord's dispatcher; with "voice" on, so are their voice states in channels you're
+ * not in, and their soundboard; their audio can be muted locally; and DMs with them can leave the DM
+ * list. Everything comes back when they're unblocked or this is off.
+ *
+ * Voice never hides anyone from a channel you're in or joining (any of your sessions): they can hear
+ * you there. Their states go through to Discord for it, so they show in the call and Discord's own
+ * "someone you blocked joined" warning fires; the warning before you join a channel asks a store we
+ * kept their states from, so the users hidden in that channel are added to its answer.
  *
  * Patched code keeps calling $self after the plugin is turned off until Discord reloads, so every
  * helper does nothing while the plugin isn't running.
@@ -117,10 +122,43 @@ function dispatchOwn(action: Record<string, unknown>) {
 }
 
 let voiceStore: any, channelStore: any, mediaEngine: any, audioActions: any, dmSort: any;
+let selectedChannels: any, rtcStore: any, userStore: any;
+/** The channel a VOICE_CHANNEL_SELECT is taking you to, until Discord's stores know it */
+let joining: string | null | undefined;
+
+/** Whether a voice channel is one you're in or joining, on any of your sessions: nobody is hidden there */
+function mine(channelId: string | null | undefined) {
+    if (channelId == null) return false;
+    if (channelId === joining) return true;
+    try {
+        if (selectedChannels?.getVoiceChannelId?.() === channelId || rtcStore?.getChannelId?.() === channelId) return true;
+        const me = userStore?.getCurrentUser?.()?.id;
+        return me != null && voiceStore?.getVoiceStateForUser?.(me)?.channelId === channelId;
+    } catch {
+        return false;
+    }
+}
+
+const voiceHooks: VoiceHooks = {
+    mine,
+    shown: userId => {
+        try {
+            return voiceStore?.getVoiceStateForUser?.(userId)?.channelId != null;
+        } catch {
+            return false;
+        }
+    },
+    onHidden(s, guildId) {
+        if (s.userId == null) return;
+        if (s.channelId == null) hiddenVoice.delete(s.userId);
+        else hiddenVoice.set(s.userId, { ...s, guildId });
+    },
+    onShown: userId => void hiddenVoice.delete(userId),
+};
 let saveMuted: ((ids: string[]) => void) | undefined;
 let mutedByUs: () => string[] = () => [];
 
-/** Takes hidden users out of voice (call tiles), and puts back anyone shown again */
+/** Takes hidden users out of voice channels you're not in, and puts back anyone shown again */
 function reconcileVoice() {
     if (voiceStore == null) return;
     const on = !!options?.active && !!options.voice;
@@ -128,7 +166,7 @@ function reconcileVoice() {
     if (on) {
         for (const users of Object.values(voiceStore.getAllVoiceStates?.() ?? {}) as any[]) {
             for (const [userId, s] of Object.entries(users ?? {}) as [string, any][]) {
-                if (!hidden(userId) || s?.channelId == null) continue;
+                if (!hidden(userId) || s?.channelId == null || mine(s.channelId)) continue;
                 const state: Record<string, unknown> = { guildId: channelStore?.getChannel?.(s.channelId)?.guild_id ?? null };
                 for (const k of VOICE_FIELDS) state[k] = s[k];
                 state.userId = userId;
@@ -139,7 +177,7 @@ function reconcileVoice() {
     }
     const returns: Record<string, unknown>[] = [];
     for (const [userId, state] of hiddenVoice) {
-        if (on && hidden(userId)) continue;
+        if (on && hidden(userId) && !mine(state.channelId as string | undefined)) continue;
         returns.push(state);
         hiddenVoice.delete(userId);
     }
@@ -210,7 +248,7 @@ export default definePlugin({
         if (!options?.voice || !Array.isArray(states)) return states;
         const cached = voiceCache.get(states);
         if (cached?.version === v) return cached.out as readonly V[];
-        const out = filterVoiceStates(states, relationships, options);
+        const out = filterVoiceStates(states, relationships, options, mine);
         voiceCache.set(states, { version: v, out });
         return out;
     },
@@ -222,6 +260,9 @@ export default definePlugin({
         channelStore = findStore("ChannelStore");
         mediaEngine = findStore("MediaEngineStore");
         dmSort = findStore("PrivateChannelSortStore");
+        selectedChannels = findStore("SelectedChannelStore");
+        rtcStore = findStore("RTCConnectionStore");
+        userStore = findStore("UserStore");
         audioActions = findByProps("setLocalVolume", "toggleLocalMute", "toggleSelfDeaf");
         // Not a setting people see: a key outside the schema is stored, never shown
         const store = ctx.settings as unknown as { get(key: string): unknown; set(key: string, value: unknown): void; };
@@ -232,21 +273,50 @@ export default definePlugin({
         saveMuted = ids => store.set("mutedByUs", ids);
         options = { ...ctx.settings.all };
 
+        let pending: ReturnType<typeof setTimeout> | undefined;
+        const reconcile = () => {
+            clearTimeout(pending);
+            pending = setTimeout(() => {
+                // Discord's stores know the channel you picked by now
+                joining = undefined;
+                reconcileVoice();
+                reconcileAudio();
+                refreshDms();
+            }, 0);
+        };
+
         const droppedReactions = new Set<string>();
         ctx.hook.instead(Dispatcher, "dispatch", call => {
             const action = call.args[0] as any;
             if (!options?.active || action == null || action[OWN]) return call.callOriginal(...call.args);
             let next = action;
             try {
-                next = filterAction(action, hidden, options, (s, guildId) => {
-                    if (s.userId == null) return;
-                    if (s.channelId == null) hiddenVoice.delete(s.userId);
-                    else hiddenVoice.set(s.userId, { ...s, guildId });
-                }, droppedReactions);
+                if (options.voice && action.type === "VOICE_CHANNEL_SELECT") {
+                    // Whoever is hidden in the channel you're joining is put back before you get there
+                    joining = action.channelId ?? null;
+                    reconcileVoice();
+                    reconcile();
+                } else if (options.voice && action.type === "VOICE_STATE_UPDATES" && Array.isArray(action.voiceStates)) {
+                    // You moved (or were moved): the old channel's hidden users go, the new one's come back
+                    const me = userStore?.getCurrentUser?.()?.id;
+                    if (me != null && action.voiceStates.some((s: any) => s?.userId === me)) reconcile();
+                }
+                next = filterAction(action, hidden, options, voiceHooks, droppedReactions);
             } catch (e) {
                 ctx.logger.error("Filter failed for", action.type, e);
             }
             return next == null ? Promise.resolve() : call.callOriginal(next, ...call.args.slice(1));
+        });
+
+        // The store behind Discord's "someone you blocked is in this channel" warning (no name of its own)
+        ctx.waitFor(filters.byProps("getBlockedUsersForVoiceChannel", "getIgnoredUsersForVoiceChannel"), blockedVoice => {
+            const add = (is: (userId: string) => boolean) => ({ args, result }: { args: unknown[]; result: ReadonlySet<string> | undefined; }) => {
+                if (!options?.active || !options.voice || typeof args[0] !== "string" || hiddenVoice.size === 0) return;
+                const out = withHiddenIn(result, args[0], hiddenVoice, is);
+                return out === result ? undefined : out;
+            };
+            ctx.hook.after(blockedVoice, "getBlockedUsersForVoiceChannel", add(id => relationships?.isBlocked?.(id) === true));
+            ctx.hook.after(blockedVoice, "getIgnoredUsersForVoiceChannel", add(id => relationships?.isIgnored?.(id) === true));
         });
 
         if (dmSort) {
@@ -274,15 +344,6 @@ export default definePlugin({
             });
         }
 
-        let pending: ReturnType<typeof setTimeout> | undefined;
-        const reconcile = () => {
-            clearTimeout(pending);
-            pending = setTimeout(() => {
-                reconcileVoice();
-                reconcileAudio();
-                refreshDms();
-            }, 0);
-        };
         if (!relationships) ctx.logger.warn("RelationshipStore not found, only Discord's own blocked flags are used");
 
         // Discord refreshes message records itself when someone is blocked, but the reply check and
@@ -321,9 +382,11 @@ export default definePlugin({
             reconcileAudio(true);
             refreshDms();
             hiddenVoice.clear();
+            joining = undefined;
             lastDmIn = lastDmOut = undefined;
             lastDmVersion = -1;
             voiceStore = channelStore = mediaEngine = audioActions = dmSort = undefined;
+            selectedChannels = rtcStore = userStore = undefined;
             saveMuted = undefined;
             relationships?.removeChangeListener?.(onRelationships);
             referencedStore?.removeChangeListener?.(onReferenced);

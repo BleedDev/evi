@@ -1,11 +1,11 @@
 import { describe, expect, test } from "bun:test";
 
-import { cleanVersion, isNewerRelease, isPrerelease, parseRelease, pickRelease } from "../src/shared/release";
+import { CHECKSUM_ASSET, cleanVersion, EXE_ASSET, isNewerRelease, isPrerelease, parseRelease, pickRelease } from "../src/shared/release";
 import { compareVersions, meetsMinEvi, storeAction } from "../src/shared/store";
 
 const release = (tag: string, extra: Record<string, unknown> = {}) => ({
     tag_name: tag, draft: false, prerelease: tag.includes("-"), html_url: `https://github.com/BleedDev/evi/releases/tag/${tag}`,
-    assets: ["evi.exe", "evi.exe.sha256"].map(name => ({ name, browser_download_url: `https://github.com/BleedDev/evi/releases/download/${tag}/${name}` })),
+    assets: [EXE_ASSET, CHECKSUM_ASSET].map(name => ({ name, browser_download_url: `https://github.com/BleedDev/evi/releases/download/${tag}/${name}` })),
     ...extra,
 });
 

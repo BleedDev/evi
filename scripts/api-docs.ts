@@ -4,11 +4,12 @@
  * written in the source and the summary of its JSDoc. Evi's DevTools and Patch Helper show them on
  * hover. tests/apiDocs.test.ts regenerates them and fails when the file is out of date.
  *
- *   bun scripts/api-docs.ts            writes the file
- *   bun scripts/api-docs.ts --check    exits 1 when it's out of date
+ *   node scripts/api-docs.ts            writes the file
+ *   node scripts/api-docs.ts --check    exits 1 when it's out of date
  *
  * Parsing goes through TypeScript's own API (the tsgo server the `typescript` devDependency ships),
  * so signatures are exactly what the declarations say.
+ * Runs on Node: TypeScript's synchronous transport needs Node's pipe handles on POSIX.
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -24,7 +25,7 @@ export interface ApiDocEntry {
     example?: string;
 }
 
-const ROOT = resolve(import.meta.dir, "..");
+const ROOT = resolve(import.meta.dirname, "..");
 export const API_DOCS_PATH = resolve(ROOT, "src/shared/apiDocs.json");
 const ENTRY = resolve(ROOT, "src/api/index.ts");
 const CONTEXT = resolve(ROOT, "src/renderer/plugins/context.ts");
@@ -426,7 +427,7 @@ if (import.meta.main) {
             current = readFileSync(API_DOCS_PATH, "utf8");
         } catch { }
         if (current.replace(/\r\n/g, "\n") !== next) {
-            console.error("src/shared/apiDocs.json is out of date: run bun scripts/api-docs.ts");
+            console.error("src/shared/apiDocs.json is out of date: run node scripts/api-docs.ts");
             process.exit(1);
         }
         console.log(`apiDocs.json is up to date (${docs.length} entries)`);

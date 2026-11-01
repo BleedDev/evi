@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { cleanVersion, exeAsset, fetchReleaseApi, flavorOf, GITHUB_API, isNewerRelease, parseRelease, RELEASE_MIRROR_API, releaseApis } from "../src/shared/release";
+import { CHECKSUM_ASSET, cleanVersion, EXE_ASSET, exeAsset, fetchReleaseApi, flavorOf, GITHUB_API, isNewerRelease, parseRelease, RELEASE_MIRROR_API, releaseApis } from "../src/shared/release";
 
 const asset = (name: string) => ({ name, browser_download_url: `https://github.com/BleedDev/evi/releases/download/v0.3.0/${name}` });
 
@@ -9,12 +9,12 @@ describe("Evi's releases", () => {
         const release = parseRelease({
             tag_name: "v0.3.0", html_url: "https://github.com/BleedDev/evi/releases/tag/v0.3.0", draft: false,
             body: "  ## New\n- Updates from the app  ", published_at: "2026-09-27T10:00:00Z",
-            assets: [asset("evi.exe"), asset("evi.exe.sha256")],
+            assets: [asset(EXE_ASSET), asset(CHECKSUM_ASSET)],
         });
         expect(release).toEqual({
             tag: "v0.3.0", version: "0.3.0", url: "https://github.com/BleedDev/evi/releases/tag/v0.3.0",
             notes: "## New\n- Updates from the app", publishedAt: "2026-09-27T10:00:00Z", prerelease: false,
-            exeUrl: asset("evi.exe").browser_download_url, checksumUrl: asset("evi.exe.sha256").browser_download_url,
+            exeUrl: asset(EXE_ASSET).browser_download_url, checksumUrl: asset(CHECKSUM_ASSET).browser_download_url,
         });
     });
 
@@ -35,8 +35,13 @@ describe("Evi's releases", () => {
     test("drafts and junk aren't releases; a missing file is said plainly", () => {
         expect(parseRelease({ tag_name: "v0.3.0", draft: true, assets: [] })).toBeUndefined();
         expect(parseRelease(null)).toBeUndefined();
-        expect(parseRelease({ tag_name: "v0.3.0", assets: [asset("evi.exe")] })).toEqual({ error: "Release v0.3.0 is missing evi.exe.sha256" });
+        expect(parseRelease({ tag_name: "v0.3.0", assets: [asset(EXE_ASSET)] })).toEqual({ error: `Release v0.3.0 is missing ${CHECKSUM_ASSET}` });
         expect(parseRelease({ tag_name: "v0.3.0", assets: [] })).toEqual({ error: "Release v0.3.0 is missing evi-core.json" });
+    });
+
+    test("another system's CLI doesn't count as an update", () => {
+        const other = exeAsset(process.platform === "win32" ? "linux" : "win32", "x64");
+        expect(parseRelease({ tag_name: "v0.3.0", assets: [asset(other), asset(`${other}.sha256`)] })).toEqual({ error: "Release v0.3.0 is missing evi-core.json" });
     });
 
     test("files only count when they're Evi's own on GitHub, whatever the mirror sent", () => {

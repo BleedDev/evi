@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { collectKnown, detectSensitive, emptyKnown } from "../plugins/hide-personal-info/detect";
+import { collectKnown, detectSensitive, emptyKnown, isTextField } from "../plugins/hide-personal-info/detect";
 
 describe("detectSensitive patterns", () => {
     test("emails, masked ones too", () => {
@@ -112,5 +112,35 @@ describe("known values", () => {
     test("works with nothing known and with missing sources", () => {
         expect(collectKnown({})).toEqual(emptyKnown());
         expect(collectKnown({ user: null, paymentSources: null })).toEqual(emptyKnown());
+    });
+});
+
+describe("text boxes", () => {
+    test("text, email, phone, search and URL inputs and text areas are looked at", () => {
+        for (const [tag, type] of [["INPUT", "text"], ["input", "email"], ["INPUT", "tel"], ["INPUT", "search"], ["INPUT", "URL"], ["INPUT", ""], ["INPUT", undefined], ["TEXTAREA", undefined]] as const) {
+            expect(isTextField(tag, type)).toBe(true);
+        }
+    });
+
+    test("passwords, checkboxes and other controls aren't", () => {
+        for (const type of ["password", "checkbox", "radio", "range", "hidden", "file", "color", "number"]) {
+            expect(isTextField("INPUT", type)).toBe(false);
+        }
+        expect(isTextField("DIV")).toBe(false);
+        expect(isTextField("SELECT")).toBe(false);
+    });
+
+    test("what a text box holds in settings is caught like text", () => {
+        const known = collectKnown({
+            user: { email: "me@x.io", phone: "+905321234567", username: "bleeddev" },
+            paymentSources: { p1: { billingAddress: { line1: "Bagdat Cd 12", city: "Istanbul" } } },
+        });
+        expect(detectSensitive("me@x.io", known)).toBe("known");
+        expect(detectSensitive("someone.else@mail.com", known)).toBe("email");
+        expect(detectSensitive("0532 123 45 67", known)).toBe("known");
+        expect(detectSensitive("Bagdat Cd 12", known)).toBe("known");
+        expect(detectSensitive("Istanbul", known)).toBe("known");
+        expect(detectSensitive("Search", known)).toBeNull();
+        expect(detectSensitive("", known)).toBeNull();
     });
 });

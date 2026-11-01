@@ -111,6 +111,14 @@ export function detectSensitive(text: string, known: KnownValues = emptyKnown())
     return null;
 }
 
+const FIELD_TYPES = new Set(["text", "email", "tel", "search", "url"]);
+
+/** A text box whose value is looked at, by its tag and type: passwords are already hidden, checkboxes hold no text */
+export function isTextField(tagName: string, type?: string | null) {
+    const tag = tagName.toUpperCase();
+    return tag === "TEXTAREA" || (tag === "INPUT" && FIELD_TYPES.has((type || "text").toLowerCase()));
+}
+
 /** Discord's shapes, loosely typed: whatever is missing is skipped */
 export interface KnownSources {
     user?: { email?: string | null; phone?: string | null; username?: string; discriminator?: string; } | null;

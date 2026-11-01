@@ -2,7 +2,7 @@
     "id": "hide-personal-info",
     "name": "Hide Personal Info",
     "description": "Blurs your email, phone, billing details, connected accounts, session locations and IPs in User Settings, for streams and screenshots. Hover or click to reveal.",
-    "version": "1.1.2",
+    "version": "1.1.3",
     "authors": [
         "Evi"
     ],
@@ -11,6 +11,13 @@
     ],
     "permissions": {},
     "changelog": [
+        {
+            "version": "1.1.3",
+            "notes": [
+                "Your details are blurred before they're shown, not a moment after: when User Settings open, when a section loads, and when you reveal your email or phone. Before, devices, billing address and connections could show for up to a second, enough to be seen on stream.",
+                "Text boxes are blurred too when they hold your email, phone or other details, and so are the dialogs settings open, like changing your email."
+            ]
+        },
         {
             "version": "1.1.2",
             "notes": [
@@ -48,6 +55,10 @@
             "name": "Persönliche Infos verbergen",
             "description": "Verwischt deine E-Mail, Telefonnummer, Rechnungsdaten, verknüpften Konten sowie Standorte und IPs deiner Sitzungen in den Nutzereinstellungen, für Streams und Screenshots. Zum Aufdecken darüberfahren oder klicken.",
             "changelog": {
+                "1.1.3": [
+                    "Deine Daten werden verwischt, bevor sie zu sehen sind, nicht einen Moment danach: beim Öffnen der Nutzereinstellungen, wenn ein Bereich lädt und wenn du deine E-Mail oder Telefonnummer aufdeckst. Vorher konnten Geräte, Rechnungsadresse und Verknüpfungen bis zu einer Sekunde lang sichtbar sein, genug, um im Stream gesehen zu werden.",
+                    "Textfelder werden ebenfalls verwischt, wenn sie deine E-Mail, Telefonnummer oder andere Daten enthalten, und auch die Dialoge, die die Einstellungen öffnen, etwa zum Ändern deiner E-Mail."
+                ],
                 "1.1.2": [
                     "Weniger Arbeit im Hintergrund: Solange keine Einstellungen offen sind, durchsucht es nicht mehr alle anderthalb Sekunden die ganze Seite."
                 ],
@@ -69,6 +80,10 @@
             "name": "Ocultar información personal",
             "description": "Difumina tu correo, teléfono, datos de facturación, cuentas conectadas y las ubicaciones e IP de tus sesiones en Ajustes de usuario, para streams y capturas. Pasa el ratón o haz clic para mostrarlos.",
             "changelog": {
+                "1.1.3": [
+                    "Tus datos se difuminan antes de mostrarse, no un momento después: al abrir Ajustes de usuario, al cargar una sección y al mostrar tu correo o tu teléfono. Antes, los dispositivos, la dirección de facturación y las conexiones podían verse hasta un segundo, suficiente para que se vieran en un directo.",
+                    "También se difuminan los cuadros de texto que contienen tu correo, tu teléfono u otros datos, y los diálogos que abren los ajustes, como el de cambiar tu correo."
+                ],
                 "1.1.2": [
                     "Menos trabajo en segundo plano: mientras no hay ninguna pantalla de ajustes abierta, ya no revisa toda la página cada segundo y medio."
                 ],
@@ -90,6 +105,10 @@
             "name": "Masquer les infos personnelles",
             "description": "Floute ton e-mail, ton téléphone, tes informations de facturation, tes comptes connectés ainsi que les lieux et IP de tes sessions dans les paramètres utilisateur, pour les streams et les captures d'écran. Survole ou clique pour afficher.",
             "changelog": {
+                "1.1.3": [
+                    "Tes informations sont floutées avant d'être affichées, pas un instant après : à l'ouverture des paramètres utilisateur, quand une section se charge et quand tu affiches ton e-mail ou ton téléphone. Avant, les appareils, l'adresse de facturation et les connexions pouvaient rester visibles jusqu'à une seconde, assez pour être vus en stream.",
+                    "Les champs de texte sont floutés aussi quand ils contiennent ton e-mail, ton téléphone ou d'autres informations, tout comme les fenêtres que les paramètres ouvrent, comme celle pour changer ton e-mail."
+                ],
                 "1.1.2": [
                     "Moins de travail en arrière-plan : tant qu'aucun écran de paramètres n'est ouvert, il ne parcourt plus toute la page toutes les secondes et demie."
                 ],
@@ -111,6 +130,10 @@
             "name": "個人情報を隠す",
             "description": "ユーザー設定内のメールアドレス、電話番号、請求情報、連携アカウント、セッションの場所や IP をぼかします。配信やスクリーンショットに便利です。カーソルを合わせるかクリックすると表示されます。",
             "changelog": {
+                "1.1.3": [
+                    "個人情報は表示された直後ではなく、表示される前にぼかされるようになりました。ユーザー設定を開いたとき、項目が読み込まれたとき、メールアドレスや電話番号を表示したときも同じです。以前はデバイス、請求先住所、連携アカウントが最大1秒ほど見えてしまい、配信に映ることがありました。",
+                    "メールアドレスや電話番号などが入ったテキスト欄も、設定から開くダイアログ(メールアドレスの変更など)もぼかされます。"
+                ],
                 "1.1.2": [
                     "バックグラウンドでの処理を減らしました。設定画面が開いていない間は、1.5秒ごとにページ全体を検索しなくなりました。"
                 ],
@@ -132,6 +155,10 @@
             "name": "Ukryj dane osobowe",
             "description": "Rozmywa w Ustawieniach użytkownika Twój e-mail, telefon, dane rozliczeniowe, połączone konta oraz lokalizacje i adresy IP sesji, na potrzeby streamów i zrzutów ekranu. Najedź lub kliknij, aby odsłonić.",
             "changelog": {
+                "1.1.3": [
+                    "Twoje dane są rozmywane, zanim się pojawią, a nie chwilę później: po otwarciu Ustawień użytkownika, gdy wczytuje się sekcja i gdy odsłaniasz swój e-mail lub telefon. Wcześniej urządzenia, adres rozliczeniowy i połączenia mogły być widoczne nawet przez sekundę, wystarczająco, by ktoś je zobaczył na streamie.",
+                    "Rozmywane są też pola tekstowe z Twoim e-mailem, telefonem lub innymi danymi, a także okna otwierane z ustawień, np. zmiana adresu e-mail."
+                ],
                 "1.1.2": [
                     "Mniej pracy w tle: gdy nie jest otwarty żaden ekran ustawień, nie przeszukuje już całej strony co półtorej sekundy."
                 ],
@@ -153,6 +180,10 @@
             "name": "Ocultar informações pessoais",
             "description": "Desfoca seu e-mail, telefone, dados de cobrança, contas conectadas e os locais e IPs das suas sessões nas Configurações de usuário, para transmissões e capturas de tela. Passe o mouse ou clique para revelar.",
             "changelog": {
+                "1.1.3": [
+                    "Seus dados são desfocados antes de aparecer, não um instante depois: ao abrir as Configurações de usuário, quando uma seção carrega e quando você revela seu e-mail ou telefone. Antes, dispositivos, endereço de cobrança e conexões podiam aparecer por até um segundo, o bastante para serem vistos numa live.",
+                    "Caixas de texto também são desfocadas quando têm seu e-mail, telefone ou outros dados, assim como as janelas que as configurações abrem, como a de mudar seu e-mail."
+                ],
                 "1.1.2": [
                     "Menos trabalho em segundo plano: enquanto nenhuma tela de configurações está aberta, ele não vasculha mais a página inteira a cada segundo e meio."
                 ],
@@ -174,6 +205,10 @@
             "name": "Скрыть личные данные",
             "description": "Размывает в настройках пользователя вашу почту, телефон, платёжные данные, подключённые аккаунты, а также местоположение и IP сессий, для стримов и скриншотов. Наведите курсор или щёлкните, чтобы показать.",
             "changelog": {
+                "1.1.3": [
+                    "Твои данные размываются до того, как появятся, а не мгновением позже: при открытии настроек пользователя, при загрузке раздела и когда ты показываешь свою почту или телефон. Раньше устройства, платёжный адрес и подключения могли быть видны до секунды, достаточно, чтобы их заметили на стриме.",
+                    "Текстовые поля с твоей почтой, телефоном или другими данными тоже размываются, как и окна, которые открываются из настроек, например смена почты."
+                ],
                 "1.1.2": [
                     "Меньше работы в фоне: пока не открыт ни один экран настроек, плагин больше не просматривает всю страницу каждые полторы секунды."
                 ],
@@ -195,6 +230,10 @@
             "name": "Kişisel Bilgileri Gizle",
             "description": "Kullanıcı Ayarları'nda e-postanı, telefonunu, fatura bilgilerini, bağlı hesaplarını ve oturumların konumlarını ile IP'lerini bulanıklaştırır; yayınlar ve ekran görüntüleri için. Göstermek için üzerine gel veya tıkla.",
             "changelog": {
+                "1.1.3": [
+                    "Bilgilerin artık göründükten bir an sonra değil, görünmeden önce bulanıklaştırılıyor: Kullanıcı Ayarları açıldığında, bir bölüm yüklendiğinde ve e-postanı ya da telefonunu gösterdiğinde. Önceden cihazlar, fatura adresi ve bağlantılar bir saniyeye kadar görünebiliyordu, yayında fark edilmeye yetecek kadar.",
+                    "E-postanı, telefonunu veya başka bilgilerini içeren metin kutuları da, ayarların açtığı pencereler de (e-postanı değiştirme gibi) bulanıklaştırılıyor."
+                ],
                 "1.1.2": [
                     "Arka planda daha az iş: hiçbir ayarlar ekranı açık değilken artık her bir buçuk saniyede bir tüm sayfayı taramıyor."
                 ],

@@ -2,11 +2,18 @@ import { describe, expect, mock, test } from "bun:test";
 
 import type { Replacement } from "../src/renderer/patching/source";
 import { canonicalizeMatch, matchesFind } from "../src/renderer/patching/source";
-import { extraLabel, FetchQueue, PATCHES, pickReactors, reactionKey, shownCount } from "../plugins/who-reacted/reactors";
-import type { Scheduler } from "../plugins/who-reacted/reactors";
+import { matchesAll } from "../src/renderer/webpack/find";
+import { FetchQueue, rateLimitWait } from "../plugins/who-reacted/queue";
+import type { Clock, Limits } from "../plugins/who-reacted/queue";
+import { extraLabel, FETCH_REACTORS, PATCHES, pickReactors, reactionKey, shownCount } from "../plugins/who-reacted/reactors";
 
 // Verbatim from Discord's web build (test-results/chunks/dda79f402723bb62.js), the reaction pill's children
 const PILL = '(0,i.jsxs)(p.D,{...e,innerRef:eh,className:eU.reactionInner,onClick:eS,"aria-disabled":I,"aria-label":(0,q.mb)(B,e$,x,G),"aria-pressed":B,children:[(0,i.jsx)("div",{className:r()({[eU.burstGlow]:G}),style:{boxShadow:`0 0 16px ${n}`}}),(0,i.jsxs)("div",{children:[G?(0,i.jsxs)(i.Fragment,{children:[ez&&(0,i.jsx)(L,{messageId:j.id,emoji:x,startPosition:et,targetPosition:eW}),eF&&(0,i.jsx)(eV,{count:T,emoji:x,channelId:j.getChannelId(),messageId:j.id,useChatFontScaling:V,color:n,emojiSize:e_.x.NORMAL})]}):null,(0,i.jsx)(g.A,{className:r()({[eU.hideEmoji]:el}),emojiId:x.id,emojiName:x.name,size:C,animated:x.animated})]}),b?null:(0,i.jsx)(E.A,{className:eU.reactionCount,value:e$,color:t,digitWidth:eD}),(0,i.jsx)(z,{count:e$,reactionRef:ep})]})';
+
+// Verbatim from Discord's web build (test-results/chunks/web.js, 2026-11-02): the action getReactions calls
+// to ask the API, hooked for its answer, and the store's handler for what it dispatches, which mustn't match
+const FETCH = 'async function O(e){let t,{channelId:n,messageId:i,emoji:a,limit:l,after:o,type:c}=e,u=c===d.v.VOTE?(t=a.id??a.name,T.Rsh.POLL_ANSWER_VOTERS(n,i,t)):C({channelId:n,messageId:i,emoji:a}),_=await r.Bo.get({url:u,query:{limit:l,after:o,type:c},oldFormErrors:!0,rejectWithError:(0,r.fT)()}),E=c===d.v.VOTE?_.body.users:_.body;return s.h.dispatch({type:"MESSAGE_REACTION_ADD_USERS",channelId:n,messageId:i,users:E,emoji:a,reactionType:c}),E}';
+const HANDLER = 'MESSAGE_REACTION_ADD_USERS:function(e){let{messageId:t,users:n,emoji:i,reactionType:r}=e,a=A.ensure(t,i,r);n.forEach(e=>a.users.set(e.id,new o.A(e)))}';
 
 function apply(code: string, self = "S") {
     const patch = PATCHES.pill;
@@ -50,6 +57,11 @@ describe("patch", () => {
     });
 });
 
+test("the hooked action is the one that asks for who reacted", () => {
+    expect(matchesAll(FETCH, FETCH_REACTORS)).toBe(true);
+    expect(matchesAll(HANDLER, FETCH_REACTORS)).toBe(false);
+});
+
 describe("reactors", () => {
     const users = (...ids: string[]) => ids.map(id => ({ id }));
     const none = () => false;
@@ -81,42 +93,83 @@ describe("reactors", () => {
 });
 
 describe("fetch queue", () => {
-    /** Timers run when the test says so */
+    const LIMITS: Limits = { gapMs: 1000, perMinute: 20, backoffMs: 30_000, maxBackoffMs: 300_000 };
+
+    /** A clock that moves when the test says so: tick() jumps to the next timer and runs it */
     function manual() {
-        let queue: { fn: () => void; ms: number; }[] = [];
-        const scheduler: Scheduler = {
+        let now = 0;
+        let timers: { fn: () => void; at: number; }[] = [];
+        const clock: Clock = {
+            now: () => now,
             setTimeout: (fn, ms) => {
-                const t = { fn, ms };
-                queue.push(t);
+                const t = { fn, at: now + ms };
+                timers.push(t);
                 return t;
             },
-            clearTimeout: t => void (queue = queue.filter(q => q !== t)),
+            clearTimeout: t => void (timers = timers.filter(q => q !== t)),
         };
-        return { scheduler, tick: () => queue.shift()?.fn(), timers: () => queue.map(q => q.ms) };
+        const tick = () => {
+            timers.sort((a, b) => a.at - b.at);
+            const t = timers.shift();
+            if (!t) return false;
+            now = Math.max(now, t.at);
+            t.fn();
+            return true;
+        };
+        return { clock, tick, now: () => now, waits: () => timers.map(t => t.at - now) };
     }
 
-    test("one at a time, a gap apart, each key once", () => {
-        const { scheduler, tick, timers } = manual();
-        const q = new FetchQueue(350, scheduler);
+    /** Lets the answers' callbacks run */
+    const settle = () => new Promise(r => setTimeout(r, 0));
+    /** What Discord's client rejects with on a 429 */
+    const tooMany = (retryAfter?: number) => Object.assign(new Error("GET /channels/xxx/messages/xxx/reactions/x [429]"), {
+        name: "HTTPResponseError", status: 429, retryAfter, body: { message: "You are being rate limited.", retry_after: retryAfter },
+    });
+
+    test("one at a time, a second apart, each key once", () => {
+        const { clock, tick, waits } = manual();
+        const q = new FetchQueue(LIMITS, clock);
         const ran: string[] = [];
         q.add("a", () => ran.push("a"));
         q.add("b", () => ran.push("b"));
         q.add("a", () => ran.push("a again"));
-        expect(timers()).toEqual([0]);
+        expect(waits()).toEqual([0]);
         tick();
         expect(ran).toEqual(["a"]);
         expect(q.has("a")).toBe(true);
-        expect(timers()).toEqual([350]);
+        expect(waits()).toEqual([1000]);
         tick();
         expect(ran).toEqual(["a", "b"]);
-        expect(timers()).toEqual([]);
+        expect(waits()).toEqual([]);
         q.add("a", () => ran.push("a again"));
-        expect(timers()).toEqual([]);
+        expect(waits()).toEqual([]);
+    });
+
+    test("a reaction added right after another still waits out the gap", () => {
+        const { clock, tick, waits } = manual();
+        const q = new FetchQueue(LIMITS, clock);
+        q.add("a", () => { });
+        tick();
+        q.add("b", () => { });
+        expect(waits()).toEqual([1000]);
+    });
+
+    test("no more than the cap in any minute", () => {
+        const { clock, tick, now } = manual();
+        const q = new FetchQueue(LIMITS, clock);
+        const at: number[] = [];
+        for (let i = 0; i < 25; i++) q.add(`k${i}`, () => at.push(now()));
+        while (tick());
+        expect(at).toHaveLength(25);
+        expect(at.slice(0, 20)).toEqual(Array.from({ length: 20 }, (_, i) => i * 1000));
+        // The 21st waits for the first to be a minute old, then one a second as the window slides
+        expect(at.slice(20)).toEqual([60_000, 61_000, 62_000, 63_000, 64_000]);
+        for (let i = 0; i + 20 < at.length; i++) expect(at[i + 20] - at[i]).toBeGreaterThanOrEqual(60_000);
     });
 
     test("a job removed before its turn never runs", () => {
-        const { scheduler, tick } = manual();
-        const q = new FetchQueue(350, scheduler);
+        const { clock, tick } = manual();
+        const q = new FetchQueue(LIMITS, clock);
         const ran: string[] = [];
         q.add("a", () => ran.push("a"));
         q.remove("a");
@@ -126,8 +179,8 @@ describe("fetch queue", () => {
     });
 
     test("a job that throws doesn't stop the queue", () => {
-        const { scheduler, tick } = manual();
-        const q = new FetchQueue(350, scheduler);
+        const { clock, tick } = manual();
+        const q = new FetchQueue(LIMITS, clock);
         const ran: string[] = [];
         q.add("a", () => { throw new Error("no"); });
         q.add("b", () => ran.push("b"));
@@ -136,15 +189,112 @@ describe("fetch queue", () => {
         expect(ran).toEqual(["b"]);
     });
 
+    test("a 429 pauses the queue at least 30 s, then asks that reaction again first", async () => {
+        const { clock, tick, now, waits } = manual();
+        const q = new FetchQueue(LIMITS, clock);
+        const at: [string, number][] = [];
+        let fail = true;
+        q.add("a", () => (at.push(["a", now()]), fail ? Promise.reject(tooMany(2)) : Promise.resolve()));
+        q.add("b", () => void at.push(["b", now()]));
+        tick();
+        await settle();
+        fail = false;
+        expect(q.has("a")).toBe(false);
+        // Discord said 2 s, the queue waits 30
+        expect(waits()).toEqual([30_000]);
+        while (tick()) await settle();
+        expect(at).toEqual([["a", 0], ["a", 30_000], ["b", 31_000]]);
+        expect(q.has("a")).toBe(true);
+    });
+
+    test("Discord's retry_after wins when it's longer, and 429s in a row back off further", async () => {
+        const { clock, tick, waits } = manual();
+        const q = new FetchQueue(LIMITS, clock);
+        q.add("a", () => Promise.reject(tooMany(90)));
+        tick();
+        await settle();
+        expect(waits()).toEqual([90_000]);
+        tick();
+        await settle();
+        // Second in a row is 60 s, Discord's 90 still wins
+        expect(waits()).toEqual([90_000]);
+        q.clear();
+        q.add("b", () => Promise.reject(tooMany()));
+        for (const expected of [30_000, 60_000, 120_000, 240_000, 300_000, 300_000]) {
+            tick();
+            await settle();
+            expect(waits()).toEqual([expected]);
+        }
+    });
+
+    test("an answer resets the back-off", async () => {
+        const { clock, tick, waits } = manual();
+        const q = new FetchQueue(LIMITS, clock);
+        let fails = 2;
+        q.add("a", () => fails-- > 0 ? Promise.reject(tooMany()) : Promise.resolve());
+        q.add("b", () => Promise.reject(tooMany()));
+        tick();
+        await settle();
+        tick();
+        await settle();
+        expect(waits()).toEqual([60_000]);
+        // a gets its answer, then b's 429 starts over at 30 s
+        tick();
+        await settle();
+        tick();
+        await settle();
+        expect(waits()).toEqual([30_000]);
+    });
+
+    test("a reaction that scrolled away while asked isn't asked again after a 429, until it's back", async () => {
+        const { clock, tick } = manual();
+        const q = new FetchQueue(LIMITS, clock);
+        const ran: string[] = [];
+        q.add("a", () => (ran.push("a"), Promise.reject(tooMany())));
+        tick();
+        q.remove("a");
+        await settle();
+        while (tick()) await settle();
+        expect(ran).toEqual(["a"]);
+        q.add("a", () => void ran.push("a again"));
+        tick();
+        expect(ran).toEqual(["a", "a again"]);
+    });
+
+    test("other errors don't pause it, and that reaction isn't asked again", async () => {
+        const { clock, tick, waits } = manual();
+        const q = new FetchQueue(LIMITS, clock);
+        q.add("a", () => Promise.reject(Object.assign(new Error("forbidden"), { status: 403 })));
+        q.add("b", () => { });
+        tick();
+        await settle();
+        expect(waits()).toEqual([1000]);
+        expect(q.has("a")).toBe(true);
+    });
+
     test("clear forgets everything", () => {
-        const { scheduler, tick, timers } = manual();
-        const q = new FetchQueue(350, scheduler);
+        const { clock, tick, waits } = manual();
+        const q = new FetchQueue(LIMITS, clock);
         q.add("a", () => { });
         tick();
         q.add("b", () => { });
         q.clear();
-        expect(timers()).toEqual([]);
+        expect(waits()).toEqual([]);
         expect(q.has("a")).toBe(false);
+        q.add("c", () => { });
+        expect(waits()).toEqual([0]);
+    });
+
+    test("rate limits in each shape Discord's client rejects with", () => {
+        expect(rateLimitWait(tooMany(1.5))).toBe(1500);
+        // The bare response, when rejectWithError is off
+        expect(rateLimitWait({ ok: false, status: 429, headers: { "retry-after": "4" }, body: {} })).toBe(4000);
+        // A route the client already knows is limited
+        expect(rateLimitWait({ status: 429, body: { message: "You are being rate limited.", retry_after: 3 } })).toBe(3000);
+        expect(rateLimitWait({ status: 429 })).toBe(0);
+        expect(rateLimitWait({ status: 403, body: { retry_after: 3 } })).toBeUndefined();
+        expect(rateLimitWait(new Error("offline"))).toBeUndefined();
+        expect(rateLimitWait(undefined)).toBeUndefined();
     });
 });
 
@@ -167,7 +317,9 @@ describe("after stop", () => {
             definePlugin: (plugin: unknown) => plugin,
             defineStrings: () => (key: string) => key,
             findStore: (name: string) => stores[name],
+            filters: { byCode: () => () => false },
             React: {
+                useRef: (current: unknown) => (hooks.push("ref"), { current }),
                 useEffect: (fn: () => void) => (hooks.push("effect"), fn()),
                 useSyncExternalStore: (_: unknown, snapshot: () => unknown) => (hooks.push("store"), snapshot()),
             },
@@ -175,7 +327,7 @@ describe("after stop", () => {
         try {
             const plugin: any = (await import("../plugins/who-reacted/index")).default;
             const disposers: (() => void)[] = [];
-            const ctx = { settings: { use: () => (hooks.push("store"), { max: 5, showExtra: true }) }, onDispose: (fn: () => void) => disposers.push(fn), logger: console };
+            const ctx = { settings: { use: () => (hooks.push("store"), { max: 5, showExtra: true }) }, onDispose: (fn: () => void) => disposers.push(fn), hookExport() { }, logger: console };
             plugin.start(ctx);
             const el = plugin.renderUsers({ message: { id: "m", getChannelId: () => "c" }, emoji: { name: "x" }, count: 2 });
             const render = () => {

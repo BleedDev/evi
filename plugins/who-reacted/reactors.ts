@@ -5,9 +5,9 @@ import type { SourcePatch } from "@evi/api";
  *
  * Discord keeps who reacted in MessageReactionsStore: getReactions(channelId, messageId, emoji, limit,
  * type) returns a Map of userId to user, and the first call for a reaction also asks Discord's API for
- * the first `limit` of them (later calls never ask again). That's one request per reaction, so a chat
- * full of reactions would be dozens at once: they go through a queue instead, one at a time, and only
- * for reactions that are on screen.
+ * the first `limit` of them (later calls never ask again). That's one request per reaction, and Discord
+ * draws every loaded message, not only those on screen: they go through a queue instead (queue.ts),
+ * and only for reactions that are on screen.
  */
 
 /** Discord's ReactionType: NORMAL 0, BURST 1 (super reactions), VOTE 2 (poll answers, not reactions) */
@@ -45,58 +45,13 @@ export function pickReactors<U extends { id: string; }>(users: Iterable<U>, coun
 /** "+12", and "+99+" past that, so a huge count doesn't stretch the pill */
 export const extraLabel = (extra: number) => extra > 99 ? "+99+" : `+${extra}`;
 
-export interface Scheduler {
-    setTimeout(fn: () => void, ms: number): unknown;
-    clearTimeout(handle: unknown): void;
-}
-
 /**
- * Runs jobs one at a time, `gapMs` apart, each key once. A job removed before its turn (its message
- * scrolled away) never runs; one that ran isn't queued again.
+ * Discord's action that asks the API for who reacted (checked 2026-11-02), which getReactions calls
+ * the first time and never again:
+ *     async function O(e){...T.Rsh.POLL_ANSWER_VOTERS(n,i,t)...s.h.dispatch({type:"MESSAGE_REACTION_ADD_USERS",...
+ * Hooked to get its promise, which the store drops: that's how the queue hears about a 429.
  */
-export class FetchQueue {
-    private readonly pending = new Map<string, () => void>();
-    private readonly done = new Set<string>();
-    private timer: unknown;
-
-    constructor(private readonly gapMs: number, private readonly scheduler: Scheduler = globalThis) { }
-
-    has(key: string) {
-        return this.done.has(key);
-    }
-
-    add(key: string, job: () => void) {
-        if (this.done.has(key) || this.pending.has(key)) return;
-        this.pending.set(key, job);
-        if (this.timer === undefined) this.timer = this.scheduler.setTimeout(() => this.next(), 0);
-    }
-
-    remove(key: string) {
-        this.pending.delete(key);
-    }
-
-    /** Forgets everything, for when the plugin stops */
-    clear() {
-        this.pending.clear();
-        this.done.clear();
-        if (this.timer !== undefined) this.scheduler.clearTimeout(this.timer);
-        this.timer = undefined;
-    }
-
-    private next() {
-        this.timer = undefined;
-        const first = this.pending.entries().next();
-        if (first.done) return;
-        const [key, job] = first.value;
-        this.pending.delete(key);
-        this.done.add(key);
-        try {
-            job();
-        } finally {
-            if (this.pending.size) this.timer = this.scheduler.setTimeout(() => this.next(), this.gapMs);
-        }
-    }
-}
+export const FETCH_REACTORS = ['"MESSAGE_REACTION_ADD_USERS"', ".POLL_ANSWER_VOTERS("];
 
 export const PATCHES = {
     /**

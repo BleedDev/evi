@@ -1,15 +1,17 @@
-import { definePlugin, findStore, React } from "@evi/api";
+import { definePlugin, filters, findStore, React } from "@evi/api";
 import type { PluginContext } from "@evi/api";
 
 import { t } from "./strings";
 
-import { extraLabel, FetchQueue, pickReactors, PATCHES, REACTION_VOTE, reactionKey, shownCount } from "./reactors";
+import { FetchQueue, rateLimitWait } from "./queue";
+import { extraLabel, FETCH_REACTORS, pickReactors, PATCHES, REACTION_VOTE, reactionKey, shownCount } from "./reactors";
 import type { ReactionEmoji } from "./reactors";
 
 /**
  * Small avatars of who reacted, inside each reaction next to its count. A source patch calls
  * renderUsers with the pill's props; the avatars come from MessageReactionsStore, which asks Discord
- * for them the first time a reaction is looked up (see reactors.ts for why that goes through a queue).
+ * for them the first time a reaction is looked up (see queue.ts for why that goes through a queue, and
+ * only for pills on screen).
  * They update live as people react, because the store does.
  */
 
@@ -21,11 +23,10 @@ const settings = {
 
 /** Asked of Discord's API per reaction: enough for the most avatars a reaction can show */
 const FETCH_LIMIT = 10;
-/** Between two of those requests, so a busy chat doesn't run into Discord's rate limit */
-const FETCH_GAP_MS = 350;
 
 let context: PluginContext<Settings> | undefined;
-const queue = new FetchQueue(FETCH_GAP_MS);
+/** So a busy chat doesn't run into Discord's rate limit: the stock client only asks on hover */
+const queue = new FetchQueue({ gapMs: 1000, perMinute: 20, backoffMs: 30_000, maxBackoffMs: 5 * 60_000 });
 
 function store(name: string): any {
     try {
@@ -47,6 +48,58 @@ function subscribe(onChange: () => void) {
     return () => {
         s?.removeChangeListener?.(onChange);
         asked.delete(onChange);
+    };
+}
+
+interface Asked {
+    /** The request the store made, which it drops */
+    request?: Promise<unknown>;
+    /** The same request again */
+    again?: () => Promise<unknown>;
+}
+/** Filled in while a lookup calls the store */
+let asking: Asked | undefined;
+/** Reactions Discord answered 429 for: the store won't ask again, so the retry calls the action itself */
+const retries = new Map<string, () => Promise<unknown>>();
+
+function lookUp(key: string, channelId: string, messageId: string, emoji: ReactionEmoji, type: number) {
+    const retry = retries.get(key);
+    if (retry) return retry().then(() => void retries.delete(key), err => {
+        if (rateLimitWait(err) === undefined) retries.delete(key);
+        throw err;
+    });
+
+    const seen: Asked = {};
+    asking = seen;
+    try {
+        reactionsStore()?.getReactions?.(channelId, messageId, emoji, FETCH_LIMIT, type);
+    } finally {
+        asking = undefined;
+    }
+    for (const listener of asked) listener();
+    return seen.request?.catch(err => {
+        if (seen.again && rateLimitWait(err) !== undefined) retries.set(key, seen.again);
+        throw err;
+    });
+}
+
+/** One IntersectionObserver for every pill: a reaction is looked up while it's on screen or about to be */
+const watched = new Map<Element, (visible: boolean) => void>();
+let observer: IntersectionObserver | undefined;
+
+function watch(el: Element, onChange: (visible: boolean) => void) {
+    if (typeof IntersectionObserver !== "function") {
+        onChange(true);
+        return () => { };
+    }
+    observer ??= new IntersectionObserver(entries => {
+        for (const entry of entries) watched.get(entry.target)?.(entry.isIntersecting);
+    }, { rootMargin: "200px 0px" });
+    watched.set(el, onChange);
+    observer.observe(el);
+    return () => {
+        watched.delete(el);
+        observer?.unobserve(el);
     };
 }
 
@@ -78,15 +131,19 @@ function Reactors({ message, emoji, type = 0, count }: { message: ReactionProps[
     const values = useSettings();
     const channelId = message.getChannelId();
     const key = reactionKey(message.id, emoji, type);
+    const anchor = React.useRef<HTMLSpanElement>(null);
 
-    // On screen: ask for who reacted, in turn. Scrolled away before its turn: never asked.
+    // On screen: ask for who reacted, in turn. Scrolled away before its turn: never asked. The pill is
+    // what's watched, the avatars' own span is empty until then.
     React.useEffect(() => {
         if (!context) return;
-        queue.add(key, () => {
-            reactionsStore()?.getReactions?.(channelId, message.id, emoji, FETCH_LIMIT, type);
-            for (const listener of asked) listener();
-        });
-        return () => queue.remove(key);
+        const job = () => lookUp(key, channelId, message.id, emoji, type);
+        const pill = anchor.current?.parentElement ?? anchor.current;
+        const unwatch = pill ? watch(pill, visible => visible ? queue.add(key, job) : queue.remove(key)) : (queue.add(key, job), undefined);
+        return () => {
+            unwatch?.();
+            queue.remove(key);
+        };
     }, [key]);
 
     // The store changes one Map in place, so the snapshot is the ids it holds, not the Map
@@ -95,22 +152,21 @@ function Reactors({ message, emoji, type = 0, count }: { message: ReactionProps[
         const users: Map<string, unknown> | undefined = reactionsStore()?.getReactions?.(channelId, message.id, emoji, FETCH_LIMIT, type);
         return users ? [...users.keys()].join(",") : "";
     });
-    if (!values || !ids) return null;
+    if (!values) return null;
 
     const { max, showExtra } = values;
-    const users = ids.split(",").map(id => ({ id }));
+    const users = ids ? ids.split(",").map(id => ({ id })) : [];
     const { shown, extra } = pickReactors(users, count, max, isHidden);
-    if (!shown.length) return null;
 
-    const guildId = store("ChannelStore")?.getChannel?.(channelId)?.getGuildId?.();
-    const userStore = store("UserStore");
+    const guildId = shown.length ? store("ChannelStore")?.getChannel?.(channelId)?.getGuildId?.() : undefined;
+    const userStore = shown.length ? store("UserStore") : undefined;
     return (
-        <span className="evi-who-reacted" aria-hidden="true">
+        <span ref={anchor} className="evi-who-reacted" aria-hidden="true">
             {shown.map(({ id }) => {
                 const src = userStore?.getUser?.(id)?.getAvatarURL?.(guildId ?? undefined, 32);
                 return src ? <img key={id} className="evi-who-reacted-avatar" src={src} alt="" draggable={false} /> : null;
             })}
-            {showExtra && extra > 0 && <span className="evi-who-reacted-extra">{extraLabel(extra)}</span>}
+            {showExtra && shown.length > 0 && extra > 0 && <span className="evi-who-reacted-extra">{extraLabel(extra)}</span>}
         </span>
     );
 }
@@ -135,6 +191,7 @@ export default definePlugin({
 
     css: `
         .evi-who-reacted { display: inline-flex; align-items: center; margin-inline-start: 6px; pointer-events: none; }
+        .evi-who-reacted:empty { margin-inline-start: 0; }
         .evi-who-reacted-avatar { inline-size: 16px; block-size: 16px; border-radius: 50%; object-fit: cover;
             box-shadow: 0 0 0 1.5px var(--background-base-lower, var(--background-primary, #1e1f22)); }
         .evi-who-reacted-avatar + .evi-who-reacted-avatar { margin-inline-start: -4px; }
@@ -144,9 +201,19 @@ export default definePlugin({
 
     start(ctx) {
         context = ctx;
+        ctx.hookExport("after", filters.byCode(...FETCH_REACTORS), call => {
+            if (!asking) return;
+            const { original, self, args } = call;
+            asking.request = Promise.resolve(call.result);
+            asking.again = () => Promise.resolve(original.apply(self, args));
+        });
         ctx.onDispose(() => {
             context = undefined;
             queue.clear();
+            retries.clear();
+            observer?.disconnect();
+            observer = undefined;
+            watched.clear();
         });
     },
 });

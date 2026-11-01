@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
+import { collectFiles, dropFiles, swapUploadFile, uploadFile } from "../plugins/strip-metadata/args";
 import { detectImage, orientationSegment, randomFileName, readExifOrientation, stripMetadata } from "../plugins/strip-metadata/strip";
 
 const bytes = (...parts: (number[] | string | Uint8Array)[]) => {
@@ -117,9 +118,19 @@ describe("JPEG", () => {
         }
     });
 
-    test("a truncated JPEG is left untouched", () => {
+    test("a truncated JPEG is left untouched and marked failed", () => {
         const input = bytes([0xff, 0xd8], [0xff, 0xe1, 0x10, 0x00], "Exif");
-        expect(stripMetadata(input)).toEqual({ data: input, changed: false, kind: "jpeg" });
+        expect(stripMetadata(input)).toEqual({ data: input, changed: false, kind: "jpeg", failed: true });
+    });
+
+    test("a JPEG that ends before any image data is marked failed", () => {
+        const input = bytes([0xff, 0xd8], APP0, seg(0xe1, exif(1)), DQT);
+        expect(stripMetadata(input)).toEqual({ data: input, changed: false, kind: "jpeg", failed: true });
+    });
+
+    test("a clean JPEG isn't marked failed", () => {
+        expect(stripMetadata(jpeg(APP0, DQT)).failed).toBe(false);
+        expect(stripMetadata(jpeg(APP0, seg(0xe1, exif(6)), DQT)).failed).toBe(false);
     });
 });
 
@@ -156,7 +167,23 @@ describe("PNG", () => {
 
     test("a clean PNG is returned as is", () => {
         const input = bytes(PNG_SIG, IHDR, IDAT, IEND);
-        expect(stripMetadata(input)).toEqual({ data: input, changed: false, kind: "png" });
+        expect(stripMetadata(input)).toEqual({ data: input, changed: false, kind: "png", failed: false });
+    });
+
+    test("drops C2PA (caBX) chunks", () => {
+        const { data, changed } = stripMetadata(bytes(PNG_SIG, IHDR, chunk("caBX", bytes("jumb c2pa manifest")), IDAT, IEND));
+        expect(changed).toBe(true);
+        expect(data).toEqual(bytes(PNG_SIG, IHDR, IDAT, IEND));
+    });
+
+    test("a truncated PNG is left untouched and marked failed", () => {
+        const full = bytes(PNG_SIG, IHDR, chunk("eXIf", bytes("MM", [0, 42], "GPS")), IDAT, IEND);
+        for (const input of [full.subarray(0, full.length - 20), full.subarray(0, 30)]) {
+            const result = stripMetadata(input);
+            expect(result.failed).toBe(true);
+            expect(result.changed).toBe(false);
+            expect(result.data).toBe(input);
+        }
     });
 });
 
@@ -175,6 +202,84 @@ describe("WebP", () => {
         expect(changed).toBe(true);
         expect(data).toEqual(riff(vp8x(0x10), image));
     });
+
+    test("removes C2PA chunks and anything after the RIFF", () => {
+        const image = wchunk("VP8 ", bytes([1, 2, 3, 4, 5]));
+        const { data, changed } = stripMetadata(bytes(riff(image, wchunk("C2PA", bytes("manifest"))), "GPS hidden"));
+        expect(changed).toBe(true);
+        expect(data).toEqual(riff(image));
+    });
+
+    test("a WebP whose chunk runs past its end is marked failed", () => {
+        const input = riff(wchunk("VP8 ", bytes([1, 2, 3, 4, 5])), wchunk("EXIF", exif(1))).subarray(0, 30);
+        const result = stripMetadata(input);
+        expect(result.failed).toBe(true);
+        expect(result.data).toBe(input);
+    });
+});
+
+describe("GIF", () => {
+    const sub = (data: Uint8Array) => bytes([data.length], data, [0]);
+    const HEAD = bytes("GIF89a", [1, 0, 1, 0, 0x80, 0, 0], [0, 0, 0, 255, 255, 255]); // 1x1, 2 colour global table
+    const LOOP = bytes([0x21, 0xff, 11], "NETSCAPE2.0", [3, 1, 0, 0, 0]);
+    const GCE = bytes([0x21, 0xf9, 4, 0, 0, 0, 0, 0]);
+    const FRAME = bytes([0x2c, 0, 0, 0, 0, 1, 0, 1, 0, 0], [2], sub(bytes([0x44, 0x01])));
+    const COMMENT = bytes([0x21, 0xfe], sub(bytes("shot at 52.52N 13.40E")));
+    const XMP = bytes([0x21, 0xff, 11], "XMP DataXMP", sub(bytes("<x:xmpmeta>GPS</x:xmpmeta>")));
+    const gif = (...blocks: Uint8Array[]) => bytes(HEAD, ...blocks, [0x3b]);
+
+    test("removes comments and XMP, keeps looping, frames and anything that draws", () => {
+        const { data, changed, kind } = stripMetadata(gif(LOOP, COMMENT, XMP, GCE, FRAME, COMMENT, GCE, FRAME));
+        expect(kind).toBe("gif");
+        expect(changed).toBe(true);
+        expect(data).toEqual(gif(LOOP, GCE, FRAME, GCE, FRAME));
+        expect(contains(data, "GPS")).toBe(false);
+        expect(contains(data, "52.52")).toBe(false);
+    });
+
+    test("frames with a local colour table, and data after the trailer goes", () => {
+        const local = bytes([0x2c, 0, 0, 0, 0, 1, 0, 1, 0, 0x80], [1, 2, 3, 4, 5, 6], [2], sub(bytes([7, 8])));
+        const { data } = stripMetadata(bytes(gif(GCE, local), "hidden"));
+        expect(data).toEqual(gif(GCE, local));
+    });
+
+    test("a clean GIF is returned as is, one cut short after its frames too", () => {
+        for (const input of [gif(LOOP, GCE, FRAME), bytes(HEAD, GCE, FRAME)]) {
+            expect(stripMetadata(input)).toEqual({ data: input, changed: false, kind: "gif", failed: false });
+        }
+    });
+
+    test("a GIF cut inside a block, or with an unknown block, is marked failed", () => {
+        for (const input of [gif(COMMENT).subarray(0, HEAD.length + 6), bytes(HEAD, [0x99, 1, 2, 3])]) {
+            const result = stripMetadata(input);
+            expect(result.failed).toBe(true);
+            expect(result.data).toBe(input);
+        }
+    });
+});
+
+describe("images we can't rewrite", () => {
+    const ftyp = (brand: string) => bytes(u32be(24), "ftyp", brand, u32be(0), "mif1heic", "Exif GPS");
+
+    test("HEIC, AVIF, TIFF and JPEG XL are recognised and always marked failed", () => {
+        const cases: [Uint8Array, string][] = [
+            [ftyp("heic"), "heif"],
+            [ftyp("mif1"), "heif"],
+            [ftyp("avif"), "avif"],
+            [bytes("II*\0", u32le(8), "GPS"), "tiff"],
+            [bytes("MM\0*", u32be(8), "GPS"), "tiff"],
+            [bytes([0xff, 0x0a], "GPS"), "jxl"],
+            [bytes([0, 0, 0, 0x0c, 0x4a, 0x58, 0x4c, 0x20, 0x0d, 0x0a, 0x87, 0x0a], "GPS"), "jxl"],
+        ];
+        for (const [input, kind] of cases) {
+            expect(detectImage(input)).toBe(kind as any);
+            expect(stripMetadata(input)).toEqual({ data: input, changed: false, kind: kind as any, failed: true });
+        }
+    });
+
+    test("videos in the same container aren't images", () => {
+        for (const brand of ["isom", "mp42", "qt  "]) expect(detectImage(ftyp(brand))).toBeNull();
+    });
 });
 
 describe("other files", () => {
@@ -183,8 +288,61 @@ describe("other files", () => {
             expect(detectImage(input)).toBeNull();
             const result = stripMetadata(input);
             expect(result.changed).toBe(false);
+            expect(result.failed).toBe(false);
             expect(result.data).toBe(input);
         }
+    });
+});
+
+describe("taking files out of upload calls", () => {
+    const a = new File(["a"], "a.jpg");
+    const b = new File(["b"], "b.heic");
+    const c = new File(["c"], "c.png");
+
+    test("finds files in lists, upload items and arguments", () => {
+        const args = [{ files: [{ file: a, platform: 1 }, { file: b, platform: 1 }], channelId: "1" }, [c]];
+        expect(collectFiles(args).map(f => f.file)).toEqual([a, b, c]);
+    });
+
+    test("removes queued upload items and files in lists", () => {
+        const items = [{ file: a, platform: 1 }, { file: b, platform: 1 }, { file: c, platform: 1 }];
+        const args: unknown[] = [{ files: items, channelId: "1", draftType: 0 }];
+        expect(dropFiles(args, new Set([b]))).toBe(true);
+        expect(items.map(i => i.file)).toEqual([a, c]);
+        const list = [a, b, c];
+        expect(dropFiles([list, "channel"], new Set([a, c]))).toBe(true);
+        expect(list).toEqual([b]);
+    });
+
+    test("a file passed on its own or as a single item can't be taken out", () => {
+        expect(dropFiles(["channel", "id", 0, b], new Set([b]))).toBe(false);
+        expect(dropFiles([{ file: { id: "x", file: b, platform: 1 }, channelId: "1" }], new Set([b]))).toBe(false);
+        expect(dropFiles([{ file: { id: "x", file: a, platform: 1 }, channelId: "1" }], new Set([b]))).toBe(true);
+    });
+});
+
+describe("uploads made without the queue", () => {
+    /** Discord's CloudUpload, as much of it as a swap touches */
+    const cloudUpload = (file: unknown) => ({
+        item: { file, platform: 1 }, currentSize: file instanceof File ? file.size : 0, filename: file instanceof File ? file.name : "",
+        setFilename(name: string) { this.filename = name; },
+    });
+
+    test("reads the file an upload is about to send", () => {
+        const file = new File(["abc"], "photo.jpg");
+        expect(uploadFile(cloudUpload(file))).toBe(file);
+        expect(uploadFile(cloudUpload("not a file"))).toBeUndefined();
+        expect(uploadFile(null)).toBeUndefined();
+        expect(uploadFile({})).toBeUndefined();
+    });
+
+    test("the cleaned file replaces it, with its size and name, as Discord's own conversion does", () => {
+        const upload = cloudUpload(new File(["a much longer original"], "IMG_0001.jpg"));
+        const clean = new File(["short"], "k3j9x2.jpg");
+        swapUploadFile(upload, clean);
+        expect(upload.item.file).toBe(clean);
+        expect(upload.currentSize).toBe(5);
+        expect(upload.filename).toBe("k3j9x2.jpg");
     });
 });
 

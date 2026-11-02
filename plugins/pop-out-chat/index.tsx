@@ -16,6 +16,10 @@ import { t } from "./strings";
  * Discord only copies <link> stylesheets into its windows, and Evi's themes, Quick CSS and plugin
  * CSS are <style> elements, so each window mirrors those from the main window while it's open.
  *
+ * The window's own title bar holds the chat's name: Discord's title bar component (the window buttons
+ * and a centred title) rendered here with one, in place of PopoutWindow's, which never gets a title.
+ * One bar instead of a title bar with a chat header under it. Without that component, both as before.
+ *
  * The header button comes from an export hook on HeaderBarContainer (the main chat header, which gets
  * the channel id) and a source patch on a call's chat (CallChatSidebar, the X in its header). That
  * one is code Discord fetches only when a call's chat first opens: as a lookup it counted as missing
@@ -30,6 +34,8 @@ const channelChatFilter = filters.componentByCode("location:\"ChannelChat\"");
 const inputTypesFilter = filters.byProps("SIDEBAR", "OVERLAY_INLINE_REPLY");
 /** Dropping files on the chat, { channel, draftType } */
 const uploadAreaFilter = filters.componentByCode(/\{className:[\w$]+,style:[\w$]+,channel:[\w$]+,draftType:[\w$]+\}=/, "ATTACH_FILES");
+/** The window title bar: { windowKey, title, leading, trailing, className }, the window buttons on its end */
+const titleBarFilter = filters.componentByCode("\"data-window-chrome\":\"true\"");
 /** The page header: { channelId, guildId, toolbar, ... }, with Icon, ChannelIcon and Title as statics */
 const headerFilter = filters.componentByCode("isAuthenticated", "HEADER_BAR");
 
@@ -72,6 +78,7 @@ const getPopoutWindow = lookup<ComponentType<any>>(popoutWindowFilter);
 const getChannelChat = lookup<ComponentType<any>>(channelChatFilter);
 const getInputTypes = lookup<Record<string, unknown>>(inputTypesFilter);
 const getUploadArea = lookup<ComponentType<any>>(uploadAreaFilter);
+const getTitleBar = lookup<ComponentType<any>>(titleBarFilter);
 
 function svgIcon(paths: string[]) {
     // Called like Discord's icons: { width, height, color, className, colorClass, ... }
@@ -173,6 +180,8 @@ function mirrorStyles(win: Window) {
 function ChatWindow({ windowKey: key, channelId }: { windowKey: string; channelId: string; }) {
     useLocale();
     const channel = useStore("ChannelStore", store => store?.getChannel?.(channelId));
+    // PopoutWindow leaves its title bar out in fullscreen; so does this one
+    const fullScreen = useStore("PopoutWindowStore", store => !!store?.isWindowFullScreen?.(key));
     const guild = useStore("GuildStore", store => channel?.guild_id ? store?.getGuild?.(channel.guild_id) ?? null : null);
 
     React.useLayoutEffect(() => {
@@ -187,15 +196,23 @@ function ChatWindow({ windowKey: key, channelId }: { windowKey: string; channelI
     const PopoutWindow = getPopoutWindow();
     const ChannelChat = getChannelChat();
     const UploadArea = getUploadArea();
+    // Only the desktop app's windows have a title bar, as in PopoutWindow
+    const TitleBar = (window as any).DiscordNative ? getTitleBar() : undefined;
     const Header = header;
     if (gone || !PopoutWindow || !ChannelChat) return null;
 
     const title = titleOf(channel);
     return (
-        <PopoutWindow windowKey={key} title={title} channelId={channel.id} withTitleBar>
+        <PopoutWindow windowKey={key} title={title} channelId={channel.id} withTitleBar={!TitleBar}>
             <div className="evi-pop-out-chat">
                 {UploadArea && <UploadArea channel={channel} draftType={CHANNEL_MESSAGE_DRAFT} />}
-                {Header && (
+                {TitleBar ? !fullScreen && (
+                    <TitleBar
+                        windowKey={key}
+                        className="evi-pop-out-chat-title-bar"
+                        title={<span className="evi-pop-out-chat-title"><ChatIcon width={18} height={18} /><span>{title}</span></span>}
+                    />
+                ) : Header && (
                     <Header aria-label={title}>
                         <Header.ChannelIcon icon={ChatIcon} aria-hidden />
                         <Header.Title>{title}</Header.Title>
@@ -248,6 +265,11 @@ export default definePlugin({
     css: `
         .evi-pop-out-chat { display: flex; flex: 1 1 auto; flex-direction: column; align-self: stretch; width: 100%; height: 100%; min-height: 0; min-width: 0; position: relative;
             background: var(--background-gradient-chat, var(--background-base-lowest)); }
+        .evi-pop-out-chat-title-bar { flex: none; background: var(--background-gradient-app-frame, var(--background-base-lowest)); }
+        .evi-pop-out-chat-title { display: flex; align-items: center; gap: 6px; min-width: 0; max-width: calc(100vw - 280px);
+            color: var(--header-primary, var(--text-strong)); font-size: 14px; font-weight: 500; line-height: 18px; }
+        .evi-pop-out-chat-title > svg { flex: none; color: var(--channel-icon, var(--icon-muted)); }
+        .evi-pop-out-chat-title > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .evi-pop-out-chat-body { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; min-width: 0; position: relative; }
     `,
 

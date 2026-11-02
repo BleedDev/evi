@@ -238,7 +238,10 @@ function PopOutButton({ channel }: { channel: ChatChannel; }) {
 }
 
 function menuItem(channel: ChatChannel) {
-    return <Menu.Item id="evi-pop-out-chat" label={t("menu.popOut")} action={() => popOut(channel)} />;
+    // iconLeft: the icon before the label, like Pin's and Add to Favorites'. Discord's menu item takes it;
+    // Evi's MenuItemProps doesn't list it, and Menu.Item hands every prop to Discord's as it is
+    const iconLeft = { iconLeft: PopOutIcon };
+    return <Menu.Item id="evi-pop-out-chat" label={t("menu.popOut")} action={() => popOut(channel)} {...iconLeft} />;
 }
 
 /** Next to Discord's own read and pin items, when the menu has them */

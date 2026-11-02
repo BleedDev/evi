@@ -54,7 +54,7 @@ jobs:
         run: |
           ditto -x -k dist/Evi-Setup-macos.zip "$RUNNER_TEMP/unzipped"
           app="$RUNNER_TEMP/unzipped/Evi Setup.app"
-          lipo -verify_arch x86_64 arm64 "$app/Contents/MacOS/evi-setup"
+          lipo "$app/Contents/MacOS/evi-setup" -verify_arch x86_64 arm64
           codesign --verify --deep --strict "$app"
           "$app/Contents/MacOS/evi-setup" status --json | grep '"installs"'
 

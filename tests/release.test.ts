@@ -18,8 +18,8 @@ describe("Evi's releases", () => {
         });
     });
 
-    test("a release without the CLI, only Evi Setup and evi-core.json, still updates", () => {
-        const release = parseRelease({ tag_name: "v1.5.0", assets: [asset("Evi-Setup.exe"), asset("evi-core.json"), asset("evi-core.json.sha256")] });
+    test("GUI and terminal Setup assets do not replace the developer CLI in updates", () => {
+        const release = parseRelease({ tag_name: "v1.5.0", assets: ["Evi-Setup.exe", "Evi-Setup-linux-cli-x64", "Evi-Setup-linux-cli-arm64", "evi-core.json", "evi-core.json.sha256"].map(asset) });
         expect(release).toMatchObject({ version: "1.5.0", coreUrl: asset("evi-core.json").browser_download_url, coreChecksumUrl: asset("evi-core.json.sha256").browser_download_url });
         expect(release).not.toHaveProperty("exeUrl");
         expect(release).not.toHaveProperty("coreGzUrl");

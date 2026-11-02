@@ -16,6 +16,8 @@ Get **Evi Setup** from [evi.rest/download](https://evi.rest/download), pick your
 
 On a Mac, the first time you open Evi Setup, allow it under System Settings → Privacy & Security. On Linux, mark the download as executable first.
 
+For terminal-only Linux setup (Ubuntu 24.04), use `Evi-Setup-linux-cli-x64` or `Evi-Setup-linux-cli-arm64` from [GitHub Releases](https://github.com/BleedDev/evi/releases/latest). See [Evi Setup](docs/development.md#evi-setup).
+
 ## Making plugins
 
 ```sh

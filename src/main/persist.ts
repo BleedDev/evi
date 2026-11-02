@@ -42,9 +42,10 @@ export function beforeEviRestart() {
  */
 export function persistAcrossUpdates(shimAsar: string) {
     if (process.platform === "darwin") return relinkAfterMacUpdate(shimAsar);
-    if (process.platform !== "win32") return;
+    const appDir = dirname(dirname(shimAsar));
+    if (!basename(appDir).startsWith("app-")) return;
 
-    const installRoot = dirname(dirname(dirname(shimAsar)));
+    const installRoot = dirname(appDir);
 
     /** Discord's archive never goes missing: the loader is copied in beside it first, then the two swap names */
     const inject = (resources: string) => {
@@ -112,7 +113,6 @@ export function persistAcrossUpdates(shimAsar: string) {
     // before-quit never fires when Windows shuts down, restarts or logs off, and Discord's updater
     // writes the new version while Discord runs: left open overnight, the next start had no Evi.
     // So move in as soon as the updater is done writing, without waiting for a quit
-    if (!basename(dirname(dirname(shimAsar))).startsWith("app-")) return;
     let settle: NodeJS.Timeout | undefined;
     const watch = () => {
         let watcher: ReturnType<typeof fs.watch>;

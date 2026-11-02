@@ -51,7 +51,7 @@ mock.module("original-fs", () => ({
 }));
 
 describe("staying in Discord across its updates", () => {
-    test.skipIf(process.platform !== "win32")("watching Discord's folder starts again after the watcher fails", async () => {
+    test("watching Discord's folder starts again after the watcher fails", async () => {
         const { persistAcrossUpdates } = await import("../src/main/persist");
         const root = join(DATA, "Discord");
         const running = join(root, "app-1.0.0", "resources");

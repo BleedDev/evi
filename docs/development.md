@@ -19,7 +19,7 @@ With `bun run dev` running:
 
 Press `Ctrl+Shift+D` in Discord to open the settings panel, where you manage plugins, themes, Quick CSS and patch health, and try out new source patches in the Patch Helper. The same pages are also in Discord's own settings, under Evi, and Discord's settings search finds Evi's tabs, the installed plugins and every plugin setting (with the Plugins tab's matching, `src/shared/settingsSearch.ts`). Results are Discord's own rows under Evi; choosing one opens that tab, the plugin's card, or the plugin's settings with that setting highlighted.
 
-To ship it: releases carry Evi Setup (below) and `evi-core.json`, the core and official plugins Evi Setup and in-app updates download. `bun scripts/build.ts --release` writes `evi-core.json` with its `.sha256`; `bun scripts/build.ts --installer` builds Evi Setup into `dist/`, on its own leaving `dist/core` and the plugins alone. The evi CLI is for developing Evi: `bun run compile` builds `dist/evi.exe`, and `--release --cli` builds it for every system at once (re-signing the macOS ones ad hoc with [rcodesign](https://github.com/indygreg/apple-platform-rs/releases), on your `PATH` or `RCODESIGN=`). Releases stopped carrying it at 1.5.0.
+The Bun developer CLI (`src/cli`, run as `evi`) works with local builds. `bun run compile` builds `dist/evi.exe`; `bun scripts/build.ts --release --cli` builds it for every system at once (re-signing the macOS ones ad hoc with [rcodesign](https://github.com/indygreg/apple-platform-rs/releases), on your `PATH` or `RCODESIGN=`). For release downloads, use [Evi Setup](#evi-setup).
 
 Where it finds Discord and keeps its data:
 
@@ -27,9 +27,9 @@ Where it finds Discord and keeps its data:
 |---|---|---|
 | Windows | `%LOCALAPPDATA%\Discord\app-*` | `%APPDATA%\Evi` |
 | macOS | `Discord*.app` in `/Applications` or `~/Applications` | `~/Library/Application Support/Evi` |
-| Linux | `discord`, `discord-ptb`, ... in `/usr/share`, `/usr/lib`, `/opt` or `~/.local/share`, or the tarball in `~/Discord` | `~/.config/Evi` |
+| Linux | `discord`, `discord-ptb`, ... in `/usr/share`, `/usr/lib`, `/opt`, `~/.local/share` or `~/.config/<flavor>/app-*`, or the tarball in `~/Discord` | `~/.config/Evi` |
 
-Linux packages install Discord as root, so run `install`, `uninstall` and `update` there with `sudo`. Under sudo Evi's data still goes to your home and belongs to you, and Discord isn't restarted for you (it would run as root). A package upgrade puts Discord's own `app.asar` back: run `evi install` again. On macOS, the terminal needs **App Management** (System Settings → Privacy & Security) to change `Discord.app`. Flatpak and Snap aren't supported: Snap is read-only and Flatpak's sandbox can't see Evi's data.
+System-wide Linux package installs belong to root: terminal operations that change them need `sudo` (user-owned `~/.config` and `~/Discord` installs do not). Evi's data still goes to your home and belongs to you; start Discord manually afterward, so it doesn't run as root. On macOS, the terminal needs **App Management** (System Settings → Privacy & Security) to change `Discord.app`. Flatpak and Snap aren't supported: Snap is read-only and Flatpak's sandbox can't see Evi's data.
 
 ```
 evi install   [--flavor stable|ptb|canary|development|all] [--restart | --wait] [--dev]
@@ -40,31 +40,19 @@ evi update    [--check] [--flavor ...] [--restart]
 
 ### Evi Setup
 
-`Evi-Setup.exe` is the installer for everyone who'd rather not use a terminal: a small window (Rust + [Tauri](https://tauri.app), about 3.5 MB, in `installer/`) that lists Discord Stable, PTB, Canary and Development with what's in each (Evi and its version, nothing, another mod, not found), and installs or uninstalls Evi in the ones you tick. It closes Discord, swaps the archives exactly like `evi install` (the loader is byte for byte the CLI's), writes the core and official plugins into `%APPDATA%\Evi` (plugins you removed stay removed, retired ones are deleted), moves an old `%APPDATA%\Delight` over, and starts Discord again.
+Evi Setup (`installer/`, Rust + [Tauri](https://tauri.app)) installs, updates and removes Evi through a window or terminal commands (`status`, `check`, `install`, `uninstall [--flavor stable,ptb|all] [--no-restart]`, text or `--json` / `--headless`). It closes Discord, swaps the archives like `evi install`, writes the core into `%APPDATA%\Evi`, refreshes existing official plugins (leaving removed, store and user plugins alone, and deleting retired ones), moves an old `%APPDATA%\Delight` over, and starts Discord again.
 
-It doesn't carry Evi: it downloads `evi-core.json` from the latest release on GitHub and checks it against `evi-core.json.sha256`; a mismatch changes nothing. Because it always installs the latest, one build serves every release: a release copies the last release's Setup files unless `installer/` changed (or `rebuild_setup` is ticked on a manual run), and its window shows the version it would install. Like the app's update check and `evi update`, it asks evi.rest's mirror of GitHub's release API (`https://evi.rest/v1/github`) first and GitHub itself if evi.rest can't answer; `EVI_UPDATE_API` points it at another API instead, with no fallback (the tests use a local fake) and `EVI_CORE_FILE=dist/embed.json` installs a local build without downloading. `Evi-Setup.exe --headless status|check|install|uninstall [--flavor stable,ptb|all] [--no-restart]` does the same without the window and prints JSON.
+It downloads `evi-core.json` from the latest release (asking `https://evi.rest/v1/github` first, then GitHub; `EVI_UPDATE_API` overrides, `EVI_CORE_FILE=dist/embed.json` uses a local build) and checks `evi-core.json.sha256`. `bun scripts/build.ts --installer` packages the GUI into `dist/` (`Evi-Setup.exe`, universal `Evi-Setup-macos.zip`, `Evi-Setup-linux-<x64|arm64>`, needing WebKitGTK 4.1 on Linux); `--installer-cli` builds `dist/Evi-Setup-linux-cli-<x64|arm64>` without Tauri, GTK, WebKit or OpenSSL.
 
-Needs [Rust](https://rustup.rs) to build (`cargo build --release` in `installer/` works too). It's the installer on every system; the evi CLI is for developing Evi (`bun run inject`). `bun scripts/build.ts --installer` builds it for the system it runs on: `Evi-Setup.exe` on Windows, `Evi-Setup-macos.zip` on macOS (`Evi Setup.app` for Apple Silicon and Intel, joined with `lipo`, signed ad hoc, zipped with `ditto`) and `Evi-Setup-linux-<x64|arm64>` on Linux, which needs WebKitGTK 4.1's development files. It links each system's webview, so unlike the CLI it can't be cross-built: `.github/workflows/setup-builds.yml` builds and checks the macOS and Linux ones on those systems, for CI on every push and for each release.
-
-On macOS and Linux an update replaces Discord's files in place, loader included, so installing also leaves a watcher outside Discord (`installer/src/autorepair.rs`): a launchd agent (`~/Library/LaunchAgents/rest.evi.relink.<flavor>.plist`) on macOS, a systemd path unit (`evi-relink-<flavor>.path`) on Linux. When Discord's folder changes it runs a copy of Evi Setup with `--headless relink`, which puts the loader back if Discord's own archive is in its place again. It never closes Discord or touches another mod. On Linux, when Discord's folder belongs to root, Evi Setup runs itself through `pkexec` (the desktop's password prompt) for just the swap and the watcher: `--headless swap` / `unswap`. A root watcher is a system unit and runs a root-owned copy in `/usr/local/lib/evi`, never one in the user's home.
-
-Evi up to 1.3.1 won't take a release without the CLI file for its system (`parseRelease`). Releases from 1.5.0 on don't carry it, so those installs no longer update in the app: running Evi Setup once brings them up to date, and from 1.4.0 on Evi updates from `evi-core.json` alone.
-
-Launch `Discord.exe --vanilla` to start once without Evi, or `Discord.exe --evi-safe` to start once in [safe mode](#safe-mode).
+On macOS and Linux, Setup installs a launchd agent or systemd path unit (`installer/src/autorepair.rs`) that runs `--headless relink` to restore the loader after Discord updates. For root-owned Linux folders, the GUI uses `pkexec` (`--headless swap` / `unswap`) and keeps a root-owned watcher copy in `/usr/local/lib/evi`.
 
 ### Updating
 
-`evi update` (the CLI, for developing Evi) asks GitHub for the latest release, but releases from 1.5.0 on carry no CLI: build it from source instead.
-
-Evi updates from inside Discord: Evi settings → **Updates** shows the latest release and its notes, and **Update and restart Discord** installs it. It downloads `evi-core.json`, checks it against `evi-core.json.sha256` and writes the new core and official plugins into the data folder (`src/main/coreUpdate.ts`), then restarts Discord. Evi checks when Discord starts and every few hours after, and shows a notice when a new version is out; the Updates tab can turn that off.
-
-**Install updates in the background** (Updates tab, off by default) does it without interrupting you. When a check finds a newer release, Evi downloads and verifies `evi-core.json` quietly and keeps it as `update-core.json.pending` (with `update-staged.json` saying which version it is); the Updates tab then says it installs when you close Discord, and no notice pops up. When Discord actually quits (Electron's `will-quit`, which fires once every window has closed and never when the window just closes to the tray), the staged core is written in, and the next start runs the new Evi. A staged version that isn't newer than the running one is deleted at startup. Dev builds and source checkouts never update silently.
-
-`evi update --check` only reports whether a newer release exists. Source checkouts (`bun src/cli/index.ts`) don't replace themselves: update them with `git pull` and `bun run build`.
+Evi updates from inside Discord: Evi settings → **Updates** downloads `evi-core.json` (trying `.gz` first), checks `evi-core.json.sha256`, writes the core and refreshes existing official plugins (`src/main/coreUpdate.ts`), then restarts Discord. With **Install updates in the background** on, Evi stages a newer release as `update-core.json.pending` (`update-staged.json`) and applies it on `will-quit`. Dev builds and source checkouts never update silently; update source checkouts with `git pull` and `bun run build`.
 
 ### Releasing
 
-`.github/workflows/release.yml` runs only when started from the Actions tab (with a `version` input) or when a `v*` tag is pushed. The version must match `package.json`, and `src/shared/changelog.ts` must have an entry for it (its notes become the release's). It builds, typechecks, runs the unit and CLI tests, builds `evi-core.json` and Evi Setup on Windows, macOS and Linux (`setup-builds.yml`), tests them, and **publishes** the release with `evi-core.json`, the four Evi Setup files and their `.sha256` files attached: from then on Evi Setup and the in-app updater see it. It refuses to run when a release with that tag already exists. Versions with a `-suffix` are published as prereleases, which only installs on the beta channel take.
+`.github/workflows/release.yml` runs from the Actions tab (`version` input) or a `v*` tag matching `package.json` and `src/shared/changelog.ts`. It tests Evi, builds `evi-core.json` (`.gz`, `.sha256`), reuses the previous release's six Setup files when `installer/` and `setup-builds.yml` are unchanged (or builds them across Windows, macOS and Linux), and publishes the release in a dedicated `publish` job (`--prerelease` when the version has a `-suffix`).
 
 ## How it works
 
@@ -77,6 +65,7 @@ Discord.exe
        └ resources/_app.asar Discord's untouched original, loaded after setup
 ```
 
+- **Setup.** `installer/src/cli.rs` parses commands with Clap; `gui.rs` handles the window. They share `ops.rs` for installation, Rustls with Mozilla's root certificates for downloads, and a version embedded from `package.json` by `build.rs`.
 - **Injection.** Electron always loads `app.asar` before an `app` folder, so the installer renames Discord's archive to `_app.asar` and writes a tiny loader archive in its place. When Discord updates into a new `app-x.y.z` folder, the main process re-applies this swap on its own at startup and on quit.
 - **Preload.** Instead of replacing Discord's `BrowserWindow`, we register an extra session preload, so Discord's own preload is never touched.
 - **Webpack capture.** Discord is built with rspack. Four runtimes share `webpackChunkdiscord_app`: libdiscore, fast-connect, sentry and the main app. We trap the array's `push` assignment, get each runtime's `__webpack_require__` through a fake chunk, and wrap every module factory. The runtime that executes the most modules is treated as the main one.
@@ -89,7 +78,7 @@ Discord.exe
 
 ## Plugins
 
-Official plugins ship in `plugins/` and are turned on or off in the Plugins tab.
+Install plugins from the [store](#plugin-store) and toggle them in the Plugins tab. Some official plugins and their manifest defaults:
 
 | Plugin | Default | What it does |
 |---|---|---|
@@ -177,16 +166,15 @@ bun scripts/registry.ts
 This copies the built official plugins into `store/plugins/<id>/` and writes `registry.json` with their hashes, pointing at `https://evi.rest/store/plugins`, and copies `themes/*.css` into `store/themes/`. Commit both together: the registry only matches the files from the same run. The same build always gives the same files and hashes. Name, description, authors, version and `tags` come from each plugin's `manifest.json`; `minEviVersion` too, defaulting to the current Evi version. Options: `--base <https url>` to serve the files from somewhere else, `--files <dir>` for where to copy them, `--out <file>` for the registry, `--only id,id` to publish a subset. The script checks its output with the app's own validation before writing it.
 ## Safe mode
 
-A plugin, theme or Quick CSS that breaks Discord can't lock you out of it. In safe mode Evi still loads, with its settings, but nothing you added runs: no plugins (not even their top-level code, their native side or their Chromium switches), no themes and no Quick CSS. Discord itself works normally.
+A plugin, theme or Quick CSS that breaks Discord can't lock you out of it. Safe mode keeps Discord and Evi's settings working, but disables all plugins (official ones included, even their top-level code, native side and Chromium switches), themes and Quick CSS.
 
 - **Crash loops.** Each start is counted in `%APPDATA%\Evi\safe-mode.json`. Once plugins have started and Discord has stayed up for 5 seconds, the start counts as healthy and the counter goes back to 0. A start that crashes, hangs or gets closed before that leaves it up. After 2 of those in a row, the next start is in safe mode.
 - **Crashes while Discord runs.** If Discord's window crashes twice within 2 minutes, Discord switches to safe mode on the spot: native plugin code is stopped and the window reloads without plugins.
 - **Staying safe.** Safe mode caused by crashes stays on across restarts until you leave it. If Discord still fails to start twice in safe mode, the next start skips Evi entirely, then it's back to safe mode.
-- **On demand.** `Discord.exe --evi-safe` starts in safe mode once.
+- **On demand.** `Discord.exe --evi-safe` starts in safe mode once; `Discord.exe --vanilla` skips Evi entirely for one start.
 
 A notice in Discord (and at the top of the Plugins tab) says why safe mode is on and names the most recent change that's still on: a plugin turned on, added or updated, its settings changed, a theme turned on or edited, or a Quick CSS edit. It offers **Disable &lt;it&gt; and restart** and **Exit safe mode and restart**. Turning a plugin on is written to disk before any of its code runs, so a plugin that crashes Discord the moment you enable it is still named. In safe mode you can still turn plugins and themes on and off; the changes apply once you leave it.
 
-All plugins are off, official ones included. They're installed into the same folder as yours and there's no telling them apart on disk, and a Discord update can break an official plugin's source patch as easily as yours. The notice and the settings are part of Evi's core, so they still work.
 ## Message Logger
 
 An official plugin, off by default. Deleted messages stay in the chat, tinted red and marked **Deleted**, and edited messages show their previous versions under them, rendered with Discord's own markdown. Messages you delete yourself vanish as usual. Settings: keep deleted messages, keep edit history, ignore my own deletes, ignore my own messages, ignore bots, and how many messages to log per channel (the oldest are forgotten past it). The settings card counts what's logged and has a **Clear logged messages** button.
@@ -197,7 +185,7 @@ Nothing is written to disk. It uses no source patches: it hooks MessageStore's o
 
 The full guide, including how to have Claude generate a plugin, is in [docs/plugins.md](plugins.md).
 
-`bun run new-plugin my-plugin` starts one in `userplugins/` that builds, runs and passes its test as it is, and `bun run preview-plugin my-plugin` shows its store page and what evi.rest would say about it before you upload it.
+`bun run plugin new my-plugin` starts one in `userplugins/` that builds, runs and passes its test as it is. `bun run plugin check my-plugin --open` shows its store page, runs the upload checks and prints the safety check reviewers see. `bun run plugin login` links the terminal to your evi.rest account; `bun run plugin upload my-plugin` sends it for review, and `bun run plugin status my-plugin` shows the result. The older `new-plugin` and `preview-plugin` scripts still work.
 
 A plugin is a folder in `plugins/` (official) or `userplugins/` (yours, gitignored):
 
@@ -323,7 +311,7 @@ Settings and Quick CSS are flushed synchronously when the page unloads.
 
 ## Tests
 
-`bun run test` runs everything:
+`bun run test` builds the developer CLI, typechecks and runs the suites below except `test:installer`. Run that separately after `bun scripts/build.ts --installer` on Windows.
 
 | Suite | What it proves |
 |---|---|
@@ -334,10 +322,10 @@ Settings and Quick CSS are flushed synchronously when the page unloads.
 | `test:installer` | Evi Setup (`dist/Evi-Setup.exe`, headless) against a fake `%LOCALAPPDATA%` and a fake GitHub: the loader matches the CLI's byte for byte, checksum mismatches and missing releases change nothing, removed/retired/your own plugins, always the latest release (newer than Setup itself), uninstall of every version folder, other mods, flavors, the Delight rename |
 | `test:plugins` | Fast Lists on a synthetic 185-server sidebar and member list: no visible row ever hidden, never writes the scroll position, leaves the chat alone, stands down while a screen reader is on |
 
-None of the tests touch your real Discord install or profile.
+Run Rust tests with `cargo test --locked --manifest-path installer/Cargo.toml` (`--no-default-features` for the CLI build). None of the tests touch your real Discord install or profile.
 
 ## CI
 
 [![CI](https://github.com/BleedDev/evi/actions/workflows/ci.yml/badge.svg)](https://github.com/BleedDev/evi/actions/workflows/ci.yml)
 
-Every push and pull request to `main` runs the build, typecheck and all the suites above on `windows-latest` (`.github/workflows/ci.yml`). The web and Electron suites load the live discord.com, so an outage or a change on Discord's side can fail a run. Everything in `test-results/` (screenshots, logs) is uploaded as an artifact on every run. The browser suites look for Chrome in its usual install folders; set `CHROME_PATH` to use another Chromium browser.
+Every push and pull request to `main` runs `ci.yml` on `windows-latest` and calls `setup-builds.yml` to build and test Evi Setup across Windows, macOS (universal) and Ubuntu 24.04 x64/ARM64 (GUI and CLI). Screenshots and logs in `test-results/` are uploaded as artifacts; set `CHROME_PATH` to use another Chromium browser.

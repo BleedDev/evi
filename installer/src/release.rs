@@ -64,9 +64,7 @@ fn apis() -> Vec<String> {
 }
 
 fn agent(timeout: u64) -> ureq::Agent {
-    let tls = ureq::tls::TlsConfig::builder().provider(ureq::tls::TlsProvider::NativeTls).build();
     ureq::Agent::config_builder()
-        .tls_config(tls)
         .timeout_global(Some(Duration::from_secs(timeout)))
         .http_status_as_error(false)
         .user_agent("evi-installer")
@@ -89,23 +87,21 @@ fn get(url: &str, timeout: u64) -> Result<ureq::http::Response<ureq::Body>, Stri
 /// "v1.2.3-beta.1+build" -> "1.2.3-beta.1", like cleanVersion in src/shared/release.ts
 pub fn clean_version(tag: &str) -> String {
     let t = tag.trim();
-    let t = t.strip_prefix('v').or_else(|| t.strip_prefix('V')).unwrap_or(t);
-    t.split('+').next().unwrap_or("").to_string()
+    t.strip_prefix(['v', 'V']).unwrap_or(t).split('+').next().unwrap_or("").to_string()
 }
 
 /// GETs `<api>/repos/BleedDev/evi/<path>` from each API in turn, moving on to the next when one can't
 /// be reached, times out or answers 5xx. Anything else (a release, a 404, GitHub's 403) is the answer.
 fn get_release_api(apis: &[String], path: &str) -> Result<ureq::http::Response<ureq::Body>, String> {
-    let mut failure = String::from("No release API to ask");
     for (i, api) in apis.iter().enumerate() {
         let last = i + 1 == apis.len();
         match get(&format!("{api}/repos/{REPO}/{path}"), 15) {
             Ok(res) if res.status().as_u16() < 500 || last => return Ok(res),
-            Ok(res) => failure = format!("{} answered {}", host(api), res.status().as_u16()),
-            Err(e) => failure = e,
+            Err(e) if last => return Err(e),
+            _ => {}
         }
     }
-    Err(failure)
+    unreachable!()
 }
 
 fn fetch_from(apis: &[String], path: &str) -> Result<Option<Release>, String> {
@@ -160,7 +156,7 @@ pub fn download_core(release: &Release, on_verify: impl FnOnce()) -> Result<Core
         .ok_or_else(|| format!("{CHECKSUM_ASSET} doesn’t contain a SHA-256 hash"))?;
     let bytes = download(core_url, MAX_CORE_BYTES, 10 * 60)?;
     on_verify();
-    let actual = Sha256::digest(&bytes).iter().map(|b| format!("{b:02x}")).collect::<String>();
+    let actual = format!("{:x}", Sha256::digest(&bytes));
     if actual != expected {
         return Err("The download doesn’t match the release’s checksum. Nothing was changed.".into());
     }

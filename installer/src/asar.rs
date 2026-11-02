@@ -32,19 +32,10 @@ pub fn read_asar_file(asar: &Path, file_path: &str) -> io::Result<String> {
     f.read_exact(&mut json)?;
     let header: Value = serde_json::from_slice(&json).map_err(|e| invalid(format!("{} has a broken header: {e}", asar.display())))?;
 
-    let mut entry = Some(&header);
-    for part in file_path.split('/') {
-        entry = entry.and_then(|e| e.get("files")).and_then(|files| files.get(part));
-    }
     let not_found = || invalid(format!("{file_path} not found in {}", asar.display()));
-    let entry = entry.ok_or_else(not_found)?;
-    let offset = match entry.get("offset") {
-        Some(Value::String(s)) => s.parse::<u64>().ok(),
-        Some(Value::Number(n)) => n.as_u64(),
-        _ => None,
-    }
-    .ok_or_else(not_found)?;
-    let size = entry.get("size").and_then(Value::as_u64).ok_or_else(not_found)? as usize;
+    let entry = file_path.split('/').try_fold(&header, |e, part| e.get("files")?.get(part)).ok_or_else(not_found)?;
+    let offset = entry["offset"].as_str().and_then(|s| s.parse().ok()).or_else(|| entry["offset"].as_u64()).ok_or_else(not_found)?;
+    let size = entry["size"].as_u64().ok_or_else(not_found)? as usize;
 
     f.seek(SeekFrom::Start(8 + header_size + offset))?;
     let mut content = vec![0u8; size];
@@ -82,15 +73,14 @@ pub fn create_asar(files: &[(&str, String)]) -> Vec<u8> {
 }
 
 /// The loader that replaces Discord's app.asar. If the core fails to load, it boots Discord vanilla.
-pub fn create_shim(core_path: &str, dev_plugins_dir: Option<&str>) -> String {
+fn create_shim(core_path: &str) -> String {
     let core = js_string(core_path);
-    let dev = dev_plugins_dir.map(|dir| format!("process.env.EVI_DEV_PLUGINS = {};\n", js_string(dir))).unwrap_or_default();
     let original = js_string(ORIGINAL_ASAR);
     format!(
         r#"{SHIM_MARKER}
 "use strict";
 const path = require("path");
-{dev}
+
 // The bundler inlines __dirname at build time, so the core learns its location from us
 global.__eviCoreDir = path.dirname({core});
 // Evi's and Discord's code compile from a cache after the first start. A short folder: nodejs/node#66438
@@ -113,28 +103,16 @@ try {{
     )
 }
 
-/// JSON.stringify of a parsed value at the top level of the package. Discord's are plain strings.
-fn js_value(v: &Value) -> String {
-    serde_json::to_string(v).unwrap()
-}
-
 /// Electron derives the app name (and so the userData folder) from this, so it must mirror Discord's.
 /// JSON.stringify({ name: pkg.name ?? "discord", productName: pkg.productName, main: "index.js" }, null, 4)
-pub fn create_shim_package(discord_pkg: &Value) -> String {
-    let name = match discord_pkg.get("name") {
-        None | Some(Value::Null) => js_string("discord"),
-        Some(v) => js_value(v),
-    };
-    let mut lines = vec![format!("    \"name\": {name}")];
-    if let Some(product) = discord_pkg.get("productName") {
-        lines.push(format!("    \"productName\": {}", js_value(product)));
-    }
-    lines.push("    \"main\": \"index.js\"".to_string());
-    format!("{{\n{}\n}}", lines.join(",\n"))
+fn create_shim_package(discord_pkg: &Value) -> String {
+    let name = Some(&discord_pkg["name"]).filter(|v| !v.is_null()).map_or_else(|| js_string("discord"), Value::to_string);
+    let product = discord_pkg.get("productName").map(|p| format!("    \"productName\": {p},\n")).unwrap_or_default();
+    format!("{{\n    \"name\": {name},\n{product}    \"main\": \"index.js\"\n}}")
 }
 
 pub fn create_shim_asar(core_path: &str, discord_pkg: &Value) -> Vec<u8> {
-    create_asar(&[("index.js", create_shim(core_path, None)), ("package.json", create_shim_package(discord_pkg))])
+    create_asar(&[("index.js", create_shim(core_path)), ("package.json", create_shim_package(discord_pkg))])
 }
 
 #[cfg(test)]

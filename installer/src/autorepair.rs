@@ -112,8 +112,8 @@ fn locations() -> Locations {
     Locations { system, exe, dir }
 }
 
-fn run(cmd: &[String]) -> Result<(), String> {
-    match Command::new(&cmd[0]).args(&cmd[1..]).output() {
+fn run(cmd: &[&str]) -> Result<(), String> {
+    match Command::new(cmd[0]).args(&cmd[1..]).output() {
         Ok(out) if out.status.success() => Ok(()),
         Ok(out) => Err(format!("{}{}", String::from_utf8_lossy(&out.stdout), String::from_utf8_lossy(&out.stderr)).trim().to_string()),
         Err(e) => Err(e.to_string()),
@@ -121,13 +121,11 @@ fn run(cmd: &[String]) -> Result<(), String> {
 }
 
 /// launchctl and systemctl --user have to run as the user, not as root under sudo
-fn as_user(cmd: &[&str]) -> Vec<String> {
-    let mut out = vec![];
-    if let Some(user) = paths::invoking_user() {
-        out.extend(["sudo", "-u", user.name.as_str(), "--preserve-env=XDG_RUNTIME_DIR,DBUS_SESSION_BUS_ADDRESS"].map(String::from));
+fn run_as_user(cmd: &[&str]) -> Result<(), String> {
+    match paths::invoking_user() {
+        Some(user) => run(&[&["sudo", "-u", &user.name, "--preserve-env=XDG_RUNTIME_DIR,DBUS_SESSION_BUS_ADDRESS"], cmd].concat()),
+        None => run(cmd),
     }
-    out.extend(cmd.iter().map(|s| s.to_string()));
-    out
 }
 
 fn gui_domain() -> String {
@@ -137,9 +135,9 @@ fn gui_domain() -> String {
 
 fn systemctl(system: bool, args: &[&str]) -> Result<(), String> {
     if system {
-        run(&std::iter::once("systemctl").chain(args.iter().copied()).map(String::from).collect::<Vec<_>>())
+        run(&[&["systemctl"], args].concat())
     } else {
-        run(&as_user(&[&["systemctl", "--user"], args].concat()))
+        run_as_user(&[&["systemctl", "--user"], args].concat())
     }
 }
 
@@ -153,11 +151,6 @@ pub fn watched_paths(install: &DiscordInstall) -> Vec<String> {
         }
     }
     watch
-}
-
-/// The file to copy for the watcher: this program. Its folder may be Downloads, which people empty
-fn own_exe() -> Option<PathBuf> {
-    std::env::current_exe().ok()
 }
 
 fn install_copy(from: &Path, to: &Path) -> std::io::Result<()> {
@@ -186,7 +179,7 @@ pub fn enable(install: &DiscordInstall, core_path: &str) -> Result<(), String> {
         return Ok(());
     }
     let loc = locations();
-    let exe = own_exe().ok_or("couldn’t find Evi Setup’s own file")?;
+    let exe = std::env::current_exe().map_err(|e| format!("couldn’t find Evi Setup’s own file: {e}"))?;
     install_copy(&exe, &loc.exe).map_err(|e| format!("couldn’t write {}: {e}", loc.exe.display()))?;
     std::fs::create_dir_all(&loc.dir).map_err(|e| format!("couldn’t write {}: {e}", loc.dir.display()))?;
     let w = Watcher { flavor: install.flavor, exe: paths::node_path(&loc.exe), core_path: core_path.to_string(), watch: watched_paths(install) };
@@ -196,11 +189,11 @@ pub fn enable(install: &DiscordInstall, core_path: &str) -> Result<(), String> {
         std::fs::write(&plist, launch_agent_plist(&w)).map_err(|e| e.to_string())?;
         paths::give_back_to_user(&plist);
         let plist = paths::node_path(&plist);
-        let _ = run(&as_user(&["launchctl", "bootout", &gui_domain(), &plist]));
-        return run(&as_user(&["launchctl", "bootstrap", &gui_domain(), &plist])).map_err(|e| format!("launchctl: {e}"));
+        let _ = run_as_user(&["launchctl", "bootout", &gui_domain(), &plist]);
+        return run_as_user(&["launchctl", "bootstrap", &gui_domain(), &plist]).map_err(|e| format!("launchctl: {e}"));
     }
 
-    if run(&["systemctl".into(), "--version".into()]).is_err() {
+    if run(&["systemctl", "--version"]).is_err() {
         return Err("it needs systemd, which this system doesn’t use".into());
     }
     let name = unit_name(w.flavor);
@@ -224,7 +217,7 @@ pub fn disable(flavor: &str) {
     if cfg!(target_os = "macos") {
         let plist = loc.dir.join(format!("{LABEL}.{flavor}.plist"));
         if plist.exists() {
-            let _ = run(&as_user(&["launchctl", "bootout", &gui_domain(), &paths::node_path(&plist)]));
+            let _ = run_as_user(&["launchctl", "bootout", &gui_domain(), &paths::node_path(&plist)]);
             let _ = std::fs::remove_file(&plist);
         }
     } else {
@@ -236,12 +229,13 @@ pub fn disable(flavor: &str) {
             let _ = systemctl(loc.system, &["daemon-reload"]);
         }
     }
-    let left = std::fs::read_dir(&loc.dir)
-        .map(|entries| entries.flatten().any(|e| {
-            let name = e.file_name().to_string_lossy().into_owned();
+    let left = std::fs::read_dir(&loc.dir).is_ok_and(|mut entries| {
+        entries.any(|e| e.is_ok_and(|e| {
+            let name = e.file_name();
+            let name = name.to_string_lossy();
             name.starts_with(LABEL) || name.starts_with("evi-relink-")
         }))
-        .unwrap_or(false);
+    });
     if !left {
         if let Some(bin) = loc.exe.parent() {
             let _ = std::fs::remove_dir_all(bin);

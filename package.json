@@ -14,6 +14,7 @@
         "status": "bun src/cli/index.ts status",
         "new-plugin": "bun scripts/new-plugin.ts",
         "preview-plugin": "bun scripts/preview-plugin.ts",
+        "plugin": "bun scripts/plugin.ts",
         "typecheck": "tsc --noEmit",
         "test:web": "node scripts/test-web.ts",
         "test:electron": "bun scripts/test-electron.ts",

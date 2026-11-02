@@ -243,7 +243,7 @@ writeFileSync(page, html);
 for (const f of findings) console.log(`${f.level === "error" ? "✗" : "!"} ${f.message}`);
 if (!findings.length) console.log("✓ Nothing the store would refuse or ask about");
 console.log(`\nStore page: ${relative(ROOT, page).replaceAll("\\", "/")}`);
-if (!errors.length && !official) console.log("Upload it from your dashboard on evi.rest: manifest.json and index.js from dist/plugins/" + builtId);
+if (!errors.length && !official) console.log(`Upload it with bun run plugin upload ${id}, or from your dashboard on evi.rest: the files in dist/plugins/${builtId}`);
 
 if (values.open) {
     const [cmd, ...args] = process.platform === "win32" ? ["cmd", "/c", "start", "", page] : [process.platform === "darwin" ? "open" : "xdg-open", page];

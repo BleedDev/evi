@@ -290,6 +290,7 @@ Next:
   bun run dev                      builds it and reloads it as you save
   Ctrl+Shift+D in Discord          turn ${name} on under Plugins, try /${command}
   bun test ${rel(testFile)}
-  bun run preview-plugin ${id}      its store page, and what the store would say about it
+  bun run plugin check ${id}        what the store would say about it, and its store page
+  bun run plugin upload ${id}       send it for review (bun run plugin login first)
 
 The guide is docs/plugins.md.`);

@@ -23,13 +23,15 @@ A complete guide to building an Evi plugin, from an empty folder to a store rele
 ## 0. Start in a minute
 
 ```sh
-bun run new-plugin my-plugin          # userplugins/my-plugin/, ready to run
+bun run plugin new my-plugin          # userplugins/my-plugin/, ready to run
 bun run dev                           # builds it, and reloads it in Discord as you save
 bun test userplugins/my-plugin        # its test
-bun run preview-plugin my-plugin --open   # its store page, and what the store would say about it
+bun run plugin check my-plugin --open # what the store would say about it, and its store page
+bun run plugin login                  # once: link this terminal to your evi.rest account
+bun run plugin upload my-plugin       # send it for review
 ```
 
-`new-plugin` writes a manifest (with a `locales` example), an `index.tsx` with a setting, a keyboard shortcut and a slash command, a `strings.ts` with its text in every language Evi speaks (see "Translations"), a pure `greeting.ts` and its test, all following this guide. Turn it on in Evi (`Ctrl+Shift+D`, Plugins), try its command, then make it yours. Options: `--name "My Plugin"`, `--author "You"`, and `--official` for a plugin in `plugins/` with its test in `tests/`.
+`bun run plugin` is Evi's plugin CLI (`scripts/plugin.ts`, no dependencies); `new` and `check` are the same as `bun run new-plugin` and `bun run preview-plugin`. `new` writes a manifest (with a `locales` example), an `index.tsx` with a setting, a keyboard shortcut and a slash command, a `strings.ts` with its text in every language Evi speaks (see "Translations"), a pure `greeting.ts` and its test, all following this guide. Turn it on in Evi (`Ctrl+Shift+D`, Plugins), try its command, then make it yours. Options: `--name "My Plugin"`, `--author "You"`, and `--official` for a plugin in `plugins/` with its test in `tests/`.
 
 ## 1. Anatomy
 
@@ -547,12 +549,20 @@ Then check it for real:
 Check it first:
 
 ```sh
-bun run preview-plugin my-plugin --open
+bun run plugin check my-plugin --open
 ```
 
-It builds, runs the checks evi.rest runs on an upload (a missing or malformed `permissions`, an id or name that's Evi's, a version that isn't newer than the store's, invisible characters, a `native.js` the manifest doesn't mention...) and the app's own checks on the store entry it would make, and says what a reviewer would ask about: a site the code contacts that `network` doesn't list, message events or stores without `readMessages`, no changelog entry for this version. It also writes `dist/preview/my-plugin.html`, the plugin's store page as people would see it, with what it asks for and what its code can reach. It exits 1 when an upload would be refused, so it can run in CI. `--offline` skips comparing with the store's version, `--no-build` uses what's already in `dist/`.
+It builds, runs the checks evi.rest runs on an upload (a missing or malformed `permissions`, an id or name that's Evi's, a version that isn't newer than the store's, invisible characters, a `native.js` the manifest doesn't mention...) and the app's own checks on the store entry it would make, and says what a reviewer would ask about: a site the code contacts that `network` doesn't list, message events or stores without `readMessages`, no changelog entry for this version. It also writes `dist/preview/my-plugin.html`, the plugin's store page as people would see it, with what it asks for and what its code can reach. It exits 1 when an upload would be refused, so it can run in CI. `--offline` skips comparing with the store's version, `--no-build` uses what's already in `dist/` (both with `bun run preview-plugin`). Last, it runs the safety check reviewers see first on the Review page: reading the token, built-in webhooks, code it downloads, code written so it can't be read, account endpoints and, in `native.js`, programs, files and Electron's protections, each with the lines it's on.
 
-Then upload `manifest.json` and `index.js` (and `native.js`) from `dist/plugins/my-plugin/` on your dashboard on evi.rest. Evi's team reads every version before it goes in.
+Then upload it:
+
+```sh
+bun run plugin login               # once: confirm a short code on evi.rest in your browser (--no-browser to just print the link)
+bun run plugin upload my-plugin    # runs check, then asks before sending; --beta for the Beta channel, --yes for CI
+bun run plugin status              # your uploads, and the note when one is sent back
+```
+
+`login` links the terminal the way Evi links itself (Evi settings, Account): it gets an install id of its own, kept in Evi's data folder as `plugin-cli.json`, and appears under your linked Evis on evi.rest, where you can unlink it; `bun run plugin logout` forgets it here. Or upload `manifest.json` and `index.js` (and `native.js`) from `dist/plugins/my-plugin/` on your dashboard on evi.rest. Evi's team reads every version before it goes in.
 
 ### Betas, notes and numbers
 

@@ -217,6 +217,7 @@ var popoutWindowFilter = import_api2.filters.componentByCode("Missing guestWindo
 var channelChatFilter = import_api2.filters.componentByCode('location:"ChannelChat"');
 var inputTypesFilter = import_api2.filters.byProps("SIDEBAR", "OVERLAY_INLINE_REPLY");
 var uploadAreaFilter = import_api2.filters.componentByCode(/\{className:[\w$]+,style:[\w$]+,channel:[\w$]+,draftType:[\w$]+\}=/, "ATTACH_FILES");
+var titleBarFilter = import_api2.filters.componentByCode('"data-window-chrome":"true"');
 var headerFilter = import_api2.filters.componentByCode("isAuthenticated", "HEADER_BAR");
 var WINDOW_SIZE = { defaultWidth: 440, defaultHeight: 720 };
 var CHANNEL_MESSAGE_DRAFT = 0;
@@ -260,6 +261,7 @@ var getPopoutWindow = lookup(popoutWindowFilter);
 var getChannelChat = lookup(channelChatFilter);
 var getInputTypes = lookup(inputTypesFilter);
 var getUploadArea = lookup(uploadAreaFilter);
+var getTitleBar = lookup(titleBarFilter);
 function svgIcon(paths) {
   return function Icon({ width = 24, height = 24, color, className, colorClass }) {
     const fill = typeof color === "string" ? color : color?.css ?? "currentColor";
@@ -362,6 +364,7 @@ function mirrorStyles(win) {
 function ChatWindow({ windowKey: key, channelId }) {
   import_api2.useLocale();
   const channel = useStore("ChannelStore", (store) => store?.getChannel?.(channelId));
+  const fullScreen = useStore("PopoutWindowStore", (store) => !!store?.isWindowFullScreen?.(key));
   const guild = useStore("GuildStore", (store) => channel?.guild_id ? store?.getGuild?.(channel.guild_id) ?? null : null);
   import_api2.React.useLayoutEffect(() => {
     const win = import_api2.getStore("PopoutWindowStore")?.getWindow?.(key);
@@ -372,6 +375,7 @@ function ChatWindow({ windowKey: key, channelId }) {
   const PopoutWindow = getPopoutWindow();
   const ChannelChat = getChannelChat();
   const UploadArea = getUploadArea();
+  const TitleBar = window.DiscordNative ? getTitleBar() : undefined;
   const Header = header;
   if (gone || !PopoutWindow || !ChannelChat)
     return null;
@@ -380,7 +384,7 @@ function ChatWindow({ windowKey: key, channelId }) {
     windowKey: key,
     title,
     channelId: channel.id,
-    withTitleBar: true,
+    withTitleBar: !TitleBar,
     children: /* @__PURE__ */ jsx_runtime.jsxs("div", {
       className: "evi-pop-out-chat",
       children: [
@@ -388,7 +392,22 @@ function ChatWindow({ windowKey: key, channelId }) {
           channel,
           draftType: CHANNEL_MESSAGE_DRAFT
         }),
-        Header && /* @__PURE__ */ jsx_runtime.jsxs(Header, {
+        TitleBar ? !fullScreen && /* @__PURE__ */ jsx_runtime.jsx(TitleBar, {
+          windowKey: key,
+          className: "evi-pop-out-chat-title-bar",
+          title: /* @__PURE__ */ jsx_runtime.jsxs("span", {
+            className: "evi-pop-out-chat-title",
+            children: [
+              /* @__PURE__ */ jsx_runtime.jsx(ChatIcon, {
+                width: 18,
+                height: 18
+              }),
+              /* @__PURE__ */ jsx_runtime.jsx("span", {
+                children: title
+              })
+            ]
+          })
+        }) : Header && /* @__PURE__ */ jsx_runtime.jsxs(Header, {
           "aria-label": title,
           children: [
             /* @__PURE__ */ jsx_runtime.jsx(Header.ChannelIcon, {
@@ -457,6 +476,11 @@ var pop_out_chat_default = import_api2.definePlugin({
   css: `
         .evi-pop-out-chat { display: flex; flex: 1 1 auto; flex-direction: column; align-self: stretch; width: 100%; height: 100%; min-height: 0; min-width: 0; position: relative;
             background: var(--background-gradient-chat, var(--background-base-lowest)); }
+        .evi-pop-out-chat-title-bar { flex: none; background: var(--background-gradient-app-frame, var(--background-base-lowest)); }
+        .evi-pop-out-chat-title { display: flex; align-items: center; gap: 6px; min-width: 0; max-width: calc(100vw - 280px);
+            color: var(--header-primary, var(--text-strong)); font-size: 14px; font-weight: 500; line-height: 18px; }
+        .evi-pop-out-chat-title > svg { flex: none; color: var(--channel-icon, var(--icon-muted)); }
+        .evi-pop-out-chat-title > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .evi-pop-out-chat-body { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; min-width: 0; position: relative; }
     `,
   start(ctx) {

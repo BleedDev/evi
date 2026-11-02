@@ -2,7 +2,8 @@ import { ORIGINAL_ASAR, SHIM_MARKER } from "@shared/shim";
 import { spawn } from "child_process";
 import { app } from "electron";
 import { homedir } from "os";
-import { basename, dirname, join } from "path";
+import { basename, dirname, join, resolve } from "path";
+import { fileURLToPath } from "url";
 
 import { DATA_DIR } from "./paths";
 
@@ -20,6 +21,17 @@ const QUIT_WAIT_MS = 10_000;
 const REWATCH_MS = 1000;
 
 const sleep = (ms: number) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+
+/** macOS: leaves the relink shell behind if Discord is quitting into an update (relinkAfterMacUpdate) */
+let macHandOff: (() => void) | undefined;
+
+/**
+ * Evi's own restarts (relaunch in idle.ts, an update's restart) end in app.exit, which skips
+ * before-quit. Node's exit event isn't something to count on there, so they call this first
+ */
+export function beforeEviRestart() {
+    macHandOff?.();
+}
 
 /**
  * Discord's updater installs each version into a fresh app-x.y.z folder, which would silently drop
@@ -165,6 +177,40 @@ done
 note "Discord quit with an update waiting, but $contents wasn't replaced"
 `;
 
+/** A bundle's CFBundleVersion, from an XML Info.plist */
+function bundleVersion(contents: string) {
+    try {
+        return /<key>CFBundleVersion<\/key>\s*<string>([^<]+)<\/string>/.exec(fs.readFileSync(join(contents, "Info.plist"), "utf8"))?.[1];
+    } catch { }
+}
+
+/**
+ * Whether Squirrel has asked ShipIt to replace this Discord.app: its request (JSON, whatever the name
+ * says) is written once an update is ready. One from an earlier start counts too: Evi's own restart
+ * brings Discord back before ShipIt gets going, and ShipIt then waits for that Discord to quit. The
+ * request and its update bundle stay behind after ShipIt installs, so it counts while the update is
+ * another version than this Discord; without versions to compare, while it's newer than `since`.
+ */
+export function shipItWaiting(contents: string, since: number, caches = join(homedir(), "Library", "Caches")) {
+    const running = bundleVersion(contents);
+    try {
+        return fs.readdirSync(caches).some(dir => {
+            const state = join(caches, dir, "ShipItState.plist");
+            if (!dir.startsWith("com.hnc.Discord") || !dir.endsWith(".ShipIt") || !fs.existsSync(state)) return false;
+            try {
+                const request = JSON.parse(fs.readFileSync(state, "utf8"));
+                // PTB's and Canary's caches start with com.hnc.Discord too
+                if (resolve(fileURLToPath(request.targetBundleURL)) !== resolve(dirname(contents))) return false;
+                const update = bundleVersion(join(fileURLToPath(request.updateBundleURL), "Contents"));
+                if (update && running) return update !== running;
+            } catch { }
+            return fs.statSync(state).mtimeMs > since;
+        });
+    } catch {
+        return false;
+    }
+}
+
 /**
  * macOS Discord updates through Squirrel: once an update is downloaded, quitting hands it to ShipIt,
  * which swaps in a whole new Discord.app, without the loader, and starts it. Evi Setup's launchd
@@ -183,23 +229,10 @@ function relinkAfterMacUpdate(shimAsar: string) {
         // The same autoUpdater Discord's host updater uses on macOS
         require("electron").autoUpdater.on("update-downloaded", () => downloaded = true);
     } catch { }
-    /** Squirrel's request to ShipIt, written once an update is ready */
-    const shipItWaiting = () => {
-        const caches = join(homedir(), "Library", "Caches");
-        try {
-            return fs.readdirSync(caches).some(dir => {
-                const state = join(caches, dir, "ShipItState.plist");
-                return dir.startsWith("com.hnc.Discord") && dir.endsWith(".ShipIt") && fs.existsSync(state) && fs.statSync(state).mtimeMs > started;
-            });
-        } catch {
-            return false;
-        }
-    };
-
     // before-quit and exit both come on one quit, and a quit can be called off
     let handedOff = 0;
     const handOff = () => {
-        if (Date.now() - handedOff < 60_000 || !(downloaded || shipItWaiting())) return;
+        if (Date.now() - handedOff < 60_000 || !(downloaded || shipItWaiting(contents, started))) return;
         handedOff = Date.now();
         try {
             // The old bundle, the running loader with it, is gone by the time it's needed
@@ -215,6 +248,7 @@ function relinkAfterMacUpdate(shimAsar: string) {
             console.error("[Evi] Couldn't prepare to follow Discord's update", err);
         }
     };
+    macHandOff = handOff;
     app.on("before-quit", handOff);
     // app.exit() skips before-quit
     process.on("exit", handOff);

@@ -32,6 +32,7 @@ import { gunzip } from "zlib";
 import { applyCorePayload, parseCorePayload } from "./coreUpdate";
 import { mt } from "./locale";
 import { DATA_DIR, isDevBuild } from "./paths";
+import { beforeEviRestart } from "./persist";
 import { settings } from "./settings";
 import { broadcast } from "./util";
 
@@ -380,6 +381,7 @@ async function applyWithRestart(staged: StagedUpdate, flavor: Flavor) {
     if (applyStagedCore(file)) {
         // After the answer reaches the page, which says Discord is restarting
         setTimeout(() => {
+            beforeEviRestart();
             app.relaunch();
             app.exit(0);
         }, 800);

@@ -243,8 +243,10 @@ export default definePlugin({
         return <><PopOutButton channel={channel as ChatChannel} />{toolbar}</>;
     },
 
+    // PopoutWindow's content is a centred column (align-items: center): without stretching, the chat
+    // shrinks to its widest line and messages wrap a word or two at a time
     css: `
-        .evi-pop-out-chat { display: flex; flex: 1 1 auto; flex-direction: column; height: 100%; min-height: 0; min-width: 0; position: relative;
+        .evi-pop-out-chat { display: flex; flex: 1 1 auto; flex-direction: column; align-self: stretch; width: 100%; height: 100%; min-height: 0; min-width: 0; position: relative;
             background: var(--background-gradient-chat, var(--background-base-lowest)); }
         .evi-pop-out-chat-body { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; min-width: 0; position: relative; }
     `,

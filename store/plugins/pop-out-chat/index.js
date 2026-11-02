@@ -399,8 +399,8 @@ function ChatWindow({ windowKey: key, channelId }) {
             className: "evi-pop-out-chat-title",
             children: [
               /* @__PURE__ */ jsx_runtime.jsx(ChatIcon, {
-                width: 18,
-                height: 18
+                width: 20,
+                height: 20
               }),
               /* @__PURE__ */ jsx_runtime.jsx("span", {
                 children: title
@@ -476,9 +476,13 @@ var pop_out_chat_default = import_api2.definePlugin({
   css: `
         .evi-pop-out-chat { display: flex; flex: 1 1 auto; flex-direction: column; align-self: stretch; width: 100%; height: 100%; min-height: 0; min-width: 0; position: relative;
             background: var(--background-gradient-chat, var(--background-base-lowest)); }
-        .evi-pop-out-chat-title-bar { flex: none; background: var(--background-gradient-app-frame, var(--background-base-lowest)); }
-        .evi-pop-out-chat-title { display: flex; align-items: center; gap: 6px; min-width: 0; max-width: calc(100vw - 280px);
-            color: var(--header-primary, var(--text-strong)); font-size: 14px; font-weight: 500; line-height: 18px; }
+        /* Discord's tallest top bar: its window buttons are sized by the same variable, so they fill it */
+        .evi-pop-out-chat-title-bar { flex: none; --custom-app-top-bar-height: 40px; border-bottom: 1px solid var(--border-subtle);
+            background: var(--background-gradient-app-frame, var(--background-base-lowest)); }
+        /* The title slot centres its content: the auto margin puts the name at the start, as in a chat header */
+        .evi-pop-out-chat-title { display: flex; align-items: center; gap: 8px; min-width: 0; max-width: calc(100% - 152px);
+            margin-inline-end: auto; padding-inline-start: 16px;
+            color: var(--header-primary, var(--text-strong)); font-size: 16px; font-weight: 600; line-height: 20px; }
         .evi-pop-out-chat-title > svg { flex: none; color: var(--channel-icon, var(--icon-muted)); }
         .evi-pop-out-chat-title > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .evi-pop-out-chat-body { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; min-width: 0; position: relative; }

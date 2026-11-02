@@ -36,10 +36,10 @@ mkdirSync(CERT_DIR, { recursive: true });
 // A throwaway self-signed certificate for 127.0.0.1. The fake Discord trusts it for that host only.
 const openssl = Bun.spawnSync(["openssl", "req", "-x509", "-newkey", "ec", "-pkeyopt", "ec_paramgen_curve:prime256v1", "-nodes",
     "-keyout", join(CERT_DIR, "key.pem"), "-out", join(CERT_DIR, "cert.pem"), "-days", "2",
-    "-subj", "/CN=127.0.0.1", "-addext", "subjectAltName=IP:127.0.0.1"], { stdout: "pipe", stderr: "pipe" });
+    "-subj", "/CN=127.0.0.1", "-addext", "subjectAltName=IP:127.0.0.1"]);
 if (openssl.exitCode !== 0) throw new Error(`openssl couldn't make a test certificate: ${openssl.stderr.toString()}`);
 
-const sha256 = (text: string) => new Bun.CryptoHasher("sha256").update(text).digest("hex");
+const sha256 = (text: string) => Bun.CryptoHasher.hash("sha256", text, "hex");
 const storePlugin = (version: string) => ({
     manifest: JSON.stringify({ id: "store-good", name: "Store Good", version }),
     "index.js": `module.exports = { default: { start(ctx) { window.__storeGood = "${version}"; ctx.onDispose(() => window.__storeGoodDisposed = (window.__storeGoodDisposed || 0) + 1); } } };`,
@@ -415,7 +415,6 @@ function check(name: string, ok: boolean, detail?: unknown) {
 async function launch(dataDir: string, env: Record<string, string> = {}) {
     const proc = Bun.spawn([join(INSTALL, "app-1.0.0", "electron.exe")], {
         env: { ...process.env, EVI_DATA_DIR: dataDir, EVI_TEST_BACKUP_PATH: BACKUP_FILE, EVI_TEST_CONFIRM: "page", EVI_STORE_URL: STORE_URL, ELECTRON_ENABLE_LOGGING: "1", ...env },
-        stdout: "pipe",
         stderr: "pipe",
     });
     // Page checks start at 16s, theme downloads may take up to 20s, the healthy start report up to 15s
@@ -610,7 +609,6 @@ async function start(name: string, options: { then?: string; onCrash?: "exit"; a
             FAKE_THEN: options.then ?? "",
             FAKE_ON_CRASH: options.onCrash ?? "",
         },
-        stdout: "pipe",
         stderr: "pipe",
     });
     const kill = setTimeout(() => run.kill(), 90_000);

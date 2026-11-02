@@ -13,7 +13,7 @@ import { createAsar, readAsarFile } from "../src/shared/asar";
 import { createShimAsar, ORIGINAL_ASAR, SHIM_MARKER } from "../src/shared/shim";
 
 const ROOT = resolve(import.meta.dir, "..");
-const EXE = join(ROOT, "dist", process.platform === "win32" ? "Evi-Setup.exe" : process.platform === "darwin" ? "Evi Setup.app/Contents/MacOS/evi-setup" : `Evi-Setup-linux-${process.arch}`);
+const EXE = join(ROOT, "dist", "Evi-Setup.exe");
 const BASE = join(ROOT, "test-results", "installer-e2e");
 const LOCAL = join(BASE, "local");
 const ROAMING = join(BASE, "roaming");
@@ -41,7 +41,7 @@ writeFileSync(join(RESOURCES, "app.asar"), discordAsar);
 // What a release carries: evi-core.json is dist/embed.json plus the retired plugin list
 const embed = JSON.parse(readFileSync(join(ROOT, "dist", "embed.json"), "utf8"));
 const payload = (version: string) => Buffer.from(JSON.stringify({ ...embed, version, core: { ...embed.core, "main.js": embed.core["main.js"].replace(/\[Evi\] v\$\{"[^"]+"\}/, `[Evi] v\${"${version}"}`) }, retired: ["badges", "old-thing"] }));
-const sha256 = (data: Uint8Array) => new Bun.CryptoHasher("sha256").update(data).digest("hex");
+const sha256 = (data: Uint8Array) => Bun.CryptoHasher.hash("sha256", data, "hex");
 
 interface FakeRelease { tag: string; core?: Buffer; checksum?: string; }
 const releases: Record<string, FakeRelease> = {};
@@ -55,7 +55,6 @@ const server = Bun.serve({
         const { pathname, origin } = new URL(req.url);
         const describe = (r: FakeRelease) => Response.json({
             tag_name: r.tag,
-            draft: false,
             assets: r.core ? ["evi-core.json", "evi-core.json.sha256"].map(name => ({ name, browser_download_url: `${origin}/download/${r.tag}/${name}` })) : [],
         });
         if (pathname === "/repos/BleedDev/evi/releases/latest") return latest ? describe(releases[latest]) : new Response("{}", { status: 404 });
@@ -85,7 +84,6 @@ function addRelease(version: string, withCore = true) {
 async function setup(...args: string[]) {
     const proc = Bun.spawn([EXE, "--headless", ...args], {
         env: { ...process.env, LOCALAPPDATA: LOCAL, APPDATA: ROAMING, EVI_UPDATE_API: API },
-        stdout: "pipe",
         stderr: "pipe",
     });
     const [out, err, code] = await Promise.all([new Response(proc.stdout).text(), new Response(proc.stderr).text(), proc.exited]);

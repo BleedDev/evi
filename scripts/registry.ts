@@ -35,7 +35,6 @@ const ROOT = resolve(import.meta.dir, "..");
 const BUILT = join(ROOT, "dist", "plugins");
 
 const { values } = parseArgs({
-    args: process.argv.slice(2),
     options: {
         base: { type: "string", default: "https://evi.rest/store/plugins" },
         files: { type: "string", default: join(ROOT, "store", "plugins") },
@@ -52,10 +51,8 @@ function coAuthorSlugs(dir: string): string[] {
     try {
         const manifest = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8"));
         if (Array.isArray(manifest.authorIds)) return manifest.authorIds.slice(1).filter((a: unknown): a is string => typeof a === "string");
-        const authors: unknown = manifest.authors;
-        if (!Array.isArray(authors)) return [];
-        return authors.slice(1).filter((a): a is string => typeof a === "string")
-            .map(a => a.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")).filter(Boolean);
+        return (Array.isArray(manifest.authors) ? manifest.authors.slice(1) : []).filter((a: unknown): a is string => typeof a === "string")
+            .map((a: string) => a.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")).filter(Boolean);
     } catch {
         return [];
     }

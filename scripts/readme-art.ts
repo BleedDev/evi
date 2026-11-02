@@ -8,11 +8,10 @@
  * The feature pictures next to it are copies of the blog's covers (evi.rest/blog).
  */
 import { existsSync, writeFileSync } from "fs";
-import { dirname, join, resolve } from "path";
-import { fileURLToPath } from "url";
+import { join, resolve } from "path";
 import { chromium } from "playwright-core";
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const ROOT = resolve(import.meta.dirname, "..");
 const W = 1280, H = 400, STEP = 12, LEVELS = 14;
 
 const CHROME = [

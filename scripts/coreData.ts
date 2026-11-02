@@ -17,11 +17,6 @@ import type { ReleaseData } from "../src/shared/changelogNotes";
 import { CATALOGS } from "../src/shared/locales";
 
 const out = process.argv[2];
-if (!out) {
-    console.error("Usage: bun scripts/coreData.ts <dir>");
-    process.exit(1);
-}
-
 for (const [tag, messages] of Object.entries(CATALOGS)) {
     if (tag !== "en") writeFileSync(join(out, `locale-${tag}.json`), JSON.stringify(messages));
 }

@@ -5,6 +5,7 @@ import { readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 
 import { DATA_DIR } from "./paths";
+import { beforeEviRestart } from "./persist";
 import { SafeMode } from "./safeMode";
 import { settings } from "./settings";
 import { applyBeforeRestart } from "./updater";
@@ -49,6 +50,7 @@ let setThrottling: ((allowed: boolean) => void) | undefined;
 /** Evi's one way to restart Discord. app.exit skips will-quit, where a silent update installs: it goes in here */
 export function relaunch(args?: string[]) {
     applyBeforeRestart();
+    beforeEviRestart();
     app.relaunch(args ? { args } : undefined);
     app.exit(0);
 }

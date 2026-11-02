@@ -8,6 +8,7 @@ import * as realFs from "fs";
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
+import { pathToFileURL } from "url";
 
 import { IPC } from "../src/shared/ipc";
 import { ORIGINAL_ASAR } from "../src/shared/shim";
@@ -105,6 +106,54 @@ describe("staying in Discord across its macOS updates", () => {
         expect(readFileSync(join(contents, "Resources", "app.asar"), "utf8")).toBe(`${SHIM_MARKER} evi`);
         expect(readFileSync(join(contents, "Resources", ORIGINAL_ASAR), "utf8")).toBe("discord 2");
         expect(existsSync(join(contents, "Resources", "app.asar.evi"))).toBe(false);
+    });
+});
+
+describe("telling whether Discord is quitting into a macOS update", () => {
+    const plist = (version: string) => `<plist><dict><key>CFBundleShortVersionString</key><string>x</string><key>CFBundleVersion</key><string>${version}</string></dict></plist>`;
+    /** A Discord.app at this version, and ShipIt's request for an update bundle at that one */
+    function setUp(name: string, running: string, update: string | undefined, target?: string) {
+        const root = join(DATA, `shipit-${name}`);
+        const contents = join(root, "Applications", "Discord.app", "Contents");
+        mkdirSync(contents, { recursive: true });
+        writeFileSync(join(contents, "Info.plist"), plist(running));
+        const updateApp = join(root, "update", "Discord.app");
+        mkdirSync(join(updateApp, "Contents"), { recursive: true });
+        if (update) writeFileSync(join(updateApp, "Contents", "Info.plist"), plist(update));
+        const caches = join(root, "Caches");
+        mkdirSync(join(caches, "com.hnc.Discord.ShipIt"), { recursive: true });
+        writeFileSync(join(caches, "com.hnc.Discord.ShipIt", "ShipItState.plist"), JSON.stringify({
+            targetBundleURL: pathToFileURL(target ?? join(contents, "..")).href + "/",
+            updateBundleURL: pathToFileURL(updateApp).href + "/",
+            launchAfterInstallation: false,
+            bundleIdentifier: "com.hnc.Discord",
+        }));
+        return { contents, caches };
+    }
+
+    test("a request from an earlier start counts while its update is another version", async () => {
+        const { shipItWaiting } = await import("../src/main/persist");
+        const { contents, caches } = setUp("earlier", "0.0.370", "0.0.371");
+        expect(shipItWaiting(contents, Date.now() + 60_000, caches)).toBe(true);
+    });
+
+    test("the request ShipIt left behind after installing doesn't", async () => {
+        const { shipItWaiting } = await import("../src/main/persist");
+        const { contents, caches } = setUp("installed", "0.0.371", "0.0.371");
+        expect(shipItWaiting(contents, 0, caches)).toBe(false);
+    });
+
+    test("another Discord's request doesn't", async () => {
+        const { shipItWaiting } = await import("../src/main/persist");
+        const { contents, caches } = setUp("other", "0.0.370", "0.0.371", join(DATA, "Discord Canary.app"));
+        expect(shipItWaiting(contents, 0, caches)).toBe(false);
+    });
+
+    test("without versions to compare, only a request from this start counts", async () => {
+        const { shipItWaiting } = await import("../src/main/persist");
+        const { contents, caches } = setUp("noversion", "0.0.370", undefined);
+        expect(shipItWaiting(contents, Date.now() + 60_000, caches)).toBe(false);
+        expect(shipItWaiting(contents, 0, caches)).toBe(true);
     });
 });
 

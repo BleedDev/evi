@@ -448,10 +448,12 @@ function PopOutButton({ channel }) {
   });
 }
 function menuItem(channel) {
+  const iconLeft = { iconLeft: PopOutIcon };
   return /* @__PURE__ */ jsx_runtime.jsx(import_api2.Menu.Item, {
     id: "evi-pop-out-chat",
     label: t("menu.popOut"),
-    action: () => popOut(channel)
+    action: () => popOut(channel),
+    ...iconLeft
   });
 }
 function addMenuItem(children, channel) {

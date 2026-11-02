@@ -6,12 +6,14 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  # Evi Setup for macOS and Linux, built and checked on those systems
   setup:
     uses: ./.github/workflows/setup-builds.yml
 
@@ -24,12 +26,12 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
 
       - name: Cache bun and Electron downloads
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.bun/install/cache
@@ -37,34 +39,10 @@ jobs:
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
           restore-keys: ${{ runner.os }}-bun-
 
-      - name: Install
-        run: bun install --frozen-lockfile
-
-      # Electron's postinstall downloads the binary. Bun runs it (electron is on its trusted list),
-      # but a skipped lifecycle script would only show up much later as a missing electron.exe
-      - name: Ensure the Electron binary
-        run: |
-          if (-not (Test-Path node_modules/electron/dist/electron.exe)) { node node_modules/electron/install.js }
-          if (-not (Test-Path node_modules/electron/dist/electron.exe)) { throw "electron.exe missing after install" }
-
-      - name: Find Chrome
-        run: |
-          $chrome = @(
-            "$env:ProgramFiles\Google\Chrome\Application\chrome.exe",
-            "${env:ProgramFiles(x86)}\Google\Chrome\Application\chrome.exe"
-          ) | Where-Object { Test-Path $_ } | Select-Object -First 1
-          if (-not $chrome) { throw "Chrome not found on the runner" }
-          (Get-Item $chrome).VersionInfo.ProductVersion
-          "CHROME_PATH=$chrome" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-
-      - name: Build
-        run: bun run build
-
-      - name: Typecheck
-        run: bunx tsc --noEmit
-
-      - name: Unit tests
-        run: bun test
+      - run: bun install --frozen-lockfile
+      - run: bun scripts/build.ts --cli
+      - run: bunx tsc --noEmit
+      - run: bun test
 
       - name: Fast Lists plugin
         timeout-minutes: 5
@@ -78,9 +56,6 @@ jobs:
         timeout-minutes: 10
         run: bun scripts/test-electron.ts
 
-      - name: Build installer
-        run: bun scripts/build.ts --cli
-
       - name: CLI
         timeout-minutes: 5
         run: bun scripts/test-cli.ts
@@ -91,7 +66,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-results
           # Screenshots and logs; the fake Discord installs are two copies of Electron, not worth keeping

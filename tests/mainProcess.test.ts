@@ -7,7 +7,7 @@ import { EventEmitter } from "events";
 import * as realFs from "fs";
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
-import { join } from "path";
+import { dirname, join } from "path";
 import { pathToFileURL } from "url";
 
 import { IPC } from "../src/shared/ipc";
@@ -39,19 +39,19 @@ mock.module("electron", () => ({
     shell: {},
 }));
 
-/** Watchers persist.ts started, in order: tests make them fail */
-const watchers: (EventEmitter & { closed?: boolean; })[] = [];
+/** Watchers persist.ts started: tests make them fail */
+const watchers = new Map<string, EventEmitter & { recursive: boolean; closed: boolean; }>();
 mock.module("original-fs", () => ({
     ...realFs,
-    watch: () => {
-        const watcher = Object.assign(new EventEmitter(), { unref() { }, close() { watcher.closed = true; } }) as EventEmitter & { closed?: boolean; unref(): void; close(): void; };
-        watchers.push(watcher);
+    watch: (path: string, { recursive }: { recursive: boolean; }) => {
+        const watcher = Object.assign(new EventEmitter(), { recursive, closed: false, unref() { }, close() { this.closed = true; } });
+        watchers.set(path, watcher);
         return watcher;
     },
 }));
 
 describe("staying in Discord across its updates", () => {
-    test("watching Discord's folder starts again after the watcher fails", async () => {
+    test.skipIf(process.platform === "darwin")("watches update folders and resumes after a watcher fails", async () => {
         const { persistAcrossUpdates } = await import("../src/main/persist");
         const root = join(DATA, "Discord");
         const running = join(root, "app-1.0.0", "resources");
@@ -62,17 +62,20 @@ describe("staying in Discord across its updates", () => {
         const exitListeners = process.listeners("exit");
         persistAcrossUpdates(join(running, "app.asar"));
         for (const listener of process.listeners("exit")) if (!exitListeners.includes(listener)) process.off("exit", listener);
-        expect(watchers.length).toBe(1);
+        const watcher = watchers.get(root)!;
+        expect(watcher.recursive).toBe(process.platform === "win32");
+        if (process.platform === "linux") expect(watchers.get(dirname(running))?.recursive).toBe(true);
 
         // Discord's updater deletes the old version, which errors the watcher, and writes the new one
-        watchers[0].emit("error", Object.assign(new Error("EPERM"), { code: "EPERM" }));
-        expect(watchers[0].closed).toBe(true);
+        watcher.emit("error", Object.assign(new Error("EPERM"), { code: "EPERM" }));
+        expect(watcher.closed).toBe(true);
         const next = join(root, "app-1.0.1", "resources");
         mkdirSync(next, { recursive: true });
         writeFileSync(join(next, "app.asar"), "discord 1.0.1");
 
         await Bun.sleep(1200);
-        expect(watchers.length).toBe(2);
+        expect(watchers.get(root)).toMatchObject({ recursive: process.platform === "win32", closed: false });
+        if (process.platform === "linux") expect(watchers.get(dirname(next))?.recursive).toBe(true);
         expect(readFileSync(join(next, "app.asar"), "utf8")).toBe("evi");
         expect(readFileSync(join(next, ORIGINAL_ASAR), "utf8")).toBe("discord 1.0.1");
     });

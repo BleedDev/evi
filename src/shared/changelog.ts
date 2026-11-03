@@ -12,6 +12,22 @@ export type { Release, SectionKind } from "./changelogNotes";
  */
 export const RELEASES: Release[] = [
     {
+        version: "3.3.0",
+        date: "2026-11-03",
+        sections: {
+            added: [
+                "**Evi Setup in a terminal on Linux.** `Evi-Setup-linux-cli-x64` and `Evi-Setup-linux-cli-arm64` install and remove Evi from a terminal, for Linux systems without a desktop.",
+            ],
+            improved: [
+                "**Calmer plugin permissions.** Plugins from the store now say the Evi team checked them, full access is explained in plain words instead of red warnings, and the details from a plugin's code fold away until you open them. Plugins nobody checked keep the warnings.",
+                "**Fewer questions when you install.** A community plugin from the store just installs, and full access is asked once instead of twice.",
+            ],
+            fixed: [
+                "**Evi stays on your Mac when it updates.** If Discord had an update of its own waiting, updating Evi could leave Discord without Evi until you ran Evi Setup again.",
+            ],
+        },
+    },
+    {
         version: "3.2.0",
         date: "2026-10-31",
         sections: {

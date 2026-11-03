@@ -12,6 +12,7 @@
  * The version the store has now comes from evi.rest's registry, so a version that isn't newer is
  * caught too; --offline skips that. Exits 1 when an upload would be refused.
  */
+import { spawnSync } from "child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs";
 import { join, relative, resolve } from "path";
 import { parseArgs } from "util";
@@ -243,6 +244,7 @@ console.log(`\nStore page: ${relative(ROOT, page).replaceAll("\\", "/")}`);
 if (!errors.length && !official) console.log(`Upload it with bun run plugin upload ${id}, or from your dashboard on evi.rest: the files in dist/plugins/${builtId}`);
 
 if (values.open) {
-    Bun.spawnSync(process.platform === "win32" ? ["cmd", "/c", "start", "", page] : [process.platform === "darwin" ? "open" : "xdg-open", page]);
+    const [cmd, ...args] = process.platform === "win32" ? ["cmd", "/c", "start", "", page] : [process.platform === "darwin" ? "open" : "xdg-open", page];
+    spawnSync(cmd, args, { stdio: "ignore" });
 }
 process.exit(errors.length ? 1 : 0);

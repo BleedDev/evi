@@ -96,7 +96,7 @@ async function bundle(label: string, config: Parameters<typeof Bun.build>[0], co
 /** Evi's languages but English and What's new's notes, files main reads when they're needed (scripts/coreData.ts) */
 async function writeCoreData() {
     mkdirSync(CORE_OUT, { recursive: true });
-    const code = await Bun.spawn([process.execPath, join(ROOT, "scripts/coreData.ts"), CORE_OUT]).exited;
+    const code = await Bun.spawn([process.execPath, join(ROOT, "scripts/coreData.ts"), CORE_OUT], { stdout: "inherit" }).exited;
     if (code === 0) return true;
     console.error("✗ core data");
     if (!WATCH) process.exit(1);
@@ -268,7 +268,7 @@ function signatureProblem(bin: Buffer): string | undefined {
 async function compileCli() {
     const builds = RELEASE ? RELEASE_ASSETS.map(asset => ({ asset, target: [`--target=${TARGETS[asset]}`] })) : [{ asset: "evi.exe", target: [] }];
     const codes = await Promise.all(builds.map(({ asset, target }) =>
-        Bun.spawn(["bun", "build", "--compile", "--minify", ...target, join(ROOT, "src/cli/index.ts"), "--outfile", join(DIST, asset)]).exited));
+        Bun.spawn(["bun", "build", "--compile", "--minify", ...target, join(ROOT, "src/cli/index.ts"), "--outfile", join(DIST, asset)], { stdout: "inherit" }).exited));
     const failed = codes.find(code => code !== 0);
     if (failed !== undefined) process.exit(failed);
     for (const { asset } of builds) {
@@ -329,7 +329,7 @@ async function compileInstaller() {
 }
 
 async function run(cmd: string[], cwd = ROOT) {
-    const code = await Bun.spawn(cmd, { cwd }).exited;
+    const code = await Bun.spawn(cmd, { cwd, stdout: "inherit" }).exited;
     if (code !== 0) {
         console.error(`✗ ${cmd.join(" ")} failed (${code})`);
         process.exit(code);

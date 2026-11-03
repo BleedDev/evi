@@ -16,6 +16,7 @@
  *
  * --api <url> (or EVI_API_URL) talks to another evi.rest, like a local server on :8795.
  */
+import { spawnSync } from "child_process";
 import { randomUUID } from "crypto";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "fs";
 import { join, resolve } from "path";
@@ -89,8 +90,9 @@ async function api<T>(method: string, path: string, install: string, body?: unkn
 /** Opens a link in the default browser; only http(s), so nothing the server sends can run a program */
 function openInBrowser(url: string) {
     if (!/^https?:\/\/[^\s"]+$/.test(url)) return;
-    Bun.spawnSync(process.platform === "win32" ? ["rundll32", "url.dll,FileProtocolHandler", url]
-        : [process.platform === "darwin" ? "open" : "xdg-open", url]);
+    const [cmd, ...args] = process.platform === "win32" ? ["rundll32", "url.dll,FileProtocolHandler", url]
+        : [process.platform === "darwin" ? "open" : "xdg-open", url];
+    spawnSync(cmd, args, { stdio: "ignore" });
 }
 
 async function login() {

@@ -38,6 +38,19 @@ function native<P>(name: string, filter: () => any): { readonly get: ComponentTy
     };
 }
 
+/**
+ * Discord's Text variant names, as its Text component looks them up (name -> class). Found once;
+ * while it's missing it's searched again at most every MISS_RETRY_MS
+ */
+let textVariants: Record<string, string> | undefined;
+let textVariantsMissedAt = -Infinity;
+export function discordTextVariants() {
+    if (textVariants || !wreq || performance.now() - textVariantsMissedAt < MISS_RETRY_MS) return textVariants;
+    textVariants = find(filters.byProps("fontScaling", "body-sm/normal"));
+    if (!textVariants) textVariantsMissedAt = performance.now();
+    return textVariants;
+}
+
 export interface SwitchProps {
     checked: boolean;
     onChange(checked: boolean): void;

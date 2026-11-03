@@ -183,7 +183,7 @@ function fakeNative(bootData: BootData) {
                         updatedAt: "2026-09-20",
                         changelog: [{ version: "1.3.0", notes: ["Read states too"] }, { version: "1.2.0", notes: ["Typing indicators"] }],
                     }),
-                    entry("store-rpc", "Local RPC", "Exposes a local API so other apps can read your current channel.", "0.4.0", true, ["integration"]),
+                    entry("store-rpc", "Local RPC", "Exposes a local API so other apps can read your current channel.", "0.4.0", true, ["integration"], { permissions: { network: ["localhost.example.net"] } }),
                     entry("store-theme-sync", "Theme Sync", "Follows your system's light and dark mode.", "2.1.0"),
                     entry("store-lookup", "Store Lookup", "Waits for a part of Discord that isn't there.", "1.0.0", false, ["messages"], { authorIds: ["evi"] }),
                     // Community plugins: one to install, one Evi pulled at 1.0.0 with a fixed 1.0.1, one pulled for good
@@ -3080,23 +3080,15 @@ const storeButton = (id: string, name: string) => page.locator(`[data-store-id="
     check("the store filters Official and Community plugins",
         JSON.stringify(communityOnly) === '["store-community","store-scam","store-pulled"]' && officialOnly.length === 5 && !officialOnly.includes("store-community"), { communityOnly, officialOnly });
 
-    // The first install of a community plugin asks first, saying who made it
+    // The Evi team checked every community plugin before it went in, so installing one doesn't ask on top
+    const dialogsBefore = await page.evaluate(() => document.querySelectorAll('[role="dialog"]').length);
     await storeButton("store-community", "Install").click();
-    await page.waitForSelector('#dl-store-community-store-community[role="dialog"]', { timeout: 2000 });
-    await page.locator('[data-store-id="store-community"]').screenshot({ path: join(OUT, "ui-store-community-confirm.png") });
-    const ask = await page.evaluate(() => ({
-        text: document.querySelector('#dl-store-community-store-community')?.textContent ?? "",
-        installs: (window as any).__test.storeInstalls.length,
-    }));
-    check("installing a community plugin the first time asks first",
-        ask.text.includes("Install a community plugin?") && ask.text.includes("Made by Mira, not by Evi. Evi’s team reviewed this version before it went into the store.") && ask.installs === 0, ask);
-    await page.locator('#dl-store-community-store-community').getByRole("button", { name: "Install", exact: true }).click();
     await page.waitForTimeout(300);
-    const confirmed = await page.evaluate(() => ({
+    const installed = await page.evaluate(() => ({
         calls: (window as any).__test.storeInstalls.map((c: any) => c.id),
-        remembered: (window as any).__test.storage.getItem("evi-community-installs") ?? "",
+        dialogs: document.querySelectorAll('[role="dialog"]').length,
     }));
-    check("confirming installs it, and remembers it asked", JSON.stringify(confirmed.calls) === '["store-community"]' && confirmed.remembered.includes("store-community"), confirmed);
+    check("installing a community plugin installs it right away, no question on top", JSON.stringify(installed.calls) === '["store-community"]' && installed.dialogs === dialogsBefore, { ...installed, dialogsBefore });
 
     // Its page says who made it, and it can be reported to Evi's team
     await page.locator('[data-store-id="store-community"] .dl-store-card-link').click();
@@ -3148,15 +3140,43 @@ const storeButton = (id: string, name: string) => page.locator(`[data-store-id="
     await page.getByRole("button", { name: "Plugin Store", exact: true }).click();
     await page.waitForSelector('[data-store-id="store-clock"]', { timeout: 2000 });
 }
-const installsBeforeClick = await page.evaluate(() => (window as any).__test.storeInstalls.length);
+// A checked plugin's permissions read calmly: checked first, full access as a plain fact, the code scan folded away
+await page.locator('[data-store-id="store-rpc"] .dl-store-card-link').click();
+await page.waitForSelector('[data-store-permissions="store-rpc"][data-reviewed]', { timeout: 3000 }).catch(() => { });
+const calm = await page.evaluate(() => {
+    const section = document.querySelector('[data-store-permissions="store-rpc"]');
+    return {
+        reviewed: section?.hasAttribute("data-reviewed") ?? false,
+        text: section?.textContent ?? "",
+        red: section?.querySelectorAll('[data-risk="high"]').length ?? -1,
+    };
+});
+check("a checked plugin says so, with full access as a plain fact and nothing in red",
+    calm.reviewed && calm.text.includes("Checked by the Evi team before it went in the store.") && calm.text.includes("Full access to your computer")
+    && calm.text.includes("Part of it runs outside Discord’s page") && !calm.text.includes("High risk") && !calm.text.includes("Evi blocks anything else") && calm.red === 0, calm);
+await page.locator('[data-store-permissions="store-rpc"]').getByRole("button", { name: "Details from its code" }).click();
+await page.waitForTimeout(400);
+const scan = await page.evaluate(() => {
+    const section = document.querySelector('[data-store-permissions="store-rpc"]');
+    return {
+        expanded: section?.querySelector(".dl-disclosure")?.getAttribute("aria-expanded"),
+        rows: section?.querySelectorAll("[data-capability]").length ?? 0,
+        text: section?.textContent ?? "",
+        red: section?.querySelectorAll('[data-risk="high"]').length ?? -1,
+    };
+});
+await page.locator('[data-store-permissions="store-rpc"]').screenshot({ path: join(OUT, "ui-store-permissions-checked.png") });
+check("its code scan opens under Details from its code, still without risk words or red",
+    scan.expanded === "true" && scan.rows > 0 && !scan.text.includes("High risk") && !scan.text.includes("HIGH") && scan.red === 0, scan);
+await page.getByRole("button", { name: "Plugin Store", exact: true }).click();
+await page.waitForSelector('[data-store-id="store-rpc"]', { timeout: 2000 });
+
+// Full access is asked once, by main in a system dialog (main/store.ts), not by the page on top
+const dialogsBeforeNative = await page.evaluate(() => document.querySelectorAll('[role="dialog"]').length);
 await storeButton("store-rpc", "Install").click();
-await page.waitForSelector('#dl-store-confirm-store-rpc[role="dialog"]', { timeout: 2000 });
-await page.screenshot({ path: join(OUT, "ui-store-native-confirm.png") });
-const confirmText = await page.evaluate(() => document.querySelector("#dl-store-confirm-store-rpc")?.textContent ?? "");
-const installsBeforeConfirm = await page.evaluate(() => (window as any).__test.storeInstalls.length);
-check("installing a native plugin asks first, explaining full access", /full access to your computer/.test(confirmText) && installsBeforeConfirm === installsBeforeClick, confirmText.slice(0, 120));
-await page.locator("#dl-store-confirm-store-rpc").getByRole("button", { name: "Install with full access", exact: true }).click();
 await page.waitForTimeout(300);
+const dialogsAfterNative = await page.evaluate(() => document.querySelectorAll('[role="dialog"]').length);
+check("installing a native plugin doesn't ask in the page: main asks", dialogsAfterNative === dialogsBeforeNative, { dialogsBeforeNative, dialogsAfterNative });
 const nativeInstall = {
     calls: await page.evaluate(() => (window as any).__test.storeInstalls),
     card: await storeCard("store-rpc"),

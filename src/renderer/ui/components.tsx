@@ -7,13 +7,14 @@
 import type { ButtonHTMLAttributes, ComponentType, KeyboardEvent as ReactKeyboardEvent, ReactElement, ReactNode } from "react";
 
 import { comboFromEvent, comboKeys, comboProblem, ComboProblem, formatCombo } from "@shared/keybinds";
+import { currentTextVariant } from "@shared/textVariants";
 
 import { t } from "../i18n";
 import { isRecording, RECORDING_ATTR } from "../keybinds";
 import type { SettingDefinition } from "../plugins/types";
 import { exitDone } from "../toolkit/layer";
 import { React, ReactDOM } from "../webpack/common";
-import { DiscordUI } from "./discord";
+import { DiscordUI, discordTextVariants } from "./discord";
 import { Icon, iconComponent, IconName } from "./icons";
 
 export { Icon, iconComponent };
@@ -47,7 +48,10 @@ export function Text({ variant, tag = "div", color, className, id, children, tab
 }) {
     const Native = DiscordUI.Text.get;
     if (Native) {
-        return <Native variant={variant} tag={tag} color={color} className={className} id={id} tabularNumbers={tabular} role={role}>{children}</Native>;
+        // Discord renamed its variants; Evi and plugins still write the old names
+        const known = discordTextVariants();
+        const current = known ? currentTextVariant(variant, v => v in known) : variant;
+        return <Native variant={current} tag={tag} color={color} className={className} id={id} tabularNumbers={tabular} role={role}>{children}</Native>;
     }
     const Tag = tag as "div";
     return <Tag className={cx("dl-text", tabular && "dl-tabular", className)} data-variant={variant} data-color={color} id={id} role={role}>{children}</Tag>;

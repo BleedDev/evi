@@ -1160,7 +1160,6 @@ export const tr = {
     "store.youHave": "(sendeki v{version})",
     "store.fact.updated": "Güncellendi",
     "store.fact.needs": "Gereksinim",
-    "store.fact.status": "Durum",
     "store.fact.categories": "Kategoriler",
     "store.access": "Nelere erişebilir",
     "store.access.native": "Bilgisayarına tam erişim",

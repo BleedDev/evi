@@ -989,7 +989,6 @@ function StoreDetail({ item, onBack, onAuthor, onOpen }: { item: Item; onBack():
                 {entry.updatedAt && <Fact label={t("store.fact.updated")}>{formatDate(entry.updatedAt)}</Fact>}
                 {entry.minEviVersion && <Fact label={t("store.fact.needs")}>Evi {entry.minEviVersion}+</Fact>}
                 {page?.installs != null && <Fact label={t("community.fact.installs")}>{page.installs.toLocaleString(I18n.discordLocale)}</Fact>}
-                {item.health && <Fact label={t("store.fact.status")}><HealthPill health={item.health} /></Fact>}
                 {entry.tags.length > 0 && <Fact label={t("store.fact.categories")}>{entry.tags.map(tagLabel).join(", ")}</Fact>}
             </dl>
 

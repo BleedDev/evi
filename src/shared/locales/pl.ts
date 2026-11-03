@@ -1162,7 +1162,6 @@ export const pl = {
     "store.youHave": "(masz v{version})",
     "store.fact.updated": "Zaktualizowano",
     "store.fact.needs": "Wymaga",
-    "store.fact.status": "Stan",
     "store.fact.categories": "Kategorie",
     "store.access": "Do czego ma dostęp",
     "store.access.native": "Pełny dostęp do komputera",

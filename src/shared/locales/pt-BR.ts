@@ -1160,7 +1160,6 @@ export const ptBR = {
     "store.youHave": "(você tem a v{version})",
     "store.fact.updated": "Atualizado",
     "store.fact.needs": "Requer",
-    "store.fact.status": "Status",
     "store.fact.categories": "Categorias",
     "store.access": "O que ele pode acessar",
     "store.access.native": "Acesso total ao seu computador",

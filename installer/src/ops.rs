@@ -1,15 +1,13 @@
-//! Install, uninstall and status, ported from src/cli/index.ts. The difference from the CLI: the core
-//! comes from a release download instead of being embedded, and Discord is always closed and started
-//! again (the GUI's buttons are the --restart).
+//! Shared operations for the GUI and terminal. Filesystem swaps mirror src/cli/swap.ts.
 
 use std::io;
 use std::path::{Path, PathBuf};
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::asar::{create_shim_asar, read_asar_file, ORIGINAL_ASAR};
 use crate::discord::{self, DiscordInstall, InjectionState};
-use crate::{autorepair, macos, paths};
+use crate::{autorepair, paths};
 use crate::release::{self, CorePayload};
 
 /// Mirrors src/shared/store.ts
@@ -19,13 +17,83 @@ const RETIRED_PLUGINS: &[&str] = &["badges", "toolkit-demo"];
 /// The loader is written here first, then moved over app.asar
 const NEXT_ASAR: &str = "app.asar.new";
 
-#[derive(Serialize, Clone)]
+#[derive(Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Action {
+    Install,
+    Uninstall,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Scan {
+    pub version: &'static str,
+    pub data_dir: String,
+    pub installs: Vec<InstallInfo>,
+}
+
+#[derive(Serialize)]
+pub struct Latest {
+    pub version: Option<String>,
+    pub error: Option<String>,
+}
+
+#[derive(Default, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RunReport {
+    pub ok: bool,
+    pub error: Option<String>,
+    pub version: Option<String>,
+    pub outcomes: Vec<Outcome>,
+    pub restarted: Vec<&'static str>,
+    pub start_by_hand: Vec<&'static str>,
+}
+
+pub fn check() -> Latest {
+    match release::latest() {
+        Ok(Some(r)) if release::has_core(&r) => Latest { version: Some(r.version), error: None },
+        Ok(_) => Latest { version: None, error: None },
+        Err(e) => Latest { version: None, error: Some(e) },
+    }
+}
+
+/// A local build overrides the release download for development and tests.
+fn load_core(progress: &dyn Fn(&str)) -> Result<CorePayload, String> {
+    if let Some(file) = std::env::var("EVI_CORE_FILE").ok().filter(|f| !f.is_empty()) {
+        progress("Reading Evi from a local file…");
+        return release::parse_core(&std::fs::read(&file).map_err(|e| format!("Couldn’t read {file}: {e}"))?);
+    }
+    progress("Looking up the release…");
+    let release = release::latest()?.ok_or("No Evi release has been published yet.")?;
+    progress(&format!("Downloading Evi {}…", release.version));
+    release::download_core(&release, || progress("Checking the download…"))
+}
+
+pub fn run(action: Action, flavors: &[String], restart: bool, prompt: bool, progress: &dyn Fn(&str)) -> RunReport {
+    let res = match action {
+        Action::Install => install(flavors, prompt, progress),
+        Action::Uninstall => uninstall(flavors, prompt, progress),
+    };
+    let Ok(res) = res else {
+        return RunReport { error: res.err(), ..RunReport::default() };
+    };
+    let mut report = RunReport { ok: res.outcomes.iter().all(|o| o.ok), version: res.version, outcomes: res.outcomes, ..RunReport::default() };
+    if restart && !res.restart.is_empty() {
+        progress("Starting Discord…");
+        for install in &res.restart {
+            let labels = if discord::start_discord(install) { &mut report.restarted } else { &mut report.start_by_hand };
+            labels.push(discord::flavor_label(install.flavor));
+        }
+    }
+    report
+}
+
+#[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InstallInfo {
     pub flavor: &'static str,
     pub label: &'static str,
-    /// "missing" when this Discord isn't installed, otherwise clean, evi or other-mod
-    pub state: String,
+    pub state: InjectionState,
     pub discord_version: Option<String>,
     pub evi_version: Option<String>,
     /// The loader points at a repo's build (evi install --dev) rather than the data folder
@@ -34,37 +102,38 @@ pub struct InstallInfo {
     pub path: Option<String>,
     /// macOS and Linux: a watcher puts Evi back after Discord updates (autorepair.rs)
     pub auto_repair: bool,
-    /// macOS: why Evi Setup can't change this Discord, "app-management" or "no-access" (macos.rs)
+    /// macOS: why Evi Setup can't change this Discord, "app-management" or "no-access"
     pub access: Option<&'static str>,
 }
 
-pub fn status() -> Vec<InstallInfo> {
+pub fn scan() -> Scan {
     let found = discord::find_installs();
     let core_dir = paths::data_dir().join("core");
-    discord::FLAVORS
+    let installs = discord::FLAVORS
         .iter()
         .map(|&(flavor, _, label)| {
             let Some(install) = found.iter().find(|i| i.flavor == flavor) else {
-                return InstallInfo { flavor, label, state: "missing".into(), discord_version: None, evi_version: None, dev_build: false, running: false, path: None, auto_repair: false, access: None };
+                return InstallInfo { flavor, label, state: InjectionState::Missing, discord_version: None, evi_version: None, dev_build: false, running: false, path: None, auto_repair: false, access: None };
             };
             let latest = &install.versions[0];
             let state = discord::injection_state(&latest.resources);
-            let shim_core = (state == InjectionState::Evi).then(|| discord::shim_core_dir(&latest.resources)).flatten();
+            let shim_core = if state == InjectionState::Evi { discord::shim_core_dir(&latest.resources) } else { None };
             let dev_build = shim_core.as_ref().is_some_and(|dir| !same_path(dir, &core_dir));
             InstallInfo {
                 flavor,
                 label,
-                state: serde_json::to_value(state).unwrap().as_str().unwrap().to_string(),
+                state,
                 discord_version: Some(latest.version.clone()),
                 evi_version: shim_core.as_deref().and_then(discord::core_version),
                 dev_build,
                 running: discord::is_discord_running(install),
                 path: Some(install.root.to_string_lossy().into_owned()),
                 auto_repair: autorepair::enabled(flavor),
-                access: macos::access_problem(&latest.resources),
+                access: discord::access_problem(&latest.resources),
             }
         })
-        .collect()
+        .collect();
+    Scan { version: crate::VERSION, data_dir: paths::data_dir().to_string_lossy().into_owned(), installs }
 }
 
 fn same_path(a: &Path, b: &Path) -> bool {
@@ -81,23 +150,18 @@ fn safe_name(name: &str) -> bool {
     !name.is_empty() && name != "." && name != ".." && !name.contains(['/', '\\', ':', '\0'])
 }
 
-/// src/shared/store.ts isPluginId
-fn is_plugin_id(id: &str) -> bool {
-    let b = id.as_bytes();
-    let ok = |c: &u8| c.is_ascii_lowercase() || c.is_ascii_digit();
-    !b.is_empty() && b.len() <= 64 && ok(&b[0]) && ok(&b[b.len() - 1]) && b.iter().all(|c| ok(c) || *c == b'-')
-}
-
 fn removed_plugins(data_dir: &Path) -> Vec<String> {
-    let Ok(text) = std::fs::read_to_string(data_dir.join(REMOVED_PLUGINS_FILE)) else { return vec![] };
-    match serde_json::from_str::<serde_json::Value>(&text) {
-        Ok(serde_json::Value::Array(list)) => list.iter().filter_map(|v| v.as_str()).filter(|id| is_plugin_id(id)).map(String::from).collect(),
-        _ => vec![],
-    }
+    std::fs::read_to_string(data_dir.join(REMOVED_PLUGINS_FILE))
+        .ok()
+        .and_then(|s| serde_json::from_str::<Vec<serde_json::Value>>(&s).ok())
+        .into_iter()
+        .flatten()
+        .filter_map(|v| v.as_str().map(String::from))
+        .collect()
 }
 
 /// Writes the core into the data folder and refreshes official plugins already there. Returns the path the loader points at.
-pub fn prepare_core(payload: &CorePayload) -> io::Result<PathBuf> {
+fn prepare_core(payload: &CorePayload) -> io::Result<PathBuf> {
     let data_dir = paths::data_dir();
     let bad = |what: &str| io::Error::new(io::ErrorKind::InvalidData, format!("{} has an unsafe {what}", release::CORE_ASSET));
     if payload.core.keys().any(|f| !safe_name(f)) {
@@ -132,9 +196,8 @@ pub fn prepare_core(payload: &CorePayload) -> io::Result<PathBuf> {
     }
 
     // Official plugins that are now part of Evi itself would show up twice
-    let retired = RETIRED_PLUGINS.iter().map(|s| s.to_string()).chain(payload.retired.iter().filter(|id| safe_name(id)).cloned());
-    for id in retired {
-        let dir = data_dir.join("plugins").join(&id);
+    for id in RETIRED_PLUGINS.iter().copied().chain(payload.retired.iter().map(String::as_str).filter(|id| safe_name(id))) {
+        let dir = data_dir.join("plugins").join(id);
         if !dir.join(STORE_MARKER).exists() {
             let _ = std::fs::remove_dir_all(&dir);
         }
@@ -157,13 +220,13 @@ fn explain(install: &DiscordInstall, err: &io::Error) -> String {
             return format!("Windows didn’t let the installer change {root}. Quit Discord fully (tray icon > Quit) and try again.");
         }
         if !paths::is_root() {
-            return format!("{root} belongs to root, and Evi Setup couldn’t ask for your password (it needs pkexec, which comes with most desktops).");
+            return format!("{root} belongs to root. Run install or uninstall again with sudo.");
         }
     }
     format!("Couldn’t change {root}: {err}")
 }
 
-#[derive(Serialize, Clone)]
+#[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Outcome {
     pub flavor: &'static str,
@@ -172,14 +235,12 @@ pub struct Outcome {
     pub message: String,
 }
 
-pub struct Progress<'a>(pub &'a dyn Fn(&str));
-
 /// Closes Discord if it's running (the archive is locked while it is), runs the swap, and reports
 /// whether Discord was running. Starting it again is up to the caller.
-fn with_discord_closed(install: &DiscordInstall, progress: &Progress, action: impl FnOnce() -> io::Result<()>) -> (bool, io::Result<()>) {
+fn with_discord_closed(install: &DiscordInstall, progress: &dyn Fn(&str), action: impl FnOnce() -> io::Result<()>) -> (bool, io::Result<()>) {
     let running = discord::is_discord_running(install);
     if running {
-        (progress.0)(&format!("Closing Discord {}…", discord::flavor_label(install.flavor)));
+        progress(&format!("Closing Discord {}…", discord::flavor_label(install.flavor)));
         discord::kill_discord(install);
     }
     (running, action())
@@ -226,38 +287,35 @@ fn swap_out_folder(resources: &Path) -> io::Result<()> {
     std::fs::rename(&original, resources.join("app.asar"))
 }
 
-/// Discord's own archive back in place, in every version folder that has Evi. Returns how many
-fn swap_out(install: &DiscordInstall) -> io::Result<usize> {
-    let mut removed = 0;
+/// Discord's own archive back in place, in every version folder that has Evi
+fn swap_out(install: &DiscordInstall) -> io::Result<()> {
     let mut failed = None;
     // Every version folder, the auto-repair may have injected older ones too. One that can't be
     // restored doesn't stop the others
     for v in &install.versions {
-        if discord::injection_state(&v.resources) != InjectionState::Evi {
-            continue;
-        }
-        match swap_out_folder(&v.resources) {
-            Ok(()) => removed += 1,
-            Err(e) => failed = failed.or(Some(e)),
+        if discord::injection_state(&v.resources) == InjectionState::Evi {
+            if let Err(e) = swap_out_folder(&v.resources) {
+                failed = failed.or(Some(e));
+            }
         }
     }
-    failed.map_or(Ok(removed), Err)
-}
-
-fn denied(err: &io::Error) -> bool {
-    err.kind() == io::ErrorKind::PermissionDenied || (!cfg!(windows) && err.raw_os_error().is_some_and(|c| c == 1 || c == 13))
+    failed.map_or(Ok(()), Err)
 }
 
 /// Linux installs from packages belong to root. Instead of sending people to a terminal, run this
 /// same program as root through pkexec, which shows the desktop's own password prompt, for just the
 /// part that needs it. None when that isn't possible here (not Linux, already root, no pkexec).
 /// Ok holds the last line the helper printed, if any.
-fn elevated(args: &[&str]) -> Option<Result<String, String>> {
-    if !cfg!(target_os = "linux") || paths::is_root() {
+fn elevated(args: &[&str], prompt: bool, progress: &dyn Fn(&str)) -> Option<Result<String, String>> {
+    if !prompt || !cfg!(target_os = "linux") || paths::is_root() {
         return None;
     }
     let exe = std::env::current_exe().ok()?;
-    let out = std::process::Command::new("pkexec").arg(exe).arg("--headless").args(args).output().ok()?;
+    progress("Asking for your password…");
+    let out = match std::process::Command::new("pkexec").arg(exe).arg("--headless").args(args).output() {
+        Ok(out) => out,
+        Err(e) => return Some(Err(format!("Evi Setup couldn’t ask for your password through pkexec (provided by polkit): {e}"))),
+    };
     // pkexec: 126 when the password prompt was dismissed, 127 when not authorized
     Some(match out.status.code() {
         Some(0) => Ok(String::from_utf8_lossy(&out.stdout).trim().lines().last().unwrap_or("").to_string()),
@@ -274,22 +332,16 @@ fn after_updates(watcher: Result<(), String>) -> String {
     }
 }
 
-/// Sets up the watcher and says so. The loader itself is already in, so a failure here is only a note
-fn keep_after_updates(install: &DiscordInstall, core_path: &str) -> String {
-    if cfg!(windows) {
-        return String::new();
-    }
-    after_updates(autorepair::enable(install, core_path))
-}
-
-pub struct RunResult {
-    pub outcomes: Vec<Outcome>,
+struct RunResult {
+    version: Option<String>,
+    outcomes: Vec<Outcome>,
     /// Discords we closed or installed into, to start again
-    pub restart: Vec<DiscordInstall>,
+    restart: Vec<DiscordInstall>,
 }
 
-pub fn install(flavors: &[String], payload: &CorePayload, progress: &Progress) -> Result<RunResult, String> {
-    let mut result = RunResult { outcomes: vec![], restart: vec![] };
+fn install(flavors: &[String], prompt: bool, progress: &dyn Fn(&str)) -> Result<RunResult, String> {
+    let payload = load_core(progress)?;
+    let mut result = RunResult { version: Some(payload.version.clone()), outcomes: vec![], restart: vec![] };
     let outcome = |discord: &DiscordInstall, ok, message: String| Outcome { flavor: discord.flavor, label: discord::flavor_label(discord.flavor), ok, message };
 
     // The core is shared by every Discord: only rewrite it when at least one can take Evi
@@ -307,22 +359,21 @@ pub fn install(flavors: &[String], payload: &CorePayload, progress: &Progress) -
         return Ok(result);
     }
 
-    (progress.0)("Writing Evi’s files…");
-    let core_path = prepare_core(payload).map_err(|e| format!("Couldn’t write Evi’s files to {}: {e}", paths::data_dir().display()))?;
+    progress("Writing Evi’s files…");
+    let core_path = prepare_core(&payload).map_err(|e| format!("Couldn’t write Evi’s files to {}: {e}", paths::data_dir().display()))?;
     let core_path = paths::node_path(&core_path);
 
     for (discord, state) in targets {
         let label = discord::flavor_label(discord.flavor);
         let latest = &discord.versions[0];
-        (progress.0)(&format!("Installing into Discord {label}…"));
+        progress(&format!("Installing into Discord {label}…"));
         let (was_running, swapped) = with_discord_closed(&discord, progress, || swap_in(&latest.resources, state, &core_path));
         let swapped = match swapped {
-            Ok(()) => Ok(keep_after_updates(&discord, &core_path)),
-            Err(e) if denied(&e) => {
-                (progress.0)("Asking for your password…");
+            Ok(()) => Ok(after_updates(autorepair::enable(&discord, &core_path))),
+            Err(e) if e.kind() == io::ErrorKind::PermissionDenied => {
                 // The helper sets up the watcher too: Discord's folder being root's, so is the watcher.
                 // It prints why when only the watcher couldn't be set up
-                elevated(&["swap", "--flavor", discord.flavor, "--core", &core_path])
+                elevated(&["swap", "--flavor", discord.flavor, "--core", &core_path], prompt, progress)
                     .unwrap_or_else(|| Err(explain(&discord, &e)))
                     .map(|note| after_updates(if note.is_empty() { Ok(()) } else { Err(note) }))
             }
@@ -343,12 +394,12 @@ pub fn install(flavors: &[String], payload: &CorePayload, progress: &Progress) -
     Ok(result)
 }
 
-pub fn uninstall(flavors: &[String], progress: &Progress) -> Result<RunResult, String> {
-    let mut result = RunResult { outcomes: vec![], restart: vec![] };
+fn uninstall(flavors: &[String], prompt: bool, progress: &dyn Fn(&str)) -> Result<RunResult, String> {
+    let mut result = RunResult { version: None, outcomes: vec![], restart: vec![] };
     for discord in selected(flavors)? {
         let label = discord::flavor_label(discord.flavor);
         let outcome = |ok, message: String| Outcome { flavor: discord.flavor, label, ok, message };
-        (progress.0)(&format!("Removing Evi from Discord {label}…"));
+        progress(&format!("Removing Evi from Discord {label}…"));
         // The watcher goes first, or it would put Evi straight back
         autorepair::disable(discord.flavor);
         // Nothing to remove: never close a Discord (and drop its call) for that
@@ -356,13 +407,11 @@ pub fn uninstall(flavors: &[String], progress: &Progress) -> Result<RunResult, S
             result.outcomes.push(outcome(true, format!("Evi wasn’t installed in Discord {label}")));
             continue;
         }
-        let mut removed = 0;
-        let (was_running, swapped) = with_discord_closed(&discord, progress, || swap_out(&discord).map(|n| removed = n));
+        let (was_running, swapped) = with_discord_closed(&discord, progress, || swap_out(&discord));
         let swapped = match swapped {
-            Ok(()) => Ok(removed > 0),
-            Err(e) if denied(&e) => {
-                (progress.0)("Asking for your password…");
-                elevated(&["unswap", "--flavor", discord.flavor]).unwrap_or_else(|| Err(explain(&discord, &e))).map(|_| true)
+            Ok(()) => Ok(()),
+            Err(e) if e.kind() == io::ErrorKind::PermissionDenied => {
+                elevated(&["unswap", "--flavor", discord.flavor], prompt, progress).unwrap_or_else(|| Err(explain(&discord, &e))).map(|_| ())
             }
             Err(e) => Err(explain(&discord, &e)),
         };
@@ -371,10 +420,7 @@ pub fn uninstall(flavors: &[String], progress: &Progress) -> Result<RunResult, S
             result.restart.push(discord.clone());
         }
         match swapped {
-            Ok(removed) => {
-                let message = if removed { format!("Removed Evi from Discord {label}") } else { format!("Evi wasn’t installed in Discord {label}") };
-                result.outcomes.push(outcome(true, message));
-            }
+            Ok(()) => result.outcomes.push(outcome(true, format!("Removed Evi from Discord {label}"))),
             Err(message) => result.outcomes.push(outcome(false, message)),
         }
     }
@@ -392,11 +438,6 @@ fn selected(flavors: &[String]) -> Result<Vec<DiscordInstall>, String> {
         return Err("None of the chosen Discord installs were found.".into());
     }
     Ok(picked)
-}
-
-/// Starts the Discords again. Returns the labels that have to be started by hand (under sudo).
-pub fn restart(installs: &[DiscordInstall]) -> Vec<&'static str> {
-    installs.iter().filter(|i| !discord::start_discord(i)).map(|i| discord::flavor_label(i.flavor)).collect()
 }
 
 fn one(flavor: &str) -> Result<DiscordInstall, String> {
@@ -439,7 +480,7 @@ pub fn elevated_swap(flavor: &str, core_path: &str) -> Result<Option<String>, St
 pub fn elevated_unswap(flavor: &str) -> Result<(), String> {
     let install = one(flavor)?;
     autorepair::disable(flavor);
-    swap_out(&install).map(|_| ()).map_err(|e| explain(&install, &e))
+    swap_out(&install).map_err(|e| explain(&install, &e))
 }
 
 #[cfg(test)]

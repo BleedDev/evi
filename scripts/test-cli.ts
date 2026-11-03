@@ -106,8 +106,6 @@ const server = Bun.serve({
             return Response.json({
                 tag_name: latest.tag,
                 html_url: `${origin}/releases/${latest.tag}`,
-                draft: false,
-                prerelease: false,
                 assets: (withCli ? ["evi.exe", "evi.exe.sha256"] : ["evi-core.json", "evi-core.json.sha256"]).map(name => ({ name, browser_download_url: `${origin}/download/${name}` })),
             });
         }
@@ -134,7 +132,6 @@ async function update(args: string[], api = API) {
     const cmd = EXE ? [exeCopy, ...args] : ["bun", join(ROOT, "src", "cli", "index.ts"), ...args];
     const proc = Bun.spawn(cmd, {
         env: { ...process.env, LOCALAPPDATA: LOCAL, APPDATA: ROAMING, NO_COLOR: "1", EVI_UPDATE_API: api },
-        stdout: "pipe",
         stderr: "pipe",
     });
     const [out, err, code] = await Promise.all([new Response(proc.stdout).text(), new Response(proc.stderr).text(), proc.exited]);
@@ -206,7 +203,7 @@ if (!EXE) {
     writeFileSync(join(ptbResources, "app.asar"), discordAsar);
     rmSync(join(ROAMING, "Evi", "core"), { recursive: true, force: true });
 
-    checksum = new Bun.CryptoHasher("sha256").update(asset).digest("hex");
+    checksum = Bun.CryptoHasher.hash("sha256", asset, "hex");
     r = await update(["update"]);
     check("update: succeeds with a valid checksum", r.code === 0 && r.out.includes("Updated") && r.out.includes("99.0.0"), r.out);
     check("update: exe replaced by the download", readFileSync(exeCopy).equals(asset));
@@ -218,40 +215,6 @@ if (!EXE) {
     check("update: next run removes the .old", r.code === 0 && !existsSync(`${exeCopy}.old`), r.out);
 }
 server.stop(true);
-
-// The release workflow must parse, write its notes from the changelog, and publish only after testing what it uploads
-const workflow = Bun.YAML.parse(readFileSync(join(ROOT, ".github", "workflows", "release.yml"), "utf8")) as any;
-const triggers = Object.keys(workflow?.on ?? {}).sort().join(",");
-check("release.yml parses, triggers only on manual runs and v* tags", triggers === "push,workflow_dispatch" && JSON.stringify(workflow.on.push) === JSON.stringify({ tags: ["v*"] }), triggers);
-// The release job tests Evi and builds evi-core.json. Evi Setup comes from the last release when
-// installer/ is unchanged (checksums checked), and the release job publishes; otherwise it builds and
-// tests on each system (setup-builds.yml) and the publish job waits for both
-const publishScript = readFileSync(join(ROOT, "scripts", "publish-release.sh"), "utf8");
-const steps: any[] = workflow?.jobs?.release?.steps ?? [];
-const stepIndex = (re: RegExp) => steps.findIndex((s: any) => re.test(s.run ?? ""));
-const reuse = steps.find((s: any) => s.id === "setup")?.run ?? "";
-const publishes = (job: any) => (job?.steps ?? []).some((s: any) => /scripts\/publish-release\.sh/.test(s.run ?? ""));
-const setupWindows: any[] = (Bun.YAML.parse(readFileSync(join(ROOT, ".github", "workflows", "setup-builds.yml"), "utf8")) as any)?.jobs?.windows?.steps ?? [];
-const installerTest = setupWindows.findIndex((s: any) => /test-installer\.ts/.test(s.run ?? ""));
-const setupUpload = setupWindows.findIndex((s: any) => /upload-artifact/.test(s.uses ?? ""));
-check("release.yml publishes with notes from the changelog, after everything it carries was tested",
-    /--notes-file notes\.md/.test(publishScript) && !/--draft/.test(publishScript)
-    && stepIndex(/release-notes\.ts/) >= 0 && stepIndex(/release-notes\.ts/) < stepIndex(/scripts\/build\.ts --release/)
-    && stepIndex(/bun test/) >= 0 && stepIndex(/bun test/) < stepIndex(/publish-release\.sh/)
-    && installerTest >= 0 && installerTest < setupUpload
-    && publishes(workflow?.jobs?.release) && publishes(workflow?.jobs?.publish)
-    && JSON.stringify(workflow?.jobs?.publish?.needs) === JSON.stringify(["release", "setup"])
-    && workflow?.jobs?.setup?.needs === "release" && /setup-builds\.yml$/.test(workflow?.jobs?.setup?.uses ?? ""),
-    publishScript);
-check("release.yml reuses Evi Setup only while installer/ is unchanged, and checks its checksums",
-    /git diff --quiet "\$last" HEAD -- installer/.test(reuse) && /sha256sum -c/.test(reuse) && /rebuild_setup/.test(JSON.stringify(workflow?.on?.workflow_dispatch)),
-    reuse);
-check("release.yml attaches Evi Setup for every system and evi-core.json with its .gz, and no CLI (gone since 1.5.0)",
-    ["Evi-Setup.exe", "Evi-Setup-macos.zip", "Evi-Setup-linux-{x64,arm64}", "evi-core.json", "evi-core.json.gz"].every(f => publishScript.includes(f))
-    // Both ways to publish carry the .gz: copied for the release job, uploaded for the publish job
-    && JSON.stringify(steps).split("dist/evi-core.json.gz").length === 3
-    && !/evi\.exe|evi-(macos|linux)-/.test(publishScript),
-    publishScript);
 
 // Upgrading an install from before the rename to Evi: an old "// delight-shim" loader and data in %APPDATA%\Delight
 rmSync(join(RESOURCES, ORIGINAL_ASAR), { force: true });

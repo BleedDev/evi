@@ -1,12 +1,13 @@
 /**
  *   bun scripts/build.ts            build core + plugins into dist/
  *   bun scripts/build.ts --watch    rebuild on change; running Discord hot-reloads plugins, Ctrl+R picks up core
- *   bun scripts/build.ts --cli      also compile the installer into dist/evi.exe
+ *   bun scripts/build.ts --cli      also compile the developer CLI into dist/evi.exe
  *   bun scripts/build.ts --release  evi-core.json (the core and official plugins Evi Setup and updates download) and
  *                                   its .sha256; with --installer, Evi Setup's .sha256 too. With --cli as well, the evi CLI
  *                                   for every system (releases stopped carrying it at 1.5.0; it's for developing Evi)
- *   bun scripts/build.ts --installer  compile Evi Setup, the small window installer in installer/ (Rust + Tauri), into
- *                                   dist/Evi-Setup.exe. On its own it only does that and leaves core and plugins alone
+ *   bun scripts/build.ts --installer      package Evi Setup for this system, with its checksum
+ *   bun scripts/build.ts --installer-cli  package Linux Evi Setup without GUI dependencies
+ *                                         On their own, these leave core and plugins alone
  */
 import type { BunPlugin } from "bun";
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, watch, writeFileSync } from "fs";
@@ -14,7 +15,7 @@ import { basename, dirname, join, resolve } from "path";
 
 import pkg from "../package.json";
 import type { PluginManifest } from "../src/shared/ipc";
-import { CORE_GZ_ASSET, RELEASE_ASSETS } from "../src/shared/release";
+import { CORE_ASSET, CORE_GZ_ASSET, RELEASE_ASSETS } from "../src/shared/release";
 import { RETIRED_PLUGINS } from "../src/shared/store";
 import { escapeNonLatin1 } from "./escapeNonLatin1";
 import { mainLocales, strayKeys } from "./mainLocales";
@@ -33,16 +34,13 @@ const args = new Set(process.argv.slice(2));
 const WATCH = args.has("--watch");
 const RELEASE = args.has("--release");
 const CLI = args.has("--cli");
-const INSTALLER = args.has("--installer");
-// --release with --installer still builds evi-core.json
-const INSTALLER_ONLY = INSTALLER && !CLI && !WATCH && !RELEASE;
+const INSTALLER_CLI = args.has("--installer-cli");
+const INSTALLER = args.has("--installer") || INSTALLER_CLI;
 
-/** Release assets next to the CLI's: what Evi Setup downloads, and Evi Setup itself */
-const CORE_ASSET = "evi-core.json";
 // macOS gets one app for Apple Silicon and Intel, zipped; Linux one file per processor
-const INSTALLER_ASSET = process.platform === "win32" ? "Evi-Setup.exe" : process.platform === "darwin" ? "Evi-Setup-macos.zip" : `Evi-Setup-linux-${process.arch}`;
+const INSTALLER_ASSET = process.platform === "win32" ? "Evi-Setup.exe" : process.platform === "darwin" ? "Evi-Setup-macos.zip" : `Evi-Setup-linux-${INSTALLER_CLI ? "cli-" : ""}${process.arch}`;
 
-/** Bun cross-compiles, so every installer builds from any machine */
+/** Bun cross-compiles the developer CLI */
 const TARGETS: Record<typeof RELEASE_ASSETS[number], string> = {
     "evi.exe": "bun-windows-x64",
     "evi-macos-arm64": "bun-darwin-arm64",
@@ -73,7 +71,7 @@ const jsxShim: BunPlugin = {
  */
 async function bundle(label: string, config: Parameters<typeof Bun.build>[0], core = false) {
     const lean = core && !WATCH;
-    const result = await Bun.build({ define, minify: lean ? { whitespace: true } : false, ...config });
+    const result = await Bun.build({ define, minify: lean ? { whitespace: true } : false, sourcemap: WATCH ? "inline" : "none", ...config });
     if (!result.success) {
         console.error(`✗ ${label}`);
         for (const log of result.logs) console.error(log);
@@ -98,7 +96,7 @@ async function bundle(label: string, config: Parameters<typeof Bun.build>[0], co
 /** Evi's languages but English and What's new's notes, files main reads when they're needed (scripts/coreData.ts) */
 async function writeCoreData() {
     mkdirSync(CORE_OUT, { recursive: true });
-    const code = await Bun.spawn([process.execPath, join(ROOT, "scripts/coreData.ts"), CORE_OUT], { stdio: ["inherit", "inherit", "inherit"] }).exited;
+    const code = await Bun.spawn([process.execPath, join(ROOT, "scripts/coreData.ts"), CORE_OUT], { stdout: "inherit" }).exited;
     if (code === 0) return true;
     console.error("✗ core data");
     if (!WATCH) process.exit(1);
@@ -117,7 +115,7 @@ async function buildCore() {
             format: "cjs",
             external: ["electron", "original-fs"],
             plugins: WATCH ? [] : [mainLocales],
-        }, true).then(ok => ok && mainKeysOk()),
+        }, true).then(ok => ok && (WATCH || mainKeysOk())),
         bundle("preload", {
             entrypoints: [join(ROOT, "src/preload/index.ts")],
             outdir: CORE_OUT,
@@ -133,7 +131,6 @@ async function buildCore() {
             target: "browser",
             format: "iife",
             plugins: [jsxShim],
-            sourcemap: WATCH ? "inline" : "none",
         }, true),
         // What Discord's popout windows get instead of the renderer (src/renderer/popout.ts)
         bundle("popout", {
@@ -142,7 +139,6 @@ async function buildCore() {
             naming: "popout.js",
             target: "browser",
             format: "iife",
-            sourcemap: WATCH ? "inline" : "none",
         }, true),
     ]);
     results.push(await data);
@@ -151,7 +147,6 @@ async function buildCore() {
 
 /** Every key main.js names is in the tables it carries (scripts/mainLocales.ts) */
 function mainKeysOk() {
-    if (WATCH) return true;
     const stray = strayKeys(readFileSync(join(CORE_OUT, "main.js"), "utf8"));
     if (!stray.length) return true;
     console.error(`✗ main uses ${stray.join(", ")}, which main.js doesn't carry. Main's text goes under the prefixes in scripts/mainLocales.ts`);
@@ -184,7 +179,6 @@ async function buildPlugin(dir: string, outRoot = PLUGINS_OUT) {
         // Official plugins build their languages but English when first read. Not userplugins/: their
         // authors upload this build to evi.rest, whose checks may predate the lazy form
         plugins: outRoot === PLUGINS_OUT && dirname(dir) === PLUGIN_ROOTS[0] ? [lazyStringsPlugin] : [],
-        sourcemap: WATCH ? "inline" : "none",
     });
     if (!ok) return;
 
@@ -236,7 +230,7 @@ function adhocSign(file: string) {
         console.error("✗ rcodesign isn't installed, and the macOS installers need re-signing. Get it from https://github.com/indygreg/apple-platform-rs/releases or set RCODESIGN.");
         process.exit(1);
     }
-    const sign = Bun.spawnSync([rcodesign, "sign", "--binary-identifier", "rest.evi.installer", file], { stderr: "pipe" });
+    const sign = Bun.spawnSync([rcodesign, "sign", "--binary-identifier", "rest.evi.installer", file]);
     const problem = sign.exitCode === 0 ? signatureProblem(readFileSync(file)) : sign.stderr.toString();
     if (problem) {
         console.error(`✗ Signing ${basename(file)} failed: ${problem}`);
@@ -264,20 +258,17 @@ function signatureProblem(bin: Buffer): string | undefined {
         const algorithm = hashType === 2 ? "sha256" : hashType === 1 ? "sha1" : undefined;
         if (!algorithm) return `unknown hash type ${hashType}`;
         for (let p = 0; p < pages; p++) {
-            const actual = new Bun.CryptoHasher(algorithm).update(bin.subarray(p * pageSize, Math.min((p + 1) * pageSize, codeLimit))).digest();
+            const actual = Bun.CryptoHasher.hash(algorithm, bin.subarray(p * pageSize, Math.min((p + 1) * pageSize, codeLimit)));
             if (!actual.subarray(0, hashSize).equals(bin.subarray(cd + hashOffset + p * hashSize, cd + hashOffset + (p + 1) * hashSize))) return `page ${p} doesn't match its hash`;
         }
     }
 }
 
-/** The installer for this machine, or with --release for every system at once */
+/** The developer CLI for this machine, or with --release for every system at once */
 async function compileCli() {
-    writeEmbed();
     const builds = RELEASE ? RELEASE_ASSETS.map(asset => ({ asset, target: [`--target=${TARGETS[asset]}`] })) : [{ asset: "evi.exe", target: [] }];
     const codes = await Promise.all(builds.map(({ asset, target }) =>
-        Bun.spawn(["bun", "build", "--compile", "--minify", ...target, join(ROOT, "src/cli/index.ts"), "--outfile", join(DIST, asset)], {
-            stdio: ["inherit", "inherit", "inherit"],
-        }).exited));
+        Bun.spawn(["bun", "build", "--compile", "--minify", ...target, join(ROOT, "src/cli/index.ts"), "--outfile", join(DIST, asset)], { stdout: "inherit" }).exited));
     const failed = codes.find(code => code !== 0);
     if (failed !== undefined) process.exit(failed);
     for (const { asset } of builds) {
@@ -290,7 +281,7 @@ async function compileCli() {
 }
 
 function writeChecksum(asset: string) {
-    const hash = new Bun.CryptoHasher("sha256").update(readFileSync(join(DIST, asset))).digest("hex");
+    const hash = Bun.CryptoHasher.hash("sha256", readFileSync(join(DIST, asset)), "hex");
     writeFileSync(join(DIST, `${asset}.sha256`), `${hash}  ${asset}\n`);
 }
 
@@ -324,17 +315,12 @@ function writeCoreAsset() {
     console.log(`✓ dist/${CORE_ASSET} and ${CORE_GZ_ASSET}`);
 }
 
-/** Evi Setup (installer/): a Rust + Tauri app, built with cargo for this system */
+/** Evi Setup, with the GUI enabled unless --installer-cli was requested */
 async function compileInstaller() {
-    const cargo = Bun.which("cargo");
-    if (!cargo) {
-        console.error("✗ Evi Setup needs Rust: install it from https://rustup.rs");
-        process.exit(1);
-    }
     const dir = join(ROOT, "installer");
-    if (process.platform === "darwin") await compileMacApp(cargo, dir);
+    if (process.platform === "darwin") await compileMacApp(dir);
     else {
-        await run([cargo, "build", "--release", "--locked"], dir);
+        await run(["cargo", "build", "--release", "--locked", ...INSTALLER_CLI ? ["--no-default-features"] : []], dir);
         copyFileSync(join(dir, "target", "release", process.platform === "win32" ? "evi-setup.exe" : "evi-setup"), join(DIST, INSTALLER_ASSET));
     }
     // Each system's build is made on its own CI runner, by itself: always with its checksum
@@ -343,7 +329,7 @@ async function compileInstaller() {
 }
 
 async function run(cmd: string[], cwd = ROOT) {
-    const code = await Bun.spawn(cmd, { cwd, stdio: ["inherit", "inherit", "inherit"] }).exited;
+    const code = await Bun.spawn(cmd, { cwd, stdout: "inherit" }).exited;
     if (code !== 0) {
         console.error(`✗ ${cmd.join(" ")} failed (${code})`);
         process.exit(code);
@@ -356,10 +342,10 @@ async function run(cmd: string[], cwd = ROOT) {
  * Silicon needs to run it at all, and zipped with ditto so the bundle survives the download.
  * Unnotarized: macOS asks once, and the download page says where to click Open Anyway.
  */
-async function compileMacApp(cargo: string, dir: string) {
+async function compileMacApp(dir: string) {
     const targets = ["aarch64-apple-darwin", "x86_64-apple-darwin"];
     // One cargo run for both: each one's last step (LTO, one codegen unit) is single-threaded, so they overlap
-    await run([cargo, "build", "--release", "--locked", ...targets.flatMap(t => ["--target", t])], dir);
+    await run(["cargo", "build", "--release", "--locked", ...targets.flatMap(t => ["--target", t])], dir);
 
     const app = join(DIST, "Evi Setup.app");
     rmSync(app, { recursive: true, force: true });
@@ -400,7 +386,7 @@ function debounce(fn: () => void, ms = 100) {
     };
 }
 
-if (INSTALLER_ONLY) {
+if (INSTALLER && !CLI && !WATCH && !RELEASE) {
     mkdirSync(DIST, { recursive: true });
     await compileInstaller();
     process.exit(0);

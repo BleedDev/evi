@@ -15,7 +15,6 @@ const code = readFileSync(join(ROOT, "dist", "plugins", "fast-lists", "index.js"
 
 const browser = await chromium.launch({
     executablePath: [process.env.CHROME_PATH, "C:/Program Files/Google/Chrome/Application/chrome.exe"].find(p => !!p && existsSync(p)),
-    headless: true,
 });
 const page = await browser.newPage({ viewport: { width: 400, height: 700 } });
 

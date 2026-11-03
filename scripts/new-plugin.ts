@@ -18,12 +18,11 @@ import { PLACEHOLDER_DESCRIPTION } from "../src/shared/submissionChecks";
 const ROOT = resolve(import.meta.dir, "..");
 
 const { values, positionals } = parseArgs({
-    args: process.argv.slice(2),
     allowPositionals: true,
     options: {
         name: { type: "string" },
         author: { type: "string" },
-        official: { type: "boolean", default: false },
+        official: { type: "boolean" },
     },
 });
 

@@ -2,6 +2,7 @@
     "name": "evi",
     "private": true,
     "version": "3.2.0",
+    "packageManager": "bun@1.4.4",
     "license": "GPL-3.0-or-later",
     "description": "A Discord client mod with hot-reloadable runtime plugins",
     "type": "module",
@@ -26,12 +27,12 @@
         "test:plugins": "node scripts/test-fast-lists.ts"
     },
     "devDependencies": {
-        "@types/bun": "^1.4.2",
-        "@types/node": "^26.6.3",
+        "@types/bun": "^1.4.4",
+        "@types/node": "^26.6.6",
         "@types/react": "19",
         "@types/react-dom": "19",
         "electron": "37",
-        "playwright-core": "^1.63.0",
+        "playwright-core": "^1.64.1",
         "typescript": "^7.0.2"
     }
 }

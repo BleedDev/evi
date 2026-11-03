@@ -34,16 +34,15 @@ if (APP_DATA && !existsSync(DATA_DIR) && existsSync(LEGACY_DATA_DIR)) {
 }
 
 const { values: flags, positionals } = parseArgs({
-    args: Bun.argv.slice(2),
     allowPositionals: true,
     options: {
         flavor: { type: "string", default: "stable" },
-        dev: { type: "boolean", default: false },
-        restart: { type: "boolean", default: false },
-        wait: { type: "boolean", default: false },
-        check: { type: "boolean", default: false },
-        beta: { type: "boolean", default: false },
-        help: { type: "boolean", short: "h", default: false },
+        dev: { type: "boolean" },
+        restart: { type: "boolean" },
+        wait: { type: "boolean" },
+        check: { type: "boolean" },
+        beta: { type: "boolean" },
+        help: { type: "boolean", short: "h" },
     },
 });
 
@@ -149,7 +148,7 @@ async function withDiscordClosed(install: DiscordInstall, action: () => void) {
         console.error(c.err(`✗ ${hint}`));
         return false;
     } finally {
-        if (running && !startDiscord(install)) console.log(c.dim(`  Start Discord ${install.flavor} again yourself: under sudo it would run as root.`));
+        if (running && !startDiscord(install)) console.log(c.dim(`  Start Discord ${install.flavor} again manually.`));
     }
     return true;
 }
@@ -190,20 +189,15 @@ async function uninstall() {
             continue;
         }
         let removed = 0;
-        let missing = 0;
         const done = await withDiscordClosed(discord, () => {
             // Every version folder, the auto-repair may have injected older ones too
             for (const { resources } of discord.versions) {
                 if (injectionState(resources) !== "evi") continue;
                 if (swapOut(resources)) removed++;
-                else {
-                    missing++;
-                    console.error(c.err(`✗ Discord's own archive (${ORIGINAL_ASAR}) is missing from ${resources}, so Evi was left there.`));
-                }
+                else console.error(c.err(`✗ Discord's own archive (${ORIGINAL_ASAR}) is missing from ${resources}, so Evi was left there.`));
             }
         });
-        if (!done || (missing && !removed)) continue;
-        console.log(removed ? c.ok(`✓ Removed Evi from Discord ${discord.flavor}`) : c.dim(`  Evi wasn't installed in Discord ${discord.flavor}`));
+        if (done && removed) console.log(c.ok(`✓ Removed Evi from Discord ${discord.flavor}`));
     }
 }
 

@@ -31,6 +31,7 @@ pub fn flavor_label(flavor: &str) -> &'static str {
 #[derive(Clone, Copy, PartialEq, Eq, Serialize, Debug)]
 #[serde(rename_all = "kebab-case")]
 pub enum InjectionState {
+    Missing,
     Clean,
     Evi,
     OtherMod,
@@ -47,23 +48,30 @@ pub struct DiscordInstall {
     pub flavor: &'static str,
     /// %LOCALAPPDATA%\Discord on Windows, the .app bundle on macOS, the install folder on Linux
     pub root: PathBuf,
-    /// app-x.y.z folders, newest first. macOS and Linux keep a single version in place
+    /// Versions, newest first. macOS and Linux system packages keep one in place
     pub versions: Vec<DiscordVersion>,
 }
 
-pub fn compare_versions(a: &str, b: &str) -> std::cmp::Ordering {
-    let parse = |s: &str| s.split('.').map(|p| p.parse::<f64>().unwrap_or(f64::NAN)).collect::<Vec<_>>();
-    let (pa, pb) = (parse(a), parse(b));
-    for i in 0..pa.len().max(pb.len()) {
-        let diff = pa.get(i).copied().unwrap_or(0.0) - pb.get(i).copied().unwrap_or(0.0);
-        if diff > 0.0 {
-            return std::cmp::Ordering::Greater;
-        }
-        if diff < 0.0 {
-            return std::cmp::Ordering::Less;
-        }
-    }
-    std::cmp::Ordering::Equal
+#[cfg(not(target_os = "macos"))]
+fn version_key(s: &str) -> Vec<u64> {
+    s.split('.').map(|p| p.parse().unwrap_or(0)).collect()
+}
+
+/// app-x.y.z folders inside `root`, newest first (Windows %LOCALAPPDATA%\Discord, Linux ~/.config/discord)
+#[cfg(not(target_os = "macos"))]
+fn find_app_install(flavor: &'static str, root: PathBuf) -> Option<DiscordInstall> {
+    let entries = std::fs::read_dir(&root).ok()?;
+    let mut versions: Vec<DiscordVersion> = entries
+        .flatten()
+        .filter_map(|e| {
+            let name = e.file_name().to_string_lossy().into_owned();
+            let digit = name.strip_prefix("app-").and_then(|rest| rest.chars().next()).is_some_and(|c| c.is_ascii_digit());
+            let resources = root.join(&name).join("resources");
+            (digit && resources.join("app.asar").exists()).then(|| DiscordVersion { version: name[4..].to_string(), resources })
+        })
+        .collect();
+    versions.sort_by_key(|v| std::cmp::Reverse(version_key(&v.version)));
+    (!versions.is_empty()).then_some(DiscordInstall { flavor, root, versions })
 }
 
 /// Where find_installs looks, for the "not found" message
@@ -73,113 +81,101 @@ pub fn searched_locations() -> &'static str {
     } else if cfg!(target_os = "macos") {
         "/Applications and ~/Applications"
     } else {
-        "/usr/share, /usr/lib, /opt, ~/.local/share and ~ (Flatpak and Snap aren't supported)"
+        "/usr/share, /usr/lib, /opt, ~/.local/share, ~/.config and ~ (Flatpak and Snap aren't supported)"
     }
 }
 
-#[allow(dead_code)]
+#[cfg(unix)]
 fn build_version(resources: &Path) -> String {
     std::fs::read_to_string(resources.join("build_info.json"))
         .ok()
         .and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
-        .and_then(|v| match v.get("version") {
-            Some(serde_json::Value::String(s)) => Some(s.clone()),
-            Some(serde_json::Value::Null) | None => None,
-            Some(other) => Some(other.to_string()),
-        })
+        .and_then(|v| v.get("version").filter(|v| !v.is_null()).map(|v| v.as_str().map_or_else(|| v.to_string(), String::from)))
         .unwrap_or_else(|| "?".into())
 }
 
 #[cfg(windows)]
 pub fn find_installs() -> Vec<DiscordInstall> {
     let Some(local) = std::env::var_os("LOCALAPPDATA").filter(|v| !v.is_empty()) else { return vec![] };
-    let mut installs = Vec::new();
-    for (flavor, folder, _) in FLAVORS {
-        let root = PathBuf::from(&local).join(folder);
-        let Ok(entries) = std::fs::read_dir(&root) else { continue };
-        let mut versions: Vec<DiscordVersion> = entries
-            .flatten()
-            .filter_map(|e| {
-                let name = e.file_name().to_string_lossy().into_owned();
-                let digit = name.strip_prefix("app-").and_then(|rest| rest.chars().next()).is_some_and(|c| c.is_ascii_digit());
-                let resources = root.join(&name).join("resources");
-                (digit && resources.join("app.asar").exists()).then(|| DiscordVersion { version: name[4..].to_string(), resources })
-            })
-            .collect();
-        versions.sort_by(|a, b| compare_versions(&b.version, &a.version));
-        if !versions.is_empty() {
-            installs.push(DiscordInstall { flavor, root, versions });
-        }
-    }
-    installs
+    FLAVORS.into_iter().filter_map(|(flavor, folder, _)| find_app_install(flavor, PathBuf::from(&local).join(folder))).collect()
 }
 
-/// Discord keeps one version in place on macOS and Linux: the first candidate folder that has it wins
+/// Discord keeps one version in place on macOS and Linux system packages: the first candidate folder that has it wins
 #[cfg(unix)]
-fn find_in_place_installs(candidates: impl Fn(&str) -> Vec<PathBuf>, resources_dir: &Path) -> Vec<DiscordInstall> {
-    let mut installs = Vec::new();
-    for (flavor, _, _) in FLAVORS {
-        let Some(found) = candidates(flavor).into_iter().find(|root| root.join(resources_dir).join("app.asar").exists()) else { continue };
-        // /usr/share/discord is often a link to /opt/discord, and running processes report the real path
-        let root = std::fs::canonicalize(&found).unwrap_or(found);
-        let resources = root.join(resources_dir);
-        installs.push(DiscordInstall { flavor, root, versions: vec![DiscordVersion { version: build_version(&resources), resources }] });
-    }
-    installs
+fn find_in_place(flavor: &'static str, candidates: &[PathBuf], resources_dir: &Path) -> Option<DiscordInstall> {
+    let found = candidates.iter().find(|root| root.join(resources_dir).join("app.asar").exists())?;
+    // /usr/share/discord is often a link to /opt/discord, and running processes report the real path
+    let root = std::fs::canonicalize(found).unwrap_or_else(|_| found.clone());
+    let resources = root.join(resources_dir);
+    Some(DiscordInstall { flavor, root, versions: vec![DiscordVersion { version: build_version(&resources), resources }] })
 }
 
 #[cfg(target_os = "macos")]
 pub fn find_installs() -> Vec<DiscordInstall> {
     let home = crate::paths::user_home();
-    let app = |flavor: &str| match flavor {
-        "ptb" => "Discord PTB.app",
-        "canary" => "Discord Canary.app",
-        "development" => "Discord Development.app",
-        _ => "Discord.app",
-    };
-    find_in_place_installs(
-        |flavor| vec![PathBuf::from("/Applications").join(app(flavor)), home.join("Applications").join(app(flavor))],
-        &Path::new("Contents").join("Resources"),
-    )
+    let resources = Path::new("Contents").join("Resources");
+    FLAVORS
+        .into_iter()
+        .filter_map(|(flavor, _, label)| {
+            let app = if flavor == "stable" { "Discord.app".to_string() } else { format!("Discord {label}.app") };
+            find_in_place(flavor, &[PathBuf::from("/Applications").join(&app), home.join("Applications").join(&app)], &resources)
+        })
+        .collect()
 }
 
 #[cfg(all(unix, not(target_os = "macos")))]
 pub fn find_installs() -> Vec<DiscordInstall> {
     let home = crate::paths::user_home();
-    find_in_place_installs(
-        |flavor| {
-            let slug = if flavor == "stable" { "discord".to_string() } else { format!("discord-{flavor}") };
-            let folder = flavor_folder(flavor);
-            vec![
-                PathBuf::from(format!("/usr/share/{slug}")),
-                PathBuf::from(format!("/usr/lib/{slug}")),
-                PathBuf::from(format!("/usr/lib64/{slug}")),
-                PathBuf::from(format!("/opt/{slug}")),
-                PathBuf::from(format!("/opt/{folder}")),
-                // The tarball unpacks to ~/Discord, ~/DiscordCanary...
-                home.join(".local").join("share").join(&slug),
-                home.join(folder),
-            ]
+    let config = crate::paths::app_data();
+    FLAVORS
+        .into_iter()
+        .filter_map(|(flavor, folder, _)| {
+            // Official updater_bootstrap installs to ~/.config/<discord|discordptb|discordcanary|discorddevelopment>/app-x.y.z
+            find_app_install(flavor, config.join(folder.to_ascii_lowercase())).or_else(|| {
+                let slug = if flavor == "stable" { "discord".to_string() } else { format!("discord-{flavor}") };
+                let candidates = [
+                    PathBuf::from(format!("/usr/share/{slug}")),
+                    PathBuf::from(format!("/usr/lib/{slug}")),
+                    PathBuf::from(format!("/usr/lib64/{slug}")),
+                    PathBuf::from(format!("/opt/{slug}")),
+                    PathBuf::from(format!("/opt/{folder}")),
+                    home.join(".local").join("share").join(&slug),
+                    home.join(folder),
+                ];
+                find_in_place(flavor, &candidates, Path::new("resources"))
+            })
+        })
+        .collect()
+}
+
+/// A write probe triggers macOS's App Management prompt before an install starts.
+pub fn access_problem(resources: &Path) -> Option<&'static str> {
+    if !cfg!(target_os = "macos") {
+        return None;
+    }
+    let probe = resources.join(".evi-access-check");
+    match std::fs::write(&probe, b"") {
+        Ok(()) => {
+            let _ = std::fs::remove_file(probe);
+            None
+        }
+        Err(e) => match e.raw_os_error() {
+            Some(1) => Some("app-management"), // EPERM: macOS privacy protection
+            Some(13) => Some("no-access"), // EACCES: file permissions
+            _ => None,
         },
-        Path::new("resources"),
-    )
+    }
 }
 
 pub fn is_our_shim(asar: &Path) -> bool {
-    if !std::fs::metadata(asar).map(|m| m.is_file()).unwrap_or(false) {
-        return false;
-    }
-    match read_asar_file(asar, "index.js") {
-        Ok(code) => std::iter::once(SHIM_MARKER).chain(LEGACY_SHIM_MARKERS.iter().copied()).any(|m| code.starts_with(m)),
-        Err(_) => false,
-    }
+    read_asar_file(asar, "index.js")
+        .is_ok_and(|code| std::iter::once(SHIM_MARKER).chain(LEGACY_SHIM_MARKERS.iter().copied()).any(|m| code.starts_with(m)))
 }
 
 /// Loaders are a few KB, Discord's own archive is megabytes. On Linux a package upgrade puts Discord's
 /// archive back as app.asar and leaves the old _app.asar beside it, which isn't another mod.
-#[allow(dead_code)]
 fn is_discord_archive(asar: &Path) -> bool {
-    std::fs::metadata(asar).map(|m| m.len() > 256 * 1024).unwrap_or(false)
+    std::fs::metadata(asar).is_ok_and(|m| m.len() > 256 * 1024)
 }
 
 pub fn injection_state(resources: &Path) -> InjectionState {
@@ -202,19 +198,16 @@ pub fn shim_core_dir(resources: &Path) -> Option<PathBuf> {
     let code = read_asar_file(&resources.join("app.asar"), "index.js").ok()?;
     // Every require("…") of a JSON string literal; the core's main.js is the one the loader starts
     code.match_indices("require(\"").find_map(|(i, _)| {
-        let mut strings = serde_json::Deserializer::from_str(&code[i + "require(".len()..]).into_iter::<String>();
-        let path = strings.next()?.ok()?;
-        path.ends_with("main.js").then(|| Path::new(&path).parent().map(Path::to_path_buf)).flatten()
+        let path = serde_json::Deserializer::from_str(&code[i + "require(".len()..]).into_iter::<String>().next()?.ok()?;
+        Path::new(&path).parent().filter(|_| path.ends_with("main.js")).map(Path::to_path_buf)
     })
 }
 
 /// The version of the core in a folder: the build inlines it into main.js's startup line
 pub fn core_version(core_dir: &Path) -> Option<String> {
     let main = std::fs::read_to_string(core_dir.join("main.js")).ok()?;
-    let marker = "[Evi] v${\"";
-    let start = main.find(marker)? + marker.len();
-    let len = main[start..].find('"')?;
-    let version = &main[start..start + len];
+    let (_, rest) = main.split_once("[Evi] v${\"")?;
+    let (version, _) = rest.split_once('"')?;
     (!version.is_empty() && version.len() < 40).then(|| version.to_string())
 }
 
@@ -359,7 +352,7 @@ pub fn start_discord(install: &DiscordInstall) -> bool {
             c.arg(&install.root);
             c
         } else {
-            std::process::Command::new(install.root.join(flavor_folder(install.flavor)))
+            std::process::Command::new(install.versions[0].resources.with_file_name(flavor_folder(install.flavor)))
         };
         cmd.stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null()).process_group(0).spawn().is_ok()
     }

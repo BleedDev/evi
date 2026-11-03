@@ -42,9 +42,11 @@ export function beforeEviRestart() {
  */
 export function persistAcrossUpdates(shimAsar: string) {
     if (process.platform === "darwin") return relinkAfterMacUpdate(shimAsar);
-    if (process.platform !== "win32") return;
+    const appDir = dirname(dirname(shimAsar));
+    if (!basename(appDir).startsWith("app-")) return;
 
-    const installRoot = dirname(dirname(dirname(shimAsar)));
+    const installRoot = dirname(appDir);
+    const watched = new Map<string, ReturnType<typeof fs.watch>>();
 
     /** Discord's archive never goes missing: the loader is copied in beside it first, then the two swap names */
     const inject = (resources: string) => {
@@ -71,8 +73,15 @@ export function persistAcrossUpdates(shimAsar: string) {
     const run = () => {
         let done = true;
         try {
+            for (const [path, watcher] of watched) {
+                if (path !== installRoot && !fs.existsSync(path)) {
+                    watcher.close();
+                    watched.delete(path);
+                }
+            }
             for (const dir of fs.readdirSync(installRoot)) {
                 if (!dir.startsWith("app-")) continue;
+                if (process.platform === "linux") watch(join(installRoot, dir));
                 const resources = join(installRoot, dir, "resources");
                 if (!fs.existsSync(join(resources, "app.asar")) || fs.existsSync(join(resources, ORIGINAL_ASAR))) continue;
                 try {
@@ -104,24 +113,21 @@ export function persistAcrossUpdates(shimAsar: string) {
         while (!run() && Date.now() < quitDeadline) sleep(RETRY_MS);
     };
 
-    runSoon();
-    app.on("before-quit", runBeforeExit);
-    // app.exit() skips before-quit
-    process.on("exit", runBeforeExit);
-
     // before-quit never fires when Windows shuts down, restarts or logs off, and Discord's updater
     // writes the new version while Discord runs: left open overnight, the next start had no Evi.
     // So move in as soon as the updater is done writing, without waiting for a quit
-    if (!basename(dirname(dirname(shimAsar))).startsWith("app-")) return;
     let settle: NodeJS.Timeout | undefined;
-    const watch = () => {
+    const watch = (path: string) => {
+        if (watched.has(path)) return;
         let watcher: ReturnType<typeof fs.watch>;
         try {
-            watcher = fs.watch(installRoot, { recursive: true }, (event, file) => {
+            // Linux's install root is also userData: watch versions recursively, never profile caches.
+            watcher = fs.watch(path, { recursive: path !== installRoot || process.platform === "win32" }, (event, file) => {
+                if (path === installRoot && process.platform === "linux" && file && !/^app-[^\\/]+$/.test(file)) return;
                 // Discord's own updater writes a version into .app-x.y.z.installing and renames it to
                 // app-x.y.z when it's complete. At startup it relaunches into it a few seconds later,
                 // long before the settle below: move in right away
-                if (event === "rename" && file && /^app-[^\\/]+$/.test(file)) return runSoon();
+                if (path === installRoot && event === "rename" && file && /^app-[^\\/]+$/.test(file)) return runSoon();
                 clearTimeout(settle);
                 settle = setTimeout(runSoon, SETTLE_MS);
                 settle.unref();
@@ -129,19 +135,25 @@ export function persistAcrossUpdates(shimAsar: string) {
         } catch (err) {
             return console.error("[Evi] Can't watch Discord's folder for updates", err);
         }
+        watched.set(path, watcher);
         watcher.unref();
         // On Windows, deleting a watched subfolder errors the watcher and it stops for good, and
         // Discord's updater deletes the old app-x.y.z while Discord runs: look again, then watch anew
         watcher.on("error", err => {
             console.warn("[Evi] Discord folder watcher failed, restarting it", err);
             watcher.close();
+            watched.delete(path);
             setTimeout(() => {
                 runSoon();
-                watch();
+                watch(path);
             }, REWATCH_MS).unref();
         });
     };
-    watch();
+    watch(installRoot);
+    runSoon();
+    app.on("before-quit", runBeforeExit);
+    // app.exit() skips before-quit
+    process.on("exit", runBeforeExit);
 }
 
 /**

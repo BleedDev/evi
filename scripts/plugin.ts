@@ -24,8 +24,7 @@ import { parseArgs } from "util";
 
 import { APP_DATA } from "../src/cli/paths";
 import { reviewCode } from "../src/shared/codeReview";
-import { isInstallId } from "../src/shared/stars";
-import { DEFAULT_API_URL } from "../src/shared/stars";
+import { DEFAULT_API_URL, isInstallId } from "../src/shared/stars";
 import { isPluginId } from "../src/shared/store";
 
 const ROOT = resolve(import.meta.dir, "..");
@@ -33,16 +32,15 @@ const LOGIN_FILE = join(APP_DATA, "Evi", "plugin-cli.json");
 const FILES = ["manifest.json", "index.js", "native.js"] as const;
 
 const { values: flags, positionals } = parseArgs({
-    args: process.argv.slice(2),
     allowPositionals: true,
     strict: false,
     options: {
         api: { type: "string" },
-        beta: { type: "boolean", default: false },
-        yes: { type: "boolean", default: false },
-        open: { type: "boolean", default: false },
-        "no-browser": { type: "boolean", default: false },
-        help: { type: "boolean", short: "h", default: false },
+        beta: { type: "boolean" },
+        yes: { type: "boolean" },
+        open: { type: "boolean" },
+        "no-browser": { type: "boolean" },
+        help: { type: "boolean", short: "h" },
     },
 });
 const [command, target] = positionals;
@@ -79,7 +77,7 @@ async function api<T>(method: string, path: string, install: string, body?: unkn
         res = await fetch(API + path, {
             method,
             headers: { "X-Evi-Install": install, ...body !== undefined && { "Content-Type": "application/json" } },
-            body: body === undefined ? undefined : JSON.stringify(body),
+            body: JSON.stringify(body),
         });
     } catch (err) {
         fail(`Couldn't reach ${API}: ${(err as Error).message}`);
@@ -93,7 +91,7 @@ async function api<T>(method: string, path: string, install: string, body?: unkn
 function openInBrowser(url: string) {
     if (!/^https?:\/\/[^\s"]+$/.test(url)) return;
     const [cmd, ...args] = process.platform === "win32" ? ["rundll32", "url.dll,FileProtocolHandler", url]
-        : process.platform === "darwin" ? ["open", url] : ["xdg-open", url];
+        : [process.platform === "darwin" ? "open" : "xdg-open", url];
     spawnSync(cmd, args, { stdio: "ignore" });
 }
 
@@ -142,7 +140,7 @@ function findPlugin(id: string | undefined) {
 }
 
 function run(script: string, args: string[]) {
-    return spawnSync(process.execPath, [join(ROOT, "scripts", script), ...args], { cwd: ROOT, stdio: "inherit" }).status ?? 1;
+    return Bun.spawnSync([process.execPath, join(ROOT, "scripts", script), ...args], { stdio: ["inherit", "inherit", "inherit"] }).exitCode;
 }
 
 /** The built files, as evi.rest would get them */
@@ -190,9 +188,8 @@ async function upload(id: string | undefined) {
         if (!/^y(es)?$/i.test(answer?.trim() ?? "")) fail("Not uploaded");
     }
     const body = { channel, files: Object.fromEntries(Object.entries(files).map(([name, data]) => [name, data.toString("base64")])) };
-    const { submission } = await api<{ submission: { id: number; version: string; }; }>("POST", "/me/submissions", install, body);
+    await api("POST", "/me/submissions", install, body);
     console.log(`✓ Uploaded ${what}. Evi's team reads every version before it goes in the store; bun run plugin status shows how it's going.`);
-    void submission;
 }
 
 const STATUS: Record<string, string> = { pending: "waiting for review", approved: "published", rejected: "not approved", withdrawn: "replaced by a newer upload" };

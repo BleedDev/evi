@@ -66,7 +66,7 @@ async function download(url: string, timeout: number) {
     const res = await request(url, timeout);
     if (!res.ok) throw new UpdateError(`Download failed: ${res.status} ${res.statusText} (${url})`);
     try {
-        return new Uint8Array(await res.arrayBuffer());
+        return await res.bytes();
     } catch (e) {
         throw new UpdateError(`Download interrupted: ${e instanceof Error ? e.message : e}`);
     }
@@ -81,7 +81,7 @@ export async function downloadVerified(release: Release) {
     if (!expected) throw new UpdateError(`${CHECKSUM_ASSET} doesn't contain a SHA-256 hash`);
 
     const exe = await download(exeUrl, 10 * 60_000);
-    const actual = new Bun.CryptoHasher("sha256").update(exe).digest("hex");
+    const actual = Bun.CryptoHasher.hash("sha256", exe, "hex");
     if (actual !== expected) throw new UpdateError(`Checksum mismatch, the download was not installed.\n  expected ${expected}\n  got      ${actual}`);
     return exe;
 }

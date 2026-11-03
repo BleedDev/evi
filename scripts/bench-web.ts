@@ -24,7 +24,6 @@ const renderer = readFileSync(join(DIST, "core", "renderer.js"), "utf8");
 
 const browser = await chromium.launch({
     executablePath: [process.env.CHROME_PATH, "C:/Program Files/Google/Chrome/Application/chrome.exe"].find(p => !!p && existsSync(p)),
-    headless: true,
 });
 
 const results: Record<string, number>[] = [];

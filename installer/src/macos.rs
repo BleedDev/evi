@@ -1,47 +1,14 @@
-//! macOS only: Evi Setup moving itself into Applications, and asking for App Management first.
+//! GUI integration on macOS: moving Evi Setup into Applications and opening App Management.
 //!
 //! Evi Setup comes as a zip, so it runs from Downloads, where Spotlight's app results, Launchpad and
 //! Raycast don't look. It offers to move itself.
-//!
-//! Changing Discord.app needs App Management (System Settings > Privacy & Security). Without it the
-//! swap fails halfway through an install; a probe at scan time asks macOS first, and makes Evi Setup
-//! show up in that list, ready to be turned on.
 
-use std::io;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use crate::paths;
 
 const APP_NAME: &str = "Evi Setup.app";
-const PROBE: &str = ".evi-access-check";
-
-/// Why Evi Setup can't change a Discord, if it can't
-pub fn access_problem(resources: &Path) -> Option<&'static str> {
-    if !cfg!(target_os = "macos") {
-        return None;
-    }
-    let probe = resources.join(PROBE);
-    let result = std::fs::OpenOptions::new().write(true).create(true).truncate(true).open(&probe);
-    match result {
-        Ok(file) => {
-            drop(file);
-            let _ = std::fs::remove_file(&probe);
-            None
-        }
-        Err(e) => classify(&e),
-    }
-}
-
-/// EPERM is macOS's privacy protection (App Management); EACCES is plain file permissions, an app
-/// that belongs to another user or to root
-fn classify(err: &io::Error) -> Option<&'static str> {
-    match err.raw_os_error() {
-        Some(1) => Some("app-management"),
-        Some(13) => Some("no-access"),
-        _ => None,
-    }
-}
 
 pub fn open_app_management() -> Result<(), String> {
     Command::new("open")
@@ -177,12 +144,5 @@ mod tests {
     fn translocated_runs_are_recognised() {
         assert!(translocated(Path::new("/private/var/folders/x/T/AppTranslocation/1234-ABCD/d/Evi Setup.app")));
         assert!(!translocated(Path::new("/Users/a/Downloads/Evi Setup.app")));
-    }
-
-    #[test]
-    fn eperm_is_app_management_and_eacces_is_file_permissions() {
-        assert_eq!(classify(&io::Error::from_raw_os_error(1)), Some("app-management"));
-        assert_eq!(classify(&io::Error::from_raw_os_error(13)), Some("no-access"));
-        assert_eq!(classify(&io::Error::from_raw_os_error(2)), None);
     }
 }

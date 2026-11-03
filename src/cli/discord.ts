@@ -1,11 +1,11 @@
-import { spawn } from "child_process";
 import { existsSync, readdirSync, readFileSync, readlinkSync, realpathSync, statSync } from "fs";
-import { join } from "path";
+import { dirname, join } from "path";
 
 import { readAsarFile } from "../shared/asar";
 import { Flavor, FLAVORS } from "../shared/release";
 import { LEGACY_SHIM_MARKERS, ORIGINAL_ASAR, SHIM_MARKER } from "../shared/shim";
-import { isSudo, userHome } from "./paths";
+import { compareVersions } from "../shared/store";
+import { APP_DATA, isSudo, userHome } from "./paths";
 
 export type InjectionState = "clean" | "evi" | "other-mod";
 
@@ -13,18 +13,8 @@ export interface DiscordInstall {
     flavor: Flavor;
     /** %LOCALAPPDATA%\Discord on Windows, the .app bundle on macOS, the install folder on Linux */
     root: string;
-    /** app-x.y.z folders, newest first. macOS and Linux keep a single version in place */
+    /** Versions, newest first. macOS and Linux system packages keep one in place */
     versions: { version: string; resources: string; }[];
-}
-
-function compareVersions(a: string, b: string) {
-    const pa = a.split(".").map(Number);
-    const pb = b.split(".").map(Number);
-    for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
-        const diff = (pa[i] ?? 0) - (pb[i] ?? 0);
-        if (diff) return diff;
-    }
-    return 0;
 }
 
 /** Discord's .app names on macOS */
@@ -33,14 +23,6 @@ const MAC_APPS: Record<Flavor, string> = {
     ptb: "Discord PTB.app",
     canary: "Discord Canary.app",
     development: "Discord Development.app",
-};
-
-/** Folder names the Linux packages (deb, rpm, AUR) use */
-const LINUX_SLUGS: Record<Flavor, string> = {
-    stable: "discord",
-    ptb: "discord-ptb",
-    canary: "discord-canary",
-    development: "discord-development",
 };
 
 /** Where findInstalls looks, for the "not found" message */
@@ -58,78 +40,50 @@ function buildVersion(resources: string) {
     }
 }
 
-function findWindowsInstalls(): DiscordInstall[] {
-    const localAppData = process.env.LOCALAPPDATA;
-    if (!localAppData) return [];
-
-    const installs: DiscordInstall[] = [];
-    for (const [flavor, folder] of Object.entries(FLAVORS) as [Flavor, string][]) {
-        const root = join(localAppData, folder);
-        if (!existsSync(root)) continue;
-
-        const versions = readdirSync(root)
-            .filter(d => /^app-\d/.test(d) && existsSync(join(root, d, "resources", "app.asar")))
-            .map(d => ({ version: d.slice(4), resources: join(root, d, "resources") }))
-            .sort((a, b) => compareVersions(b.version, a.version));
-
-        if (versions.length) installs.push({ flavor, root, versions });
-    }
-    return installs;
+/** app-x.y.z folders inside `root`, newest first (Windows %LOCALAPPDATA%\Discord, Linux ~/.config/discord) */
+function findAppInstall(flavor: Flavor, root: string): DiscordInstall | undefined {
+    if (!existsSync(root)) return;
+    const versions = readdirSync(root)
+        .filter(d => /^app-\d/.test(d) && existsSync(join(root, d, "resources", "app.asar")))
+        .map(d => ({ version: d.slice(4), resources: join(root, d, "resources") }))
+        .sort((a, b) => compareVersions(b.version, a.version));
+    return versions.length ? { flavor, root, versions } : undefined;
 }
 
-/** Discord keeps one version in place on macOS and Linux: the first candidate folder that has it wins */
-function findInPlaceInstalls(candidates: (flavor: Flavor) => string[], resourcesDir: string): DiscordInstall[] {
-    const installs: DiscordInstall[] = [];
-    for (const flavor of Object.keys(FLAVORS) as Flavor[]) {
-        const found = candidates(flavor).find(root => existsSync(join(root, resourcesDir, "app.asar")));
-        if (!found) continue;
-        // /usr/share/discord is often a link to /opt/discord, and running processes report the real path
-        const root = realpathSync(found);
-        const resources = join(root, resourcesDir);
-        installs.push({ flavor, root, versions: [{ version: buildVersion(resources), resources }] });
-    }
-    return installs;
+/** Discord keeps one version in place on macOS and Linux system packages: the first candidate folder that has it wins */
+function findInPlace(flavor: Flavor, candidates: string[], resourcesDir: string): DiscordInstall | undefined {
+    const found = candidates.find(root => existsSync(join(root, resourcesDir, "app.asar")));
+    if (!found) return;
+    // /usr/share/discord is often a link to /opt/discord, and running processes report the real path
+    const root = realpathSync(found);
+    const resources = join(root, resourcesDir);
+    return { flavor, root, versions: [{ version: buildVersion(resources), resources }] };
 }
 
 export function findInstalls(): DiscordInstall[] {
-    if (process.platform === "win32") return findWindowsInstalls();
+    const flavors = Object.keys(FLAVORS) as Flavor[];
+    if (process.platform === "win32") {
+        const local = process.env.LOCALAPPDATA;
+        return local ? flavors.flatMap(f => findAppInstall(f, join(local, FLAVORS[f])) ?? []) : [];
+    }
     const home = userHome();
     if (process.platform === "darwin") {
-        return findInPlaceInstalls(flavor => ["/Applications", join(home, "Applications")].map(dir => join(dir, MAC_APPS[flavor])), join("Contents", "Resources"));
+        return flavors.flatMap(f => findInPlace(f, ["/Applications", join(home, "Applications")].map(dir => join(dir, MAC_APPS[f])), join("Contents", "Resources")) ?? []);
     }
     if (process.platform === "linux") {
-        const installs = findInPlaceInstalls(flavor => {
-            const slug = LINUX_SLUGS[flavor];
-            return [
+        return flavors.flatMap(flavor => {
+            const slug = flavor === "stable" ? "discord" : `discord-${flavor}`;
+            return findAppInstall(flavor, join(APP_DATA, FLAVORS[flavor].toLowerCase())) ?? findInPlace(flavor, [
                 `/usr/share/${slug}`, `/usr/lib/${slug}`, `/usr/lib64/${slug}`, `/opt/${slug}`, `/opt/${FLAVORS[flavor]}`,
-                // The tarball unpacks to ~/Discord, ~/DiscordCanary...
                 join(home, ".local", "share", slug), join(home, FLAVORS[flavor]),
-            ];
-        }, "resources");
-        // Official Linux bootstrap installs to ~/.config/discord/app-x.y.z (and flavor variants)
-        for (const flavor of Object.keys(FLAVORS) as Flavor[]) {
-            const slug = LINUX_SLUGS[flavor];
-            const configDir = join(home, ".config", slug);
-            if (!existsSync(configDir)) continue;
-            const appDirs = readdirSync(configDir)
-                .filter(d => /^app-\d/.test(d) && existsSync(join(configDir, d, "resources", "app.asar")))
-                .map(d => ({ version: d.slice(4), root: join(configDir, d) }))
-                .sort((a, b) => compareVersions(b.version, a.version));
-            if (appDirs.length > 0 && !installs.find(i => i.flavor === flavor)) {
-                const best = appDirs[0];
-                const root = realpathSync(best.root);
-                const resources = join(root, "resources");
-                installs.push({ flavor, root, versions: [{ version: buildVersion(resources), resources }] });
-            }
-        }
-        return installs;
+            ], "resources") ?? [];
+        });
     }
     return [];
 }
 
 function isOurShim(asar: string) {
     try {
-        if (!statSync(asar).isFile()) return false;
         const code = readAsarFile(asar, "index.js");
         return [SHIM_MARKER, ...LEGACY_SHIM_MARKERS].some(marker => code.startsWith(marker));
     } catch {
@@ -230,15 +184,15 @@ export async function killDiscord(install: DiscordInstall) {
     for (let i = 0; i < 50 && isDiscordRunning(install); i++) await Bun.sleep(100);
 }
 
-/** False when Discord has to be started by hand: under sudo it would run as root */
+/** False when launching failed or would run Discord as root under sudo. */
 export function startDiscord(install: DiscordInstall) {
-    if (process.platform === "win32") {
-        const updater = join(install.root, "Update.exe");
-        Bun.spawn([updater, "--processStart", `${FLAVORS[install.flavor]}.exe`], { stdio: ["ignore", "ignore", "ignore"] }).unref();
-        return true;
-    }
     if (isSudo()) return false;
-    const [cmd, ...args] = process.platform === "darwin" ? ["open", install.root] : [join(install.root, FLAVORS[install.flavor])];
-    spawn(cmd, args, { detached: true, stdio: "ignore" }).unref();
-    return true;
+    const cmd = process.platform === "win32" ? [join(install.root, "Update.exe"), "--processStart", `${FLAVORS[install.flavor]}.exe`]
+        : process.platform === "darwin" ? ["open", install.root] : [join(dirname(install.versions[0].resources), FLAVORS[install.flavor])];
+    try {
+        Bun.spawn(cmd, { detached: true, stdio: ["ignore", "ignore", "ignore"] }).unref();
+        return true;
+    } catch {
+        return false;
+    }
 }

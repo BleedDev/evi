@@ -35,7 +35,6 @@ const ROOT = resolve(import.meta.dir, "..");
 const BUILT = join(ROOT, "dist", "plugins");
 
 const { values } = parseArgs({
-    args: process.argv.slice(2),
     options: {
         base: { type: "string", default: "https://evi.rest/store/plugins" },
         files: { type: "string", default: join(ROOT, "store", "plugins") },

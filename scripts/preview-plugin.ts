@@ -29,12 +29,11 @@ import { checkSubmission, type Finding } from "../src/shared/submissionChecks";
 const ROOT = resolve(import.meta.dir, "..");
 
 const { values, positionals } = parseArgs({
-    args: process.argv.slice(2),
     allowPositionals: true,
     options: {
-        open: { type: "boolean", default: false },
-        "no-build": { type: "boolean", default: false },
-        offline: { type: "boolean", default: false },
+        open: { type: "boolean" },
+        "no-build": { type: "boolean" },
+        offline: { type: "boolean" },
     },
 });
 
@@ -49,25 +48,24 @@ const source = ["userplugins", "plugins"].map(root => join(ROOT, root, id)).find
 if (!source) fail(`No plugin called ${id} in userplugins/ or plugins/`);
 const official = source.startsWith(join(ROOT, "plugins"));
 
-if (!values["no-build"]) {
-    const built = spawnSync(process.execPath, [join(ROOT, "scripts", "build.ts")], { cwd: ROOT, stdio: ["ignore", "ignore", "inherit"] });
-    if (built.status !== 0) fail("The build failed, see above");
+if (!values["no-build"] && Bun.spawnSync([process.execPath, join(ROOT, "scripts", "build.ts")], { stderr: "inherit" }).exitCode !== 0) {
+    fail("The build failed, see above");
 }
 
 // The build names its output after the manifest's id, which can differ from the folder's name
 const builtId: string = JSON.parse(readFileSync(join(source, "manifest.json"), "utf8")).id ?? id;
 const out = join(ROOT, "dist", "plugins", builtId);
 const read = (name: StoreFileName) => existsSync(join(out, name)) ? readFileSync(join(out, name)) : undefined;
-const files: Partial<Record<StoreFileName, Uint8Array>> = {};
+const files: Partial<Record<StoreFileName, Buffer>> = {};
 for (const name of ["manifest.json", "index.js", "native.js"] as const) {
     const data = read(name);
     if (data) files[name] = data;
 }
 if (!files["manifest.json"] || !files["index.js"]) fail(`dist/plugins/${builtId} isn't built: run without --no-build`);
 
-const manifest: PluginManifest = JSON.parse(new TextDecoder().decode(files["manifest.json"]));
-const code = new TextDecoder().decode(files["index.js"]);
-const nativeCode = files["native.js"] && new TextDecoder().decode(files["native.js"]);
+const manifest: PluginManifest = JSON.parse(files["manifest.json"].toString("utf8"));
+const code = files["index.js"].toString("utf8");
+const nativeCode = files["native.js"]?.toString("utf8");
 
 async function publishedVersion(): Promise<string | undefined> {
     if (values.offline) return;
@@ -104,7 +102,7 @@ const entry: RegistryEntry = "entry" in built ? built.entry : {
 };
 const report = analyzePermissions({ code, manifest, native: entry.native });
 
-const esc = (s: unknown) => String(s ?? "").replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`);
+const esc = (s: unknown) => Bun.escapeHTML(s ?? "");
 /** **Bold** lead-ins, like the app's changelogs */
 const rich = (s: string) => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
 const plural = (value: { one?: string; other: string; } | string, count: number) =>

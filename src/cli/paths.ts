@@ -1,4 +1,4 @@
-import { chownSync, lstatSync, readdirSync, readFileSync } from "fs";
+import { lchownSync, lstatSync, readdirSync, readFileSync } from "fs";
 import { homedir } from "os";
 import { join } from "path";
 
@@ -36,7 +36,7 @@ export function giveBackToUser(path: string) {
     if (!Number.isInteger(uid) || !Number.isInteger(gid)) return;
     const walk = (p: string) => {
         try {
-            chownSync(p, uid, gid);
+            lchownSync(p, uid, gid);
             if (lstatSync(p).isDirectory()) for (const entry of readdirSync(p)) walk(join(p, entry));
         } catch { }
     };

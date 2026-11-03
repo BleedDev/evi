@@ -65,6 +65,7 @@ fn apis() -> Vec<String> {
 
 fn agent(timeout: u64) -> ureq::Agent {
     ureq::Agent::config_builder()
+        .tls_config(ureq::tls::TlsConfig::builder().root_certs(ureq::tls::RootCerts::PlatformVerifier).build())
         .timeout_global(Some(Duration::from_secs(timeout)))
         .http_status_as_error(false)
         .user_agent("evi-installer")

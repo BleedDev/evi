@@ -316,7 +316,10 @@ fn elevated(args: &[&str], prompt: bool, progress: &dyn Fn(&str)) -> Option<Resu
     }
     let exe = std::env::current_exe().ok()?;
     progress("Asking for your password…");
-    let out = std::process::Command::new("pkexec").arg(exe).arg("--headless").args(args).output().ok()?;
+    let out = match std::process::Command::new("pkexec").arg(exe).arg("--headless").args(args).output() {
+        Ok(out) => out,
+        Err(e) => return Some(Err(format!("Evi Setup couldn’t ask for your password through pkexec (provided by polkit): {e}"))),
+    };
     // pkexec: 126 when the password prompt was dismissed, 127 when not authorized
     Some(match out.status.code() {
         Some(0) => Ok(String::from_utf8_lossy(&out.stdout).trim().lines().last().unwrap_or("").to_string()),
@@ -331,15 +334,6 @@ fn after_updates(watcher: Result<(), String>) -> String {
         Ok(()) => " It comes back by itself after Discord updates.".into(),
         Err(e) => format!(" Discord updates will remove it: open Evi Setup again after one ({e})."),
     }
-}
-
-/// Sets up the watcher for in-place installs (macOS .app, Linux system packages). app-x.y.z installs
-/// (Windows %LOCALAPPDATA%, Linux ~/.config) move the loader themselves in src/main/persist.ts.
-fn keep_after_updates(install: &DiscordInstall, core_path: &str) -> String {
-    if install.versions[0].resources.parent() != Some(install.root.as_path()) {
-        return String::new();
-    }
-    after_updates(autorepair::enable(install, core_path))
 }
 
 struct RunResult {
@@ -379,7 +373,7 @@ fn install(flavors: &[String], prompt: bool, progress: &dyn Fn(&str)) -> Result<
         progress(&format!("Installing into Discord {label}…"));
         let (was_running, swapped) = with_discord_closed(&discord, progress, || swap_in(&latest.resources, state, &core_path));
         let swapped = match swapped {
-            Ok(()) => Ok(keep_after_updates(&discord, &core_path)),
+            Ok(()) => Ok(after_updates(autorepair::enable(&discord, &core_path))),
             Err(e) if denied(&e) => {
                 // The helper sets up the watcher too: Discord's folder being root's, so is the watcher.
                 // It prints why when only the watcher couldn't be set up

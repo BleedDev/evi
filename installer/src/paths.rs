@@ -100,7 +100,7 @@ pub fn give_back_to_user(path: &Path) {
     {
         let Some(user) = invoking_user() else { return };
         fn walk(p: &Path, uid: u32, gid: u32) {
-            if std::os::unix::fs::chown(p, Some(uid), Some(gid)).is_ok() {
+            if std::os::unix::fs::lchown(p, Some(uid), Some(gid)).is_ok() && std::fs::symlink_metadata(p).is_ok_and(|m| m.is_dir()) {
                 if let Ok(entries) = std::fs::read_dir(p) {
                     for entry in entries.flatten() {
                         walk(&entry.path(), uid, gid);

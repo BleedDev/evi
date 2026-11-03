@@ -1,6 +1,5 @@
-import { spawn } from "child_process";
 import { existsSync, readdirSync, readFileSync, readlinkSync, realpathSync, statSync } from "fs";
-import { join } from "path";
+import { dirname, join } from "path";
 
 import { readAsarFile } from "../shared/asar";
 import { Flavor, FLAVORS } from "../shared/release";
@@ -14,7 +13,7 @@ export interface DiscordInstall {
     flavor: Flavor;
     /** %LOCALAPPDATA%\Discord on Windows, the .app bundle on macOS, the install folder on Linux */
     root: string;
-    /** app-x.y.z folders, newest first. macOS and Linux keep a single version in place */
+    /** Versions, newest first. macOS and Linux system packages keep one in place */
     versions: { version: string; resources: string; }[];
 }
 
@@ -185,15 +184,15 @@ export async function killDiscord(install: DiscordInstall) {
     for (let i = 0; i < 50 && isDiscordRunning(install); i++) await Bun.sleep(100);
 }
 
-/** False when Discord has to be started by hand: under sudo it would run as root */
+/** False when launching failed or would run Discord as root under sudo. */
 export function startDiscord(install: DiscordInstall) {
-    if (process.platform === "win32") {
-        const updater = join(install.root, "Update.exe");
-        Bun.spawn([updater, "--processStart", `${FLAVORS[install.flavor]}.exe`], { stdio: ["ignore", "ignore", "ignore"] }).unref();
-        return true;
-    }
     if (isSudo()) return false;
-    const [cmd, ...args] = process.platform === "darwin" ? ["open", install.root] : [join(install.root, FLAVORS[install.flavor])];
-    spawn(cmd, args, { detached: true, stdio: "ignore" }).unref();
-    return true;
+    const cmd = process.platform === "win32" ? [join(install.root, "Update.exe"), "--processStart", `${FLAVORS[install.flavor]}.exe`]
+        : process.platform === "darwin" ? ["open", install.root] : [join(dirname(install.versions[0].resources), FLAVORS[install.flavor])];
+    try {
+        Bun.spawn(cmd, { detached: true, stdio: ["ignore", "ignore", "ignore"] }).unref();
+        return true;
+    } catch {
+        return false;
+    }
 }

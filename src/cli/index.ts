@@ -148,7 +148,7 @@ async function withDiscordClosed(install: DiscordInstall, action: () => void) {
         console.error(c.err(`✗ ${hint}`));
         return false;
     } finally {
-        if (running && !startDiscord(install)) console.log(c.dim(`  Start Discord ${install.flavor} again yourself: under sudo it would run as root.`));
+        if (running && !startDiscord(install)) console.log(c.dim(`  Start Discord ${install.flavor} again manually.`));
     }
     return true;
 }

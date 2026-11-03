@@ -48,7 +48,7 @@ pub struct DiscordInstall {
     pub flavor: &'static str,
     /// %LOCALAPPDATA%\Discord on Windows, the .app bundle on macOS, the install folder on Linux
     pub root: PathBuf,
-    /// app-x.y.z folders, newest first. macOS and Linux keep a single version in place
+    /// Versions, newest first. macOS and Linux system packages keep one in place
     pub versions: Vec<DiscordVersion>,
 }
 
@@ -352,7 +352,7 @@ pub fn start_discord(install: &DiscordInstall) -> bool {
             c.arg(&install.root);
             c
         } else {
-            std::process::Command::new(install.root.join(flavor_folder(install.flavor)))
+            std::process::Command::new(install.versions[0].resources.with_file_name(flavor_folder(install.flavor)))
         };
         cmd.stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null()).process_group(0).spawn().is_ok()
     }

@@ -1,7 +1,7 @@
 //! Putting Evi back after Discord updates on macOS and Linux.
 //!
-//! Windows Discord installs each version into a new app-x.y.z folder and Evi's core moves itself
-//! along (src/main/persist.ts). On macOS and Linux an update replaces Discord's files in place: the
+//! Windows and Linux bootstrap installs use app-x.y.z folders and Evi's core moves itself
+//! along (src/main/persist.ts). On macOS and Linux system packages an update replaces files in place: the
 //! .app bundle on macOS, the package's files on Linux. The loader goes with them, and nothing of Evi
 //! runs inside Discord any more to put it back.
 //!
@@ -143,6 +143,11 @@ fn systemctl(system: bool, args: &[&str]) -> Result<(), String> {
 
 pub fn watched_paths(install: &DiscordInstall) -> Vec<String> {
     let resources = &install.versions[0].resources;
+    if !cfg!(any(target_os = "macos", target_os = "linux"))
+        || (cfg!(target_os = "linux") && resources.parent() != Some(install.root.as_path()))
+    {
+        return vec![];
+    }
     let mut watch = vec![paths::node_path(resources)];
     // A replaced .app bundle shows up as a change in the folder that holds it
     if cfg!(target_os = "macos") {
@@ -173,16 +178,17 @@ fn same_file(a: &Path, b: &Path) -> bool {
     matches!((std::fs::canonicalize(a), std::fs::canonicalize(b)), (Ok(a), Ok(b)) if a == b)
 }
 
-/// Sets up the watcher for one Discord. Err says why it couldn't; Ok on Windows, which needs none.
+/// In-place installs need an external watcher; app-x.y.z installs persist inside Discord.
 pub fn enable(install: &DiscordInstall, core_path: &str) -> Result<(), String> {
-    if !cfg!(any(target_os = "macos", target_os = "linux")) {
+    let watch = watched_paths(install);
+    if watch.is_empty() {
         return Ok(());
     }
     let loc = locations();
     let exe = std::env::current_exe().map_err(|e| format!("couldn’t find Evi Setup’s own file: {e}"))?;
     install_copy(&exe, &loc.exe).map_err(|e| format!("couldn’t write {}: {e}", loc.exe.display()))?;
     std::fs::create_dir_all(&loc.dir).map_err(|e| format!("couldn’t write {}: {e}", loc.dir.display()))?;
-    let w = Watcher { flavor: install.flavor, exe: paths::node_path(&loc.exe), core_path: core_path.to_string(), watch: watched_paths(install) };
+    let w = Watcher { flavor: install.flavor, exe: paths::node_path(&loc.exe), core_path: core_path.to_string(), watch };
 
     if cfg!(target_os = "macos") {
         let plist = loc.dir.join(format!("{LABEL}.{}.plist", w.flavor));

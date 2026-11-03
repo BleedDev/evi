@@ -20,7 +20,10 @@ use std::process::ExitCode;
 const VERSION: &str = env!("EVI_SETUP_VERSION");
 
 fn main() -> ExitCode {
-    let cli = cli::Cli::parse();
+    // Finder's legacy process serial number is not a CLI option.
+    let cli = cli::Cli::parse_from(std::env::args_os().filter(|arg| {
+        !cfg!(all(feature = "gui", target_os = "macos")) || !arg.to_string_lossy().starts_with("-psn_")
+    }));
     paths::migrate_legacy_data_dir();
     #[cfg(feature = "gui")]
     if cli.command.is_none() && !cli.json {

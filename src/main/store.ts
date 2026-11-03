@@ -285,14 +285,16 @@ async function install(id: string, sender: WebContents, pageAllowed: { native: b
     if (confirmed) {
         if (!await confirmWithUser(sender, nativeChanged ? {
             message: mt("main.nativeChanged.message", { name: entry.name, version: entry.version }),
-            detail: mt("main.nativeChanged.detail", { name: entry.name, authors: entry.authors.join(mt("common.listSeparator")) }),
+            detail: mt("main.nativeChanged.detail", { name: entry.name }),
             confirm: mt("common.update"),
             pageSaid: pageAllowed.native,
+            type: "info",
         } : {
             message: mt("main.installNative.message", { name: entry.name }),
             detail: mt("main.installNative.detail", { name: entry.name, authors: entry.authors.join(mt("common.listSeparator")) }),
             confirm: mt("common.install"),
             pageSaid: pageAllowed.native,
+            type: "info",
         })) {
             throw new Error(mt("main.installNative.refused", { name: entry.name }));
         }
@@ -302,9 +304,10 @@ async function install(id: string, sender: WebContents, pageAllowed: { native: b
     const growth = existing && !confirmed ? permissionGrowth(installedPermissions(dir), entry.permissions) : undefined;
     if (growth && !await confirmWithUser(sender, {
         message: mt("main.growth.message", { name: entry.name }),
-        detail: mt("main.growth.detail", { growth: describeGrowth(growth, mt), authors: entry.authors.join(mt("common.listSeparator")) }),
+        detail: mt("main.growth.detail", { growth: describeGrowth(growth, mt) }),
         confirm: mt("common.update"),
         pageSaid: pageAllowed.more,
+        type: "info",
     })) {
         throw new Error(mt("main.growth.refused", { name: entry.name, version: entry.version }));
     }

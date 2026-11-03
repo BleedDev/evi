@@ -3,8 +3,12 @@
  * it to, then a short list of rows with a risk level each, read from its code. In an installed
  * plugin's details (the Plugins tab), on a store plugin's page before it's installed, and in the
  * store's install and update questions. The analysis itself is src/shared/pluginPermissions.ts.
+ *
+ * A plugin the Evi team checked (anything in the store, official or community) reads calmly: it
+ * says so first, full access is a plain fact rather than a red warning, and the code scan folds
+ * away. Red and the fine print are for plugins nobody checked: added by hand, or a dev build.
  */
-import { DeclaredPermissions, PERMISSION_FLAGS, PermissionFlag, PermissionGrowth, readPermissions } from "@shared/declaredPermissions";
+import { DeclaredPermissions, PERMISSION_FLAGS, PermissionFlag, readPermissions } from "@shared/declaredPermissions";
 import { analyzePermissions, Capability, PermissionsReport, Risk, riskSummary, StorePreviewResult } from "@shared/pluginPermissions";
 
 import { t, useLocale } from "../i18n";
@@ -13,7 +17,7 @@ import type { PluginState } from "../plugins/manager";
 import { PluginUsage } from "../plugins/usage";
 import { Store } from "../store";
 import { React } from "../webpack/common";
-import { Badge, Dialog, Icon, IconButton, IconName, Status, Text, Tone } from "./components";
+import { Badge, Collapse, Dialog, Icon, IconButton, IconName, Status, Text, Tone } from "./components";
 import { PluginActivitySection } from "./PluginActivity";
 import { HotfixNote, PulledNotice, ReportRow } from "./Trust";
 
@@ -47,10 +51,12 @@ function DeclaredRow({ icon, title, hint, details, risk, permission }: {
 }
 
 /** One row per thing it asks for: its sites (as chips), then each yes, then full access */
-function DeclaredRows({ hosts, flags, native }: { hosts: string[]; flags: readonly PermissionFlag[]; native?: boolean; }) {
+function DeclaredRows({ hosts, flags, native, reviewed }: { hosts: string[]; flags: readonly PermissionFlag[]; native?: boolean; reviewed?: boolean; }) {
     return (
         <ul className="dl-perms-list">
-            {native && <DeclaredRow permission="native" icon="warning" risk="high" title={t("store.access.native")} hint={t("declared.nativeHint")} />}
+            {native && (reviewed
+                ? <DeclaredRow permission="native" icon="terminal" title={t("store.access.native")} hint={t("declared.nativeReviewedHint")} />
+                : <DeclaredRow permission="native" icon="warning" risk="high" title={t("store.access.native")} hint={t("declared.nativeHint")} />)}
             {hosts.length > 0 && <DeclaredRow permission="network" icon="link" title={t("declared.network", { count: hosts.length })} hint={t("declared.networkHint")} details={hosts} />}
             {flags.map(f => <DeclaredRow key={f} permission={f} icon={flagIcon[f]} title={t(`declared.${f}`)} hint={t(`declared.${f}Hint`)} />)}
         </ul>
@@ -61,7 +67,7 @@ function DeclaredRows({ hosts, flags, native }: { hosts: string[]; flags: readon
  * What a plugin declares it needs, in plain words, and what that means: Evi blocks the rest of what
  * it does through Evi. A plugin that doesn't declare is labelled so, since nothing holds it.
  */
-export function DeclaredPermissionsList({ permissions, native }: { permissions: DeclaredPermissions | undefined; native: boolean; }) {
+export function DeclaredPermissionsList({ permissions, native, reviewed }: { permissions: DeclaredPermissions | undefined; native: boolean; reviewed?: boolean; }) {
     if (!permissions) {
         return (
             <div className="dl-declared" data-declared="none">
@@ -76,31 +82,26 @@ export function DeclaredPermissionsList({ permissions, native }: { permissions: 
         <div className="dl-declared" data-declared="">
             <Text tag="h4" variant="text-sm/semibold" color="text-strong">{t("declared.title")}</Text>
             {asksForSomething
-                ? <DeclaredRows hosts={permissions.network} flags={flags} native={native} />
+                ? <DeclaredRows hosts={permissions.network} flags={flags} native={native} reviewed={reviewed} />
                 : <Text tag="p" variant="text-sm/normal" color="text-subtle">{t("declared.nothing")}</Text>}
-            <Text tag="p" variant="text-xs/normal" color="text-muted" className="dl-perms-note">{t("declared.note")}</Text>
+            {!reviewed && <Text tag="p" variant="text-xs/normal" color="text-muted" className="dl-perms-note">{t("declared.note")}</Text>}
         </div>
     );
-}
-
-/** What an update asks for beyond what the installed version declares, for the store's question */
-export function PermissionGrowthList({ growth }: { growth: PermissionGrowth; }) {
-    if (growth.undeclared) return <Text tag="p" variant="text-sm/normal" color="text-subtle">{t("declared.growthUndeclared")}</Text>;
-    return <DeclaredRows hosts={growth.hosts} flags={growth.flags} />;
 }
 
 /** Whether a manifest reaches beyond Discord's page: native code or Chromium switches */
 const reachesBeyondPage = (manifest: PluginState["manifest"]) => !!manifest.native || Object.keys(manifest.chromiumSwitches ?? {}).length > 0;
 
 
-function CapabilityRow({ capability: c }: { capability: Capability; }) {
+/** Calm: a checked plugin's rows, without risk words or red */
+function CapabilityRow({ capability: c, calm }: { capability: Capability; calm?: boolean; }) {
     return (
-        <li className="dl-perms-item" data-risk={c.risk} data-capability={c.id}>
-            <Icon name={riskIcon[c.risk]} size={16} />
+        <li className="dl-perms-item" data-risk={calm ? undefined : c.risk} data-capability={c.id}>
+            <Icon name={calm ? "info" : riskIcon[c.risk]} size={16} />
             <div className="dl-perms-text">
                 <div className="dl-perms-title">
                     <Text variant="text-sm/semibold" color="text-strong">{c.title}</Text>
-                    <span className="dl-perms-risk" data-risk={c.risk}>{t(`perms.risk.${c.risk}`)}</span>
+                    {!calm && <span className="dl-perms-risk" data-risk={c.risk}>{t(`perms.risk.${c.risk}`)}</span>}
                 </div>
                 <Text tag="p" variant="text-sm/normal" color="text-subtle">{c.description}</Text>
                 {c.details.length > 0 && (
@@ -114,33 +115,72 @@ function CapabilityRow({ capability: c }: { capability: Capability; }) {
 }
 
 /** The list itself: the overall risk, then one row per capability, highest risk first */
-export function PermissionsList({ report, pending, error, note }: {
+export function PermissionsList({ report, pending, error, note, calm }: {
     report: PermissionsReport;
     /** The code is still being fetched: what's shown so far comes from the listing */
     pending?: boolean;
     /** Why the code couldn't be read */
     error?: string;
     note?: string;
+    /** A checked plugin: no risk label, no red, no fine print */
+    calm?: boolean;
 }) {
     return (
-        <div className="dl-perms" data-risk={report.risk}>
+        <div className="dl-perms" data-risk={calm ? undefined : report.risk}>
             <div className="dl-perms-head">
-                <Status tone={riskTone[report.risk]}>{t(`perms.riskLabel.${report.risk}`)}</Status>
+                {!calm && <Status tone={riskTone[report.risk]}>{t(`perms.riskLabel.${report.risk}`)}</Status>}
                 <Text variant="text-sm/normal" color="text-subtle">{riskSummary(report, t)}</Text>
             </div>
             {report.capabilities.length > 0 && (
                 <ul className="dl-perms-list">
-                    {report.capabilities.map(c => <CapabilityRow key={c.id} capability={c} />)}
+                    {report.capabilities.map(c => <CapabilityRow key={c.id} capability={c} calm={calm} />)}
                 </ul>
             )}
             <span role="status">
                 {pending && <Status tone="muted">{t("perms.checking")}</Status>}
                 {error && <Status tone="muted">{t("perms.checkFailed", { error })}</Status>}
             </span>
-            <Text tag="p" variant="text-xs/normal" color="text-muted" className="dl-perms-note">
-                {note ?? t("perms.note")}
-            </Text>
+            {!calm && (
+                <Text tag="p" variant="text-xs/normal" color="text-muted" className="dl-perms-note">
+                    {note ?? t("perms.note")}
+                </Text>
+            )}
         </div>
+    );
+}
+
+/**
+ * Permissions, the section: for a checked plugin, that it was checked, what it asks for, and its
+ * code scan folded away under "Details from its code"; otherwise both lists in full
+ */
+function PermissionsSection({ headingId, reviewed, declared, code, storeId }: {
+    headingId: string;
+    reviewed: boolean;
+    declared: React.ReactNode;
+    code: React.ReactNode;
+    storeId?: string;
+}) {
+    const [open, setOpen] = React.useState(false);
+    return (
+        <section className="dl-stack" aria-labelledby={headingId} data-store-permissions={storeId} data-reviewed={reviewed || undefined}>
+            <Text tag="h3" variant="heading-md/semibold" color="text-strong" id={headingId}>{t("perms.title")}</Text>
+            {reviewed && <Status tone="success">{t("perms.reviewed")}</Status>}
+            {declared}
+            {reviewed ? (
+                <div className="dl-stack">
+                    <button type="button" className="dl-disclosure" aria-expanded={open} aria-controls={`${headingId}-code`} onClick={() => setOpen(!open)}>
+                        <Icon name="chevronRight" size={16} />
+                        <Text tag="span" variant="text-sm/semibold" color="text-subtle">{t("perms.codeDetails")}</Text>
+                    </button>
+                    <Collapse open={open} id={`${headingId}-code`}>{code}</Collapse>
+                </div>
+            ) : (
+                <>
+                    <Text tag="h4" variant="text-sm/semibold" color="text-strong">{t("declared.codeTitle")}</Text>
+                    {code}
+                </>
+            )}
+        </section>
     );
 }
 
@@ -154,7 +194,7 @@ export function reportForInstalled(state: PluginState) {
     }, t);
 }
 
-export function InstalledPluginPermissions({ state }: { state: PluginState; }) {
+export function InstalledPluginPermissions({ state, calm }: { state: PluginState; calm?: boolean; }) {
     // Scanning takes a few milliseconds: not on every settings change that re-renders the row
     const locale = useLocale();
     const report = React.useMemo(() => reportForInstalled(state), [state.code, state.definition, state.running, state.manifest, locale]);
@@ -163,8 +203,21 @@ export function InstalledPluginPermissions({ state }: { state: PluginState; }) {
         <PermissionsList
             report={report}
             note={t(ran ? "perms.noteRan" : "perms.noteNotRan")}
+            calm={calm}
         />
     );
+}
+
+/**
+ * Whether the Evi team checked this installed plugin: installed from the store, or the store's own
+ * version of it (official plugins Evi Setup put in place). Not a dev build, and not one that doesn't
+ * say what it needs: those keep the warnings
+ */
+function isReviewed(state: PluginState) {
+    const { manifest } = state;
+    if (state.source === "dev" || !readPermissions(manifest.permissions)) return false;
+    if (Store.installedPlugin(manifest.id)?.fromStore) return true;
+    return Store.getSnapshot().plugins.some(p => p.id === manifest.id && p.version === manifest.version);
 }
 
 /**
@@ -176,6 +229,7 @@ function PluginDetails({ state }: { state: PluginState; }) {
     const headingId = `dl-plugin-${manifest.id}-details`;
     const changelog = manifest.changelog ?? [];
     const fromStore = state.source !== "dev" && !!Store.installedPlugin(manifest.id)?.fromStore;
+    const reviewed = isReviewed(state);
     // A store plugin's reviewed names, not what its manifest claims
     const authors = Store.authorsOf(state);
     // A pulled plugin's way back: the store's newer version (full-access ones, and ones that ask for more,
@@ -193,12 +247,12 @@ function PluginDetails({ state }: { state: PluginState; }) {
                 {[manifest.version && `v${manifest.version}`, authors.length > 0 && t("common.by", { author: authors.join(", ") })].filter(Boolean).join(" · ")}
             </Text>
 
-            <section className="dl-stack" aria-labelledby={`${headingId}-access`}>
-                <Text tag="h3" variant="heading-md/semibold" color="text-strong" id={`${headingId}-access`}>{t("perms.title")}</Text>
-                <DeclaredPermissionsList permissions={readPermissions(manifest.permissions)} native={reachesBeyondPage(manifest)} />
-                <Text tag="h4" variant="text-sm/semibold" color="text-strong">{t("declared.codeTitle")}</Text>
-                <InstalledPluginPermissions state={state} />
-            </section>
+            <PermissionsSection
+                headingId={`${headingId}-access`}
+                reviewed={reviewed}
+                declared={<DeclaredPermissionsList permissions={readPermissions(manifest.permissions)} native={reachesBeyondPage(manifest)} reviewed={reviewed} />}
+                code={<InstalledPluginPermissions state={state} calm={reviewed} />}
+            />
 
             <PluginActivitySection state={state} headingId={`${headingId}-activity`} />
 
@@ -282,12 +336,15 @@ export function StorePluginPermissions({ id, version, native, permissions, headi
         ? analyzePermissions({ code: result.code, manifest: result.manifest, native }, t)
         : analyzePermissions({ native }, t), [result, native, locale]);
 
+    // Everything in the store was checked before it went in; one that doesn't say what it needs still gets the warnings
+    const reviewed = !!permissions;
     return (
-        <section className="dl-stack" aria-labelledby={headingId} data-store-permissions={id}>
-            <Text tag="h3" variant="heading-md/semibold" color="text-strong" id={headingId}>{t("perms.title")}</Text>
-            <DeclaredPermissionsList permissions={permissions} native={native} />
-            <Text tag="h4" variant="text-sm/semibold" color="text-strong">{t("declared.codeTitle")}</Text>
-            <PermissionsList report={report} pending={!result} error={result && !result.ok ? result.error : undefined} />
-        </section>
+        <PermissionsSection
+            headingId={headingId}
+            reviewed={reviewed}
+            storeId={id}
+            declared={<DeclaredPermissionsList permissions={permissions} native={native} reviewed={reviewed} />}
+            code={<PermissionsList report={report} pending={!result} error={result && !result.ok ? result.error : undefined} calm={reviewed} />}
+        />
     );
 }

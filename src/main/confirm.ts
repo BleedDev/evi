@@ -24,6 +24,8 @@ export interface ConfirmOptions {
     confirm: string;
     /** What the page asked for, only used by the Electron test */
     pageSaid?: boolean;
+    /** "info" for a question about something the Evi team already checked: no warning sign */
+    type?: "info" | "warning";
 }
 
 export async function confirmWithUser(sender: WebContents | undefined, options: ConfirmOptions): Promise<boolean> {
@@ -33,7 +35,7 @@ export async function confirmWithUser(sender: WebContents | undefined, options: 
 
     const win = sender && !sender.isDestroyed() ? BrowserWindow.fromWebContents(sender) : null;
     const box: Electron.MessageBoxOptions = {
-        type: "warning",
+        type: options.type ?? "warning",
         title: "Evi",
         message: options.message,
         detail: options.detail,

@@ -106,7 +106,7 @@ try {{
 /// Electron derives the app name (and so the userData folder) from this, so it must mirror Discord's.
 /// JSON.stringify({ name: pkg.name ?? "discord", productName: pkg.productName, main: "index.js" }, null, 4)
 fn create_shim_package(discord_pkg: &Value) -> String {
-    let name = Some(&discord_pkg["name"]).filter(|v| !v.is_null()).map_or_else(|| js_string("discord"), Value::to_string);
+    let name = discord_pkg.get("name").filter(|v| !v.is_null()).map_or_else(|| js_string("discord"), Value::to_string);
     let product = discord_pkg.get("productName").map(|p| format!("    \"productName\": {p},\n")).unwrap_or_default();
     format!("{{\n    \"name\": {name},\n{product}    \"main\": \"index.js\"\n}}")
 }

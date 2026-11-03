@@ -159,7 +159,7 @@ pub fn watched_paths(install: &DiscordInstall) -> Vec<String> {
 }
 
 fn install_copy(from: &Path, to: &Path) -> std::io::Result<()> {
-    if same_file(from, to) {
+    if matches!((std::fs::canonicalize(from), std::fs::canonicalize(to)), (Ok(a), Ok(b)) if a == b) {
         return Ok(());
     }
     std::fs::create_dir_all(to.parent().unwrap())?;
@@ -172,10 +172,6 @@ fn install_copy(from: &Path, to: &Path) -> std::io::Result<()> {
         std::fs::set_permissions(&tmp, std::fs::Permissions::from_mode(0o755))?;
     }
     std::fs::rename(&tmp, to)
-}
-
-fn same_file(a: &Path, b: &Path) -> bool {
-    matches!((std::fs::canonicalize(a), std::fs::canonicalize(b)), (Ok(a), Ok(b)) if a == b)
 }
 
 /// In-place installs need an external watcher; app-x.y.z installs persist inside Discord.

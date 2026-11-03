@@ -117,7 +117,7 @@ pub fn scan() -> Scan {
             };
             let latest = &install.versions[0];
             let state = discord::injection_state(&latest.resources);
-            let shim_core = (state == InjectionState::Evi).then(|| discord::shim_core_dir(&latest.resources)).flatten();
+            let shim_core = if state == InjectionState::Evi { discord::shim_core_dir(&latest.resources) } else { None };
             let dev_build = shim_core.as_ref().is_some_and(|dir| !same_path(dir, &core_dir));
             InstallInfo {
                 flavor,
@@ -302,10 +302,6 @@ fn swap_out(install: &DiscordInstall) -> io::Result<()> {
     failed.map_or(Ok(()), Err)
 }
 
-fn denied(err: &io::Error) -> bool {
-    err.kind() == io::ErrorKind::PermissionDenied || (!cfg!(windows) && err.raw_os_error().is_some_and(|c| c == 1 || c == 13))
-}
-
 /// Linux installs from packages belong to root. Instead of sending people to a terminal, run this
 /// same program as root through pkexec, which shows the desktop's own password prompt, for just the
 /// part that needs it. None when that isn't possible here (not Linux, already root, no pkexec).
@@ -374,7 +370,7 @@ fn install(flavors: &[String], prompt: bool, progress: &dyn Fn(&str)) -> Result<
         let (was_running, swapped) = with_discord_closed(&discord, progress, || swap_in(&latest.resources, state, &core_path));
         let swapped = match swapped {
             Ok(()) => Ok(after_updates(autorepair::enable(&discord, &core_path))),
-            Err(e) if denied(&e) => {
+            Err(e) if e.kind() == io::ErrorKind::PermissionDenied => {
                 // The helper sets up the watcher too: Discord's folder being root's, so is the watcher.
                 // It prints why when only the watcher couldn't be set up
                 elevated(&["swap", "--flavor", discord.flavor, "--core", &core_path], prompt, progress)
@@ -414,7 +410,7 @@ fn uninstall(flavors: &[String], prompt: bool, progress: &dyn Fn(&str)) -> Resul
         let (was_running, swapped) = with_discord_closed(&discord, progress, || swap_out(&discord));
         let swapped = match swapped {
             Ok(()) => Ok(()),
-            Err(e) if denied(&e) => {
+            Err(e) if e.kind() == io::ErrorKind::PermissionDenied => {
                 elevated(&["unswap", "--flavor", discord.flavor], prompt, progress).unwrap_or_else(|| Err(explain(&discord, &e))).map(|_| ())
             }
             Err(e) => Err(explain(&discord, &e)),

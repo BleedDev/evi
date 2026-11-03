@@ -11,6 +11,18 @@ export type ReleaseNotes = Partial<Record<SectionKind, string[]>>;
 /** Language -> version -> section -> lines */
 export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
     de: {
+        "3.3.0": {
+            added: [
+                "**Evi Setup im Terminal unter Linux.** `Evi-Setup-linux-cli-x64` und `Evi-Setup-linux-cli-arm64` installieren und entfernen Evi im Terminal, für Linux-Systeme ohne Desktop.",
+            ],
+            improved: [
+                "**Ruhigere Plugin-Berechtigungen.** Plugins aus dem Store zeigen jetzt, dass das Evi-Team sie geprüft hat, voller Zugriff wird in einfachen Worten statt mit roten Warnungen erklärt, und die Details aus dem Code eines Plugins sind eingeklappt, bis du sie öffnest. Plugins, die niemand geprüft hat, behalten die Warnungen.",
+                "**Weniger Fragen beim Installieren.** Ein Community-Plugin aus dem Store wird einfach installiert, und nach vollem Zugriff wird einmal statt zweimal gefragt.",
+            ],
+            fixed: [
+                "**Evi bleibt auf deinem Mac, wenn es sich aktualisiert.** Wenn Discord ein eigenes Update bereithielt, konnte ein Evi-Update Discord ohne Evi zurücklassen, bis du Evi Setup erneut ausgeführt hast.",
+            ],
+        },
         "3.2.0": {
             added: [
                 "**Evi repariert sich ohne Update.** Wenn ein Discord-Update einen Teil von Evi kaputt macht, kann Evis Team die Korrektur jetzt direkt an dein Evi schicken, meist innerhalb von Minuten, ohne neue Version und ohne Neustart.",
@@ -426,6 +438,18 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     es: {
+        "3.3.0": {
+            added: [
+                "**Evi Setup en una terminal en Linux.** `Evi-Setup-linux-cli-x64` y `Evi-Setup-linux-cli-arm64` instalan y quitan Evi desde una terminal, para sistemas Linux sin escritorio.",
+            ],
+            improved: [
+                "**Permisos de plugins más tranquilos.** Los plugins de la tienda ahora dicen que el equipo de Evi los revisó, el acceso total se explica con palabras sencillas en vez de avisos en rojo, y los detalles del código de un plugin quedan plegados hasta que los abras. Los plugins que nadie revisó mantienen los avisos.",
+                "**Menos preguntas al instalar.** Un plugin de la comunidad de la tienda se instala sin más, y el acceso total se pregunta una vez en lugar de dos.",
+            ],
+            fixed: [
+                "**Evi se queda en tu Mac al actualizarse.** Si Discord tenía una actualización propia pendiente, actualizar Evi podía dejar Discord sin Evi hasta que volvieras a ejecutar Evi Setup.",
+            ],
+        },
         "3.2.0": {
             added: [
                 "**Evi se arregla sin actualizarse.** Cuando una actualización de Discord rompe una parte de Evi, el equipo de Evi ahora puede enviar el arreglo directamente a tu Evi, normalmente en minutos, sin instalar una versión nueva ni reiniciar.",
@@ -841,6 +865,18 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     fr: {
+        "3.3.0": {
+            added: [
+                "**Evi Setup dans un terminal sous Linux.** `Evi-Setup-linux-cli-x64` et `Evi-Setup-linux-cli-arm64` installent et retirent Evi depuis un terminal, pour les systèmes Linux sans bureau.",
+            ],
+            improved: [
+                "**Des autorisations de plugins plus sereines.** Les plugins de la boutique indiquent maintenant que l’équipe d’Evi les a vérifiés, l’accès complet est expliqué simplement au lieu d’avertissements en rouge, et les détails tirés du code d’un plugin restent repliés jusqu’à ce que tu les ouvres. Les plugins que personne n’a vérifiés gardent les avertissements.",
+                "**Moins de questions à l’installation.** Un plugin communautaire de la boutique s’installe directement, et l’accès complet n’est demandé qu’une fois au lieu de deux.",
+            ],
+            fixed: [
+                "**Evi reste sur ton Mac quand il se met à jour.** Si Discord avait sa propre mise à jour en attente, mettre Evi à jour pouvait laisser Discord sans Evi jusqu’à ce que tu relances Evi Setup.",
+            ],
+        },
         "3.2.0": {
             added: [
                 "**Evi se répare sans mise à jour.** Quand une mise à jour de Discord casse une partie d'Evi, l'équipe d'Evi peut maintenant envoyer la correction directement à ton Evi, en général en quelques minutes, sans nouvelle version ni redémarrage.",
@@ -1256,6 +1292,18 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ja: {
+        "3.3.0": {
+            added: [
+                "**Linux のターミナルで使える Evi Setup。** `Evi-Setup-linux-cli-x64` と `Evi-Setup-linux-cli-arm64` で、デスクトップのない Linux でもターミナルから Evi をインストール・削除できます。",
+            ],
+            improved: [
+                "**落ち着いたプラグインの権限表示。** ストアのプラグインには Evi のチームが確認済みであることが表示され、フルアクセスは赤い警告ではなく分かりやすい言葉で説明され、コードから分かる詳細は開くまで折りたたまれます。誰も確認していないプラグインには引き続き警告が表示されます。",
+                "**インストール時の確認が減りました。** ストアのコミュニティプラグインはそのままインストールされ、フルアクセスの確認は2回ではなく1回になりました。",
+            ],
+            fixed: [
+                "**Mac で Evi を更新しても消えなくなりました。** Discord 自身の更新が待機中だと、Evi を更新したときに Discord から Evi が外れ、Evi Setup をもう一度実行する必要がありました。",
+            ],
+        },
         "3.2.0": {
             added: [
                 "**Evi がアップデートなしで直ります。** Discord のアップデートで Evi の一部が壊れたとき、Evi チームが修正をあなたの Evi に直接届けられるようになりました。たいてい数分で、新しいバージョンのインストールも再起動も要りません。",
@@ -1671,6 +1719,18 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     pl: {
+        "3.3.0": {
+            added: [
+                "**Evi Setup w terminalu na Linuksie.** `Evi-Setup-linux-cli-x64` i `Evi-Setup-linux-cli-arm64` instalują i usuwają Evi z terminala, na systemach Linux bez pulpitu.",
+            ],
+            improved: [
+                "**Spokojniejsze uprawnienia wtyczek.** Wtyczki ze sklepu pokazują teraz, że zespół Evi je sprawdził, pełny dostęp jest wyjaśniony prostymi słowami zamiast czerwonych ostrzeżeń, a szczegóły z kodu wtyczki są zwinięte, dopóki ich nie otworzysz. Wtyczki, których nikt nie sprawdził, zachowują ostrzeżenia.",
+                "**Mniej pytań przy instalacji.** Wtyczka społeczności ze sklepu po prostu się instaluje, a o pełny dostęp Evi pyta raz zamiast dwa razy.",
+            ],
+            fixed: [
+                "**Evi zostaje na Twoim Macu po aktualizacji.** Jeśli Discord miał czekającą własną aktualizację, aktualizacja Evi mogła zostawić Discorda bez Evi, dopóki nie uruchomiono ponownie Evi Setup.",
+            ],
+        },
         "3.2.0": {
             added: [
                 "**Evi naprawia się bez aktualizacji.** Gdy aktualizacja Discorda zepsuje część Evi, zespół Evi może teraz wysłać poprawkę prosto do Twojego Evi, zwykle w ciągu kilku minut, bez instalowania nowej wersji i bez restartu.",
@@ -2086,6 +2146,18 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     "pt-BR": {
+        "3.3.0": {
+            added: [
+                "**Evi Setup no terminal no Linux.** `Evi-Setup-linux-cli-x64` e `Evi-Setup-linux-cli-arm64` instalam e removem o Evi pelo terminal, para sistemas Linux sem área de trabalho.",
+            ],
+            improved: [
+                "**Permissões de plugins mais tranquilas.** Plugins da loja agora dizem que a equipe do Evi os revisou, o acesso total é explicado em palavras simples em vez de avisos em vermelho, e os detalhes do código de um plugin ficam recolhidos até você abrir. Plugins que ninguém revisou continuam com os avisos.",
+                "**Menos perguntas ao instalar.** Um plugin da comunidade da loja simplesmente é instalado, e o acesso total é perguntado uma vez em vez de duas.",
+            ],
+            fixed: [
+                "**O Evi continua no seu Mac quando se atualiza.** Se o Discord tinha uma atualização própria esperando, atualizar o Evi podia deixar o Discord sem o Evi até você rodar o Evi Setup de novo.",
+            ],
+        },
         "3.2.0": {
             added: [
                 "**O Evi se corrige sem atualização.** Quando uma atualização do Discord quebra uma parte do Evi, a equipe do Evi agora pode mandar a correção direto para o seu Evi, geralmente em minutos, sem instalar uma versão nova e sem reiniciar.",
@@ -2501,6 +2573,18 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ru: {
+        "3.3.0": {
+            added: [
+                "**Evi Setup в терминале на Linux.** `Evi-Setup-linux-cli-x64` и `Evi-Setup-linux-cli-arm64` устанавливают и удаляют Evi из терминала — для Linux без рабочего стола.",
+            ],
+            improved: [
+                "**Спокойнее о разрешениях плагинов.** Плагины из магазина теперь показывают, что их проверила команда Evi, полный доступ объясняется простыми словами вместо красных предупреждений, а подробности из кода плагина свёрнуты, пока вы их не откроете. У плагинов, которые никто не проверял, предупреждения остаются.",
+                "**Меньше вопросов при установке.** Плагин сообщества из магазина просто устанавливается, а о полном доступе Evi спрашивает один раз вместо двух.",
+            ],
+            fixed: [
+                "**Evi остаётся на Mac после обновления.** Если у Discord было своё ожидающее обновление, обновление Evi могло оставить Discord без Evi, пока вы снова не запускали Evi Setup.",
+            ],
+        },
         "3.2.0": {
             added: [
                 "**Evi исправляется без обновления.** Когда обновление Discord ломает часть Evi, команда Evi теперь может отправить исправление прямо в ваш Evi, обычно за несколько минут, без установки новой версии и без перезапуска.",
@@ -2916,6 +3000,18 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     tr: {
+        "3.3.0": {
+            added: [
+                "**Linux'ta terminalde Evi Setup.** `Evi-Setup-linux-cli-x64` ve `Evi-Setup-linux-cli-arm64`, masaüstü olmayan Linux sistemleri için Evi'yi terminalden yükler ve kaldırır.",
+            ],
+            improved: [
+                "**Daha sakin eklenti izinleri.** Mağazadaki eklentiler artık Evi ekibinin onları incelediğini söylüyor, tam erişim kırmızı uyarılar yerine sade sözlerle açıklanıyor ve eklentinin kodundan çıkan ayrıntılar sen açana kadar kapalı duruyor. Kimsenin incelemediği eklentilerde uyarılar kalıyor.",
+                "**Yüklerken daha az soru.** Mağazadaki bir topluluk eklentisi doğrudan yükleniyor ve tam erişim iki kez yerine bir kez soruluyor.",
+            ],
+            fixed: [
+                "**Evi güncellenince Mac'inde kalıyor.** Discord'un bekleyen kendi güncellemesi varsa Evi'yi güncellemek, Evi Setup'ı yeniden çalıştırana kadar Discord'u Evi'siz bırakabiliyordu.",
+            ],
+        },
         "3.2.0": {
             added: [
                 "**Evi güncelleme olmadan kendini düzeltiyor.** Bir Discord güncellemesi Evi'nin bir kısmını bozduğunda, Evi ekibi düzeltmeyi artık doğrudan senin Evi'ne gönderebiliyor; genellikle dakikalar içinde, yeni sürüm kurmadan ve yeniden başlatmadan.",

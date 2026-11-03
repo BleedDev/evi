@@ -1164,7 +1164,6 @@ export const en = {
     "store.youHave": "(you have v{version})",
     "store.fact.updated": "Updated",
     "store.fact.needs": "Needs",
-    "store.fact.status": "Status",
     "store.fact.categories": "Categories",
     "store.access": "What it can access",
     "store.access.native": "Full access to your computer",

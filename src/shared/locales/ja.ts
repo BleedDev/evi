@@ -1157,7 +1157,6 @@ export const ja = {
     "store.youHave": "（現在はv{version}）",
     "store.fact.updated": "更新日",
     "store.fact.needs": "必要環境",
-    "store.fact.status": "状態",
     "store.fact.categories": "カテゴリー",
     "store.access": "アクセスできる範囲",
     "store.access.native": "コンピューターへのフルアクセス",

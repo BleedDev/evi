@@ -1160,7 +1160,6 @@ export const de = {
     "store.youHave": "(du hast v{version})",
     "store.fact.updated": "Aktualisiert",
     "store.fact.needs": "Braucht",
-    "store.fact.status": "Status",
     "store.fact.categories": "Kategorien",
     "store.access": "Worauf es zugreifen kann",
     "store.access.native": "Voller Zugriff auf deinen Computer",

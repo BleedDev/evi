@@ -1222,7 +1222,6 @@ export const ru = {
     "store.youHave": "(у вас v{version})",
     "store.fact.updated": "Обновлено",
     "store.fact.needs": "Требуется",
-    "store.fact.status": "Статус",
     "store.fact.categories": "Категории",
     "store.access": "К чему есть доступ",
     "store.access.native": "Полный доступ к компьютеру",

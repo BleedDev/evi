@@ -1650,14 +1650,15 @@
     to { opacity: 0.5; }
 }
 
+/* The dividers are each cell's own right and bottom edge, clipped at the box's edge: a row that
+   isn't full leaves the box's own colour, not a block of divider colour */
 .dl-store-facts {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 1px;
     margin: 0;
     border-radius: var(--dl-radius-group);
     border: 1px solid var(--dl-border-group);
-    background: var(--dl-border-divider);
+    background: var(--dl-bg-panel);
     overflow: hidden;
 }
 
@@ -1665,8 +1666,9 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
+    min-inline-size: 0;
     padding: 12px 16px;
-    background: var(--dl-bg-panel);
+    box-shadow: 1px 0 0 var(--dl-border-divider), 0 1px 0 var(--dl-border-divider);
 }
 
 .dl-store-fact > dt,

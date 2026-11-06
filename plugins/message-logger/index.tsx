@@ -42,11 +42,11 @@ const renderedContentFilter = filters.byCode('"useMessageRenderedContent"', "has
  * The CSS module with Discord's `markup` class, which styles rendered message content. Its code hint
  * is plain strings: a regex tested against every module's source costs far more.
  */
-const MARKUP_CLASS = /^markup_+[\da-f]+$/;
+const MARKUP_CLASS = /^markup_+[\w-]+$/;
 const markupFilter: Filter = Object.assign(
     (v: any) => !!v && typeof v === "object" && !Array.isArray(v)
         && Object.values(v).some(c => typeof c === "string" && MARKUP_CLASS.test(c))
-        && Object.values(v).some(c => typeof c === "string" && /^codeContainer_+[\da-f]+$/.test(c)),
+        && Object.values(v).some(c => typeof c === "string" && /^codeContainer_+[\w-]+$/.test(c)),
     { $code: ['"markup_', '"codeContainer_'] },
 );
 /** Discord's message actions. The code hint lets the search skip every module that can't define them. */

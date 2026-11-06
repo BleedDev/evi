@@ -2,7 +2,7 @@
     "id": "inline-translate",
     "name": "Inline Translate",
     "description": "Translate messages right under them, from the message menu or the hover toolbar. Can translate other languages automatically as they arrive.",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "authors": [
         "Evi"
     ],
@@ -17,6 +17,12 @@
         "readMessages": true
     },
     "changelog": [
+        {
+            "version": "1.1.2",
+            "notes": [
+                "Translations show with Discord's formatting, mentions and emoji again after Discord's update."
+            ]
+        },
         {
             "version": "1.1.1",
             "notes": [
@@ -60,6 +66,9 @@
             "name": "Inline-Übersetzer",
             "description": "Übersetze Nachrichten direkt darunter, über das Nachrichtenmenü oder die Leiste beim Darüberfahren. Kann andere Sprachen automatisch übersetzen, sobald sie ankommen.",
             "changelog": {
+                "1.1.2": [
+                    "Übersetzungen werden nach Discords Update wieder mit Discords Formatierung, Erwähnungen und Emojis angezeigt."
+                ],
                 "1.1.1": [
                     "Der Übersetzen-Button ist nach Discords Update wieder in der Hover-Leiste von Nachrichten."
                 ],
@@ -84,6 +93,9 @@
             "name": "Traducción en línea",
             "description": "Traduce mensajes justo debajo de ellos, desde el menú del mensaje o la barra que aparece al pasar el ratón. Puede traducir automáticamente otros idiomas a medida que llegan.",
             "changelog": {
+                "1.1.2": [
+                    "Las traducciones vuelven a mostrarse con el formato, las menciones y los emojis de Discord tras su actualización."
+                ],
                 "1.1.1": [
                     "El botón Traducir vuelve a aparecer en la barra que sale al pasar el ratón por un mensaje tras la actualización de Discord."
                 ],
@@ -108,6 +120,9 @@
             "name": "Traduction en ligne",
             "description": "Traduis les messages juste en dessous, depuis le menu du message ou la barre qui apparaît au survol. Peut traduire automatiquement les autres langues dès leur arrivée.",
             "changelog": {
+                "1.1.2": [
+                    "Les traductions s’affichent de nouveau avec la mise en forme, les mentions et les emojis de Discord après sa mise à jour."
+                ],
                 "1.1.1": [
                     "Le bouton Traduire est de retour dans la barre qui apparaît au survol d'un message après la mise à jour de Discord."
                 ],
@@ -132,6 +147,9 @@
             "name": "インライン翻訳",
             "description": "メッセージのメニューやホバー時のツールバーから、メッセージのすぐ下に翻訳を表示します。ほかの言語のメッセージを届いた時点で自動翻訳することもできます。",
             "changelog": {
+                "1.1.2": [
+                    "Discordのアップデート後も、翻訳がDiscordの書式、メンション、絵文字つきで表示されるようになりました。"
+                ],
                 "1.1.1": [
                     "Discordのアップデート後、メッセージにカーソルを合わせたときのバーに翻訳ボタンが戻りました。"
                 ],
@@ -156,6 +174,9 @@
             "name": "Tłumaczenie w wiadomościach",
             "description": "Tłumacz wiadomości bezpośrednio pod nimi, z menu wiadomości lub paska po najechaniu. Może automatycznie tłumaczyć inne języki, gdy tylko nadejdą.",
             "changelog": {
+                "1.1.2": [
+                    "Tłumaczenia znów wyświetlają się z formatowaniem, wzmiankami i emoji Discorda po jego aktualizacji."
+                ],
                 "1.1.1": [
                     "Przycisk Przetłumacz wrócił na pasek, który pojawia się po najechaniu na wiadomość, po aktualizacji Discorda."
                 ],
@@ -180,6 +201,9 @@
             "name": "Tradução Inline",
             "description": "Traduza mensagens logo abaixo delas, pelo menu da mensagem ou pela barra ao passar o mouse. Pode traduzir outros idiomas automaticamente assim que chegam.",
             "changelog": {
+                "1.1.2": [
+                    "As traduções voltam a aparecer com a formatação, as menções e os emojis do Discord depois da atualização dele."
+                ],
                 "1.1.1": [
                     "O botão Traduzir voltou à barra que aparece ao passar o mouse sobre uma mensagem após a atualização do Discord."
                 ],
@@ -204,6 +228,9 @@
             "name": "Перевод на месте",
             "description": "Переводите сообщения прямо под ними через меню сообщения или панель при наведении. Может автоматически переводить сообщения на других языках, как только они приходят.",
             "changelog": {
+                "1.1.2": [
+                    "Переводы снова показываются с форматированием, упоминаниями и эмодзи Discord после его обновления."
+                ],
                 "1.1.1": [
                     "Кнопка «Перевести» снова появляется на панели при наведении на сообщение после обновления Discord."
                 ],
@@ -228,6 +255,9 @@
             "name": "Satır İçi Çeviri",
             "description": "Mesajları hemen altlarında çevir; mesaj menüsünden ya da üzerine gelince beliren araç çubuğundan. Diğer dilleri geldikleri anda otomatik olarak çevirebilir.",
             "changelog": {
+                "1.1.2": [
+                    "Çeviriler, Discord’un güncellemesinden sonra yine Discord’un biçimlendirmesi, bahsetmeleri ve emojileriyle görünüyor."
+                ],
                 "1.1.1": [
                     "Discord güncellemesinden sonra Çevir düğmesi, mesajın üzerine gelince açılan çubuğa geri döndü."
                 ],

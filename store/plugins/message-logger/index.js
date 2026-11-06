@@ -633,8 +633,8 @@ var CACHE_BYTES = 25 * 1024 * 1024;
 var SAVE_FROM_LOADED = 50;
 var accessoriesFilter = import_api2.filters.byCode("channelMessageProps:{message:", "isAutomodBlockedMessage:");
 var renderedContentFilter = import_api2.filters.byCode('"useMessageRenderedContent"', "hasBailedAst:");
-var MARKUP_CLASS = /^markup_+[\da-f]+$/;
-var markupFilter = Object.assign((v) => !!v && typeof v === "object" && !Array.isArray(v) && Object.values(v).some((c) => typeof c === "string" && MARKUP_CLASS.test(c)) && Object.values(v).some((c) => typeof c === "string" && /^codeContainer_+[\da-f]+$/.test(c)), { $code: ['"markup_', '"codeContainer_'] });
+var MARKUP_CLASS = /^markup_+[\w-]+$/;
+var markupFilter = Object.assign((v) => !!v && typeof v === "object" && !Array.isArray(v) && Object.values(v).some((c) => typeof c === "string" && MARKUP_CLASS.test(c)) && Object.values(v).some((c) => typeof c === "string" && /^codeContainer_+[\w-]+$/.test(c)), { $code: ['"markup_', '"codeContainer_'] });
 var messageActionsFilter = Object.assign(import_api2.filters.byProps("deleteMessage", "editMessage", "sendMessage"), { $code: ["deleteMessage", "editMessage", "sendMessage"] });
 function withStore(ctx, name, callback) {
   const found = import_api2.findStore(name);

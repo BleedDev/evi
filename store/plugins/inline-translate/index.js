@@ -178,7 +178,6 @@ var LANGUAGE_SCRIPTS = {
   mr: ["devanagari"],
   ne: ["devanagari"]
 };
-var scriptsOf = (language) => LANGUAGE_SCRIPTS[language];
 function scriptsIn(text) {
   const found = new Set;
   for (const ch of translatableText(text)) {
@@ -196,7 +195,7 @@ function mightBeIn(text, languages) {
   if (!present.size)
     return false;
   return languages.some((lang) => {
-    const scripts = scriptsOf(lang);
+    const scripts = LANGUAGE_SCRIPTS[lang];
     if (!scripts)
       return present.has("latin") || present.has("other");
     return scripts.some((s) => present.has(s));
@@ -382,197 +381,213 @@ var t = import_api.defineStrings({
     "settings.hoverButton": "Button in the message toolbar",
     "settings.hoverButton.description": "A translate button next to Reply when you hover a message."
   },
-  de: {
-    translate: "Übersetzen",
-    "translate.hide": "Übersetzung ausblenden",
-    translating: "Wird übersetzt…",
-    error: "Diese Nachricht konnte nicht übersetzt werden",
-    retry: "Erneut versuchen",
-    dismiss: "Schließen",
-    from: "Übersetzt aus: {language}",
-    "original.show": "Original anzeigen",
-    "translation.show": "Übersetzung anzeigen",
-    "settings.target": "Übersetzen nach",
-    "settings.target.description": "Ein Sprachcode wie en, de oder zh-TW. Leer verwendet die Sprache von Discord.",
-    "settings.autoMode": "Automatisch übersetzen",
-    "settings.autoMode.description": "Nachrichten anderer werden beim Erscheinen übersetzt. Pro Nachricht wird eine Anfrage gesendet.",
-    "settings.autoMode.off": "Aus",
-    "settings.autoMode.list": "Nur die Sprachen aus meiner Liste",
-    "settings.autoMode.foreign": "Jede Sprache, die nicht meine ist",
-    "settings.autoLanguages": "Automatisch zu übersetzende Sprachen",
-    "settings.autoLanguages.description": "Sprachcodes, durch Kommas getrennt, z. B. es, ja, de. Wird von „Nur die Sprachen aus meiner Liste“ verwendet.",
-    "settings.ignoreBots": "Bots automatisch überspringen",
-    "settings.ignoreBots.description": "Nachrichten von Bots und Apps nicht in deinem Namen übersetzen.",
-    "settings.hoverButton": "Schaltfläche in der Nachrichten-Leiste",
-    "settings.hoverButton.description": "Eine Übersetzen-Schaltfläche neben „Antworten“, wenn du mit der Maus über eine Nachricht fährst."
+  get de() {
+    return Object.defineProperty(this, "de", { value: {
+      translate: "Übersetzen",
+      "translate.hide": "Übersetzung ausblenden",
+      translating: "Wird übersetzt…",
+      error: "Diese Nachricht konnte nicht übersetzt werden",
+      retry: "Erneut versuchen",
+      dismiss: "Schließen",
+      from: "Übersetzt aus: {language}",
+      "original.show": "Original anzeigen",
+      "translation.show": "Übersetzung anzeigen",
+      "settings.target": "Übersetzen nach",
+      "settings.target.description": "Ein Sprachcode wie en, de oder zh-TW. Leer verwendet die Sprache von Discord.",
+      "settings.autoMode": "Automatisch übersetzen",
+      "settings.autoMode.description": "Nachrichten anderer werden beim Erscheinen übersetzt. Pro Nachricht wird eine Anfrage gesendet.",
+      "settings.autoMode.off": "Aus",
+      "settings.autoMode.list": "Nur die Sprachen aus meiner Liste",
+      "settings.autoMode.foreign": "Jede Sprache, die nicht meine ist",
+      "settings.autoLanguages": "Automatisch zu übersetzende Sprachen",
+      "settings.autoLanguages.description": "Sprachcodes, durch Kommas getrennt, z. B. es, ja, de. Wird von „Nur die Sprachen aus meiner Liste“ verwendet.",
+      "settings.ignoreBots": "Bots automatisch überspringen",
+      "settings.ignoreBots.description": "Nachrichten von Bots und Apps nicht in deinem Namen übersetzen.",
+      "settings.hoverButton": "Schaltfläche in der Nachrichten-Leiste",
+      "settings.hoverButton.description": "Eine Übersetzen-Schaltfläche neben „Antworten“, wenn du mit der Maus über eine Nachricht fährst."
+    } })["de"];
   },
-  es: {
-    translate: "Traducir",
-    "translate.hide": "Ocultar traducción",
-    translating: "Traduciendo…",
-    error: "No se pudo traducir este mensaje",
-    retry: "Reintentar",
-    dismiss: "Descartar",
-    from: "Traducido de: {language}",
-    "original.show": "Mostrar original",
-    "translation.show": "Mostrar traducción",
-    "settings.target": "Traducir a",
-    "settings.target.description": "Un código de idioma como en, de o zh-TW. Si está vacío, usa el idioma de Discord.",
-    "settings.autoMode": "Traducir automáticamente",
-    "settings.autoMode.description": "Los mensajes de otros se traducen al aparecer. Usa una solicitud por mensaje.",
-    "settings.autoMode.off": "Desactivado",
-    "settings.autoMode.list": "Solo los idiomas de mi lista",
-    "settings.autoMode.foreign": "Cualquier idioma que no sea el mío",
-    "settings.autoLanguages": "Idiomas para traducir automáticamente",
-    "settings.autoLanguages.description": "Códigos de idioma separados por comas, como es, ja, de. Los usa «Solo los idiomas de mi lista».",
-    "settings.ignoreBots": "Omitir bots automáticamente",
-    "settings.ignoreBots.description": "No traducir en tu nombre los mensajes de bots y aplicaciones.",
-    "settings.hoverButton": "Botón en la barra del mensaje",
-    "settings.hoverButton.description": "Un botón de traducir junto a Responder al pasar el ratón sobre un mensaje."
+  get es() {
+    return Object.defineProperty(this, "es", { value: {
+      translate: "Traducir",
+      "translate.hide": "Ocultar traducción",
+      translating: "Traduciendo…",
+      error: "No se pudo traducir este mensaje",
+      retry: "Reintentar",
+      dismiss: "Descartar",
+      from: "Traducido de: {language}",
+      "original.show": "Mostrar original",
+      "translation.show": "Mostrar traducción",
+      "settings.target": "Traducir a",
+      "settings.target.description": "Un código de idioma como en, de o zh-TW. Si está vacío, usa el idioma de Discord.",
+      "settings.autoMode": "Traducir automáticamente",
+      "settings.autoMode.description": "Los mensajes de otros se traducen al aparecer. Usa una solicitud por mensaje.",
+      "settings.autoMode.off": "Desactivado",
+      "settings.autoMode.list": "Solo los idiomas de mi lista",
+      "settings.autoMode.foreign": "Cualquier idioma que no sea el mío",
+      "settings.autoLanguages": "Idiomas para traducir automáticamente",
+      "settings.autoLanguages.description": "Códigos de idioma separados por comas, como es, ja, de. Los usa «Solo los idiomas de mi lista».",
+      "settings.ignoreBots": "Omitir bots automáticamente",
+      "settings.ignoreBots.description": "No traducir en tu nombre los mensajes de bots y aplicaciones.",
+      "settings.hoverButton": "Botón en la barra del mensaje",
+      "settings.hoverButton.description": "Un botón de traducir junto a Responder al pasar el ratón sobre un mensaje."
+    } })["es"];
   },
-  fr: {
-    translate: "Traduire",
-    "translate.hide": "Masquer la traduction",
-    translating: "Traduction en cours…",
-    error: "Impossible de traduire ce message",
-    retry: "Réessayer",
-    dismiss: "Ignorer",
-    from: "Traduit depuis : {language}",
-    "original.show": "Afficher l'original",
-    "translation.show": "Afficher la traduction",
-    "settings.target": "Traduire en",
-    "settings.target.description": "Un code de langue comme en, de ou zh-TW. Vide, la langue de Discord est utilisée.",
-    "settings.autoMode": "Traduire automatiquement",
-    "settings.autoMode.description": "Les messages des autres sont traduits dès leur apparition. Utilise une requête par message.",
-    "settings.autoMode.off": "Désactivé",
-    "settings.autoMode.list": "Uniquement les langues de ma liste",
-    "settings.autoMode.foreign": "Toute langue qui n'est pas la mienne",
-    "settings.autoLanguages": "Langues à traduire automatiquement",
-    "settings.autoLanguages.description": "Des codes de langue séparés par des virgules, comme es, ja, de. Utilisé par « Uniquement les langues de ma liste ».",
-    "settings.ignoreBots": "Ignorer les bots automatiquement",
-    "settings.ignoreBots.description": "Ne pas traduire à ta place les messages des bots et des applications.",
-    "settings.hoverButton": "Bouton dans la barre du message",
-    "settings.hoverButton.description": "Un bouton de traduction à côté de Répondre quand tu survoles un message."
+  get fr() {
+    return Object.defineProperty(this, "fr", { value: {
+      translate: "Traduire",
+      "translate.hide": "Masquer la traduction",
+      translating: "Traduction en cours…",
+      error: "Impossible de traduire ce message",
+      retry: "Réessayer",
+      dismiss: "Ignorer",
+      from: "Traduit depuis : {language}",
+      "original.show": "Afficher l'original",
+      "translation.show": "Afficher la traduction",
+      "settings.target": "Traduire en",
+      "settings.target.description": "Un code de langue comme en, de ou zh-TW. Vide, la langue de Discord est utilisée.",
+      "settings.autoMode": "Traduire automatiquement",
+      "settings.autoMode.description": "Les messages des autres sont traduits dès leur apparition. Utilise une requête par message.",
+      "settings.autoMode.off": "Désactivé",
+      "settings.autoMode.list": "Uniquement les langues de ma liste",
+      "settings.autoMode.foreign": "Toute langue qui n'est pas la mienne",
+      "settings.autoLanguages": "Langues à traduire automatiquement",
+      "settings.autoLanguages.description": "Des codes de langue séparés par des virgules, comme es, ja, de. Utilisé par « Uniquement les langues de ma liste ».",
+      "settings.ignoreBots": "Ignorer les bots automatiquement",
+      "settings.ignoreBots.description": "Ne pas traduire à ta place les messages des bots et des applications.",
+      "settings.hoverButton": "Bouton dans la barre du message",
+      "settings.hoverButton.description": "Un bouton de traduction à côté de Répondre quand tu survoles un message."
+    } })["fr"];
   },
-  ja: {
-    translate: "翻訳",
-    "translate.hide": "翻訳を非表示",
-    translating: "翻訳中…",
-    error: "このメッセージを翻訳できませんでした",
-    retry: "再試行",
-    dismiss: "閉じる",
-    from: "{language}から翻訳",
-    "original.show": "原文を表示",
-    "translation.show": "翻訳を表示",
-    "settings.target": "翻訳先の言語",
-    "settings.target.description": "en、de、zh-TW のような言語コード。空欄の場合は Discord の言語を使います。",
-    "settings.autoMode": "自動で翻訳",
-    "settings.autoMode.description": "他の人のメッセージを表示されたときに翻訳します。メッセージごとに 1 回リクエストを送ります。",
-    "settings.autoMode.off": "オフ",
-    "settings.autoMode.list": "リストにある言語のみ",
-    "settings.autoMode.foreign": "自分の言語以外のすべて",
-    "settings.autoLanguages": "自動で翻訳する言語",
-    "settings.autoLanguages.description": "es, ja, de のように、言語コードをカンマで区切ります。「リストにある言語のみ」で使われます。",
-    "settings.ignoreBots": "ボットは自動翻訳しない",
-    "settings.ignoreBots.description": "ボットやアプリのメッセージは自動では翻訳しません。",
-    "settings.hoverButton": "メッセージのツールバーにボタンを表示",
-    "settings.hoverButton.description": "メッセージにカーソルを合わせたとき、返信の横に翻訳ボタンを表示します。"
+  get ja() {
+    return Object.defineProperty(this, "ja", { value: {
+      translate: "翻訳",
+      "translate.hide": "翻訳を非表示",
+      translating: "翻訳中…",
+      error: "このメッセージを翻訳できませんでした",
+      retry: "再試行",
+      dismiss: "閉じる",
+      from: "{language}から翻訳",
+      "original.show": "原文を表示",
+      "translation.show": "翻訳を表示",
+      "settings.target": "翻訳先の言語",
+      "settings.target.description": "en、de、zh-TW のような言語コード。空欄の場合は Discord の言語を使います。",
+      "settings.autoMode": "自動で翻訳",
+      "settings.autoMode.description": "他の人のメッセージを表示されたときに翻訳します。メッセージごとに 1 回リクエストを送ります。",
+      "settings.autoMode.off": "オフ",
+      "settings.autoMode.list": "リストにある言語のみ",
+      "settings.autoMode.foreign": "自分の言語以外のすべて",
+      "settings.autoLanguages": "自動で翻訳する言語",
+      "settings.autoLanguages.description": "es, ja, de のように、言語コードをカンマで区切ります。「リストにある言語のみ」で使われます。",
+      "settings.ignoreBots": "ボットは自動翻訳しない",
+      "settings.ignoreBots.description": "ボットやアプリのメッセージは自動では翻訳しません。",
+      "settings.hoverButton": "メッセージのツールバーにボタンを表示",
+      "settings.hoverButton.description": "メッセージにカーソルを合わせたとき、返信の横に翻訳ボタンを表示します。"
+    } })["ja"];
   },
-  pl: {
-    translate: "Przetłumacz",
-    "translate.hide": "Ukryj tłumaczenie",
-    translating: "Tłumaczenie…",
-    error: "Nie udało się przetłumaczyć tej wiadomości",
-    retry: "Spróbuj ponownie",
-    dismiss: "Odrzuć",
-    from: "Przetłumaczono z języka: {language}",
-    "original.show": "Pokaż oryginał",
-    "translation.show": "Pokaż tłumaczenie",
-    "settings.target": "Tłumacz na",
-    "settings.target.description": "Kod języka, np. en, de lub zh-TW. Puste pole oznacza język Discorda.",
-    "settings.autoMode": "Tłumacz automatycznie",
-    "settings.autoMode.description": "Wiadomości od innych są tłumaczone, gdy się pojawiają. Wysyła jedno żądanie na wiadomość.",
-    "settings.autoMode.off": "Wyłączone",
-    "settings.autoMode.list": "Tylko języki z mojej listy",
-    "settings.autoMode.foreign": "Każdy język poza moim",
-    "settings.autoLanguages": "Języki do automatycznego tłumaczenia",
-    "settings.autoLanguages.description": "Kody języków oddzielone przecinkami, np. es, ja, de. Używane przez „Tylko języki z mojej listy”.",
-    "settings.ignoreBots": "Automatycznie pomijaj boty",
-    "settings.ignoreBots.description": "Nie tłumacz w Twoim imieniu wiadomości od botów i aplikacji.",
-    "settings.hoverButton": "Przycisk na pasku wiadomości",
-    "settings.hoverButton.description": "Przycisk tłumaczenia obok Odpowiedz po najechaniu na wiadomość."
+  get pl() {
+    return Object.defineProperty(this, "pl", { value: {
+      translate: "Przetłumacz",
+      "translate.hide": "Ukryj tłumaczenie",
+      translating: "Tłumaczenie…",
+      error: "Nie udało się przetłumaczyć tej wiadomości",
+      retry: "Spróbuj ponownie",
+      dismiss: "Odrzuć",
+      from: "Przetłumaczono z języka: {language}",
+      "original.show": "Pokaż oryginał",
+      "translation.show": "Pokaż tłumaczenie",
+      "settings.target": "Tłumacz na",
+      "settings.target.description": "Kod języka, np. en, de lub zh-TW. Puste pole oznacza język Discorda.",
+      "settings.autoMode": "Tłumacz automatycznie",
+      "settings.autoMode.description": "Wiadomości od innych są tłumaczone, gdy się pojawiają. Wysyła jedno żądanie na wiadomość.",
+      "settings.autoMode.off": "Wyłączone",
+      "settings.autoMode.list": "Tylko języki z mojej listy",
+      "settings.autoMode.foreign": "Każdy język poza moim",
+      "settings.autoLanguages": "Języki do automatycznego tłumaczenia",
+      "settings.autoLanguages.description": "Kody języków oddzielone przecinkami, np. es, ja, de. Używane przez „Tylko języki z mojej listy”.",
+      "settings.ignoreBots": "Automatycznie pomijaj boty",
+      "settings.ignoreBots.description": "Nie tłumacz w Twoim imieniu wiadomości od botów i aplikacji.",
+      "settings.hoverButton": "Przycisk na pasku wiadomości",
+      "settings.hoverButton.description": "Przycisk tłumaczenia obok Odpowiedz po najechaniu na wiadomość."
+    } })["pl"];
   },
-  "pt-BR": {
-    translate: "Traduzir",
-    "translate.hide": "Ocultar tradução",
-    translating: "Traduzindo…",
-    error: "Não foi possível traduzir esta mensagem",
-    retry: "Tentar novamente",
-    dismiss: "Dispensar",
-    from: "Traduzido de: {language}",
-    "original.show": "Mostrar original",
-    "translation.show": "Mostrar tradução",
-    "settings.target": "Traduzir para",
-    "settings.target.description": "Um código de idioma como en, de ou zh-TW. Vazio usa o idioma do Discord.",
-    "settings.autoMode": "Traduzir automaticamente",
-    "settings.autoMode.description": "As mensagens de outras pessoas são traduzidas assim que aparecem. Usa uma solicitação por mensagem.",
-    "settings.autoMode.off": "Desativado",
-    "settings.autoMode.list": "Somente os idiomas da minha lista",
-    "settings.autoMode.foreign": "Qualquer idioma que não seja o meu",
-    "settings.autoLanguages": "Idiomas para traduzir automaticamente",
-    "settings.autoLanguages.description": "Códigos de idioma separados por vírgulas, como es, ja, de. Usados por “Somente os idiomas da minha lista”.",
-    "settings.ignoreBots": "Ignorar bots automaticamente",
-    "settings.ignoreBots.description": "Não traduzir por você as mensagens de bots e apps.",
-    "settings.hoverButton": "Botão na barra da mensagem",
-    "settings.hoverButton.description": "Um botão de traduzir ao lado de Responder quando você passa o mouse sobre uma mensagem."
+  get "pt-BR"() {
+    return Object.defineProperty(this, "pt-BR", { value: {
+      translate: "Traduzir",
+      "translate.hide": "Ocultar tradução",
+      translating: "Traduzindo…",
+      error: "Não foi possível traduzir esta mensagem",
+      retry: "Tentar novamente",
+      dismiss: "Dispensar",
+      from: "Traduzido de: {language}",
+      "original.show": "Mostrar original",
+      "translation.show": "Mostrar tradução",
+      "settings.target": "Traduzir para",
+      "settings.target.description": "Um código de idioma como en, de ou zh-TW. Vazio usa o idioma do Discord.",
+      "settings.autoMode": "Traduzir automaticamente",
+      "settings.autoMode.description": "As mensagens de outras pessoas são traduzidas assim que aparecem. Usa uma solicitação por mensagem.",
+      "settings.autoMode.off": "Desativado",
+      "settings.autoMode.list": "Somente os idiomas da minha lista",
+      "settings.autoMode.foreign": "Qualquer idioma que não seja o meu",
+      "settings.autoLanguages": "Idiomas para traduzir automaticamente",
+      "settings.autoLanguages.description": "Códigos de idioma separados por vírgulas, como es, ja, de. Usados por “Somente os idiomas da minha lista”.",
+      "settings.ignoreBots": "Ignorar bots automaticamente",
+      "settings.ignoreBots.description": "Não traduzir por você as mensagens de bots e apps.",
+      "settings.hoverButton": "Botão na barra da mensagem",
+      "settings.hoverButton.description": "Um botão de traduzir ao lado de Responder quando você passa o mouse sobre uma mensagem."
+    } })["pt-BR"];
   },
-  ru: {
-    translate: "Перевести",
-    "translate.hide": "Скрыть перевод",
-    translating: "Перевод…",
-    error: "Не удалось перевести это сообщение",
-    retry: "Повторить",
-    dismiss: "Закрыть",
-    from: "Переведено: {language}",
-    "original.show": "Показать оригинал",
-    "translation.show": "Показать перевод",
-    "settings.target": "Переводить на",
-    "settings.target.description": "Код языка, например en, de или zh-TW. Если пусто, используется язык Discord.",
-    "settings.autoMode": "Переводить автоматически",
-    "settings.autoMode.description": "Сообщения других людей переводятся сразу, как появляются. На каждое сообщение отправляется один запрос.",
-    "settings.autoMode.off": "Выкл.",
-    "settings.autoMode.list": "Только языки из моего списка",
-    "settings.autoMode.foreign": "Любой язык, кроме моего",
-    "settings.autoLanguages": "Языки для автоматического перевода",
-    "settings.autoLanguages.description": "Коды языков через запятую, например es, ja, de. Используются режимом «Только языки из моего списка».",
-    "settings.ignoreBots": "Пропускать ботов автоматически",
-    "settings.ignoreBots.description": "Не переводить за вас сообщения от ботов и приложений.",
-    "settings.hoverButton": "Кнопка на панели сообщения",
-    "settings.hoverButton.description": "Кнопка перевода рядом с «Ответить» при наведении на сообщение."
+  get ru() {
+    return Object.defineProperty(this, "ru", { value: {
+      translate: "Перевести",
+      "translate.hide": "Скрыть перевод",
+      translating: "Перевод…",
+      error: "Не удалось перевести это сообщение",
+      retry: "Повторить",
+      dismiss: "Закрыть",
+      from: "Переведено: {language}",
+      "original.show": "Показать оригинал",
+      "translation.show": "Показать перевод",
+      "settings.target": "Переводить на",
+      "settings.target.description": "Код языка, например en, de или zh-TW. Если пусто, используется язык Discord.",
+      "settings.autoMode": "Переводить автоматически",
+      "settings.autoMode.description": "Сообщения других людей переводятся сразу, как появляются. На каждое сообщение отправляется один запрос.",
+      "settings.autoMode.off": "Выкл.",
+      "settings.autoMode.list": "Только языки из моего списка",
+      "settings.autoMode.foreign": "Любой язык, кроме моего",
+      "settings.autoLanguages": "Языки для автоматического перевода",
+      "settings.autoLanguages.description": "Коды языков через запятую, например es, ja, de. Используются режимом «Только языки из моего списка».",
+      "settings.ignoreBots": "Пропускать ботов автоматически",
+      "settings.ignoreBots.description": "Не переводить за вас сообщения от ботов и приложений.",
+      "settings.hoverButton": "Кнопка на панели сообщения",
+      "settings.hoverButton.description": "Кнопка перевода рядом с «Ответить» при наведении на сообщение."
+    } })["ru"];
   },
-  tr: {
-    translate: "Çevir",
-    "translate.hide": "Çeviriyi Gizle",
-    translating: "Çevriliyor…",
-    error: "Bu mesaj çevrilemedi",
-    retry: "Yeniden dene",
-    dismiss: "Kapat",
-    from: "Şu dilden çevrildi: {language}",
-    "original.show": "Orijinali göster",
-    "translation.show": "Çeviriyi göster",
-    "settings.target": "Şu dile çevir",
-    "settings.target.description": "en, de veya zh-TW gibi bir dil kodu. Boş bırakırsan Discord'un dili kullanılır.",
-    "settings.autoMode": "Otomatik çevir",
-    "settings.autoMode.description": "Başkalarının mesajları göründükleri anda çevrilir. Mesaj başına bir istek kullanır.",
-    "settings.autoMode.off": "Kapalı",
-    "settings.autoMode.list": "Yalnızca listelediğim diller",
-    "settings.autoMode.foreign": "Benim dilim olmayan her dil",
-    "settings.autoLanguages": "Otomatik çevrilecek diller",
-    "settings.autoLanguages.description": 'es, ja, de gibi virgülle ayrılmış dil kodları. "Yalnızca listelediğim diller" seçeneği tarafından kullanılır.',
-    "settings.ignoreBots": "Botları otomatik olarak atla",
-    "settings.ignoreBots.description": "Botların ve uygulamaların mesajlarını senin adına çevirme.",
-    "settings.hoverButton": "Mesaj araç çubuğunda düğme",
-    "settings.hoverButton.description": "Bir mesajın üzerine geldiğinde Yanıtla'nın yanında bir çeviri düğmesi gösterir."
+  get tr() {
+    return Object.defineProperty(this, "tr", { value: {
+      translate: "Çevir",
+      "translate.hide": "Çeviriyi Gizle",
+      translating: "Çevriliyor…",
+      error: "Bu mesaj çevrilemedi",
+      retry: "Yeniden dene",
+      dismiss: "Kapat",
+      from: "Şu dilden çevrildi: {language}",
+      "original.show": "Orijinali göster",
+      "translation.show": "Çeviriyi göster",
+      "settings.target": "Şu dile çevir",
+      "settings.target.description": "en, de veya zh-TW gibi bir dil kodu. Boş bırakırsan Discord'un dili kullanılır.",
+      "settings.autoMode": "Otomatik çevir",
+      "settings.autoMode.description": "Başkalarının mesajları göründükleri anda çevrilir. Mesaj başına bir istek kullanır.",
+      "settings.autoMode.off": "Kapalı",
+      "settings.autoMode.list": "Yalnızca listelediğim diller",
+      "settings.autoMode.foreign": "Benim dilim olmayan her dil",
+      "settings.autoLanguages": "Otomatik çevrilecek diller",
+      "settings.autoLanguages.description": 'es, ja, de gibi virgülle ayrılmış dil kodları. "Yalnızca listelediğim diller" seçeneği tarafından kullanılır.',
+      "settings.ignoreBots": "Botları otomatik olarak atla",
+      "settings.ignoreBots.description": "Botların ve uygulamaların mesajlarını senin adına çevirme.",
+      "settings.hoverButton": "Mesaj araç çubuğunda düğme",
+      "settings.hoverButton.description": "Bir mesajın üzerine geldiğinde Yanıtla'nın yanında bir çeviri düğmesi gösterir."
+    } })["tr"];
   }
 });
 
@@ -638,8 +653,9 @@ var BACKOFF = 60000;
 var MAX_QUEUED = 25;
 var CACHE_SIZE = 500;
 var accessoriesFilter = import_api2.filters.byCode("channelMessageProps:{message:", "isAutomodBlockedMessage:");
-var renderedContentFilter = import_api2.filters.byCode('"useMessageRenderedContent"', "hideSimpleEmbedContent");
-var markupFilter = Object.assign((v) => !!v && typeof v === "object" && !Array.isArray(v) && Object.values(v).some((c) => typeof c === "string" && /^markup_+[\da-f]+$/.test(c)) && Object.values(v).some((c) => typeof c === "string" && /^codeContainer_+[\da-f]+$/.test(c)), { $code: ['"markup_', '"codeContainer_'] });
+var renderedContentFilter = import_api2.filters.byCode('"useMessageRenderedContent"', "hasBailedAst:");
+var MARKUP_CLASS = /^markup_+[\w-]+$/;
+var markupFilter = Object.assign((v) => !!v && typeof v === "object" && !Array.isArray(v) && Object.values(v).some((c) => typeof c === "string" && MARKUP_CLASS.test(c)) && Object.values(v).some((c) => typeof c === "string" && /^codeContainer_+[\w-]+$/.test(c)), { $code: ['"markup_', '"codeContainer_'] });
 var useRenderedContent;
 var markupClass = "";
 var css = `
@@ -991,7 +1007,7 @@ var inline_translate_default = import_api2.definePlugin({
   patches: [{
     find: '},"reply-other")',
     replace: {
-      match: /(\(0,\i\.jsx\)\((\i),\{label:[^{}]*?onClick:\i=>\(0,\i\.\i\)\((\i),(\i),\i\)\},"reply-other"\):null,)/,
+      match: /(\(0,\i\.jsx\)\((\i(?:\.\i)?),\{label:[^{}]*?onClick:\i=>\(0,\i\.\i\)\((\i),(\i),\i\)\},"reply-other"\):null,)/,
       with: "$1$self.hoverButton($2,$3,$4),"
     }
   }],
@@ -1022,7 +1038,7 @@ var inline_translate_default = import_api2.definePlugin({
       ctx.waitFor(renderedContentFilter, (fn) => void (useRenderedContent = fn));
     if (!markupClass)
       ctx.waitFor(markupFilter, (classes) => {
-        markupClass = Object.values(classes).find((c) => typeof c === "string" && /^markup_+[\da-f]+$/.test(c)) ?? "";
+        markupClass = Object.values(classes).find((c) => typeof c === "string" && MARKUP_CLASS.test(c)) ?? "";
       });
     ctx.hookExport("after", accessoriesFilter, ({ args, result }) => {
       const props = args[0];

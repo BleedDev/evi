@@ -61,13 +61,13 @@ const MAX_QUEUED = 25;
 const CACHE_SIZE = 500;
 
 const accessoriesFilter = filters.byCode("channelMessageProps:{message:", "isAutomodBlockedMessage:");
-const renderedContentFilter = filters.byCode('"useMessageRenderedContent"', "hideSimpleEmbedContent");
-const MARKUP_CLASS = /^markup_+[\da-f]+$/;
+const renderedContentFilter = filters.byCode('"useMessageRenderedContent"', "hasBailedAst:");
+const MARKUP_CLASS = /^markup_+[\w-]+$/;
 /** Discord's `markup` CSS module. Plain-string code hints: a regex over every module's source costs far more. */
 const markupFilter: Filter = Object.assign(
     (v: any) => !!v && typeof v === "object" && !Array.isArray(v)
         && Object.values(v).some(c => typeof c === "string" && MARKUP_CLASS.test(c))
-        && Object.values(v).some(c => typeof c === "string" && /^codeContainer_+[\da-f]+$/.test(c)),
+        && Object.values(v).some(c => typeof c === "string" && /^codeContainer_+[\w-]+$/.test(c)),
     { $code: ['"markup_', '"codeContainer_'] },
 );
 

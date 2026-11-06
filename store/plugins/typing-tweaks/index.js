@@ -62,134 +62,150 @@ var t = import_api.defineStrings({
     "typing.three": "{a}, {b} and {c} are typing",
     "typing.many": { one: "{a}, {b} and {count} other are typing", other: "{a}, {b} and {count} others are typing" }
   },
-  de: {
-    "settings.avatars": "Avatare in der Tippzeile",
-    "settings.avatars.description": "Ein kleiner Avatar vor jedem Namen in „schreibt gerade“ über dem Chatfeld.",
-    "settings.roleColors": "Namen in Rollenfarben",
-    "settings.roleColors.description": "Namen in „schreibt gerade“ in der Farbe ihrer höchsten Rolle, wie im Chat.",
-    "settings.channels": "Punkte bei Kanälen",
-    "settings.channels.description": "Drei Punkte bei einem Kanal oder Thread in der Kanalliste, solange dort jemand schreibt.",
-    "settings.dms": "Punkte bei DMs",
-    "settings.dms.description": "Drei Punkte bei einer DM in der DM-Liste, solange dort jemand schreibt, neben denen, die Discord am Avatar anzeigt.",
-    someone: "Jemand",
-    "typing.one": "{a} schreibt gerade",
-    "typing.two": "{a} und {b} schreiben gerade",
-    "typing.three": "{a}, {b} und {c} schreiben gerade",
-    "typing.many": "{a}, {b} und {count} weitere schreiben gerade"
+  get de() {
+    return Object.defineProperty(this, "de", { value: {
+      "settings.avatars": "Avatare in der Tippzeile",
+      "settings.avatars.description": "Ein kleiner Avatar vor jedem Namen in „schreibt gerade“ über dem Chatfeld.",
+      "settings.roleColors": "Namen in Rollenfarben",
+      "settings.roleColors.description": "Namen in „schreibt gerade“ in der Farbe ihrer höchsten Rolle, wie im Chat.",
+      "settings.channels": "Punkte bei Kanälen",
+      "settings.channels.description": "Drei Punkte bei einem Kanal oder Thread in der Kanalliste, solange dort jemand schreibt.",
+      "settings.dms": "Punkte bei DMs",
+      "settings.dms.description": "Drei Punkte bei einer DM in der DM-Liste, solange dort jemand schreibt, neben denen, die Discord am Avatar anzeigt.",
+      someone: "Jemand",
+      "typing.one": "{a} schreibt gerade",
+      "typing.two": "{a} und {b} schreiben gerade",
+      "typing.three": "{a}, {b} und {c} schreiben gerade",
+      "typing.many": "{a}, {b} und {count} weitere schreiben gerade"
+    } })["de"];
   },
-  es: {
-    "settings.avatars": "Avatares en la línea de escritura",
-    "settings.avatars.description": "Un pequeño avatar antes de cada nombre en «está escribiendo» sobre el cuadro de chat.",
-    "settings.roleColors": "Nombres con el color del rol",
-    "settings.roleColors.description": "Los nombres en «está escribiendo» con el color de su rol más alto, como en el chat.",
-    "settings.channels": "Puntos en los canales",
-    "settings.channels.description": "Tres puntos en un canal o hilo de la lista de canales mientras alguien escribe en él.",
-    "settings.dms": "Puntos en los MD",
-    "settings.dms.description": "Tres puntos en un MD de la lista de MD mientras alguien escribe en él, junto a los que Discord pone en el avatar.",
-    someone: "Alguien",
-    "typing.one": "{a} está escribiendo",
-    "typing.two": "{a} y {b} están escribiendo",
-    "typing.three": "{a}, {b} y {c} están escribiendo",
-    "typing.many": "{a}, {b} y {count} más están escribiendo"
+  get es() {
+    return Object.defineProperty(this, "es", { value: {
+      "settings.avatars": "Avatares en la línea de escritura",
+      "settings.avatars.description": "Un pequeño avatar antes de cada nombre en «está escribiendo» sobre el cuadro de chat.",
+      "settings.roleColors": "Nombres con el color del rol",
+      "settings.roleColors.description": "Los nombres en «está escribiendo» con el color de su rol más alto, como en el chat.",
+      "settings.channels": "Puntos en los canales",
+      "settings.channels.description": "Tres puntos en un canal o hilo de la lista de canales mientras alguien escribe en él.",
+      "settings.dms": "Puntos en los MD",
+      "settings.dms.description": "Tres puntos en un MD de la lista de MD mientras alguien escribe en él, junto a los que Discord pone en el avatar.",
+      someone: "Alguien",
+      "typing.one": "{a} está escribiendo",
+      "typing.two": "{a} y {b} están escribiendo",
+      "typing.three": "{a}, {b} y {c} están escribiendo",
+      "typing.many": "{a}, {b} y {count} más están escribiendo"
+    } })["es"];
   },
-  fr: {
-    "settings.avatars": "Avatars dans la ligne d'écriture",
-    "settings.avatars.description": "Un petit avatar devant chaque nom dans « est en train d'écrire » au-dessus de la zone de chat.",
-    "settings.roleColors": "Noms aux couleurs des rôles",
-    "settings.roleColors.description": "Les noms dans « est en train d'écrire » à la couleur de leur rôle principal, comme dans le chat.",
-    "settings.channels": "Points sur les salons",
-    "settings.channels.description": "Trois points sur un salon ou un fil de la liste des salons pendant que quelqu'un y écrit.",
-    "settings.dms": "Points sur les MP",
-    "settings.dms.description": "Trois points sur un MP de la liste des MP pendant que quelqu'un y écrit, en plus de ceux que Discord met sur l'avatar.",
-    someone: "Quelqu'un",
-    "typing.one": "{a} est en train d'écrire",
-    "typing.two": "{a} et {b} sont en train d'écrire",
-    "typing.three": "{a}, {b} et {c} sont en train d'écrire",
-    "typing.many": { one: "{a}, {b} et {count} autre sont en train d'écrire", other: "{a}, {b} et {count} autres sont en train d'écrire" }
+  get fr() {
+    return Object.defineProperty(this, "fr", { value: {
+      "settings.avatars": "Avatars dans la ligne d'écriture",
+      "settings.avatars.description": "Un petit avatar devant chaque nom dans « est en train d'écrire » au-dessus de la zone de chat.",
+      "settings.roleColors": "Noms aux couleurs des rôles",
+      "settings.roleColors.description": "Les noms dans « est en train d'écrire » à la couleur de leur rôle principal, comme dans le chat.",
+      "settings.channels": "Points sur les salons",
+      "settings.channels.description": "Trois points sur un salon ou un fil de la liste des salons pendant que quelqu'un y écrit.",
+      "settings.dms": "Points sur les MP",
+      "settings.dms.description": "Trois points sur un MP de la liste des MP pendant que quelqu'un y écrit, en plus de ceux que Discord met sur l'avatar.",
+      someone: "Quelqu'un",
+      "typing.one": "{a} est en train d'écrire",
+      "typing.two": "{a} et {b} sont en train d'écrire",
+      "typing.three": "{a}, {b} et {c} sont en train d'écrire",
+      "typing.many": { one: "{a}, {b} et {count} autre sont en train d'écrire", other: "{a}, {b} et {count} autres sont en train d'écrire" }
+    } })["fr"];
   },
-  ja: {
-    "settings.avatars": "入力中の表示にアバターを追加",
-    "settings.avatars.description": "チャットボックスの上の「入力中」に表示される各名前の前に、小さなアバターを表示します。",
-    "settings.roleColors": "名前をロールの色にする",
-    "settings.roleColors.description": "「入力中」の名前を、チャットと同じく最上位ロールの色で表示します。",
-    "settings.channels": "チャンネルにドットを表示",
-    "settings.channels.description": "誰かが入力している間、チャンネルリストのチャンネルやスレッドに3つのドットを表示します。",
-    "settings.dms": "DMにドットを表示",
-    "settings.dms.description": "誰かが入力している間、DMリストのDMに3つのドットを表示します。Discordがアバターに表示するものとは別に表示されます。",
-    someone: "誰か",
-    "typing.one": "{a}さんが入力中",
-    "typing.two": "{a}さんと{b}さんが入力中",
-    "typing.three": "{a}さん、{b}さん、{c}さんが入力中",
-    "typing.many": "{a}さん、{b}さん、他{count}人が入力中"
+  get ja() {
+    return Object.defineProperty(this, "ja", { value: {
+      "settings.avatars": "入力中の表示にアバターを追加",
+      "settings.avatars.description": "チャットボックスの上の「入力中」に表示される各名前の前に、小さなアバターを表示します。",
+      "settings.roleColors": "名前をロールの色にする",
+      "settings.roleColors.description": "「入力中」の名前を、チャットと同じく最上位ロールの色で表示します。",
+      "settings.channels": "チャンネルにドットを表示",
+      "settings.channels.description": "誰かが入力している間、チャンネルリストのチャンネルやスレッドに3つのドットを表示します。",
+      "settings.dms": "DMにドットを表示",
+      "settings.dms.description": "誰かが入力している間、DMリストのDMに3つのドットを表示します。Discordがアバターに表示するものとは別に表示されます。",
+      someone: "誰か",
+      "typing.one": "{a}さんが入力中",
+      "typing.two": "{a}さんと{b}さんが入力中",
+      "typing.three": "{a}さん、{b}さん、{c}さんが入力中",
+      "typing.many": "{a}さん、{b}さん、他{count}人が入力中"
+    } })["ja"];
   },
-  pl: {
-    "settings.avatars": "Awatary w linii pisania",
-    "settings.avatars.description": "Mały awatar przed każdą nazwą w „pisze” nad polem czatu.",
-    "settings.roleColors": "Nazwy w kolorach ról",
-    "settings.roleColors.description": "Nazwy w „pisze” w kolorze najwyższej roli, tak jak na czacie.",
-    "settings.channels": "Kropki przy kanałach",
-    "settings.channels.description": "Trzy kropki przy kanale lub wątku na liście kanałów, gdy ktoś w nim pisze.",
-    "settings.dms": "Kropki przy DM-ach",
-    "settings.dms.description": "Trzy kropki przy DM-ie na liście wiadomości prywatnych, gdy ktoś w nim pisze, obok tych, które Discord pokazuje przy awatarze.",
-    someone: "Ktoś",
-    "typing.one": "{a} pisze",
-    "typing.two": "{a} i {b} piszą",
-    "typing.three": "{a}, {b} i {c} piszą",
-    "typing.many": {
-      few: "{a}, {b} i {count} inne osoby piszą",
-      many: "{a}, {b} i {count} innych osób pisze",
-      other: "{a}, {b} i {count} innych osób pisze"
-    }
+  get pl() {
+    return Object.defineProperty(this, "pl", { value: {
+      "settings.avatars": "Awatary w linii pisania",
+      "settings.avatars.description": "Mały awatar przed każdą nazwą w „pisze” nad polem czatu.",
+      "settings.roleColors": "Nazwy w kolorach ról",
+      "settings.roleColors.description": "Nazwy w „pisze” w kolorze najwyższej roli, tak jak na czacie.",
+      "settings.channels": "Kropki przy kanałach",
+      "settings.channels.description": "Trzy kropki przy kanale lub wątku na liście kanałów, gdy ktoś w nim pisze.",
+      "settings.dms": "Kropki przy DM-ach",
+      "settings.dms.description": "Trzy kropki przy DM-ie na liście wiadomości prywatnych, gdy ktoś w nim pisze, obok tych, które Discord pokazuje przy awatarze.",
+      someone: "Ktoś",
+      "typing.one": "{a} pisze",
+      "typing.two": "{a} i {b} piszą",
+      "typing.three": "{a}, {b} i {c} piszą",
+      "typing.many": {
+        few: "{a}, {b} i {count} inne osoby piszą",
+        many: "{a}, {b} i {count} innych osób pisze",
+        other: "{a}, {b} i {count} innych osób pisze"
+      }
+    } })["pl"];
   },
-  "pt-BR": {
-    "settings.avatars": "Avatares na linha de digitação",
-    "settings.avatars.description": "Um avatar pequeno antes de cada nome em “está digitando” acima da caixa de chat.",
-    "settings.roleColors": "Nomes nas cores dos cargos",
-    "settings.roleColors.description": "Os nomes em “está digitando” na cor do cargo mais alto, como no chat.",
-    "settings.channels": "Pontinhos nos canais",
-    "settings.channels.description": "Três pontinhos em um canal ou tópico na lista de canais enquanto alguém digita nele.",
-    "settings.dms": "Pontinhos nas DMs",
-    "settings.dms.description": "Três pontinhos em uma DM na lista de DMs enquanto alguém digita nela, ao lado dos que o Discord coloca no avatar.",
-    someone: "Alguém",
-    "typing.one": "{a} está digitando",
-    "typing.two": "{a} e {b} estão digitando",
-    "typing.three": "{a}, {b} e {c} estão digitando",
-    "typing.many": "{a}, {b} e mais {count} pessoas estão digitando"
+  get "pt-BR"() {
+    return Object.defineProperty(this, "pt-BR", { value: {
+      "settings.avatars": "Avatares na linha de digitação",
+      "settings.avatars.description": "Um avatar pequeno antes de cada nome em “está digitando” acima da caixa de chat.",
+      "settings.roleColors": "Nomes nas cores dos cargos",
+      "settings.roleColors.description": "Os nomes em “está digitando” na cor do cargo mais alto, como no chat.",
+      "settings.channels": "Pontinhos nos canais",
+      "settings.channels.description": "Três pontinhos em um canal ou tópico na lista de canais enquanto alguém digita nele.",
+      "settings.dms": "Pontinhos nas DMs",
+      "settings.dms.description": "Três pontinhos em uma DM na lista de DMs enquanto alguém digita nela, ao lado dos que o Discord coloca no avatar.",
+      someone: "Alguém",
+      "typing.one": "{a} está digitando",
+      "typing.two": "{a} e {b} estão digitando",
+      "typing.three": "{a}, {b} e {c} estão digitando",
+      "typing.many": "{a}, {b} e mais {count} pessoas estão digitando"
+    } })["pt-BR"];
   },
-  ru: {
-    "settings.avatars": "Аватары в строке набора",
-    "settings.avatars.description": "Маленький аватар перед каждым именем в строке «печатает» над полем ввода.",
-    "settings.roleColors": "Имена в цветах ролей",
-    "settings.roleColors.description": "Имена в строке «печатает» цветом высшей роли, как в чате.",
-    "settings.channels": "Точки у каналов",
-    "settings.channels.description": "Три точки у канала или ветки в списке каналов, пока в нём кто-то печатает.",
-    "settings.dms": "Точки у ЛС",
-    "settings.dms.description": "Три точки у личного чата в списке ЛС, пока в нём кто-то печатает, в дополнение к тем, что Discord показывает на аватаре.",
-    someone: "Кто-то",
-    "typing.one": "{a} печатает",
-    "typing.two": "{a} и {b} печатают",
-    "typing.three": "{a}, {b} и {c} печатают",
-    "typing.many": {
-      one: "{a}, {b} и ещё {count} человек печатают",
-      few: "{a}, {b} и ещё {count} человека печатают",
-      many: "{a}, {b} и ещё {count} человек печатают",
-      other: "{a}, {b} и ещё {count} человека печатают"
-    }
+  get ru() {
+    return Object.defineProperty(this, "ru", { value: {
+      "settings.avatars": "Аватары в строке набора",
+      "settings.avatars.description": "Маленький аватар перед каждым именем в строке «печатает» над полем ввода.",
+      "settings.roleColors": "Имена в цветах ролей",
+      "settings.roleColors.description": "Имена в строке «печатает» цветом высшей роли, как в чате.",
+      "settings.channels": "Точки у каналов",
+      "settings.channels.description": "Три точки у канала или ветки в списке каналов, пока в нём кто-то печатает.",
+      "settings.dms": "Точки у ЛС",
+      "settings.dms.description": "Три точки у личного чата в списке ЛС, пока в нём кто-то печатает, в дополнение к тем, что Discord показывает на аватаре.",
+      someone: "Кто-то",
+      "typing.one": "{a} печатает",
+      "typing.two": "{a} и {b} печатают",
+      "typing.three": "{a}, {b} и {c} печатают",
+      "typing.many": {
+        one: "{a}, {b} и ещё {count} человек печатают",
+        few: "{a}, {b} и ещё {count} человека печатают",
+        many: "{a}, {b} и ещё {count} человек печатают",
+        other: "{a}, {b} и ещё {count} человека печатают"
+      }
+    } })["ru"];
   },
-  tr: {
-    "settings.avatars": "Yazıyor satırında avatarlar",
-    "settings.avatars.description": "Sohbet kutusunun üstündeki “yazıyor” satırında her adın önünde küçük bir avatar.",
-    "settings.roleColors": "Adlar rol renginde",
-    "settings.roleColors.description": "“Yazıyor” satırındaki adlar, sohbetteki gibi en üst rolün renginde görünür.",
-    "settings.channels": "Kanallarda noktalar",
-    "settings.channels.description": "Kanal listesinde, birisi yazarken o kanalda veya konuda üç nokta görünür.",
-    "settings.dms": "DM'lerde noktalar",
-    "settings.dms.description": "DM listesinde, birisi yazarken o DM'de, Discord'un avatarın üzerine koyduklarının yanında üç nokta görünür.",
-    someone: "Biri",
-    "typing.one": "{a} yazıyor",
-    "typing.two": "{a} ve {b} yazıyor",
-    "typing.three": "{a}, {b} ve {c} yazıyor",
-    "typing.many": "{a}, {b} ve {count} kişi daha yazıyor"
+  get tr() {
+    return Object.defineProperty(this, "tr", { value: {
+      "settings.avatars": "Yazıyor satırında avatarlar",
+      "settings.avatars.description": "Sohbet kutusunun üstündeki “yazıyor” satırında her adın önünde küçük bir avatar.",
+      "settings.roleColors": "Adlar rol renginde",
+      "settings.roleColors.description": "“Yazıyor” satırındaki adlar, sohbetteki gibi en üst rolün renginde görünür.",
+      "settings.channels": "Kanallarda noktalar",
+      "settings.channels.description": "Kanal listesinde, birisi yazarken o kanalda veya konuda üç nokta görünür.",
+      "settings.dms": "DM'lerde noktalar",
+      "settings.dms.description": "DM listesinde, birisi yazarken o DM'de, Discord'un avatarın üzerine koyduklarının yanında üç nokta görünür.",
+      someone: "Biri",
+      "typing.one": "{a} yazıyor",
+      "typing.two": "{a} ve {b} yazıyor",
+      "typing.three": "{a}, {b} ve {c} yazıyor",
+      "typing.many": "{a}, {b} ve {count} kişi daha yazıyor"
+    } })["tr"];
   }
 });
 
@@ -215,9 +231,9 @@ var PATCHES = {
     }
   },
   channel: {
-    find: 'textVariant:"text-md/medium",channel:',
+    find: /textVariant:(?:"text-md\/medium"|[\w$]+),channel:[\w$]+,name:null!=/,
     replace: {
-      match: /(?<=\(\i,\{textVariant:"text-md\/medium",channel:(\i),name:null!=\i\?\i:\i\}\)\}\),)(?=\i\.Children\.count\()/,
+      match: /(?<=\(\i,\{textVariant:(?:"text-md\/medium"|\i),channel:(\i),name:null!=\i\?\i:\i\}\)\}\),)(?=\i\.Children\.count\()/,
       with: '$self?.renderIndicator?.($1,"channel"),'
     }
   },
@@ -231,7 +247,7 @@ var PATCHES = {
   dm: {
     find: "PrivateChannel.renderAvatar",
     replace: {
-      match: /(?<=\(0,\i\.jsxs\)\("div",\{className:\i\(\)\(\i\.\i,\{\[\i\.\i\]:\i\}\),children:\[)(?=\i\?\(0,\i\.jsx\)\(\i,\{\}\):\i\?\(0,\i\.jsx\)\(\i,\{\}\):\i\?\(0,\i\.jsx\)\(\i,\{\}\):null,)/,
+      match: /(?<=\(0,\i\.jsxs\)\("div",\{className:\i\(\)\(\i\.\i,\{\[\i\.\i\]:\i\}\),children:\[)(?=(?:null!=\i&&\(0,\i\.jsx\)\(\i,\{callMessageId:[^;]{0,300}?\}\),)?\i\?\(0,\i\.jsx\)\(\i,\{\}\):\i\?\(0,\i\.jsx\)\(\i,\{\}\):\i\?\(0,\i\.jsx\)\(\i,\{\}\):null,)/,
       with: '$self?.renderIndicator?.(arguments[0]?.channel,"dm"),'
     }
   }

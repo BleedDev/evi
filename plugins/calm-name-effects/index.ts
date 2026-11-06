@@ -28,16 +28,19 @@ const settings = {
     },
 } as const;
 
-/** Discord's display name styles CSS module: { [mangled]: "innerContainer_dfb989", ... } */
+/**
+ * Discord's display name styles CSS module: { [mangled]: "innerContainer_or4Hj-", ... }. Since
+ * 2026-11-06 it no longer lists its keyframes (prism-scroll), and the suffix isn't only hex.
+ */
 const stylesFilter: Filter = Object.assign(
     (v: any) => !!v && typeof v === "object" && !Array.isArray(v)
-        && Object.values(v).some(c => typeof c === "string" && /^innerContainer_+[\da-f]+$/.test(c))
-        && Object.values(v).some(c => typeof c === "string" && /^prism-scroll_+[\da-f]+$/.test(c)),
-    { $code: ['"innerContainer_', '"prism-scroll_'], $label: "display name styles CSS module" },
+        && Object.values(v).some(c => typeof c === "string" && /^innerContainer_+[\w-]+$/.test(c))
+        && Object.values(v).some(c => typeof c === "string" && /^gummyLetter_+[\w-]+$/.test(c)),
+    { $code: ['"innerContainer_', '"gummyLetter_'], $label: "display name styles CSS module" },
 );
 
 function buildCss(classes: Record<string, unknown>, onHover: boolean) {
-    const cls = (name: string) => Object.values(classes).find((c): c is string => typeof c === "string" && new RegExp(`^${name}_+[\\da-f]+$`).test(c));
+    const cls = (name: string) => Object.values(classes).find((c): c is string => typeof c === "string" && new RegExp(`^${name}_+[\\w-]+$`).test(c));
     const animated = cls("animated"), inner = cls("innerContainer");
     if (!animated || !inner) return "";
     const scope = `.${animated}${onHover ? ":not(:hover)" : ""} .${inner}`;

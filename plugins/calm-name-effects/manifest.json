@@ -2,7 +2,7 @@
     "id": "calm-name-effects",
     "name": "Calm Name Effects",
     "description": "Halves the work of opening a chat. Nitro name styles like Prism, Neon and Gummy replay their animation every time a chat opens, on every message at once, which keeps Discord busy for seconds. Names keep their colours and effects, and animate while you hover them.",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "authors": [
         "Evi"
     ],
@@ -10,6 +10,12 @@
         "performance"
     ],
     "changelog": [
+        {
+            "version": "1.1.1",
+            "notes": [
+                "Works again after Discord's update: name effects hold still until you point at them."
+            ]
+        },
         {
             "version": "1.1.0",
             "notes": [
@@ -31,6 +37,9 @@
             "name": "Ruhige Namenseffekte",
             "description": "Halbiert den Aufwand beim Öffnen eines Chats. Nitro-Namensstile wie Prism, Neon und Gummy spielen ihre Animation bei jedem Öffnen eines Chats neu ab, und zwar bei allen Nachrichten gleichzeitig, wodurch Discord sekundenlang ausgelastet ist. Namen behalten ihre Farben und Effekte und animieren sich, solange du mit der Maus darüber fährst.",
             "changelog": {
+                "1.1.1": [
+                    "Funktioniert nach Discords Update wieder: Namenseffekte bleiben still, bis du auf sie zeigst."
+                ],
                 "1.1.0": [
                     "Folgt der Sprache von Discord: Deutsch, Spanisch, Französisch, Japanisch, Polnisch, Portugiesisch, Russisch und Türkisch, dazu Englisch."
                 ],
@@ -43,6 +52,9 @@
             "name": "Efectos de nombre tranquilos",
             "description": "Reduce a la mitad el trabajo de abrir un chat. Los estilos de nombre de Nitro como Prism, Neon y Gummy repiten su animación cada vez que se abre un chat, en todos los mensajes a la vez, y eso mantiene a Discord ocupado durante segundos. Los nombres conservan sus colores y efectos, y se animan mientras pasas el cursor por encima.",
             "changelog": {
+                "1.1.1": [
+                    "Vuelve a funcionar tras la actualización de Discord: los efectos de nombre se quedan quietos hasta que pasas el puntero por encima."
+                ],
                 "1.1.0": [
                     "Sigue el idioma de Discord: alemán, español, francés, japonés, polaco, portugués, ruso y turco, además de inglés."
                 ],
@@ -55,6 +67,9 @@
             "name": "Effets de pseudo apaisés",
             "description": "Divise par deux le travail à l'ouverture d'une conversation. Les styles de pseudo Nitro comme Prism, Neon et Gummy rejouent leur animation à chaque ouverture d'une conversation, sur tous les messages à la fois, ce qui occupe Discord pendant plusieurs secondes. Les pseudos gardent leurs couleurs et leurs effets, et s'animent quand vous les survolez.",
             "changelog": {
+                "1.1.1": [
+                    "Fonctionne de nouveau après la mise à jour de Discord : les effets de nom restent immobiles jusqu’à ce que tu les survoles."
+                ],
                 "1.1.0": [
                     "Suit la langue de Discord : allemand, espagnol, français, japonais, polonais, portugais, russe et turc, en plus de l'anglais."
                 ],
@@ -67,6 +82,9 @@
             "name": "ネームエフェクト静音化",
             "description": "チャットを開くときの負荷を半分にします。Prism、Neon、GummyなどのNitro名前スタイルは、チャットを開くたびに全メッセージで一斉にアニメーションを再生し、Discordを数秒間忙しくさせます。名前の色とエフェクトはそのままで、カーソルを重ねている間だけアニメーションします。",
             "changelog": {
+                "1.1.1": [
+                    "Discordのアップデート後も動くようになりました。名前のエフェクトはポインターを合わせるまで止まったままです。"
+                ],
                 "1.1.0": [
                     "Discordの言語設定に合わせて表示されます。英語のほか、ドイツ語、スペイン語、フランス語、日本語、ポーランド語、ポルトガル語、ロシア語、トルコ語に対応しています。"
                 ],
@@ -79,6 +97,9 @@
             "name": "Spokojne efekty nazw",
             "description": "Zmniejsza o połowę pracę przy otwieraniu czatu. Style nazw z Nitro, takie jak Prism, Neon i Gummy, odtwarzają animację przy każdym otwarciu czatu, na wszystkich wiadomościach naraz, przez co Discord jest zajęty przez kilka sekund. Nazwy zachowują kolory i efekty, a animują się, gdy najedziesz na nie kursorem.",
             "changelog": {
+                "1.1.1": [
+                    "Znów działa po aktualizacji Discorda: efekty nazw stoją w miejscu, dopóki nie najedziesz na nie kursorem."
+                ],
                 "1.1.0": [
                     "Mówi w języku Discorda: po niemiecku, hiszpańsku, francusku, japońsku, polsku, portugalsku, rosyjsku i turecku, oprócz angielskiego."
                 ],
@@ -91,6 +112,9 @@
             "name": "Efeitos de nome calmos",
             "description": "Reduz pela metade o trabalho de abrir um chat. Os estilos de nome do Nitro, como Prism, Neon e Gummy, repetem a animação toda vez que um chat é aberto, em todas as mensagens ao mesmo tempo, e isso deixa o Discord ocupado por segundos. Os nomes mantêm as cores e os efeitos, e só se animam quando você passa o mouse por cima.",
             "changelog": {
+                "1.1.1": [
+                    "Volta a funcionar depois da atualização do Discord: os efeitos de nome ficam parados até você passar o cursor sobre eles."
+                ],
                 "1.1.0": [
                     "Segue o idioma do Discord: alemão, espanhol, francês, japonês, polonês, português, russo e turco, além do inglês."
                 ],
@@ -103,6 +127,9 @@
             "name": "Спокойные эффекты имён",
             "description": "Вдвое сокращает нагрузку при открытии чата. Стили имён Nitro, такие как Prism, Neon и Gummy, заново проигрывают анимацию при каждом открытии чата, сразу на всех сообщениях, и Discord несколько секунд занят. Имена сохраняют цвета и эффекты и анимируются, пока вы наводите на них курсор.",
             "changelog": {
+                "1.1.1": [
+                    "Снова работает после обновления Discord: эффекты имён не двигаются, пока вы не наведёте на них указатель."
+                ],
                 "1.1.0": [
                     "Говорит на языке Discord: немецком, испанском, французском, японском, польском, португальском, русском и турецком, а также на английском."
                 ],
@@ -115,6 +142,9 @@
             "name": "Sakin İsim Efektleri",
             "description": "Bir sohbeti açmanın yükünü yarıya indirir. Prism, Neon ve Gummy gibi Nitro isim stilleri, sohbet her açıldığında animasyonlarını tüm mesajlarda aynı anda baştan oynatır ve bu Discord'u saniyelerce meşgul eder. İsimler renklerini ve efektlerini korur, üzerlerine geldiğinde animasyon oynar.",
             "changelog": {
+                "1.1.1": [
+                    "Discord’un güncellemesinden sonra yine çalışıyor: isim efektleri, imleci üzerlerine getirene kadar duruyor."
+                ],
                 "1.1.0": [
                     "Discord'un dilini kullanır: İngilizcenin yanı sıra Almanca, İspanyolca, Fransızca, Japonca, Lehçe, Portekizce, Rusça ve Türkçe."
                 ],

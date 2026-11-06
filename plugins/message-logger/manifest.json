@@ -2,7 +2,7 @@
     "id": "message-logger",
     "name": "Message Logger",
     "description": "Deleted messages stay in the chat, marked as deleted, with their pictures, videos and files, and edited messages show what they said before. Kept in memory only: nothing is saved, and it's all gone when Discord restarts.",
-    "version": "1.3.4",
+    "version": "1.3.5",
     "authors": [
         "Evi"
     ],
@@ -17,6 +17,12 @@
         "readMessages": true
     },
     "changelog": [
+        {
+            "version": "1.3.5",
+            "notes": [
+                "Old versions of edited messages show with Discord's formatting again after Discord's update."
+            ]
+        },
         {
             "version": "1.3.4",
             "notes": [
@@ -85,6 +91,9 @@
             "name": "Message Logger",
             "description": "Gelöschte Nachrichten bleiben im Chat, als gelöscht markiert, samt Bildern, Videos und Dateien, und bearbeitete Nachrichten zeigen, was vorher dort stand. Nur im Arbeitsspeicher gehalten: Nichts wird gespeichert, und beim Neustart von Discord ist alles weg.",
             "changelog": {
+                "1.3.5": [
+                    "Alte Versionen bearbeiteter Nachrichten werden nach Discords Update wieder mit Discords Formatierung angezeigt."
+                ],
                 "1.3.4": [
                     "Alte Versionen bearbeiteter Nachrichten werden nach Discords neuestem Update wieder mit Formatierung, Erwähnungen und Emojis angezeigt."
                 ],
@@ -122,6 +131,9 @@
             "name": "Registro de mensajes",
             "description": "Los mensajes eliminados se quedan en el chat, marcados como eliminados, con sus imágenes, vídeos y archivos, y los mensajes editados muestran lo que decían antes. Solo se guardan en la memoria: no se almacena nada y todo desaparece al reiniciar Discord.",
             "changelog": {
+                "1.3.5": [
+                    "Las versiones anteriores de los mensajes editados vuelven a mostrarse con el formato de Discord tras su actualización."
+                ],
                 "1.3.4": [
                     "Las versiones anteriores de los mensajes editados vuelven a mostrarse con su formato, menciones y emojis tras la última actualización de Discord."
                 ],
@@ -159,6 +171,9 @@
             "name": "Journal des messages",
             "description": "Les messages supprimés restent dans la discussion, marqués comme supprimés, avec leurs images, vidéos et fichiers, et les messages modifiés affichent ce qu'ils disaient avant. Conservé uniquement en mémoire : rien n'est enregistré, et tout disparaît au redémarrage de Discord.",
             "changelog": {
+                "1.3.5": [
+                    "Les anciennes versions des messages modifiés s’affichent de nouveau avec la mise en forme de Discord après sa mise à jour."
+                ],
                 "1.3.4": [
                     "Les anciennes versions des messages modifiés s'affichent de nouveau avec leur mise en forme, leurs mentions et leurs emojis après la dernière mise à jour de Discord."
                 ],
@@ -196,6 +211,9 @@
             "name": "メッセージログ",
             "description": "削除されたメッセージは、画像・動画・ファイルとともに「削除済み」の表示でチャットに残り、編集されたメッセージは編集前の内容を表示します。メモリ上にのみ保持され、何も保存されません。Discord を再起動するとすべて消えます。",
             "changelog": {
+                "1.3.5": [
+                    "Discordのアップデート後も、編集されたメッセージの以前のバージョンがDiscordの書式で表示されるようになりました。"
+                ],
                 "1.3.4": [
                     "Discordの最新アップデート後も、編集されたメッセージの以前の内容が書式・メンション・絵文字付きで再び表示されます。"
                 ],
@@ -233,6 +251,9 @@
             "name": "Dziennik wiadomości",
             "description": "Usunięte wiadomości zostają na czacie, oznaczone jako usunięte, razem ze zdjęciami, filmami i plikami, a edytowane wiadomości pokazują, co było w nich wcześniej. Trzymane tylko w pamięci: nic nie jest zapisywane, a po ponownym uruchomieniu Discorda wszystko znika.",
             "changelog": {
+                "1.3.5": [
+                    "Stare wersje edytowanych wiadomości znów wyświetlają się z formatowaniem Discorda po jego aktualizacji."
+                ],
                 "1.3.4": [
                     "Poprzednie wersje edytowanych wiadomości znowu wyświetlają się z formatowaniem, wzmiankami i emoji po najnowszej aktualizacji Discorda."
                 ],
@@ -270,6 +291,9 @@
             "name": "Registro de Mensagens",
             "description": "As mensagens excluídas continuam no chat, marcadas como excluídas, com suas imagens, vídeos e arquivos, e as mensagens editadas mostram o que diziam antes. Mantido apenas na memória: nada é salvo, e tudo some quando o Discord é reiniciado.",
             "changelog": {
+                "1.3.5": [
+                    "Versões antigas de mensagens editadas voltam a aparecer com a formatação do Discord depois da atualização dele."
+                ],
                 "1.3.4": [
                     "As versões antigas de mensagens editadas voltam a aparecer com formatação, menções e emojis depois da última atualização do Discord."
                 ],
@@ -307,6 +331,9 @@
             "name": "Журнал сообщений",
             "description": "Удалённые сообщения остаются в чате с пометкой об удалении, вместе с картинками, видео и файлами, а изменённые сообщения показывают, что в них было раньше. Хранится только в памяти: ничего не сохраняется, а после перезапуска Discord всё исчезает.",
             "changelog": {
+                "1.3.5": [
+                    "Старые версии изменённых сообщений снова показываются с форматированием Discord после его обновления."
+                ],
                 "1.3.4": [
                     "Старые версии изменённых сообщений снова показываются с форматированием, упоминаниями и эмодзи после последнего обновления Discord."
                 ],
@@ -344,6 +371,9 @@
             "name": "Mesaj Günlüğü",
             "description": "Silinen mesajlar; resimleri, videoları ve dosyalarıyla birlikte silindi olarak işaretlenmiş şekilde sohbette kalır, düzenlenen mesajlar ise daha önce ne yazdığını gösterir. Yalnızca bellekte tutulur: hiçbir şey kaydedilmez ve Discord yeniden başlatıldığında her şey silinir.",
             "changelog": {
+                "1.3.5": [
+                    "Düzenlenen mesajların eski sürümleri, Discord’un güncellemesinden sonra yine Discord’un biçimlendirmesiyle görünüyor."
+                ],
                 "1.3.4": [
                     "Düzenlenen mesajların eski hâlleri, Discord'un son güncellemesinden sonra yeniden biçimlendirme, bahsetmeler ve emojilerle görünüyor."
                 ],

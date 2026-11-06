@@ -58,13 +58,14 @@ export const PATCHES = {
     },
     /**
      * A channel in the server's channel list: text, voice, stage and announcement channels all use it.
-     *     (0,s.jsx)(Z,{textVariant:"text-md/medium",channel:l,name:null!=a?a:eu})}),t.Children.count(F)>0?(0,s.jsx)("div",{...children:F}):null
-     * The dots go between the name and the badges and buttons after it.
+     *     (0,s.jsx)(J,{textVariant:w,channel:l,name:null!=n?n:eA})}),i.Children.count(B)>0?(0,s.jsx)("div",{...children:B}):null
+     * Before 2026-11-06 the variant was the literal "text-md/medium". The dots go between the name
+     * and the badges and buttons after it.
      */
     channel: {
-        find: 'textVariant:"text-md/medium",channel:',
+        find: /textVariant:(?:"text-md\/medium"|[\w$]+),channel:[\w$]+,name:null!=/,
         replace: {
-            match: /(?<=\(\i,\{textVariant:"text-md\/medium",channel:(\i),name:null!=\i\?\i:\i\}\)\}\),)(?=\i\.Children\.count\()/,
+            match: /(?<=\(\i,\{textVariant:(?:"text-md\/medium"|\i),channel:(\i),name:null!=\i\?\i:\i\}\)\}\),)(?=\i\.Children\.count\()/,
             with: "$self?.renderIndicator?.($1,\"channel\"),",
         },
     },

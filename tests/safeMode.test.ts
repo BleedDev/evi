@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import { isDiscordAppUrl, isOverlayUrl, isOverlayWindow, OOP_OVERLAY_WINDOW } from "../src/shared/appHosts";
 import { DEFAULT_SETTINGS, EviSettings, PluginManifest, RecentChange } from "../src/shared/ipc";
-import { addChange, diffSettings, MAX_CHANGES, parseState, pickSuspect, startupMode, StartupState, undoStart } from "../src/shared/safeMode";
+import { addChange, diffSettings, discordUpdatedSince, MAX_CHANGES, parseState, pickSuspect, startupMode, StartupState, undoStart } from "../src/shared/safeMode";
 
 const settings = (patch: Partial<EviSettings> = {}): EviSettings => ({ ...structuredClone(DEFAULT_SETTINGS), ...patch });
 const change = (c: Partial<RecentChange>): RecentChange => ({ kind: "plugin", id: "a", action: "enabled", at: 1, ...c });
@@ -99,6 +99,12 @@ describe("reading safe-mode.json", () => {
         const crash = { at: 5, reason: "crashed", suspect: { plugin: "a", why: "busiest", site: { kind: "hook", name: "x", ms: 200 } } };
         expect(parseState({ pendingStarts: 0, changes: [], crash }).crash).toEqual(crash as any);
     });
+
+    test("the last good Discord build comes through, a damaged one is dropped", () => {
+        expect(parseState({ pendingStarts: 0, changes: [], goodBuild: "a1b2c3" }).goodBuild).toBe("a1b2c3");
+        expect(parseState({ pendingStarts: 0, changes: [], goodBuild: "<script>" }).goodBuild).toBeUndefined();
+        expect(parseState({ pendingStarts: 0, changes: [], goodBuild: 7 }).goodBuild).toBeUndefined();
+    });
 });
 
 test("Discord's in-game overlay is told apart from its window", () => {
@@ -123,4 +129,12 @@ test("with safe mode turned off in settings, crashes don't turn it on; --evi-saf
     expect(startupMode(crashed, true, false)).toBe("safe");
     expect(startupMode(crashed, false, true)).toBe("safe");
     expect(startupMode({ pendingStarts: 99, changes: [] }, false, false)).toBe("vanilla");
+});
+
+test("a Discord update since the last good start is the lead, only when both builds are known", () => {
+    expect(discordUpdatedSince("old", "new")).toBe(true);
+    expect(discordUpdatedSince("same", "same")).toBe(false);
+    // Never started fine on this Evi yet, or Discord doesn't say its build: no lead either way
+    expect(discordUpdatedSince(undefined, "new")).toBe(false);
+    expect(discordUpdatedSince("old", "unknown")).toBe(false);
 });

@@ -452,8 +452,8 @@ export function Status({ tone, children, quiet }: {
 }
 
 /** A small label next to a title, styled like Discord's badges */
-export function Badge({ children, tone }: { children: ReactNode; tone?: "warning"; }) {
-    return <span className="dl-badge" data-tone={tone}>{children}</span>;
+export function Badge({ children, tone, title }: { children: ReactNode; tone?: "warning"; title?: string; }) {
+    return <span className="dl-badge" data-tone={tone} title={title}>{children}</span>;
 }
 
 /** Discord's inline notice with an optional action; Evi's banner when it isn't available */

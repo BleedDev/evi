@@ -52,6 +52,19 @@ export interface PatchRecord {
     /** Modules this patch was applied to */
     modules: string[];
     errors: string[];
+    /**
+     * Replacements that matched nothing only because another plugin's patch changed that code first:
+     * each one is also in `errors`. Missing until a patch first fails.
+     */
+    conflicts?: PatchConflict[];
+}
+
+/** A replacement that fits Discord's code, but not after another plugin's patch changed it */
+export interface PatchConflict {
+    /** The plugin whose patch changed it first ("evi" for Evi's own) */
+    plugin: string;
+    module: string;
+    replacement: number;
 }
 
 const logger = new Logger("SourcePatcher", "#f7a072");
@@ -187,6 +200,7 @@ export function getPatchRecords(plugin?: string) {
 interface ModuleOutcome {
     state?: PatchState;
     errors: string[];
+    conflicts?: PatchConflict[];
 }
 const outcomes = new WeakMap<PatchRecord, Map<string, ModuleOutcome>>();
 
@@ -206,6 +220,29 @@ function settle(record: PatchRecord, moduleId: string, outcome: ModuleOutcome | 
     const states = [...byModule.values()].flatMap(o => o.state ?? []);
     if (states.length) record.state = states.every(s => s === "applied") ? "applied" : states.every(s => s === "failed") ? "failed" : "partial";
     record.errors = [...byModule.values()].flatMap(o => o.errors);
+    const conflicts = [...byModule.values()].flatMap(o => o.conflicts ?? []);
+    if (conflicts.length || record.conflicts) record.conflicts = conflicts;
+}
+
+/** Whether a replacement's match finds anything in `code` */
+function matchIn(code: string, match: string | RegExp) {
+    if (typeof match === "string") return code.includes(match);
+    match.lastIndex = 0;
+    const found = match.test(code);
+    match.lastIndex = 0;
+    return found;
+}
+
+/**
+ * Which other plugin's patch, earlier on this module, took away what a failed replacement looks for:
+ * the first one whose code before had it and after didn't. Only asked once a replacement failed.
+ */
+function conflictWith(plugin: string, match: string | RegExp, earlier: Step[]) {
+    const canonical = canonicalizeMatch(match);
+    for (const step of earlier) {
+        if (step.record.plugin === plugin || step.skipped || step.next === step.before) continue;
+        if (matchIn(step.before, canonical) && !matchIn(step.next, canonical)) return step.record.plugin;
+    }
 }
 
 interface Step {
@@ -218,14 +255,17 @@ interface Step {
     replacements: number;
     failed: number;
     errors: string[];
+    conflicts: PatchConflict[];
     /** A broad optional patch that turned out to have nothing to do here */
     skipped?: boolean;
 }
 
-function runReplacements(step: Step, moduleId: string) {
+/** `earlier`: the patches that ran on this module before this one, to name one that got in its way */
+function runReplacements(step: Step, moduleId: string, earlier: Step[]) {
     const { record: { patch, plugin }, before } = step;
     const replacements = Array.isArray(patch.replace) ? patch.replace : [patch.replace];
     const errors: string[] = [];
+    const conflicts: PatchConflict[] = [];
     let next = before;
     let failed = 0;
 
@@ -238,7 +278,11 @@ function runReplacements(step: Step, moduleId: string) {
         }
         if (next === prev) {
             failed++;
-            errors.push(`module ${moduleId}, replacement ${i} matched nothing: ${String(r.match)}`);
+            const by = conflictWith(plugin, r.match, earlier);
+            if (by) {
+                conflicts.push({ plugin: by, module: moduleId, replacement: i });
+                errors.push(`module ${moduleId}, replacement ${i} conflicts with ${by}, whose patch changed this module first: ${String(r.match)}`);
+            } else errors.push(`module ${moduleId}, replacement ${i} matched nothing: ${String(r.match)}`);
         }
     });
 
@@ -248,6 +292,7 @@ function runReplacements(step: Step, moduleId: string) {
     step.replacements = replacements.length;
     step.failed = failed;
     step.errors = errors;
+    step.conflicts = conflicts;
 }
 
 /**
@@ -295,7 +340,7 @@ export function applySourcePatches(
         }
 
         const step = { record, appliedHere, before: code } as Step;
-        runReplacements(step, moduleId);
+        runReplacements(step, moduleId, steps);
         steps.push(step);
         if (step.skipped) continue;
         if (!appliedHere) record.modules.push(moduleId);
@@ -309,12 +354,12 @@ export function applySourcePatches(
     if (compiled && !compiled.ok) {
         compiled = undefined;
         code = originalCode!;
-        for (const step of steps) {
+        for (const [i, step] of steps.entries()) {
             if (step.before !== code) {
                 // An earlier patch was reverted: this one applies to different code now
                 const { skipped } = step;
                 step.before = code;
-                runReplacements(step, moduleId);
+                runReplacements(step, moduleId, steps.slice(0, i));
                 const { modules } = step.record;
                 if (step.skipped && !skipped && !step.appliedHere) modules.splice(modules.indexOf(moduleId), 1);
                 if (!step.skipped && skipped && !step.appliedHere) modules.push(moduleId);
@@ -332,14 +377,14 @@ export function applySourcePatches(
         }
     }
 
-    for (const { record, before, next, replacements, failed, errors, skipped } of steps) {
+    for (const { record, before, next, replacements, failed, errors, conflicts, skipped } of steps) {
         if (skipped) {
             settle(record, moduleId, undefined);
             continue;
         }
         if (next !== before) patchedBy.push(record.plugin);
         const state: PatchState = failed === 0 ? "applied" : failed < replacements && !record.patch.group ? "partial" : "failed";
-        settle(record, moduleId, { state, errors });
+        settle(record, moduleId, { state, errors, ...(conflicts.length && { conflicts }) });
         if (state !== "applied" && !rerun) {
             logger.warn(`Patch ${record.index} of ${record.plugin} ${state} on module ${moduleId}`, errors);
         }

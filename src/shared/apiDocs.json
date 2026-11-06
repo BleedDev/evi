@@ -92,7 +92,7 @@
     {
         "name": "PatchRecord",
         "kind": "interface",
-        "signature": "interface PatchRecord {\n    plugin: string;\n    index: number;\n    patch: SourcePatch;\n    state: PatchState;\n    modules: string[];\n    errors: string[];\n}",
+        "signature": "interface PatchRecord {\n    plugin: string;\n    index: number;\n    patch: SourcePatch;\n    state: PatchState;\n    modules: string[];\n    errors: string[];\n    conflicts?: PatchConflict[];\n}",
         "doc": ""
     },
     {
@@ -533,7 +533,7 @@
     {
         "name": "WebpackRequire",
         "kind": "interface",
-        "signature": "interface WebpackRequire {\n    (id: PropertyKey): any;\n    m: Record<PropertyKey, ModuleFactory>;\n    c: Record<PropertyKey, Module>;\n    d(exports: object, definition: Record<string, () => unknown>): void;\n    e(chunkId: PropertyKey): Promise<unknown>;\n    o(object: object, key: PropertyKey): boolean;\n    p: string;\n}",
+        "signature": "interface WebpackRequire {\n    (id: PropertyKey): any;\n    m: Record<PropertyKey, ModuleFactory>;\n    c: Record<PropertyKey, Module>;\n    d(exports: object, getters?: Record<string, () => unknown>, values?: Record<string, unknown>): void;\n    e(chunkId: PropertyKey): Promise<unknown>;\n    o(object: object, key: PropertyKey): boolean;\n    p: string;\n}",
         "doc": ""
     },
     {

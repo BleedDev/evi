@@ -1,6 +1,7 @@
 import type { AuthorProfile } from "@shared/authors";
+import { clashingWith, PluginClash } from "@shared/clashes";
 import { permissionGrowth, PermissionGrowth, readPermissions } from "@shared/declaredPermissions";
-import type { PluginHealth } from "@shared/health";
+import type { PluginHealth, PluginSunset } from "@shared/health";
 import type { PluginManifest } from "@shared/ipc";
 import { localizePlugin } from "@shared/pluginLocales";
 import { PulledPlugin, pullFor } from "@shared/pulls";
@@ -9,6 +10,7 @@ import { starKey, StarsSnapshot } from "@shared/stars";
 import { betaOf, InstalledPlugin, InstalledTheme, RegistryEntry, storeAction, StoreProgress, StoreResult, ThemeEntry } from "@shared/store";
 import type { StoreHome } from "@shared/storeHome";
 
+import { versionsYouHave } from "./clashWarnings";
 import { I18n, t } from "./i18n";
 import { Logger } from "./logger";
 import { Native } from "./native";
@@ -45,6 +47,10 @@ export interface StoreState {
     stars?: StarsSnapshot;
     /** Store plugins evi.rest knows are broken right now, by id. Missing until loaded. */
     health?: Record<string, PluginHealth>;
+    /** Store plugins their authors plan to retire ("Deprecated soon"), by id. Missing until loaded. */
+    sunsets?: Record<string, PluginSunset>;
+    /** Store plugins that don't work together on Discord's current build (shared/clashes.ts). Missing until loaded. */
+    clashes?: PluginClash[];
     /** Author profiles on evi.rest, by slug. Missing until loaded. */
     authors?: Record<string, AuthorProfile>;
     /** Where author pages are, e.g. https://evi.rest */
@@ -233,7 +239,7 @@ export const Store = {
             Native.getAuthors?.().catch(() => undefined),
         ]);
         if (health?.ok) {
-            set({ health: health.plugins });
+            set({ health: health.plugins, sunsets: health.sunset ?? {}, clashes: health.clashes ?? [] });
             // Main tells every page when pulls change; this answer may simply be here first
             if (health.pulled) void PluginManager.setPulls(health.pulled);
         }
@@ -358,6 +364,31 @@ export const Store = {
     },
 
     healthOf: (id: string): PluginHealth | undefined => state.health?.[id],
+
+    // Own keys only: sunsets["constructor"] is Object's, not a plugin's
+    sunsetOf: (id: string): PluginSunset | undefined => state.sunsets && Object.hasOwn(state.sunsets, id) ? state.sunsets[id] : undefined,
+
+    /**
+     * Plugins you have that don't work together with plugin `id`, as evi.rest's clash check found on
+     * Discord's current build: ids, each once. At the store's stable version (what installing gets you),
+     * or with `installed` the version you have. Dev builds are never in it, on either side.
+     */
+    clashesFor(id: string, installed = false): string[] {
+        if (!state.clashes?.length || PluginManager.get(id)?.source === "dev") return [];
+        const version = installed ? installedPlugin(id)?.version : state.plugins.find(p => p.id === id)?.version;
+        if (!version) return [];
+        const have = [
+            ...PluginManager.getSnapshot().map(p => ({ id: p.manifest.id, version: installedPlugin(p.manifest.id)?.version ?? p.manifest.version, dev: p.source === "dev" })),
+            ...Object.values(state.installed).map(p => ({ id: p.id, version: p.version })),
+        ];
+        return clashingWith(state.clashes, id, version, versionsYouHave(have, id));
+    },
+
+    /** A plugin by the name the store lists it under (in your language), else the one it loaded with */
+    pluginName(id: string) {
+        const listed = state.plugins.find(p => p.id === id);
+        return listed ? entryFor(listed).name : PluginManager.get(id)?.manifest.name ?? id;
+    },
 
     authorOf: (slug: string): AuthorProfile | undefined => state.authors?.[slug],
 

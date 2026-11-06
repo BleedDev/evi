@@ -114,7 +114,7 @@ const EviNative = {
     applyBackup: (token: string, mode: ImportMode): Promise<BackupApplyResult> => ipcRenderer.invoke(IPC.BACKUP_APPLY, token, mode),
     openPath: (target: OpenPathTarget) => ipcRenderer.invoke(IPC.OPEN_PATH, target),
     relaunch: () => ipcRenderer.invoke(IPC.RELAUNCH),
-    reportBootOk: () => ipcRenderer.send(IPC.BOOT_OK),
+    reportBootOk: (build: string) => ipcRenderer.send(IPC.BOOT_OK, build),
     exitSafeMode: () => ipcRenderer.invoke(IPC.SAFE_MODE_EXIT),
     // One-way and fire-and-forget: sent every few seconds, nothing waits on an answer
     sendCrashBreadcrumb: (breadcrumb: Breadcrumb) => ipcRenderer.send(IPC.CRASH_BREADCRUMB, breadcrumb),

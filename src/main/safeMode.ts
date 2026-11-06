@@ -16,7 +16,7 @@
 import { isOverlayUrl } from "@shared/appHosts";
 import { Breadcrumb, CrashRecord, parseBreadcrumb, pickCrashSuspect } from "@shared/crashDetective";
 import { RecentChange, SafeModeInfo, SafeModeReason } from "@shared/ipc";
-import { addChange, CRASH_LOOP_STARTS, CRASH_WINDOW_MS, EMPTY_STATE, parseState, RENDERER_CRASHES, StartupMode, startupMode, StartupState, undoStart } from "@shared/safeMode";
+import { addChange, CRASH_LOOP_STARTS, CRASH_WINDOW_MS, EMPTY_STATE, isDiscordBuild, parseState, RENDERER_CRASHES, StartupMode, startupMode, StartupState, undoStart } from "@shared/safeMode";
 import { app, WebContents } from "electron";
 import { readFileSync, renameSync, writeFileSync } from "fs";
 import { join } from "path";
@@ -94,7 +94,7 @@ export const SafeMode = {
 
     /** For the renderer's boot data */
     get info(): SafeModeInfo | undefined {
-        return info && { ...info, changes: state.changes, crash: state.crash?.seen ? undefined : state.crash };
+        return info && { ...info, changes: state.changes, crash: state.crash?.seen ? undefined : state.crash, goodBuild: state.goodBuild };
     },
 
     /** Decides what this start is and counts it. Runs first thing in main. */
@@ -133,12 +133,17 @@ export const SafeMode = {
         return mode;
     },
 
-    /** The renderer booted and stayed up: this start was healthy */
-    bootOk() {
-        if (state.pendingStarts === 0) return;
+    /**
+     * The renderer booted and stayed up: this start was healthy. With plugins on, its Discord build is
+     * the last one known to work, so a safe mode notice can tell a Discord update from a plugin change.
+     */
+    bootOk(build?: unknown) {
+        const goodBuild = !info && isDiscordBuild(build) && build !== "unknown" ? build : state.goodBuild;
+        if (state.pendingStarts === 0 && goodBuild === state.goodBuild) return;
+        if (state.pendingStarts) console.log("[Evi] Healthy start, crash counter reset");
         state.pendingStarts = 0;
+        if (goodBuild) state.goodBuild = goodBuild;
         save();
-        console.log("[Evi] Healthy start, crash counter reset");
     },
 
     /** Forget the crash history and restart normally. The --evi-safe flag isn't passed on. */

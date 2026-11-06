@@ -97,6 +97,48 @@ export function validateHealthStatus(raw: unknown): { status: HealthStatusInput;
     return { status: { state: e.state as HealthState, message: message.trim() } };
 }
 
+/**
+ * Its author plans to retire the plugin ("Discord is adding this itself"): the store says "Deprecated
+ * soon" with their note until they take it back. Not about one version, and nothing turns off.
+ * GET /v1/health hands these out as `sunset`, next to `plugins`, which Evis before it ignore.
+ */
+export interface PluginSunset {
+    note: string;
+    /** Epoch ms */
+    since: number;
+    /** The author's name, or "Evi" for admins */
+    setBy?: string;
+}
+
+export const MAX_SUNSET_NOTE = 280;
+
+/** PUT /v1/plugins/:id/sunset { note } */
+export function validateSunset(raw: unknown): { note: string; } | { error: string; } {
+    const note = (raw as { note?: unknown; } | null)?.note;
+    const text = typeof note === "string" ? note.trim() : "";
+    if (!text) return { error: "Say why it's going away, like \"Discord now does this itself\"" };
+    if (text.length > MAX_SUNSET_NOTE || /[\0-\x08\x0e-\x1f]/.test(text)) return { error: `The note must be at most ${MAX_SUNSET_NOTE} characters` };
+    return { note: text };
+}
+
+/** GET /v1/health's `sunset`, cleaned: by plugin id. Anything malformed is left out. */
+export function parseSunsets(raw: unknown): Record<string, PluginSunset> {
+    const out: Record<string, PluginSunset> = {};
+    const sunset = (raw as { sunset?: unknown; } | null)?.sunset;
+    if (!sunset || typeof sunset !== "object" || Array.isArray(sunset)) return out;
+    for (const [id, value] of Object.entries(sunset).slice(0, 5000)) {
+        if (!isPluginId(id) || !value || typeof value !== "object") continue;
+        const e = value as Record<string, unknown>;
+        if (typeof e.note !== "string" || !e.note || typeof e.since !== "number") continue;
+        out[id] = {
+            note: e.note.slice(0, MAX_SUNSET_NOTE).replace(/[\0-\x08\x0e-\x1f]/g, ""),
+            since: e.since,
+            ...(typeof e.setBy === "string" && { setBy: e.setBy.slice(0, 40) }),
+        };
+    }
+    return out;
+}
+
 const CONTROL = /[\0-\x1f\x7f]/;
 /** On one line, and short enough to send */
 const line = (text: string) => {

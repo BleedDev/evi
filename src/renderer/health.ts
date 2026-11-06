@@ -6,7 +6,8 @@
  * Only store plugins, and only the plugin, its version, Discord's build, the kind of problem, what
  * failed (which patches and why, which lookups, or the start error with paths and ids blanked) so its
  * author knows what to fix, and the revision of Evi's hotfix when the plugin runs with one
- * (shared/hotfixes.ts). At most once a day per plugin, version and build. Off with "Help spot broken plugins".
+ * (shared/hotfixes.ts). A patch that only clashes with another plugin's patch on this install isn't reported:
+ * Discord didn't break it. At most once a day per plugin, version and build. Off with "Help spot broken plugins".
  */
 import { type HealthKind, type HealthReportInput, lookupDetail, MAX_HEALTH_DETAILS, patchDetail, scrubError } from "@shared/health";
 import { hotfixTag, inHotfixRange } from "@shared/hotfixes";
@@ -16,7 +17,7 @@ import { isVersion } from "@shared/store";
 import { discordBuild } from "./crashReport";
 import { Logger } from "./logger";
 import { Native } from "./native";
-import { hasPatchProblems } from "./patching/diagnose";
+import { hasPatchProblems, isConflictOnly } from "./patching/diagnose";
 import { getPatchRecords } from "./patching/source";
 import { diagnoseLookups, LOOKUP_GRACE_MS } from "./plugins/lookups";
 import { PluginManager, PluginState } from "./plugins/manager";
@@ -71,7 +72,13 @@ function problemOf(state: PluginState): Problem | undefined {
     if (!state.running) return;
     if (hasPatchProblems(id)) {
         const failed = getPatchRecords(id).filter(r => r.state === "failed" || r.state === "partial");
-        return { kind: "patches", detail: failed.slice(0, MAX_HEALTH_DETAILS).map(r => patchDetail(r.index, r.patch.find, r.errors)) };
+        // Patches that only clash with another plugin on this install aren't broken on Discord: reported
+        // alone they would mark the plugin broken for everyone. With a real failure they're in the detail
+        // too ("conflicts with <plugin>"), so its author sees both, real ones first
+        if (failed.some(r => !isConflictOnly(r))) {
+            const ordered = [...failed.filter(r => !isConflictOnly(r)), ...failed.filter(isConflictOnly)];
+            return { kind: "patches", detail: ordered.slice(0, MAX_HEALTH_DETAILS).map(r => patchDetail(r.index, r.patch.find, r.errors)) };
+        }
     }
     // Only lookups known to be broken. A missing one may just not be loaded yet: Discord fetches some code
     // only when it's first used (search's actions, for Search Highlight), and every install that hadn't

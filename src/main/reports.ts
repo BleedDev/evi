@@ -20,8 +20,9 @@
  * a handful of plugin reports an hour, so no plugin can use every install to flood evi.rest.
  */
 import { parseAuthors } from "@shared/authors";
+import { parseClashes } from "@shared/clashes";
 import { validateCrashReport } from "@shared/crashReports";
-import { parseHealth, validateHealthReport } from "@shared/health";
+import { parseHealth, parseSunsets, validateHealthReport } from "@shared/health";
 import { Hotfix, parseHotfixes } from "@shared/hotfixes";
 import { AuthorsResult, CrashReportResult, HealthReportResult, HealthResult, IPC, PluginReportResult } from "@shared/ipc";
 import { validatePluginReport } from "@shared/pluginReports";
@@ -100,7 +101,7 @@ export function authorBanners(): Set<string> {
     return new Set(Object.values(authors.saved()).flatMap(a => a.banner ? [a.banner] : []));
 }
 
-const health = cachedGet("health.json", "/health", json => ({ plugins: parseHealth(json), pulled: parsePulled(json) }));
+const health = cachedGet("health.json", "/health", json => ({ plugins: parseHealth(json), pulled: parsePulled(json), sunset: parseSunsets(json), clashes: parseClashes((json as { clashes?: unknown; } | null)?.clashes) }));
 
 async function getAuthors(): Promise<AuthorsResult> {
     const result = await authors();

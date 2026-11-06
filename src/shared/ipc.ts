@@ -1,7 +1,8 @@
 import type { AuthorProfile } from "./authors";
 import type { CrashRecord } from "./crashDetective";
 import type { ImportMode, ImportPreview } from "./backup";
-import type { PluginHealth } from "./health";
+import type { PluginHealth, PluginSunset } from "./health";
+import type { PluginClash } from "./clashes";
 import type { Hotfix } from "./hotfixes";
 import type { EviNotification } from "./notifications";
 import type { PluginLocales } from "./pluginLocales";
@@ -108,7 +109,7 @@ export const IPC = {
     STORE_PROGRESS: "evi:store-progress",
     OPEN_PATH: "evi:open-path",
     RELAUNCH: "evi:relaunch",
-    /** renderer -> main: plugins started and the page stayed up, this start counts as healthy */
+    /** renderer -> main: plugins started and the page stayed up, this start counts as healthy. Carries Discord's build */
     BOOT_OK: "evi:boot-ok",
     /** leave safe mode: forget the crash history and restart Discord normally */
     SAFE_MODE_EXIT: "evi:safe-mode-exit",
@@ -400,6 +401,8 @@ export interface SafeModeInfo {
     changes: RecentChange[];
     /** The crash that led here, if Crash Detective has a record the user hasn't seen */
     crash?: CrashRecord;
+    /** Discord's build at the last healthy start with plugins on; missing from mains before 3.3.1 */
+    goodBuild?: string;
 }
 
 export type OpenPathTarget = "data" | "plugins" | "themes" | "quickCss";
@@ -409,7 +412,9 @@ type Failed = { ok: false; canceled?: false; error: string; } | { ok: false; can
 /** Authors by slug, and the site their pages are on (evi.rest/author?u=<slug>) */
 export type AuthorsResult = { ok: true; authors: Record<string, AuthorProfile>; site: string; } | { ok: false; error: string; };
 /** Statuses by plugin id; plugins with none are left out. `pulled`: the plugins Evi turned off everywhere. */
-export type HealthResult = { ok: true; plugins: Record<string, PluginHealth>; pulled: PulledPlugins; } | { ok: false; error: string; };
+/** `sunset`: plugins their authors plan to retire; missing from mains before it */
+/** `clashes`: store plugins that don't work together on Discord's current build (shared/clashes.ts); missing from mains before it */
+export type HealthResult = { ok: true; plugins: Record<string, PluginHealth>; pulled: PulledPlugins; sunset?: Record<string, PluginSunset>; clashes?: PluginClash[]; } | { ok: false; error: string; };
 export type PluginReportResult = { ok: true; } | { ok: false; error: string; };
 /** `author`: who the crash report went to, as evi.rest names them */
 export type CrashReportResult = { ok: true; author?: string; } | { ok: false; error: string; };

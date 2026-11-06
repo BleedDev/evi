@@ -1,6 +1,7 @@
 import type { RecentChange, SafeModeInfo } from "@shared/ipc";
 import { STABLE_MS } from "@shared/safeMode";
 
+import { discordBuild } from "./crashReport";
 import { Logger } from "./logger";
 import { Native } from "./native";
 import { Settings } from "./settings";
@@ -33,7 +34,7 @@ export const SafeMode = {
     scheduleBootOk() {
         setTimeout(() => {
             // Optional: a main process older than this renderer (dev, after Ctrl+R) doesn't have it
-            Native.reportBootOk?.();
+            Native.reportBootOk?.(discordBuild());
             reportedOk = true;
             logger.info("Healthy start reported");
         }, STABLE_MS);

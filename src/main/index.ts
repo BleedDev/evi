@@ -115,7 +115,7 @@ function registerIpc() {
 
     ipcMain.handle(IPC.RELAUNCH, () => relaunch());
 
-    ipcMain.on(IPC.BOOT_OK, () => SafeMode.bootOk());
+    ipcMain.on(IPC.BOOT_OK, (_, build: unknown) => SafeMode.bootOk(build));
     ipcMain.handle(IPC.SAFE_MODE_EXIT, () => SafeMode.exit());
     ipcMain.on(IPC.CRASH_BREADCRUMB, (e, breadcrumb: unknown) => SafeMode.breadcrumb(e.sender, breadcrumb));
     ipcMain.handle(IPC.CRASH_RECORD_GET, () => SafeMode.unseenCrash);

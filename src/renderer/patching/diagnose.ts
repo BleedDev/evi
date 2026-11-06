@@ -46,6 +46,19 @@ export function diagnosePatches(): PatchDiagnosis[] {
 }
 
 /**
+ * A patch that failed only because other plugins' patches changed the same code first: a clash
+ * between plugins on this install, not Discord changing. Every miss of it is a conflict.
+ */
+export function isConflictOnly(record: PatchRecord) {
+    return !!record.conflicts?.length && record.errors.length === record.conflicts.length;
+}
+
+/** The plugins whose patches got in the way of these, each once, in the order they were found */
+export function conflictingPlugins(records: PatchRecord[]): string[] {
+    return [...new Set(records.flatMap(r => r.conflicts?.map(c => c.plugin) ?? []))];
+}
+
+/**
  * Whether any of a plugin's patches is failed, partial or broken, as diagnosePatches would say.
  * Health checks run this in the background: applied and failed patches need no module search, and
  * a waiting one stops at the first module that matches instead of reading every module for every

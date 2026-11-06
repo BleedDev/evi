@@ -28,3 +28,5 @@ tests/serverStore.test.ts
 tests/healthReports.test.ts
 tests/bans.test.ts
 tests/pluginDrop.test.ts
+tests/autoReview.test.ts
+tests/clashes.test.ts

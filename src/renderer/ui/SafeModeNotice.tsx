@@ -4,8 +4,9 @@
  */
 import { activeSuspect } from "@shared/crashDetective";
 import type { RecentChange, SafeModeInfo } from "@shared/ipc";
-import { isStillActive, pickSuspect } from "@shared/safeMode";
+import { discordUpdatedSince, isStillActive, pickSuspect } from "@shared/safeMode";
 
+import { discordBuild } from "../crashReport";
 import { t, timeAgo as ago, useLocale } from "../i18n";
 import { PluginManager } from "../plugins/manager";
 import { SafeMode } from "../safeMode";
@@ -56,7 +57,10 @@ export function SafeModeNotice({ onDismiss }: { onDismiss?(): void; }) {
         ?? { kind: "plugin", id: crashSuspect.plugin, action: "enabled", at: info.crash!.at }
     );
     const suspect = crashChange ?? pickSuspect(info.changes, settings, manifests);
-    const others = info.changes.filter(c => c !== suspect && !(crashSuspect && c.kind === "plugin" && c.id === crashSuspect.plugin) && isStillActive(c, settings, manifests)).slice(0, 3);
+    // Discord updated since it last started fine: that, not the newest change, is the lead. Only
+    // Crash Detective catching a plugin busy in the crash beats it
+    const discordUpdated = !crashSuspect && discordUpdatedSince(info.goodBuild, discordBuild());
+    const others = info.changes.filter(c => (discordUpdated || c !== suspect) && !(crashSuspect && c.kind === "plugin" && c.id === crashSuspect.plugin) && isStillActive(c, settings, manifests)).slice(0, 3);
 
     const run = (action: () => Promise<unknown>) => async () => {
         setBusy(true);
@@ -75,8 +79,10 @@ export function SafeModeNotice({ onDismiss }: { onDismiss?(): void; }) {
                 <h2 className="dl-safe-title" id="dl-safe-title">{t("safeMode.title")}</h2>
                 {onDismiss && <IconButton icon="close" label={t("safeMode.hide")} onClick={onDismiss} />}
             </div>
-            <p className="dl-safe-text">{reasons[info.reason](info)} {t("safeMode.discordWorks")}</p>
-            {crashSuspect ? (
+            <p className="dl-safe-text">{reasons[info.reason](info)}{!discordUpdated && <> {t("safeMode.discordWorks")}</>}</p>
+            {discordUpdated ? (
+                <p className="dl-safe-text">{t("safeMode.discordUpdated")}</p>
+            ) : crashSuspect ? (
                 <p className="dl-safe-text"><SuspectLine suspect={crashSuspect} inSafeMode /></p>
             ) : suspect ? (
                 <p className="dl-safe-text">
@@ -88,7 +94,7 @@ export function SafeModeNotice({ onDismiss }: { onDismiss?(): void; }) {
             )}
             {others.length > 0 && (
                 <div className="dl-safe-text">
-                    {t("safeMode.alsoChanged")}
+                    {t(discordUpdated ? "safeMode.changedRecently" : "safeMode.alsoChanged")}
                     <ul className="dl-safe-changes">
                         {others.map(c => (
                             <li key={`${c.kind}:${c.id}:${c.action}`}>
@@ -99,12 +105,12 @@ export function SafeModeNotice({ onDismiss }: { onDismiss?(): void; }) {
                 </div>
             )}
             <div className="dl-safe-actions">
-                {suspect && (
+                {suspect && !discordUpdated && (
                     <Button variant="accent" disabled={busy} onClick={run(() => SafeMode.disableAndExit(suspect))}>
                         {t("safeMode.disableAndRestart", { name: nameOf(suspect) })}
                     </Button>
                 )}
-                <Button disabled={busy} onClick={run(() => SafeMode.exit())}>{t("safeMode.exitAndRestart")}</Button>
+                <Button variant={discordUpdated ? "accent" : undefined} disabled={busy} onClick={run(() => SafeMode.exit())}>{t("safeMode.exitAndRestart")}</Button>
             </div>
         </section>
     );

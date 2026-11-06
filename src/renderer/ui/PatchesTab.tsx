@@ -3,7 +3,7 @@ import type { EviKey } from "@shared/locales";
 
 import { CoreHotfix } from "../coreHotfix";
 import { t } from "../i18n";
-import { diagnosePatches, PatchDiagnosis, PatchHealth } from "../patching/diagnose";
+import { conflictingPlugins, diagnosePatches, isConflictOnly, PatchDiagnosis, PatchHealth } from "../patching/diagnose";
 import { diagnoseLookups, LookupDiagnosis, LookupHealth } from "../plugins/lookups";
 import { PluginManager } from "../plugins/manager";
 import { React } from "../webpack/common";
@@ -18,12 +18,18 @@ const health: Record<PatchHealth, { tone: Tone; label: EviKey; hint?: EviKey; or
     applied: { tone: "success", label: "patches.applied", order: 3 },
 };
 
+/** A plugin whose patch ran first, by its name */
+const patchOwnerName = (id: string) => id === CORE_HOTFIX_ID ? "Evi" : PluginManager.get(id)?.manifest.name ?? id;
+
 function PatchRow({ d }: { d: PatchDiagnosis; }) {
     const info = health[d.health];
     const titleId = `dl-patch-${d.plugin}-${d.index}`;
     // Registered with Evi's fix in place (shared/hotfixes.ts), so what's checked here is the fix
     const hotfix = d.plugin === CORE_HOTFIX_ID ? CoreHotfix.get() : PluginManager.get(d.plugin)?.hotfix;
     const fixed = !!hotfix?.patches.some(p => p.index === d.index);
+    // Another plugin's patch changed this code first: that says more than "couldn't change it"
+    const clashedWith = d.health === "failed" || d.health === "partial" ? conflictingPlugins([d]).map(patchOwnerName).join(", ") : "";
+    const hint = clashedWith ? t(isConflictOnly(d) ? "patches.conflictHint" : "patches.conflictPartHint", { plugins: clashedWith }) : info.hint && t(info.hint);
     return (
         <li className="dl-row" aria-labelledby={titleId}>
             <div className="dl-row-head">
@@ -34,7 +40,7 @@ function PatchRow({ d }: { d: PatchDiagnosis; }) {
                         {fixed && <Badge>{t("hotfix.label")}</Badge>}
                     </div>
                     <p className="dl-code-inline"><span className="dl-code-key">find</span>{String(d.patch.find)}</p>
-                    {info.hint && <Text tag="p" variant="text-sm/normal" color="text-subtle">{t(info.hint)}</Text>}
+                    {hint && <Text tag="p" variant="text-sm/normal" color="text-subtle">{hint}</Text>}
                     {d.modules.length > 0 && (
                         <Text tag="p" variant="text-xs/normal" color="text-muted" className="dl-mono">
                             {t("patches.modules", { count: d.modules.length, list: d.modules.join(", ") })}

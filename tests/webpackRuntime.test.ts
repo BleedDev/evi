@@ -200,3 +200,22 @@ describe("wrapped factories", () => {
         expect(app.req.m[id]).toBe(original);
     });
 });
+
+describe("export definitions", () => {
+    test("getters and, since Discord's 2026-11-06 build, plain values both become configurable exports", async () => {
+        await freshPage();
+        const app = loadRuntime("web", { cache: true });
+        const exports: any = {};
+        const fn = () => 1;
+        app.req.d(exports, { A: () => fn }, { B: 42, C: fn });
+        expect(exports).toEqual({ A: fn, B: 42, C: fn });
+        for (const key of ["A", "B", "C"]) {
+            expect(Object.getOwnPropertyDescriptor(exports, key)).toMatchObject({ enumerable: true, configurable: true });
+        }
+
+        // The old two-argument form, and an export that's already there isn't redefined
+        app.req.d(exports, { A: () => "other", D: () => "d" });
+        expect(exports.A).toBe(fn);
+        expect(exports.D).toBe("d");
+    });
+});

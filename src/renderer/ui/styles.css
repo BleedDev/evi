@@ -30,8 +30,9 @@
     --dl-bg-selected: var(--interactive-background-selected, var(--background-modifier-selected, rgb(151 151 159 / 0.2)));
     --dl-bg-input: var(--input-background-default, var(--input-background, rgb(0 0 0 / 0.12)));
     --dl-bg-code: var(--background-base-lowest, var(--background-tertiary, #121214));
-    --dl-bg-critical: var(--background-feedback-critical, rgb(209 46 56 / 0.08));
-    --dl-bg-warning: var(--background-feedback-warning, rgb(247 163 0 / 0.08));
+    /* Discord's tints are -mod- since 2026-11-06, the old names became solid colours. Older Discords only have the old names */
+    --dl-bg-critical: var(--background-feedback-mod-critical, var(--background-feedback-critical, rgb(209 46 56 / 0.08)));
+    --dl-bg-warning: var(--background-feedback-mod-warning, var(--background-feedback-warning, rgb(247 163 0 / 0.08)));
 
     --dl-border-group: var(--border-muted, rgb(151 151 159 / 0.04));
     --dl-border-divider: var(--border-subtle, rgb(151 151 159 / 0.12));
@@ -3534,6 +3535,14 @@
 }
 
 .dl-store-note > svg { color: var(--dl-text-brand); }
+.dl-store-sunset,
+.dl-store-clash {
+    border-color: color-mix(in oklab, var(--dl-text-warning) 45%, transparent);
+    background: var(--dl-bg-warning);
+}
+
+.dl-store-sunset > svg,
+.dl-store-clash > svg { color: var(--dl-text-warning); }
 
 .dl-issues {
     display: flex;
@@ -3543,6 +3552,11 @@
     padding: 0;
     list-style: none;
 }
+
+/* A status is a sentence or two from its author: it wraps at reading size instead of running off the page */
+.dl-issues li { display: flex; flex-wrap: wrap; align-items: baseline; row-gap: 4px; }
+.dl-issues .dl-status { align-items: flex-start; font-size: 14px; line-height: 20px; white-space: normal; max-inline-size: 72ch; text-wrap: pretty; }
+.dl-issues .dl-status > svg { margin-block-start: 3px; }
 
 /* ---- ratings and reviews ------------------------------------------------------------------- */
 

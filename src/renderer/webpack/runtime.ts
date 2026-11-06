@@ -33,8 +33,8 @@ export interface WebpackRequire {
     m: Record<PropertyKey, ModuleFactory>;
     /** Module cache by id */
     c: Record<PropertyKey, Module>;
-    /** Defines getter exports */
-    d(exports: object, definition: Record<string, () => unknown>): void;
+    /** Defines getter exports, and plain value exports on newer builds */
+    d(exports: object, getters?: Record<string, () => unknown>, values?: Record<string, unknown>): void;
     /** Loads a chunk */
     e(chunkId: PropertyKey): Promise<unknown>;
     o(object: object, key: PropertyKey): boolean;
@@ -158,13 +158,18 @@ function captureRequire(require: WebpackRequire) {
     if (allRuntimes.has(require)) return;
     allRuntimes.add(require);
 
-    // Exports are non-configurable getters by default. Making them configurable lets hooks replace them.
-    require.d = (exports, definition) => {
+    // Exports are non-configurable by default. Making them configurable lets hooks replace them.
+    // Since Discord's 2026-11-06 build a third argument holds exports defined as plain values, not getters
+    const define = (exports: object, definition: Record<string, unknown> | undefined, kind: "get" | "value") => {
         for (const key in definition) {
             if (require.o(definition, key) && !require.o(exports, key)) {
-                Object.defineProperty(exports, key, { enumerable: true, configurable: true, get: definition[key] });
+                Object.defineProperty(exports, key, { enumerable: true, configurable: true, [kind]: definition[key] });
             }
         }
+    };
+    require.d = (exports, getters, values) => {
+        define(exports, getters, "get");
+        define(exports, values, "value");
     };
 
     // Inline modules of the runtime file, plus chunks registered before the runtime ran.

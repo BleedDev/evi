@@ -345,6 +345,8 @@ function fakeNative(bootData: BootData) {
                 "store-quiet": { state: "broken", since: Date.now() - 3 * 3600_000, version: "1.2.0", automatic: true, reports: 12 },
                 "store-lookup": { state: "investigating", message: "Fix coming in 1.0.1", setBy: "Evi", since: Date.now() - 5 * 60_000, version: "1.0.0", automatic: false },
             },
+            // evi.rest's clash check: Message Clock's patch changes what the installed Store Lookup looks for
+            clashes: [{ by: "store-clock", byVersion: "1.0.0", breaks: "store-lookup", breaksVersion: "1.0.0", kind: "patch", module: "4821", patch: 0 }],
         }),
         sendCrashReport: async (input: unknown) => {
             (window as any).__test.crashReports.push(input);
@@ -2910,6 +2912,7 @@ check("native plugins carry a badge", storeList.rpc.includes("Native") && !store
     await page.waitForSelector('[data-store-id="store-lookup"]', { timeout: 3000 });
 }
 check("Store cards say when evi.rest knows a plugin is broken", storeList.quiet.includes("Broken since Discord’s update") && (await storeCard("store-lookup")).includes("Being looked into") && !storeList.clock.includes("Broken"), storeList.quiet);
+check("A store card says when it clashes with a plugin you have, and only that card", storeList.clock.includes("Clashes with Store Lookup") && !storeList.quiet.includes("Clashes with"), storeList.clock);
 
 // A verified author: a check next to their name, which opens their page
 const verified = await page.locator('[data-store-id="store-lookup"]').getByRole("button", { name: "Evi, verified author" });
@@ -3019,6 +3022,8 @@ await page.waitForSelector('[data-store-id="store-clock"]', { timeout: 2000 });
 await page.locator('[data-store-id="store-clock"] .dl-store-card-link').click();
 await page.waitForSelector('[data-store-detail="store-clock"] .dl-store-shot img', { timeout: 5000 });
 const detail = await page.evaluate(() => document.querySelector('[data-store-detail="store-clock"]')?.textContent ?? "");
+const clashNote = await page.evaluate(() => document.querySelector('[data-store-detail="store-clock"] .dl-store-clash')?.textContent ?? "");
+check("A plugin's page says before install which plugin you have it doesn't work together with", clashNote.includes("Doesn’t work together with Store Lookup, which you have") && clashNote.includes("Turning one off fixes it"), clashNote);
 check("Store detail page shows screenshots, access, source and changelog", ["Message Clock", "exact send time", "Runs inside Discord only", "View source", "What’s new", "12 and 24 hour clocks", "Updated"].every(t => detail.includes(t)), detail.slice(0, 300));
 await page.waitForSelector('[data-store-permissions="store-clock"] [data-capability="network"]', { timeout: 3000 }).catch(() => { });
 const storePermissions = await page.evaluate(() => document.querySelector('[data-store-permissions="store-clock"]')?.textContent ?? "");

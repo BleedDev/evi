@@ -27,6 +27,8 @@ export interface StartupState {
     changes: RecentChange[];
     /** The last time Discord's page crashed or froze, and who Crash Detective blames (shared/crashDetective.ts) */
     crash?: CrashRecord;
+    /** Discord's build at the last healthy start with plugins on */
+    goodBuild?: string;
 }
 
 export const EMPTY_STATE: StartupState = { pendingStarts: 0, changes: [] };
@@ -41,10 +43,23 @@ export function parseState(raw: unknown): StartupState {
         changes: Array.isArray(v.changes) ? v.changes : [],
     };
     if (v.forceSafe !== "crash-loop" && v.forceSafe !== "renderer-crash") delete state.forceSafe;
+    if (!isDiscordBuild(v.goodBuild)) delete state.goodBuild;
     const crash = parseCrashRecord(v.crash);
     if (crash) state.crash = crash;
     else delete state.crash;
     return state;
+}
+
+/** Discord's build id (GLOBAL_ENV.SENTRY_TAGS.buildId) */
+export const isDiscordBuild = (v: unknown): v is string => typeof v === "string" && /^[0-9a-z._-]{1,64}$/i.test(v);
+
+/**
+ * Whether Discord updated itself since it last started fine with plugins on. Then the update is the
+ * likelier reason it stopped starting: it can break Evi itself, which safe mode doesn't turn off.
+ * @param build Discord's build now, "unknown" when it doesn't say
+ */
+export function discordUpdatedSince(goodBuild: string | undefined, build: string) {
+    return !!goodBuild && isDiscordBuild(build) && build !== "unknown" && build !== goodBuild;
 }
 
 /** What this start should be, given the state left by the previous ones */

@@ -6,7 +6,7 @@
  */
 import { AuthorProfile, authorPageUrl, isOfficialListing, OFFICIAL_AUTHOR } from "@shared/authors";
 import type { DeclaredPermissions, PermissionGrowth } from "@shared/declaredPermissions";
-import { healthWarns, PluginHealth } from "@shared/health";
+import { healthWarns, PluginHealth, PluginSunset } from "@shared/health";
 import { entriesBetween } from "@shared/pluginChangelog";
 import type { PulledPlugin } from "@shared/pulls";
 import type { EviKey } from "@shared/locales";
@@ -50,6 +50,10 @@ interface Item {
     op?: StoreOp;
     /** A known problem with the version you have, or would install */
     health?: PluginHealth;
+    /** Its author plans to retire it ("Deprecated soon"), and why */
+    sunset?: PluginSunset;
+    /** Plugins you have that it doesn't work together with on Discord's current build (shared/clashes.ts), by id */
+    clashes: string[];
     /** One of Evi's own, rather than a community plugin */
     official: boolean;
     /** Evi pulled the listed version: it can't be installed */
@@ -90,6 +94,8 @@ function itemsOf(kind: StoreKind): Item[] {
                 fromStore: !!installed?.fromStore,
                 op: state.ops[entry.id],
                 health: healthWarns(health, installed?.version ?? entry.version) ? health : undefined,
+                sunset: Store.sunsetOf(entry.id),
+                clashes: Store.clashesFor(entry.id),
                 official: isOfficialListing(entry),
                 pulled: Store.pullOf(entry.id, entry.version),
                 permissions: entry.permissions,
@@ -113,6 +119,7 @@ function itemsOf(kind: StoreKind): Item[] {
             fromStore: !!installed,
             op: state.themeOps[entry.id],
             official: isOfficialListing(entry),
+            clashes: [],
             declares: true,
             install: () => Store.installTheme(entry.id),
             uninstall: () => Store.uninstallTheme(entry.id),
@@ -234,6 +241,52 @@ function HealthCallout({ health }: { health: PluginHealth; }) {
     );
 }
 
+/** Its author plans to retire it: why, who said so and since when. Nothing turns off yet, but it's worth knowing before installing. */
+function SunsetCallout({ sunset }: { sunset: PluginSunset; }) {
+    const who = sunset.setBy ? t("store.setBy", { name: sunset.setBy }) : undefined;
+    return (
+        <section className="dl-store-access dl-store-sunset" aria-label={t("store.sunset")}>
+            <Icon name="clock" size={20} />
+            <div>
+                <Text variant="text-md/semibold" color="text-strong">{t("store.sunset")}</Text>
+                <Text tag="p" variant="text-md/normal" color="text-default">{sunset.note}</Text>
+                <Text tag="p" variant="text-xs/normal" color="text-muted">{[who, ago(sunset.since)].filter(Boolean).join(" · ")}</Text>
+            </div>
+        </section>
+    );
+}
+
+/** Names for plugin ids, the way a sentence lists them */
+const nameList = (ids: string[]) => ids.map(Store.pluginName).join(t("common.listSeparator"));
+
+/**
+ * Plugins you have that it doesn't work together with: a fact from evi.rest's check of Discord's
+ * current build, worth knowing before installing. Both were reviewed, so it's calm, and installing
+ * stays one click.
+ */
+function ClashCallout({ clashes, installed }: { clashes: string[]; installed: boolean; }) {
+    const plugins = nameList(clashes);
+    return (
+        <section className="dl-store-access dl-store-clash" aria-label={t("store.clash.titleInstalled", { plugins })}>
+            <Icon name="warning" size={20} />
+            <div>
+                <Text variant="text-md/semibold" color="text-strong">{t(installed ? "store.clash.titleInstalled" : "store.clash.title", { plugins })}</Text>
+                <Text tag="p" variant="text-md/normal" color="text-default">{t(clashes.length === 1 ? "store.clash.bodyOne" : "store.clash.bodyMany")}</Text>
+            </div>
+        </section>
+    );
+}
+
+/** On a card: the one plugin it clashes with by name, or how many, with the names on hover */
+export function ClashBadge({ clashes }: { clashes: string[]; }) {
+    const title = `${t("store.clash.titleInstalled", { plugins: nameList(clashes) })}. ${t(clashes.length === 1 ? "store.clash.bodyOne" : "store.clash.bodyMany")}`;
+    return (
+        <Badge tone="warning" title={title}>
+            {clashes.length === 1 ? t("store.clash.badgeOne", { name: Store.pluginName(clashes[0]) }) : t("store.clash.badgeMany", { count: clashes.length })}
+        </Badge>
+    );
+}
+
 /** A version Evi pulled from every install: why, and since when */
 function PulledCallout({ pull, version }: { pull: PulledPlugin; version: string; }) {
     return (
@@ -315,8 +368,10 @@ function StoreCard({ item, onOpen, onAuthor, pinned }: { item: Item; onOpen(): v
             </div>
             {entry.description && <Text tag="p" variant="text-sm/normal" color="text-subtle" className="dl-store-card-desc">{entry.description}</Text>}
             {/* Categories are in the filter and on the item's page, the card keeps to what to watch out for */}
-            {(item.native || item.health || !item.official || !item.declares || item.beta || item.supportersOnly || pinned) && (
+            {(item.native || item.health || item.sunset || item.clashes.length > 0 || !item.official || !item.declares || item.beta || item.supportersOnly || pinned) && (
                 <div className="dl-store-card-tags">
+                    {item.sunset && <Badge tone="warning" title={item.sunset.note}>{t("store.sunset")}</Badge>}
+                    {item.clashes.length > 0 && <ClashBadge clashes={item.clashes} />}
                     {item.health && <HealthPill health={item.health} />}
                     {pinned && <Badge>{t("community.pinned")}</Badge>}
                     {item.beta && <Badge>{t("community.beta")}</Badge>}
@@ -966,6 +1021,9 @@ function StoreDetail({ item, onBack, onAuthor, onOpen }: { item: Item; onBack():
                 </div>
                 <div className="dl-row-controls"><WishButton kind={kind} id={entry.id} name={entry.name} large /><StarButton item={item} large />{kind === "plugin" && <CopyShareLink id={entry.id} />}{buttons}</div>
             </header>
+            {/* Before anything else on the page: someone about to install it should know it's going away */}
+            {(item.sunset ?? page?.sunset) && <SunsetCallout sunset={(item.sunset ?? page?.sunset)!} />}
+            {item.clashes.length > 0 && <ClashCallout clashes={item.clashes} installed={!!item.installedVersion} />}
             {item.supportersOnly && <SupportersBanner locked={item.locked} id={entry.id} />}
             {!item.official && (
                 <p className="dl-store-trust"><Icon name="info" size={16} /><span>{trustNote(entry)}</span></p>

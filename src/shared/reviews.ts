@@ -3,6 +3,7 @@
  * rate a plugin they have installed, once (editing replaces it). Reviews anyone can report go to Evi's
  * team, who can hide them; a hidden review isn't shown or counted.
  */
+import { MAX_SUNSET_NOTE, PluginSunset } from "./health";
 import { englishTr, Tr } from "./tr";
 
 export const MAX_REVIEW_CHARS = 500;
@@ -84,6 +85,8 @@ export interface PluginPage {
     issues: PluginIssue[];
     /** The author's note on a version, newest version first */
     note: { version: string; text: string; } | null;
+    /** Its author plans to retire it ("Deprecated soon"), with why; null when they don't */
+    sunset: PluginSunset | null;
     /** How many installs run it, for the page's facts; null while it's too few to say */
     installs: number | null;
 }
@@ -136,6 +139,7 @@ export function parsePluginPage(raw: unknown): PluginPage {
     const p = (raw ?? {}) as Record<string, unknown>;
     const mine = p.mine ? parseReview(p.mine) : undefined;
     const note = (p.note ?? null) as Record<string, unknown> | null;
+    const sunset = (p.sunset ?? null) as Record<string, unknown> | null;
     const kinds = new Set(["broken", "status", "hotfix", "pulled"]);
     return {
         rating: parseSummary(p.rating) ?? summarize([]),
@@ -145,10 +149,15 @@ export function parsePluginPage(raw: unknown): PluginPage {
         issues: Array.isArray(p.issues)
             ? p.issues.flatMap(i => {
                 const issue = (i ?? {}) as Record<string, unknown>;
+                // The sunset again, as a status, for Evis from before `sunset`: this page shows it on its own
+                if (issue.sunset === true) return [];
                 return kinds.has(issue.kind as string) ? [{ kind: issue.kind as PluginIssue["kind"], text: cleanText(issue.text, 500), ...(isNum(issue.since) && { since: issue.since }) }] : [];
             }).slice(0, 5)
             : [],
         note: note && typeof note.version === "string" && typeof note.text === "string" ? { version: cleanText(note.version, 64), text: cleanText(note.text, 500) } : null,
+        sunset: sunset && typeof sunset.note === "string" && sunset.note && isNum(sunset.since)
+            ? { note: cleanText(sunset.note, MAX_SUNSET_NOTE), since: sunset.since, ...(typeof sunset.setBy === "string" && { setBy: cleanText(sunset.setBy, 40) }) }
+            : null,
         installs: isNum(p.installs) ? p.installs : null,
     };
 }

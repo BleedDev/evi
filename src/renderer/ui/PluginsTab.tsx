@@ -1,11 +1,13 @@
 import { MAX_REPORT_CHARS } from "@shared/crashReports";
 import { healthWarns, PluginHealth } from "@shared/health";
+import { CORE_HOTFIX_ID } from "@shared/hotfixes";
 import { isPluginEnabled } from "@shared/ipc";
 import { keybindConflict, KeybindOwner, matchesPlugin, matchingSettings, normalizeQuery, SearchablePlugin } from "@shared/pluginSearch";
 
 import { buildCrashReport, copyText, discordBuild } from "../crashReport";
 import { t } from "../i18n";
 import { Native } from "../native";
+import { conflictingPlugins, isConflictOnly } from "../patching/diagnose";
 import { getPatchRecords } from "../patching/source";
 import { diagnoseLookups, isLookupProblem } from "../plugins/lookups";
 import { PluginManager, PluginState } from "../plugins/manager";
@@ -18,7 +20,7 @@ import { Badge, Button, Dialog, Icon, Dropdown, EmptyState, IconButton, Notice, 
 import { openStore, PluginTarget, showTab, subscribeTabs, takePluginTarget } from "./nav";
 import { PluginDetailsButton } from "./PluginPermissions";
 import { SafeModeNotice } from "./SafeModeNotice";
-import { Glyph, healthLabel, useStoreState } from "./Store";
+import { ClashBadge, Glyph, healthLabel, useStoreState } from "./Store";
 import { HotfixNote, PulledNotice } from "./Trust";
 
 type Filter = "all" | "enabled" | "disabled" | "settings" | "dev" | "trouble";
@@ -90,8 +92,8 @@ function troubleOf(state: PluginState, lookups = lookupProblemsOf(state), health
     if (state.pulled) return { tone: "danger", title: "" };
     const enabled = isPluginEnabled(Settings.data, state.manifest);
     if (enabled && state.error) return { tone: "danger", title: t("plugins.trouble.start"), body: t("plugins.trouble.startBody") };
-    const patches = enabled ? getPatchRecords(state.manifest.id) : [];
-    if (patches.some(r => r.state === "failed" || r.state === "partial")) return { tone: "danger", title: t("health.brokenAuto"), body: t("plugins.trouble.patchesBody") };
+    const failed = enabled ? getPatchRecords(state.manifest.id).filter(r => r.state === "failed" || r.state === "partial") : [];
+    if (failed.some(r => !isConflictOnly(r))) return { tone: "danger", title: t("health.brokenAuto"), body: t("plugins.trouble.patchesBody") };
     if (lookups.some(d => d.health === "broken")) return { tone: "danger", title: t("health.brokenAuto"), body: t("plugins.trouble.lookupsBody") };
     if (health) {
         // Whoever set it said why (the author, or Evi's team); otherwise it's installs reporting it
@@ -100,8 +102,16 @@ function troubleOf(state: PluginState, lookups = lookupProblemsOf(state), health
             : t(health.state === "investigating" ? "plugins.trouble.investigatingBody" : "plugins.trouble.reportedBody");
         return { tone: health.state === "investigating" ? "warning" : "danger", title: healthLabel(health), body, reported: true };
     }
+    // Only other plugins' patches got in the way: nothing is broken, two plugins change the same part of Discord
+    if (failed.length) {
+        const plugins = conflictingPlugins(failed).map(patchOwnerName).join(", ");
+        return { tone: "warning", title: t("plugins.trouble.conflict"), body: t("plugins.trouble.conflictBody", { plugins }) };
+    }
     if (lookups.length) return { tone: "warning", title: t("plugins.trouble.missing"), body: t("plugins.trouble.missingBody") };
 }
+
+/** A plugin whose patch ran first, by the name its card shows */
+const patchOwnerName = (id: string) => id === CORE_HOTFIX_ID ? "Evi" : PluginManager.get(id)?.manifest.name ?? id;
 
 /** The first thing a card says when its plugin isn't working, so a broken plugin can't pass for a working one */
 function TroubleBanner({ trouble, updateReady }: { trouble: Trouble; updateReady: boolean; }) {
@@ -257,6 +267,16 @@ function PluginCard({ state, query }: { state: PluginState; query: string; }) {
     const paused = SafeMode.active && enabled;
 
     const fromStore = !!Store.installedPlugin(manifest.id)?.fromStore;
+    // Its author plans to retire it: said on the card, the reason on hover and on its store page
+    const sunset = fromStore ? Store.sunsetOf(manifest.id) : undefined;
+    // Known not to work together with another plugin that's on too, before anything fails; once a patch
+    // does, the trouble banner names the plugin that got there first, so that one isn't repeated here
+    const failedHere = enabled ? getPatchRecords(manifest.id).filter(r => r.state === "failed" || r.state === "partial") : [];
+    const named = conflictingPlugins(failedHere);
+    const clashes = enabled ? Store.clashesFor(manifest.id, true).filter(id => {
+        const other = PluginManager.get(id);
+        return !named.includes(id) && !!other && isPluginEnabled(Settings.data, other.manifest);
+    }) : [];
     const action = Store.pluginAction(manifest.id);
     const entry = Store.getSnapshot().plugins.find(p => p.id === manifest.id);
     const op = Store.getSnapshot().ops[manifest.id];
@@ -282,6 +302,8 @@ function PluginCard({ state, query }: { state: PluginState; query: string; }) {
                         <Text tag="h3" variant="text-md/semibold" color="text-strong" id={titleId}>{manifest.name}</Text>
                         {state.source === "dev" && <Badge>{t("common.dev")}</Badge>}
                         {fromStore && <Badge>{t("common.store")}</Badge>}
+                        {sunset && <Badge tone="warning" title={sunset.note}>{t("store.sunset")}</Badge>}
+                        {clashes.length > 0 && <ClashBadge clashes={clashes} />}
                         {manifest.native && <Badge tone="warning">{t("plugins.badge.native")}</Badge>}
                     </div>
                     <Text variant="text-xs/normal" color="text-muted" tabular className="dl-plugin-card-byline">

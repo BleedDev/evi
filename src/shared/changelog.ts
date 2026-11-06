@@ -12,6 +12,23 @@ export type { Release, SectionKind } from "./changelogNotes";
  */
 export const RELEASES: Release[] = [
     {
+        version: "3.4.0",
+        date: "2026-11-06",
+        sections: {
+            added: [
+                "**See which plugins clash.** When two plugins change the same part of Discord and one gets in the other's way, Evi now names the plugin in the way on the plugin's card and in the Patches tab. The store warns you before you install a plugin that doesn't work together with one you have.",
+                "**Deprecated soon.** Plugins their authors plan to retire show a Deprecated soon badge in the store and in your plugins, with a note at the top of their page.",
+            ],
+            fixed: [
+                "**Evi works with today's Discord update.** Discord changed how its code loads on November 6, which left parts of Discord broken with Evi on, even in safe mode.",
+                "**Warnings are readable again.** Discord changed its colours, so Evi's warning and error boxes turned solid orange and red, with text you could barely read.",
+                "**Evi's text has its sizes back.** Discord renamed its text styles, so Evi's text had fallen back to one size.",
+                "**Safe mode doesn't blame a plugin for a Discord update.** If Discord updated itself since it last started fine, safe mode says so instead of pointing at the plugin you changed last.",
+                "**Tidier plugin pages.** Long Known issues notes wrap, and the details grid no longer repeats the plugin's status or shows a block of divider colour.",
+            ],
+        },
+    },
+    {
         version: "3.3.0",
         date: "2026-11-03",
         sections: {

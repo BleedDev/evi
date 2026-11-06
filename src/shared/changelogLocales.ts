@@ -11,6 +11,19 @@ export type ReleaseNotes = Partial<Record<SectionKind, string[]>>;
 /** Language -> version -> section -> lines */
 export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
     de: {
+        "3.4.0": {
+            added: [
+                "**Sieh, welche Plugins sich in die Quere kommen.** Wenn zwei Plugins denselben Teil von Discord ändern und eines das andere stört, nennt Evi jetzt das störende Plugin auf der Karte des Plugins und im Patches-Tab. Der Store warnt dich, bevor du ein Plugin installierst, das mit einem deiner Plugins nicht zusammen funktioniert.",
+                "**Wird bald eingestellt.** Plugins, die ihre Autoren einstellen wollen, zeigen im Store und bei deinen Plugins ein „Wird bald eingestellt“-Badge und oben auf ihrer Seite einen Hinweis.",
+            ],
+            fixed: [
+                "**Evi funktioniert mit dem heutigen Discord-Update.** Discord hat am 6. November geändert, wie sein Code lädt, und dadurch waren Teile von Discord mit Evi kaputt, sogar im abgesicherten Modus.",
+                "**Warnungen sind wieder lesbar.** Discord hat seine Farben geändert, deshalb wurden Evis Warn- und Fehlerboxen kräftig orange und rot, mit kaum lesbarem Text.",
+                "**Evis Text hat seine Größen zurück.** Discord hat seine Textstile umbenannt, deshalb war Evis Text auf eine einzige Größe zurückgefallen.",
+                "**Der abgesicherte Modus gibt einem Plugin nicht die Schuld an einem Discord-Update.** Wenn sich Discord seit dem letzten guten Start selbst aktualisiert hat, sagt der abgesicherte Modus das, statt auf das zuletzt geänderte Plugin zu zeigen.",
+                "**Aufgeräumtere Plugin-Seiten.** Lange Hinweise unter Bekannte Probleme brechen um, und das Detailraster wiederholt den Status des Plugins nicht mehr und zeigt keinen Block in Trennlinienfarbe mehr.",
+            ],
+        },
         "3.3.0": {
             added: [
                 "**Evi Setup im Terminal unter Linux.** `Evi-Setup-linux-cli-x64` und `Evi-Setup-linux-cli-arm64` installieren und entfernen Evi im Terminal, für Linux-Systeme ohne Desktop.",
@@ -438,6 +451,19 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     es: {
+        "3.4.0": {
+            added: [
+                "**Mira qué plugins chocan.** Cuando dos plugins cambian la misma parte de Discord y uno estorba al otro, Evi ahora nombra el plugin que estorba en la tarjeta del plugin y en la pestaña Parches. La tienda te avisa antes de instalar un plugin que no funciona junto con uno que tienes.",
+                "**Se retirará pronto.** Los plugins que sus autores piensan retirar muestran una insignia de Se retirará pronto en la tienda y en tus plugins, con una nota arriba de su página.",
+            ],
+            fixed: [
+                "**Evi funciona con la actualización de Discord de hoy.** Discord cambió cómo carga su código el 6 de noviembre, y eso dejó partes de Discord rotas con Evi activo, incluso en modo seguro.",
+                "**Los avisos vuelven a leerse.** Discord cambió sus colores, así que los recuadros de aviso y de error de Evi se volvieron naranja y rojo intensos, con un texto que apenas se leía.",
+                "**El texto de Evi recupera sus tamaños.** Discord renombró sus estilos de texto, así que el texto de Evi había vuelto a un solo tamaño.",
+                "**El modo seguro no culpa a un plugin de una actualización de Discord.** Si Discord se actualizó desde la última vez que inició bien, el modo seguro lo dice en vez de señalar el último plugin que cambiaste.",
+                "**Páginas de plugins más ordenadas.** Las notas largas de Problemas conocidos pasan de línea, y la tabla de detalles ya no repite el estado del plugin ni muestra un bloque del color de los separadores.",
+            ],
+        },
         "3.3.0": {
             added: [
                 "**Evi Setup en una terminal en Linux.** `Evi-Setup-linux-cli-x64` y `Evi-Setup-linux-cli-arm64` instalan y quitan Evi desde una terminal, para sistemas Linux sin escritorio.",
@@ -865,6 +891,19 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     fr: {
+        "3.4.0": {
+            added: [
+                "**Vois quels plugins se gênent.** Quand deux plugins modifient la même partie de Discord et que l’un gêne l’autre, Evi nomme maintenant le plugin qui gêne sur la carte du plugin et dans l’onglet Patchs. La boutique te prévient avant d’installer un plugin qui ne fonctionne pas avec un de ceux que tu as.",
+                "**Bientôt abandonné.** Les plugins que leurs auteurs prévoient d’abandonner affichent un badge Bientôt abandonné dans la boutique et dans tes plugins, avec une note en haut de leur page.",
+            ],
+            fixed: [
+                "**Evi fonctionne avec la mise à jour de Discord d’aujourd’hui.** Le 6 novembre, Discord a changé la façon dont son code se charge, ce qui cassait des parties de Discord avec Evi, même en mode sans échec.",
+                "**Les avertissements se lisent de nouveau.** Discord a changé ses couleurs, et les encadrés d’avertissement et d’erreur d’Evi étaient devenus orange et rouge vifs, avec un texte à peine lisible.",
+                "**Le texte d’Evi retrouve ses tailles.** Discord a renommé ses styles de texte, et le texte d’Evi était revenu à une seule taille.",
+                "**Le mode sans échec n’accuse plus un plugin d’une mise à jour de Discord.** Si Discord s’est mis à jour depuis son dernier bon démarrage, le mode sans échec le dit au lieu de désigner le dernier plugin que tu as modifié.",
+                "**Pages de plugins plus nettes.** Les longues notes des Problèmes connus passent à la ligne, et la grille de détails ne répète plus l’état du plugin et n’affiche plus de bloc couleur séparateur.",
+            ],
+        },
         "3.3.0": {
             added: [
                 "**Evi Setup dans un terminal sous Linux.** `Evi-Setup-linux-cli-x64` et `Evi-Setup-linux-cli-arm64` installent et retirent Evi depuis un terminal, pour les systèmes Linux sans bureau.",
@@ -1292,6 +1331,19 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ja: {
+        "3.4.0": {
+            added: [
+                "**競合するプラグインがわかるように。** 2つのプラグインがDiscordの同じ部分を変更し、片方がもう片方の邪魔をしているとき、Eviはプラグインのカードとパッチタブで邪魔をしているプラグインの名前を表示します。ストアでは、手持ちのプラグインと一緒に動かないプラグインをインストールする前に知らせます。",
+                "**まもなく提供終了。** 作者が提供終了を予定しているプラグインには、ストアとプラグイン一覧で「まもなく提供終了」バッジが付き、ページの上部にお知らせが表示されます。",
+            ],
+            fixed: [
+                "**今日のDiscordアップデートでもEviが動くように。** 11月6日にDiscordがコードの読み込み方を変えたため、Eviを使っているとセーフモードでもDiscordの一部が動かなくなっていました。",
+                "**警告が再び読みやすく。** Discordが色を変えたため、Eviの警告ボックスとエラーボックスが濃いオレンジと赤になり、文字がほとんど読めなくなっていました。",
+                "**Eviの文字サイズが元どおりに。** Discordがテキストスタイルの名前を変えたため、Eviの文字がすべて同じサイズになっていました。",
+                "**Discordのアップデートをプラグインのせいにしないセーフモード。** 前回正常に起動してからDiscordが更新されていた場合、セーフモードは最後に変更したプラグインを示す代わりにそのことを伝えます。",
+                "**すっきりしたプラグインページ。** 「既知の問題」の長いお知らせが折り返され、詳細欄でプラグインの状態が重複したり、区切り線の色のブロックが表示されたりしなくなりました。",
+            ],
+        },
         "3.3.0": {
             added: [
                 "**Linux のターミナルで使える Evi Setup。** `Evi-Setup-linux-cli-x64` と `Evi-Setup-linux-cli-arm64` で、デスクトップのない Linux でもターミナルから Evi をインストール・削除できます。",
@@ -1719,6 +1771,19 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     pl: {
+        "3.4.0": {
+            added: [
+                "**Zobacz, które pluginy się gryzą.** Gdy dwa pluginy zmieniają tę samą część Discorda i jeden przeszkadza drugiemu, Evi podaje teraz nazwę przeszkadzającego pluginu na jego karcie i w karcie Łatki. Sklep ostrzega cię, zanim zainstalujesz plugin, który nie działa razem z jednym z twoich.",
+                "**Wkrótce wycofany.** Pluginy, które autorzy planują wycofać, mają w sklepie i na liście twoich pluginów odznakę Wkrótce wycofany, a na górze ich strony jest informacja.",
+            ],
+            fixed: [
+                "**Evi działa z dzisiejszą aktualizacją Discorda.** 6 listopada Discord zmienił sposób ładowania swojego kodu, przez co części Discorda nie działały z Evi, nawet w trybie awaryjnym.",
+                "**Ostrzeżenia znów da się czytać.** Discord zmienił swoje kolory, więc ramki ostrzeżeń i błędów w Evi zrobiły się jaskrawo pomarańczowe i czerwone, z ledwo czytelnym tekstem.",
+                "**Tekst Evi ma z powrotem swoje rozmiary.** Discord zmienił nazwy swoich stylów tekstu, więc cały tekst Evi miał jeden rozmiar.",
+                "**Tryb awaryjny nie obwinia pluginu za aktualizację Discorda.** Jeśli Discord zaktualizował się od ostatniego udanego startu, tryb awaryjny o tym mówi, zamiast wskazywać ostatnio zmieniony plugin.",
+                "**Porządniejsze strony pluginów.** Długie informacje w Znanych problemach zawijają się, a siatka szczegółów nie powtarza już statusu pluginu i nie pokazuje bloku w kolorze linii podziału.",
+            ],
+        },
         "3.3.0": {
             added: [
                 "**Evi Setup w terminalu na Linuksie.** `Evi-Setup-linux-cli-x64` i `Evi-Setup-linux-cli-arm64` instalują i usuwają Evi z terminala, na systemach Linux bez pulpitu.",
@@ -2146,6 +2211,19 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     "pt-BR": {
+        "3.4.0": {
+            added: [
+                "**Veja quais plugins entram em conflito.** Quando dois plugins mudam a mesma parte do Discord e um atrapalha o outro, o Evi agora mostra o nome do plugin que atrapalha no cartão do plugin e na aba Patches. A loja avisa antes de você instalar um plugin que não funciona junto com um que você tem.",
+                "**Será descontinuado em breve.** Plugins que os autores planejam descontinuar mostram um selo de Será descontinuado em breve na loja e nos seus plugins, com um aviso no topo da página deles.",
+            ],
+            fixed: [
+                "**O Evi funciona com a atualização do Discord de hoje.** Em 6 de novembro o Discord mudou como carrega o próprio código, o que deixava partes do Discord quebradas com o Evi ligado, até no modo seguro.",
+                "**Os avisos voltam a ser legíveis.** O Discord mudou as cores, e as caixas de aviso e de erro do Evi ficaram laranja e vermelho fortes, com um texto que mal dava para ler.",
+                "**O texto do Evi volta aos seus tamanhos.** O Discord renomeou os estilos de texto, e o texto do Evi tinha ficado todo de um tamanho só.",
+                "**O modo seguro não culpa um plugin por uma atualização do Discord.** Se o Discord se atualizou desde a última vez que iniciou bem, o modo seguro diz isso em vez de apontar o último plugin que você mudou.",
+                "**Páginas de plugins mais arrumadas.** Avisos longos em Problemas conhecidos quebram a linha, e a grade de detalhes não repete mais o status do plugin nem mostra um bloco da cor dos divisores.",
+            ],
+        },
         "3.3.0": {
             added: [
                 "**Evi Setup no terminal no Linux.** `Evi-Setup-linux-cli-x64` e `Evi-Setup-linux-cli-arm64` instalam e removem o Evi pelo terminal, para sistemas Linux sem área de trabalho.",
@@ -2573,6 +2651,19 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     ru: {
+        "3.4.0": {
+            added: [
+                "**Видно, какие плагины конфликтуют.** Если два плагина меняют одну и ту же часть Discord и один мешает другому, Evi теперь называет мешающий плагин на карточке плагина и во вкладке «Патчи». Магазин предупреждает, прежде чем вы установите плагин, который не работает вместе с одним из ваших.",
+                "**Скоро устареет.** Плагины, которые авторы собираются прекратить поддерживать, отмечены значком «Скоро устареет» в магазине и в списке ваших плагинов, а вверху их страницы есть пояснение.",
+            ],
+            fixed: [
+                "**Evi работает с сегодняшним обновлением Discord.** 6 ноября Discord изменил то, как загружается его код, и с Evi части Discord ломались, даже в безопасном режиме.",
+                "**Предупреждения снова читаются.** Discord изменил свои цвета, и окна предупреждений и ошибок в Evi стали ярко-оранжевыми и красными, с едва читаемым текстом.",
+                "**К тексту Evi вернулись его размеры.** Discord переименовал свои стили текста, и весь текст Evi стал одного размера.",
+                "**Безопасный режим не винит плагин в обновлении Discord.** Если Discord обновился с последнего удачного запуска, безопасный режим сообщает об этом, а не указывает на плагин, который вы меняли последним.",
+                "**Аккуратнее страницы плагинов.** Длинные пояснения в «Известных проблемах» переносятся, а таблица сведений больше не повторяет статус плагина и не показывает блок цвета разделителей.",
+            ],
+        },
         "3.3.0": {
             added: [
                 "**Evi Setup в терминале на Linux.** `Evi-Setup-linux-cli-x64` и `Evi-Setup-linux-cli-arm64` устанавливают и удаляют Evi из терминала — для Linux без рабочего стола.",
@@ -3000,6 +3091,19 @@ export const CHANGELOG_LOCALES: Record<string, Record<string, ReleaseNotes>> = {
         },
     },
     tr: {
+        "3.4.0": {
+            added: [
+                "**Hangi eklentilerin çakıştığını gör.** İki eklenti Discord’un aynı kısmını değiştirip biri diğerinin önüne geçtiğinde, Evi artık önüne geçen eklentinin adını eklentinin kartında ve Yamalar sekmesinde gösteriyor. Mağaza, sahip olduğun bir eklentiyle birlikte çalışmayan bir eklentiyi kurmadan önce seni uyarıyor.",
+                "**Yakında kaldırılacak.** Yazarlarının kaldırmayı planladığı eklentiler mağazada ve eklentilerinde Yakında kaldırılacak rozeti, sayfalarının üstünde de bir not gösteriyor.",
+            ],
+            fixed: [
+                "**Evi bugünkü Discord güncellemesiyle çalışıyor.** Discord 6 Kasım’da kodunu yükleme şeklini değiştirdi; bu yüzden Evi açıkken, güvenli modda bile Discord’un bazı kısımları bozuluyordu.",
+                "**Uyarılar yine okunuyor.** Discord renklerini değiştirdi, bu yüzden Evi’nin uyarı ve hata kutuları koyu turuncu ve kırmızı olmuş, yazıları zor okunur hale gelmişti.",
+                "**Evi’nin yazıları boyutlarına kavuştu.** Discord yazı stillerinin adlarını değiştirdi, bu yüzden Evi’nin yazıları tek bir boyuta düşmüştü.",
+                "**Güvenli mod, Discord güncellemesini bir eklentiye yüklemiyor.** Discord son sorunsuz açılışından beri kendini güncellediyse, güvenli mod en son değiştirdiğin eklentiyi göstermek yerine bunu söylüyor.",
+                "**Daha düzenli eklenti sayfaları.** Bilinen sorunlar’daki uzun notlar alt satıra geçiyor, ayrıntılar tablosu da eklentinin durumunu tekrarlamıyor ve ayırıcı renginde bir blok göstermiyor.",
+            ],
+        },
         "3.3.0": {
             added: [
                 "**Linux'ta terminalde Evi Setup.** `Evi-Setup-linux-cli-x64` ve `Evi-Setup-linux-cli-arm64`, masaüstü olmayan Linux sistemleri için Evi'yi terminalden yükler ve kaldırır.",
